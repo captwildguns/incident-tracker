@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tab Requirements - Student Transportation Incident Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; line-height: 1.6; color: #09090b; background: #fafafa; }
+        .nav { background: #4A6FA5; color: white; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .nav h1 { font-size: 1.25rem; font-weight: 600; }
+        .nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background 0.2s; }
+        .nav a:hover { background: rgba(255,255,255,0.1); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 280px 1fr; gap: 2rem; }
+        .sidebar { background: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); height: fit-content; position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto; }
+        .sidebar h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #4A6FA5; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin: 0.25rem 0; }
+        .sidebar li li { margin-left: 1rem; font-size: 0.8125rem; }
+        .sidebar a { color: #52525b; text-decoration: none; font-size: 0.875rem; transition: color 0.2s; display: block; padding: 0.25rem 0; }
+        .sidebar a:hover { color: #4A6FA5; }
+        .content { background: white; padding: 3rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .content h1 { font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; color: #4A6FA5; }
+        .content .subtitle { font-size: 1.125rem; color: #71717a; margin-bottom: 2rem; }
+        .content h2 { font-size: 2rem; font-weight: 600; margin: 3rem 0 1rem; color: #18181b; padding-bottom: 0.5rem; border-bottom: 2px solid #e4e4e7; }
+        .content h3 { font-size: 1.5rem; font-weight: 600; margin: 2rem 0 1rem; color: #18181b; }
+        .content h4 { font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: #27272a; }
+        .content p { margin: 1rem 0; color: #52525b; }
+        .content ul, .content ol { margin: 1rem 0 1rem 2rem; color: #52525b; }
+        .content li { margin: 0.5rem 0; }
+        .content strong { color: #18181b; font-weight: 600; }
+        .content em { color: #71717a; }
+        .content code { background: #f4f4f5; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: 'Courier New', monospace; font-size: 0.875rem; color: #dc2626; }
+        .content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9375rem; }
+        .content th, .content td { border: 1px solid #e4e4e7; padding: 0.75rem; text-align: left; }
+        .content th { background: #f4f4f5; font-weight: 600; color: #18181b; }
+        .content tr:nth-child(even) { background: #fafafa; }
+        .info-box { background: #f0f9ff; border-left: 4px solid #4A6FA5; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .info-box p { margin: 0.5rem 0; }
+        .metadata { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0; }
+        .metadata-item { background: #f4f4f5; padding: 1rem; border-radius: 0.5rem; }
+        .metadata-item dt { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #71717a; font-weight: 600; margin-bottom: 0.5rem; }
+        .metadata-item dd { font-size: 1rem; color: #18181b; font-weight: 500; }
+        .badge { display: inline-block; background: #4A6FA5; color: white; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; margin: 0.25rem; }
+        .badge-green { background: #10b981; }
+        .req-id { color: #4A6FA5; font-weight: 600; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+        hr { border: none; border-top: 1px solid #e4e4e7; margin: 2rem 0; }
+        @media (max-width: 1024px) { .container { grid-template-columns: 1fr; } .sidebar { position: static; max-height: none; } }
+        @media print { .nav, .sidebar { display: none; } .container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <h1>Tab Requirements - Incident Tracker</h1>
+            <a href="index.html">&larr; Documentation Home</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#dashboard">1. Dashboard</a>
+                    <ul>
+                        <li><a href="#dash-my-incidents">My Incidents</a></li>
+                        <li><a href="#dash-summary">Summary Statistics</a></li>
+                        <li><a href="#dash-charts">Analytics Charts</a></li>
+                        <li><a href="#dash-table">Active Incidents Table</a></li>
+                        <li><a href="#dash-dialogs">Dialogs</a></li>
+                    </ul>
+                </li>
+                <li><a href="#incidents">2. Incidents</a>
+                    <ul>
+                        <li><a href="#inc-header">Page Header</a></li>
+                        <li><a href="#inc-summary">Summary Statistics</a></li>
+                        <li><a href="#inc-search">Search &amp; Filtering</a></li>
+                        <li><a href="#inc-table">Incidents Table</a></li>
+                        <li><a href="#inc-export">Export</a></li>
+                        <li><a href="#inc-form">New Incident Form</a></li>
+                    </ul>
+                </li>
+                <li><a href="#students">3. Students</a>
+                    <ul>
+                        <li><a href="#stu-summary">Summary Statistics</a></li>
+                        <li><a href="#stu-search">Search &amp; Filtering</a></li>
+                        <li><a href="#stu-table">Students Table</a></li>
+                        <li><a href="#stu-detail">Student Detail</a></li>
+                    </ul>
+                </li>
+                <li><a href="#drivers">4. Drivers</a>
+                    <ul>
+                        <li><a href="#drv-summary">Summary Statistics</a></li>
+                        <li><a href="#drv-search">Search &amp; Filtering</a></li>
+                        <li><a href="#drv-table">Drivers Table</a></li>
+                        <li><a href="#drv-detail">Driver Detail</a></li>
+                        <li><a href="#drv-export">Export</a></li>
+                    </ul>
+                </li>
+                <li><a href="#vehicles">5. Vehicles</a>
+                    <ul>
+                        <li><a href="#veh-summary">Summary Statistics</a></li>
+                        <li><a href="#veh-search">Search &amp; Filtering</a></li>
+                        <li><a href="#veh-table">Vehicles Table</a></li>
+                        <li><a href="#veh-detail">Vehicle Detail</a></li>
+                        <li><a href="#veh-export">Export</a></li>
+                    </ul>
+                </li>
+                <li><a href="#communications">6. Communications</a>
+                    <ul>
+                        <li><a href="#com-layout">Layout</a></li>
+                        <li><a href="#com-sidebar">Incident List Sidebar</a></li>
+                        <li><a href="#com-conversation">Conversation Panel</a></li>
+                        <li><a href="#com-context">Pre-populated Context</a></li>
+                    </ul>
+                </li>
+                <li><a href="#reports">7. Reports</a>
+                    <ul>
+                        <li><a href="#rpt-quick">Quick Reports</a></li>
+                        <li><a href="#rpt-preview">Report Preview</a></li>
+                        <li><a href="#rpt-trends">Weekly Trends</a></li>
+                        <li><a href="#rpt-filters">Filters</a></li>
+                    </ul>
+                </li>
+                <li><a href="#workflows">8. Workflows</a>
+                    <ul>
+                        <li><a href="#wfl-tab">Workflows Tab</a></li>
+                        <li><a href="#wfl-create">Create Workflow</a></li>
+                        <li><a href="#wfl-templates">Step Templates</a></li>
+                        <li><a href="#wfl-builder">Workflow Builder</a></li>
+                    </ul>
+                </li>
+                <li><a href="#admin">9. Admin</a>
+                    <ul>
+                        <li><a href="#adm-users">User Roles</a></li>
+                        <li><a href="#adm-email">Email Templates</a></li>
+                        <li><a href="#adm-types">Incident Types</a></li>
+                    </ul>
+                </li>
+                <li><a href="#cross-tab-nav">Appendix: Cross-Tab Navigation</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>Tab Requirements</h1>
+            <p class="subtitle">Student Transportation Incident Tracker</p>
+
+            <div class="metadata">
+                <div class="metadata-item">
+                    <dt>Version</dt>
+                    <dd>2.0</dd>
+                </div>
+                <div class="metadata-item">
+                    <dt>Last Updated</dt>
+                    <dd>March 30, 2026</dd>
+                </div>
+                <div class="metadata-item">
+                    <dt>Document Owner</dt>
+                    <dd>Product Team</dd>
+                </div>
+                <div class="metadata-item">
+                    <dt>Status</dt>
+                    <dd><span class="badge badge-green">Active</span></dd>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- ============================================================ -->
+            <!-- 1. DASHBOARD -->
+            <!-- ============================================================ -->
+            <h2 id="dashboard">1. Dashboard</h2>
+
+            <h3>Purpose</h3>
+            <p>Personalized command center for Safety Coordinators and Supervisors. Provides at-a-glance visibility into assigned incidents, triage priorities, and system-wide analytics.</p>
+
+            <h3>Functional Requirements</h3>
+
+            <h4 id="dash-my-incidents">1.1 My Incidents Section</h4>
+            <ul>
+                <li><span class="req-id">REQ-DASH-001:</span> Display the top 3 highest-priority incidents assigned to the logged-in user, sorted by priority then age.</li>
+                <li><span class="req-id">REQ-DASH-002:</span> Each incident card shall display: Incident ID, student name, priority badge (Critical/High/Medium/Low), incident type badge, bus/route, time reported, and reason summary.</li>
+                <li><span class="req-id">REQ-DASH-003:</span> Each incident card shall provide quick action buttons: View, Message Driver, and Mark In Progress.</li>
+                <li><span class="req-id">REQ-DASH-004:</span> "View All My Incidents" button shall navigate to the Incidents page filtered to the current user's assignments.</li>
+                <li><span class="req-id">REQ-DASH-005:</span> Clicking the incident card body shall navigate to the Incident Detail page.</li>
+                <li><span class="req-id">REQ-DASH-006:</span> A three-dot menu on each card shall provide additional actions: View Details, Edit Incident, Message Driver, Reassign, and Mark In Progress.</li>
+            </ul>
+
+            <h4 id="dash-summary">1.2 Summary Statistics</h4>
+            <ul>
+                <li><span class="req-id">REQ-DASH-010:</span> Display 5 summary statistic cards: Critical Incidents, Open Incidents, Students with Incidents, Incidents This Week, and Average Response Time.</li>
+                <li><span class="req-id">REQ-DASH-011:</span> Each statistic card shall show the current count and a contextual description.</li>
+                <li><span class="req-id">REQ-DASH-012:</span> Clicking the "Critical Incidents" card shall navigate to the Incidents page filtered to Open status and High severity.</li>
+                <li><span class="req-id">REQ-DASH-013:</span> Clicking the "Open Incidents" card shall navigate to the Incidents page filtered to Open status.</li>
+                <li><span class="req-id">REQ-DASH-014:</span> Clicking the "Students with Incidents" card shall navigate to the Students page with the Active Incidents filter applied.</li>
+                <li><span class="req-id">REQ-DASH-015:</span> Clicking the "Incidents This Week" card shall navigate to the Incidents page filtered to Open status and incidents reported within the last 7 days.</li>
+                <li><span class="req-id">REQ-DASH-016:</span> The "Average Response Time" card is informational only (not clickable).</li>
+            </ul>
+
+            <h4 id="dash-charts">1.3 Analytics Charts</h4>
+            <ul>
+                <li><span class="req-id">REQ-DASH-020:</span> Display an "Incidents by Type" pie chart showing the distribution of incidents across all categories.</li>
+                <li><span class="req-id">REQ-DASH-021:</span> Display an "Incidents by Driver" horizontal bar chart showing incident counts per driver.</li>
+                <li><span class="req-id">REQ-DASH-022:</span> Display an "Incidents by Day of Week" vertical bar chart showing incident frequency patterns.</li>
+            </ul>
+
+            <h4 id="dash-table">1.4 Active Incidents Table</h4>
+            <ul>
+                <li><span class="req-id">REQ-DASH-030:</span> Display a table of recent active incidents with columns: Incident ID, Student, Type, Severity, Assigned To, Time, and Messages.</li>
+                <li><span class="req-id">REQ-DASH-031:</span> Each row shall be clickable to navigate to the Incident Detail page.</li>
+                <li><span class="req-id">REQ-DASH-032:</span> Rows shall highlight on hover to indicate interactivity.</li>
+                <li><span class="req-id">REQ-DASH-033:</span> A "View All" button shall navigate to the Incidents list page.</li>
+                <li><span class="req-id">REQ-DASH-034:</span> Incidents with active driver communications shall display a message icon linking to the Communications page.</li>
+            </ul>
+
+            <h4 id="dash-dialogs">1.5 Dialogs</h4>
+            <ul>
+                <li><span class="req-id">REQ-DASH-040:</span> The Reassign dialog shall allow selecting a new assignee from a dropdown list and confirming the reassignment.</li>
+                <li><span class="req-id">REQ-DASH-041:</span> The Triage Details dialog shall display full incident information and recommended actions.</li>
+            </ul>
+
+            <hr>
+
+            <!-- ============================================================ -->
+            <!-- 2. INCIDENTS -->
+            <!-- ============================================================ -->
+            <h2 id="incidents">2. Incidents</h2>
+
+            <h3>Purpose</h3>
+            <p>Central hub for tracking, filtering, and managing all student transportation incidents. Supports the full incident lifecycle from creation through resolution.</p>
+
+            <h3>Functional Requirements</h3>
+
+            <h4 id="inc-header">2.1 Page Header</h4>
+            <ul>
+                <li><span class="req-id">REQ-INC-001:</span> Display page title "Incidents" with a description.</li>
+                <li><span class="req-id">REQ-INC-002:</span> Provide a "New Incident" button that opens the New Incident form dialog.</li>
+            </ul>
+
+            <h4 id="inc-summary">2.2 Summary Statistics</h4>
+            <ul>
+                <li><span class="req-id">REQ-INC-010:</span> Display 4 summary cards: Total Incidents, Open Incidents, High Severity, and Closed Incidents.</li>
+                <li><span class="req-id">REQ-INC-011:</span> Each card shall show the current count and contextual description.</li>
+            </ul>
+
+            <h4 id="inc-search">2.3 Search and Filtering</h4>
+            <ul>
+                <li><span class="req-id">REQ-INC-020:</span> Provide a search bar with autocomplete that searches across incident ID, student name, vehicle number, and route.</li>
+                <li><span class="req-id">REQ-INC-021:</span> Provide a Status filter dropdown supporting: Open, In Progress, Closed, and Cancelled.</li>
+                <li><span class="req-id">REQ-INC-022:</span> Provide a Type filter dropdown supporting all incident type categories.</li>
+                <li><span class="req-id">REQ-INC-023:</span> Provide an Assigned To filter dropdown with all staff members.</li>
+                <li><span class="req-id">REQ-INC-024:</span> Provide a Severity filter dropdown supporting: High, Medium, and Low.</li>
+                <li><span class="req-id">REQ-INC-025:</span> Display an active filter banner showing all currently applied filters with the ability to remove individual filters or clear all.</li>
+                <li><span class="req-id">REQ-INC-026:</span> Filters shall support pre-applied state when navigating from other pages (e.g., Dashboard stat cards).</li>
+            </ul>
+
+            <h4 id="inc-table">2.4 Incidents Table</h4>
+            <ul>
+                <li><span class="req-id">REQ-INC-030:</span> Display a sortable table with columns: Incident ID, Date, Student, Type, Vehicle/Route, Severity, Status, Workflow Step, and Assigned To.</li>
+                <li><span class="req-id">REQ-INC-031:</span> All columns shall be sortable in ascending and descending order.</li>
+                <li><span class="req-id">REQ-INC-032:</span> Clicking a row shall navigate to the Incident Detail page.</li>
+                <li><span class="req-id">REQ-INC-033:</span> Incidents with active communications shall display a message icon linking to the Communications page.</li>
+                <li><span class="req-id">REQ-INC-034:</span> Provide a "Show More / Show Less" toggle for table pagination.</li>
+            </ul>
+
+            <h4 id="inc-export">2.5 Export</h4>
+            <ul>
+                <li><span class="req-id">REQ-INC-040:</span> Provide export functionality supporting Excel (.xlsx), CSV, and Word (.docx) formats.</li>
+            </ul>
+
+            <h4 id="inc-form">2.6 New Incident Form</h4>
+            <ul>
+                <li><span class="req-id">REQ-INC-050:</span> The form shall support two incident categories: Student and Driver.</li>
+                <li><span class="req-id">REQ-INC-051:</span> Provide student/driver lookup with autocomplete, displaying name, ID, grade/employee ID, and school/assignment.</li>
+                <li><span class="req-id">REQ-INC-052:</span> Capture: Incident Type, Location, Address (with autocomplete), Vehicle Number, Run/Route, Severity (Low/Medium/High), and Description.</li>
+                <li><span class="req-id">REQ-INC-053:</span> Allow marking whether a witness was present and capturing the witness name.</li>
+                <li><span class="req-id">REQ-INC-054:</span> Allow marking whether a parent/guardian was notified.</li>
+                <li><span class="req-id">REQ-INC-055:</span> Capture immediate action taken as free-text.</li>
+                <li><span class="req-id">REQ-INC-056:</span> Support photo evidence upload (up to 10 photos) with preview grid and removal.</li>
+                <li><span class="req-id">REQ-INC-057:</span> Support document evidence upload (up to 10 documents) with list display and removal.</li>
+                <li><span class="req-id">REQ-INC-058:</span> Display a location map based on the selected address.</li>
+                <li><span class="req-id">REQ-INC-059:</span> On successful submission, display a success confirmation and navigate to the Incidents list.</li>
+            </ul>
+
+            <hr>
+
+            <!-- ============================================================ -->
+            <!-- 3. STUDENTS -->
+            <!-- ============================================================ -->
+            <h2 id="students">3. Students</h2>
+
+            <h3>Purpose</h3>
+            <p>Manage and monitor students involved in transportation incidents. Provides lookup, filtering, and drill-down into individual student incident histories.</p>
+
+            <h3>Functional Requirements</h3>
+
+            <h4 id="stu-summary">3.1 Summary Statistics</h4>
+            <ul>
+                <li><span class="req-id">REQ-STU-001:</span> Display 4 summary cards: Total Students, Students with Active Incidents, Total Incidents (across all students), and Repeat Offenders (3+ incidents).</li>
+            </ul>
+
+            <h4 id="stu-search">3.2 Search and Filtering</h4>
+            <ul>
+                <li><span class="req-id">REQ-STU-010:</span> Provide a search bar that searches by student name, student ID, or school.</li>
+                <li><span class="req-id">REQ-STU-011:</span> Provide a Grade filter supporting multi-select across all grade levels.</li>
+                <li><span class="req-id">REQ-STU-012:</span> Provide a School filter supporting multi-select across all schools.</li>
+                <li><span class="req-id">REQ-STU-013:</span> Provide an "Active Incidents Only" checkbox to filter to students with open incidents.</li>
+                <li><span class="req-id">REQ-STU-014:</span> Provide a "Clear Filters" button to reset all filters.</li>
+                <li><span class="req-id">REQ-STU-015:</span> Display an active filter banner when filters are applied.</li>
+            </ul>
+
+            <h4 id="stu-table">3.3 Students Table</h4>
+            <ul>
+                <li><span class="req-id">REQ-STU-020:</span> Display a sortable table with columns: Student ID, Name, Grade, School, Total Incidents, and Last Incident date.</li>
+                <li><span class="req-id">REQ-STU-021:</span> All columns shall be sortable in ascending and descending order.</li>
+                <li><span class="req-id">REQ-STU-022:</span> Incident count shall be color-coded: yellow (1-2), orange (3), red (4+).</li>
+                <li><span class="req-id">REQ-STU-023:</span> Clicking a student row shall open a Student Detail dialog.</li>
+                <li><span class="req-id">REQ-STU-024:</span> Provide pagination controls supporting 10 and 25 rows per page with page navigation.</li>
+            </ul>
+
+            <h4 id="stu-detail">3.4 Student Detail Dialog</h4>
+            <ul>
+                <li><span class="req-id">REQ-STU-030:</span> Display full student profile: name, ID, grade, school.</li>
+                <li><span class="req-id">REQ-STU-031:</span> Display a searchable list of the student's incidents with incident details.</li>
+                <li><span class="req-id">REQ-STU-032:</span> Allow navigating to the Incident Detail page from within the student dialog.</li>
+            </ul>
+
+            <hr>
+
+            <!-- ============================================================ -->
+            <!-- 4. DRIVERS -->
+            <!-- ============================================================ -->
+            <h2 id="drivers">4. Drivers</h2>
+
+            <h3>Purpose</h3>
+            <p>Manage driver profiles, track certifications and performance, and monitor driver-related incident history.</p>
+
+            <h3>Functional Requirements</h3>
+
+            <h4 id="drv-summary">4.1 Summary Statistics</h4>
+            <ul>
+                <li><span class="req-id">REQ-DRV-001:</span> Display 4 summary cards: Total Drivers, Active Drivers, Expiring Certifications, and Average Performance Score.</li>
+            </ul>
+
+            <h4 id="drv-search">4.2 Search and Filtering</h4>
+            <ul>
+                <li><span class="req-id">REQ-DRV-010:</span> Provide a search bar that searches by driver name, employee ID, vehicle, or route.</li>
+                <li><span class="req-id">REQ-DRV-011:</span> Provide a Status filter dropdown supporting: Active and Inactive.</li>
+                <li><span class="req-id">REQ-DRV-012:</span> Provide a Years of Service filter with ranges: 1-5, 6-10, 11-15, 16-20, and 20+.</li>
+            </ul>
+
+            <h4 id="drv-table">4.3 Drivers Table</h4>
+            <ul>
+                <li><span class="req-id">REQ-DRV-020:</span> Display a sortable table with columns: Employee ID, Name, Contact Phone, Email, Years of Service, and Status.</li>
+                <li><span class="req-id">REQ-DRV-021:</span> All columns shall be sortable in ascending and descending order.</li>
+                <li><span class="req-id">REQ-DRV-022:</span> Clicking a driver row shall open a Driver Detail dialog.</li>
+                <li><span class="req-id">REQ-DRV-023:</span> Provide pagination controls supporting 10 and 25 rows per page.</li>
+            </ul>
+
+            <h4 id="drv-detail">4.4 Driver Detail Dialog</h4>
+            <ul>
+                <li><span class="req-id">REQ-DRV-030:</span> Display full driver profile: name, employee ID, contact information, hire date, years of service, status.</li>
+                <li><span class="req-id">REQ-DRV-031:</span> Display license information: type, number, expiration date, endorsements.</li>
+                <li><span class="req-id">REQ-DRV-032:</span> Display certifications with status and expiration dates.</li>
+                <li><span class="req-id">REQ-DRV-033:</span> Display assigned vehicle and route.</li>
+                <li><span class="req-id">REQ-DRV-034:</span> Display performance metrics: performance score, on-time percentage, safety rating.</li>
+                <li><span class="req-id">REQ-DRV-035:</span> Display medical exam expiry date with status indicators.</li>
+            </ul>
+
+            <h4 id="drv-export">4.5 Export</h4>
+            <ul>
+                <li><span class="req-id">REQ-DRV-040:</span> Provide export functionality for driver data.</li>
+            </ul>
+
+            <hr>
+
+            <!-- ============================================================ -->
+            <!-- 5. VEHICLES -->
+            <!-- ============================================================ -->
+            <h2 id="vehicles">5. Vehicles</h2>
+
+            <h3>Purpose</h3>
+            <p>Fleet management view for tracking vehicle inventory, maintenance status, and incident history per vehicle.</p>
+
+            <h3>Functional Requirements</h3>
+
+            <h4 id="veh-summary">5.1 Summary Statistics</h4>
+            <ul>
+                <li><span class="req-id">REQ-VEH-001:</span> Display 4 summary cards: Total Vehicles, Active Vehicles, Maintenance Alerts, and Average Incidents per Vehicle.</li>
+            </ul>
+
+            <h4 id="veh-search">5.2 Search and Filtering</h4>
+            <ul>
+                <li><span class="req-id">REQ-VEH-010:</span> Provide a search bar that searches by vehicle ID, name, driver, route, make, or model.</li>
+                <li><span class="req-id">REQ-VEH-011:</span> Provide a Status filter dropdown supporting: All, Active, Maintenance, and Inactive.</li>
+                <li><span class="req-id">REQ-VEH-012:</span> Provide a Maintenance filter dropdown supporting: All, Excellent, Good, Needs Attention, and In Repair.</li>
+            </ul>
+
+            <h4 id="veh-table">5.3 Vehicles Table</h4>
+            <ul>
+                <li><span class="req-id">REQ-VEH-020:</span> Display a sortable table with columns: Vehicle ID, Details (make/model/year), Assigned Driver, Primary Route, Current Mileage, Incident Count, and Status.</li>
+                <li><span class="req-id">REQ-VEH-021:</span> All columns shall be sortable in ascending and descending order.</li>
+                <li><span class="req-id">REQ-VEH-022:</span> Clicking a vehicle row shall open a Vehicle Detail dialog.</li>
+                <li><span class="req-id">REQ-VEH-023:</span> Provide pagination controls supporting 10 and 25 rows per page.</li>
+            </ul>
+
+            <h4 id="veh-detail">5.4 Vehicle Detail Dialog</h4>
+            <ul>
+                <li><span class="req-id">REQ-VEH-030:</span> Display full vehicle profile: ID, name, make, model, year, VIN, license plate.</li>
+                <li><span class="req-id">REQ-VEH-031:</span> Display operational data: capacity, current mileage, hourmeter readings.</li>
+                <li><span class="req-id">REQ-VEH-032:</span> Display assignment details: assigned driver, primary route, garage.</li>
+                <li><span class="req-id">REQ-VEH-033:</span> Display maintenance status with condition indicators.</li>
+                <li><span class="req-id">REQ-VEH-034:</span> Display inspection dates and compliance information.</li>
+                <li><span class="req-id">REQ-VEH-035:</span> Display GPS hardware ID and AVL integration status.</li>
+            </ul>
+
+            <h4 id="veh-export">5.5 Export</h4>
+            <ul>
+                <li><span class="req-id">REQ-VEH-040:</span> Provide export functionality for vehicle data.</li>
+            </ul>
+
+            <hr>
+
+            <!-- ============================================================ -->
+            <!-- 6. COMMUNICATIONS -->
+            <!-- ============================================================ -->
+            <h2 id="communications">6. Communications</h2>
+
+            <h3>Purpose</h3>
+            <p>Real-time messaging interface between Safety Coordinators and bus drivers for incident-related communications.</p>
+
+            <h3>Functional Requirements</h3>
+
+            <h4 id="com-layout">6.1 Layout</h4>
+            <ul>
+                <li><span class="req-id">REQ-COM-001:</span> Display a two-panel layout: incident list sidebar on the left and conversation panel on the right.</li>
+            </ul>
+
+            <h4 id="com-sidebar">6.2 Incident List Sidebar</h4>
+            <ul>
+                <li><span class="req-id">REQ-COM-010:</span> Display all incidents with active or historical communications.</li>
+                <li><span class="req-id">REQ-COM-011:</span> Each incident entry shall show: Incident ID, date, student/driver names, incident type, severity badge, status badge, and unread message count.</li>
+                <li><span class="req-id">REQ-COM-012:</span> Provide a search bar to filter incidents by ID, driver name, or student name.</li>
+                <li><span class="req-id">REQ-COM-013:</span> Provide a status filter dropdown supporting: All Status, Unread, In Progress, and Resolved.</li>
+                <li><span class="req-id">REQ-COM-014:</span> Clicking an incident shall load its conversation in the right panel.</li>
+                <li><span class="req-id">REQ-COM-015:</span> Display the last message timestamp for each incident.</li>
+            </ul>
+
+            <h4 id="com-conversation">6.3 Conversation Panel</h4>
+            <ul>
+                <li><span class="req-id">REQ-COM-020:</span> Display a pinned header with incident details (ID, type, severity, driver name, student name).</li>
+                <li><span class="req-id">REQ-COM-021:</span> Display the message thread in chronological order with sender name, role, timestamp, and message content.</li>
+                <li><span class="req-id">REQ-COM-022:</span> Differentiate messages visually by sender (coordinator messages right-aligned, driver messages left-aligned).</li>
+                <li><span class="req-id">REQ-COM-023:</span> Display message delivery status indicators (sent, delivered, read).</li>
+                <li><span class="req-id">REQ-COM-024:</span> Provide a pinned message input form at the bottom with a text area and send button.</li>
+                <li><span class="req-id">REQ-COM-025:</span> On successful send, display a success confirmation and append the message to the thread.</li>
+            </ul>
+
+            <h4 id="com-context">6.4 Pre-populated Context</h4>
+            <ul>
+                <li><span class="req-id">REQ-COM-030:</span> When navigating from another page with an incident context, auto-select that incident in the sidebar and open its conversation.</li>
+            </ul>
+
+            <hr>
+
+            <!-- ============================================================ -->
+            <!-- 7. REPORTS -->
+            <!-- ============================================================ -->
+            <h2 id="reports">7. Reports</h2>
+
+            <h3>Purpose</h3>
+            <p>Generate and view pre-configured reports for incident analytics, compliance tracking, and trend analysis.</p>
+
+            <h3>Functional Requirements</h3>
+
+            <h4 id="rpt-quick">7.1 Quick Reports</h4>
+            <ul>
+                <li><span class="req-id">REQ-RPT-001:</span> Display 8 pre-configured report cards: Monthly Summary, Student Incident History, Driver Report Summary, High Severity Incidents, Vehicle Incident Report, Open Incidents Report, Weekly Trends Analysis, and Repeat Offender Report.</li>
+                <li><span class="req-id">REQ-RPT-002:</span> Each report card shall display: report title, icon, description, and last run date.</li>
+                <li><span class="req-id">REQ-RPT-003:</span> Each card shall have a "View Report" button that opens the report preview.</li>
+            </ul>
+
+            <h4 id="rpt-preview">7.2 Report Preview</h4>
+            <ul>
+                <li><span class="req-id">REQ-RPT-010:</span> Display the report in a modal dialog with full-width content.</li>
+                <li><span class="req-id">REQ-RPT-011:</span> The preview shall include summary statistics relevant to the report type.</li>
+                <li><span class="req-id">REQ-RPT-012:</span> The preview shall include a detailed data table with sortable columns.</li>
+                <li><span class="req-id">REQ-RPT-013:</span> Provide a "Download Report" button to export the report.</li>
+            </ul>
+
+            <h4 id="rpt-trends">7.3 Weekly Trends Analysis</h4>
+            <ul>
+                <li><span class="req-id">REQ-RPT-020:</span> Display week-over-week comparison charts (line, bar, and pie charts).</li>
+                <li><span class="req-id">REQ-RPT-021:</span> Show incident volume trends, type distribution, and severity breakdown.</li>
+            </ul>
+
+            <h4 id="rpt-filters">7.4 Filters</h4>
+            <ul>
+                <li><span class="req-id">REQ-RPT-030:</span> Support filtering by date range, incident types, routes, severity levels, and status.</li>
+            </ul>
+
+            <hr>
+
+            <!-- ============================================================ -->
+            <!-- 8. WORKFLOWS -->
+            <!-- ============================================================ -->
+            <h2 id="workflows">8. Workflows</h2>
+
+            <h3>Purpose</h3>
+            <p>Define and manage step-by-step response procedures that are automatically assigned to incidents based on type and severity.</p>
+
+            <h3>Functional Requirements</h3>
+
+            <h4 id="wfl-tab">8.1 Workflows Tab</h4>
+            <ul>
+                <li><span class="req-id">REQ-WFL-001:</span> Display summary statistics: Total Workflows and Active Workflows.</li>
+                <li><span class="req-id">REQ-WFL-002:</span> Provide a search bar to search workflows by name or description.</li>
+                <li><span class="req-id">REQ-WFL-003:</span> Provide filters for Category (Safety, Discipline, Maintenance, Administrative) and Status (Active/Inactive).</li>
+                <li><span class="req-id">REQ-WFL-004:</span> Display a workflows table with columns: Name, Category, Status, Severity, Steps, Last Modified.</li>
+                <li><span class="req-id">REQ-WFL-005:</span> Provide a "Create Workflow" button that opens the creation dialog.</li>
+                <li><span class="req-id">REQ-WFL-006:</span> Provide row-level actions: Edit (opens Workflow Builder), Duplicate, Toggle Active/Inactive, and Delete.</li>
+                <li><span class="req-id">REQ-WFL-007:</span> Provide pagination supporting 10 and 25 rows per page.</li>
+            </ul>
+
+            <h4 id="wfl-create">8.2 Create Workflow Dialog</h4>
+            <ul>
+                <li><span class="req-id">REQ-WFL-010:</span> Capture: Workflow Name, Description, Category, Severity Level, and Associated Incident Type.</li>
+                <li><span class="req-id">REQ-WFL-011:</span> Provide a "Create &amp; Build Steps" button that saves the workflow and opens the Workflow Builder.</li>
+            </ul>
+
+            <h4 id="wfl-templates">8.3 Step Templates Tab</h4>
+            <ul>
+                <li><span class="req-id">REQ-WFL-020:</span> Display a library of reusable step templates that can be added to workflows.</li>
+                <li><span class="req-id">REQ-WFL-021:</span> Provide search and category filtering for templates.</li>
+            </ul>
+
+            <h4 id="wfl-builder">8.4 Workflow Builder</h4>
+            <ul>
+                <li><span class="req-id">REQ-WFL-030:</span> Display the workflow name and description at the top with a back button.</li>
+                <li><span class="req-id">REQ-WFL-031:</span> Display workflow steps in a numbered, ordered list.</li>
+                <li><span class="req-id">REQ-WFL-032:</span> Each step shall display: step name, description, assigned role, estimated duration, and badges for Required/Optional, Notifications, and Approval Required.</li>
+                <li><span class="req-id">REQ-WFL-033:</span> Allow reordering steps via move up/down controls.</li>
+                <li><span class="req-id">REQ-WFL-034:</span> Allow configuring individual steps via a settings dialog (StepConfigDialog).</li>
+                <li><span class="req-id">REQ-WFL-035:</span> Allow deleting steps from the workflow.</li>
+                <li><span class="req-id">REQ-WFL-036:</span> Provide a form to create custom steps with: name, description, assigned role, estimated duration, and required toggle.</li>
+                <li><span class="req-id">REQ-WFL-037:</span> Provide a Step Library browser with pre-built template steps that can be added to the workflow.</li>
+                <li><span class="req-id">REQ-WFL-038:</span> Provide Save and Cancel buttons at the bottom.</li>
+            </ul>
+
+            <hr>
+
+            <!-- ============================================================ -->
+            <!-- 9. ADMIN -->
+            <!-- ============================================================ -->
+            <h2 id="admin">9. Admin</h2>
+
+            <h3>Purpose</h3>
+            <p>System administration for managing user access, email notification templates, and incident type configuration.</p>
+
+            <h3>Functional Requirements</h3>
+
+            <h4 id="adm-users">9.1 User Roles Tab</h4>
+            <ul>
+                <li><span class="req-id">REQ-ADM-001:</span> Display a searchable, filterable table of system users with columns: Name, Email, Role, Status, and Last Login.</li>
+                <li><span class="req-id">REQ-ADM-002:</span> Provide a search bar to search by name or email.</li>
+                <li><span class="req-id">REQ-ADM-003:</span> Provide a Role filter dropdown with all available roles (Safety Coordinator, Bus Driver, Supervisor, Principal, District Administrator, Parent/Guardian, System Administrator).</li>
+                <li><span class="req-id">REQ-ADM-004:</span> Provide an "Add User" button that opens a creation dialog.</li>
+                <li><span class="req-id">REQ-ADM-005:</span> Provide row-level actions: Edit and Delete.</li>
+                <li><span class="req-id">REQ-ADM-006:</span> The Add/Edit User dialog shall capture: name, email, role, and status (Active/Inactive).</li>
+            </ul>
+
+            <h4 id="adm-email">9.2 Email Templates Tab</h4>
+            <ul>
+                <li><span class="req-id">REQ-ADM-010:</span> Display email templates as expandable cards showing: template name, category badge, subject line, and description.</li>
+                <li><span class="req-id">REQ-ADM-011:</span> Provide a search bar to search by template name or description.</li>
+                <li><span class="req-id">REQ-ADM-012:</span> Provide a Category filter supporting: Notification, Approval, Escalation, Completion, and Custom.</li>
+                <li><span class="req-id">REQ-ADM-013:</span> Provide a "Create Template" button for adding new templates.</li>
+                <li><span class="req-id">REQ-ADM-014:</span> Provide card-level actions: Preview, Duplicate, Edit, and Delete.</li>
+                <li><span class="req-id">REQ-ADM-015:</span> Templates shall support variable placeholders (e.g., <code>{incident_id}</code>, <code>{student_name}</code>).</li>
+            </ul>
+
+            <h4 id="adm-types">9.3 Incident Types Tab</h4>
+            <ul>
+                <li><span class="req-id">REQ-ADM-020:</span> Display a table of incident types with columns: Label, Description, Category, Applies To (Student/Driver/Both), Linked Workflow, Severity, and Status.</li>
+                <li><span class="req-id">REQ-ADM-021:</span> Provide a search bar to search by label or description.</li>
+                <li><span class="req-id">REQ-ADM-022:</span> Provide filters for Category and Applies To.</li>
+                <li><span class="req-id">REQ-ADM-023:</span> Provide an "Add Incident Type" button for adding new types.</li>
+                <li><span class="req-id">REQ-ADM-024:</span> Provide row-level actions: Edit and Delete.</li>
+                <li><span class="req-id">REQ-ADM-025:</span> Each incident type shall be associable with a workflow, displayed as a clickable link to the Workflow Builder.</li>
+                <li><span class="req-id">REQ-ADM-026:</span> Support 10 incident categories: Behavioral, Safety, Physical, Medical, Property, Accessibility, Substance, Environmental, Communication, and Administrative.</li>
+            </ul>
+
+            <hr>
+
+            <!-- ============================================================ -->
+            <!-- APPENDIX: CROSS-TAB NAVIGATION -->
+            <!-- ============================================================ -->
+            <h2 id="cross-tab-nav">Appendix: Cross-Tab Navigation Requirements</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Requirement ID</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Trigger</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="req-id">REQ-NAV-001</span></td>
+                        <td>Dashboard</td>
+                        <td>Incidents</td>
+                        <td>"View All" buttons, stat card clicks</td>
+                    </tr>
+                    <tr>
+                        <td><span class="req-id">REQ-NAV-002</span></td>
+                        <td>Dashboard</td>
+                        <td>Incident Detail</td>
+                        <td>Incident card click, table row click</td>
+                    </tr>
+                    <tr>
+                        <td><span class="req-id">REQ-NAV-003</span></td>
+                        <td>Dashboard</td>
+                        <td>Communications</td>
+                        <td>"Message Driver" action</td>
+                    </tr>
+                    <tr>
+                        <td><span class="req-id">REQ-NAV-004</span></td>
+                        <td>Dashboard</td>
+                        <td>Students</td>
+                        <td>"Students with Incidents" stat card</td>
+                    </tr>
+                    <tr>
+                        <td><span class="req-id">REQ-NAV-005</span></td>
+                        <td>Incidents</td>
+                        <td>Incident Detail</td>
+                        <td>Table row click</td>
+                    </tr>
+                    <tr>
+                        <td><span class="req-id">REQ-NAV-006</span></td>
+                        <td>Incidents</td>
+                        <td>Communications</td>
+                        <td>Message icon on incident row</td>
+                    </tr>
+                    <tr>
+                        <td><span class="req-id">REQ-NAV-007</span></td>
+                        <td>Students</td>
+                        <td>Incident Detail</td>
+                        <td>Click incident within student dialog</td>
+                    </tr>
+                    <tr>
+                        <td><span class="req-id">REQ-NAV-008</span></td>
+                        <td>Workflows</td>
+                        <td>Workflow Builder</td>
+                        <td>Edit workflow or "Create &amp; Build Steps"</td>
+                    </tr>
+                    <tr>
+                        <td><span class="req-id">REQ-NAV-009</span></td>
+                        <td>Workflow Builder</td>
+                        <td>Workflows</td>
+                        <td>"Back to Workflows" button</td>
+                    </tr>
+                    <tr>
+                        <td><span class="req-id">REQ-NAV-010</span></td>
+                        <td>Admin (Incident Types)</td>
+                        <td>Workflow Builder</td>
+                        <td>Click linked workflow</td>
+                    </tr>
+                    <tr>
+                        <td><span class="req-id">REQ-NAV-011</span></td>
+                        <td>All Pages</td>
+                        <td>Help</td>
+                        <td>Help button in app bar</td>
+                    </tr>
+                    <tr>
+                        <td><span class="req-id">REQ-NAV-012</span></td>
+                        <td>All Pages</td>
+                        <td>Any Page</td>
+                        <td>Navigation drawer menu</td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Plan - Student Transportation Incident Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue-dark: #4A6FA5;
+            --brand-blue-medium: #5B8BB8;
+            --brand-blue-light: #6B9BC5;
+            --brand-olive-dark: #7B8458;
+            --brand-olive-medium: #8B9264;
+            --brand-olive-light: #9FA870;
+            --forge-spacing-xsmall: 8px;
+            --forge-spacing-small: 12px;
+            --forge-spacing-medium: 16px;
+            --forge-spacing-large: 24px;
+            --forge-spacing-xlarge: 32px;
+            --forge-spacing-xxlarge: 48px;
+            --forge-radius-small: 2px;
+            --forge-radius-medium: 4px;
+            --forge-radius-large: 8px;
+            --forge-elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --forge-elevation-2: 0 3px 6px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.12);
+            --text-xs: 12px;
+            --text-sm: 14px;
+            --text-base: 14px;
+            --text-lg: 16px;
+            --text-xl: 18px;
+            --text-2xl: 20px;
+            --text-3xl: 24px;
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; font-size: var(--text-base); font-weight: var(--font-weight-normal); line-height: 1.6; color: #09090b; background: #fafafa; }
+        
+        /* Navigation */
+        .nav { background: linear-gradient(135deg, var(--brand-blue-dark), var(--brand-blue-medium)); color: white; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: var(--forge-elevation-2); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+        .nav h1 { font-family: 'Roboto', sans-serif; font-size: var(--text-xl); font-weight: var(--font-weight-medium); }
+        .nav-links { display: flex; gap: 0.5rem; align-items: center; }
+        .nav a { font-family: 'Roboto', sans-serif; color: white; text-decoration: none; padding: 0.4rem 0.75rem; border-radius: var(--forge-radius-medium); font-size: var(--text-sm); font-weight: var(--font-weight-normal); transition: background 0.2s; }
+        .nav a:hover { background: rgba(255,255,255,0.15); }
+
+        /* Layout */
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 260px 1fr; gap: 2rem; }
+
+        /* Sidebar */
+        .sidebar { background: white; padding: var(--forge-spacing-large); border-radius: var(--forge-radius-large); box-shadow: var(--forge-elevation-1); height: fit-content; position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto; }
+        .sidebar h3 { font-family: 'Roboto', sans-serif; font-size: var(--text-lg); font-weight: var(--font-weight-medium); margin-bottom: 1rem; color: var(--brand-blue-dark); }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin: 0.2rem 0; }
+        .sidebar li li { margin-left: 1rem; }
+        .sidebar a { font-family: 'Roboto', sans-serif; color: #52525b; text-decoration: none; font-size: var(--text-sm); font-weight: var(--font-weight-normal); transition: color 0.2s; display: block; padding: 0.2rem 0.5rem; border-radius: var(--forge-radius-small); }
+        .sidebar a:hover { color: var(--brand-blue-dark); background: rgba(74,111,165,0.06); }
+
+        /* Main Content */
+        .content { background: white; padding: var(--forge-spacing-xxlarge); border-radius: var(--forge-radius-large); box-shadow: var(--forge-elevation-1); }
+        .content h1 { font-family: 'Roboto', sans-serif; font-size: 2rem; font-weight: var(--font-weight-medium); margin-bottom: 0.25rem; color: var(--brand-blue-dark); }
+        .content .subtitle { font-family: 'Roboto', sans-serif; font-size: var(--text-lg); font-weight: var(--font-weight-normal); color: #71717a; margin-bottom: 2rem; }
+        .content h2 { font-family: 'Roboto', sans-serif; font-size: var(--text-3xl); font-weight: var(--font-weight-medium); margin: 2.5rem 0 1rem; color: #18181b; padding-bottom: 0.5rem; border-bottom: 3px solid var(--brand-blue-light); }
+        .content h3 { font-family: 'Roboto', sans-serif; font-size: var(--text-2xl); font-weight: var(--font-weight-medium); margin: 2rem 0 0.75rem; color: var(--brand-blue-dark); }
+        .content h4 { font-family: 'Roboto', sans-serif; font-size: var(--text-xl); font-weight: var(--font-weight-medium); margin: 1.5rem 0 0.5rem; color: #27272a; }
+        .content h5 { font-family: 'Roboto', sans-serif; font-size: var(--text-lg); font-weight: var(--font-weight-medium); margin: 1.25rem 0 0.5rem; color: #3f3f46; }
+        .content p { font-family: 'Roboto', sans-serif; font-size: var(--text-base); font-weight: var(--font-weight-normal); margin: 0.75rem 0; color: #52525b; }
+        .content ul, .content ol { margin: 0.75rem 0 0.75rem 1.5rem; color: #52525b; }
+        .content li { font-family: 'Roboto', sans-serif; font-size: var(--text-base); font-weight: var(--font-weight-normal); margin: 0.4rem 0; }
+        .content strong { color: #18181b; font-weight: var(--font-weight-medium); }
+
+        /* Metadata */
+        .metadata { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1.5rem 0 2rem; }
+        .metadata-item { background: #f4f4f5; padding: 1rem; border-radius: var(--forge-radius-large); }
+        .metadata-item dt { font-family: 'Roboto', sans-serif; font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.05em; color: #71717a; font-weight: var(--font-weight-medium); margin-bottom: 0.35rem; }
+        .metadata-item dd { font-family: 'Roboto', sans-serif; font-size: var(--text-base); color: #18181b; font-weight: var(--font-weight-medium); }
+
+        /* Tables */
+        .content table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: var(--text-sm); }
+        .content th, .content td { font-family: 'Roboto', sans-serif; border: 1px solid #e4e4e7; padding: 0.6rem 0.75rem; text-align: left; }
+        .content th { background: #f4f4f5; font-weight: var(--font-weight-medium); color: #18181b; font-size: var(--text-sm); }
+        .content tr:nth-child(even) { background: #fafafa; }
+        .content td { font-size: var(--text-sm); font-weight: var(--font-weight-normal); color: #3f3f46; }
+
+        /* Boxes */
+        .info-box { background: #f0f9ff; border-left: 4px solid var(--brand-blue-dark); padding: 1rem 1.25rem; margin: 1.25rem 0; border-radius: var(--forge-radius-medium); }
+        .info-box p { margin: 0.4rem 0; font-size: var(--text-sm); }
+        .warning-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem 1.25rem; margin: 1.25rem 0; border-radius: var(--forge-radius-medium); }
+        .success-box { background: #d1fae5; border-left: 4px solid #10b981; padding: 1rem 1.25rem; margin: 1.25rem 0; border-radius: var(--forge-radius-medium); }
+
+        /* Phase Cards */
+        .phase-card { background: #fafafa; border: 1px solid #e4e4e7; border-left: 5px solid var(--brand-blue-dark); padding: 1.5rem; margin: 1.5rem 0; border-radius: var(--forge-radius-large); }
+        .phase-card h4 { margin-top: 0; color: var(--brand-blue-dark); }
+        .phase-card .phase-meta { display: flex; gap: 1rem; flex-wrap: wrap; margin: 0.5rem 0 1rem; }
+        .phase-card .phase-meta-tag { font-family: 'Roboto', sans-serif; font-size: var(--text-xs); font-weight: var(--font-weight-medium); padding: 0.2rem 0.6rem; border-radius: 1rem; }
+        .tag-effort { background: rgba(74,111,165,0.1); color: var(--brand-blue-dark); }
+        .tag-team { background: rgba(139,146,100,0.15); color: var(--brand-olive-dark); }
+
+        /* Gantt Chart */
+        .gantt { margin: 1.5rem 0; overflow-x: auto; }
+        .gantt-table { width: 100%; min-width: 800px; border-collapse: collapse; }
+        .gantt-table th, .gantt-table td { font-family: 'Roboto', sans-serif; padding: 0.4rem; text-align: center; font-size: var(--text-xs); font-weight: var(--font-weight-normal); border: 1px solid #e4e4e7; }
+        .gantt-table th { background: #f4f4f5; font-weight: var(--font-weight-medium); }
+        .gantt-table .phase-label { text-align: left; font-weight: var(--font-weight-medium); white-space: nowrap; padding-left: 0.75rem; min-width: 200px; color: #18181b; }
+        .gantt-bar { height: 24px; border-radius: var(--forge-radius-small); min-width: 100%; }
+        .bar-blue { background: linear-gradient(90deg, var(--brand-blue-dark), var(--brand-blue-medium)); }
+        .bar-olive { background: linear-gradient(90deg, var(--brand-olive-dark), var(--brand-olive-medium)); }
+        .bar-green { background: linear-gradient(90deg, #059669, #10b981); }
+        .bar-orange { background: linear-gradient(90deg, #d97706, #f59e0b); }
+        .bar-red { background: linear-gradient(90deg, #dc2626, #ef4444); }
+
+        /* Risk Cards */
+        .risk-card { background: white; border: 1px solid #e4e4e7; padding: 1.25rem; margin: 1rem 0; border-radius: var(--forge-radius-large); display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: start; }
+        .risk-num { font-family: 'Roboto', sans-serif; font-size: var(--text-lg); font-weight: var(--font-weight-medium); color: white; background: var(--brand-blue-dark); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .risk-content h5 { font-family: 'Roboto', sans-serif; margin-top: 0; margin-bottom: 0.3rem; font-size: var(--text-base); font-weight: var(--font-weight-medium); }
+        .risk-badges { display: flex; gap: 0.4rem; margin: 0.4rem 0 0.6rem; }
+        .risk-badge { font-family: 'Roboto', sans-serif; font-size: 11px; font-weight: var(--font-weight-medium); padding: 0.15rem 0.5rem; border-radius: 1rem; }
+        .likelihood-high { background: #fef2f2; color: #b91c1c; }
+        .likelihood-medium { background: #fef3c7; color: #92400e; }
+        .likelihood-low { background: #d1fae5; color: #065f46; }
+        .impact-high { background: #fef2f2; color: #b91c1c; }
+        .impact-medium { background: #fef3c7; color: #92400e; }
+
+        /* Milestone */
+        .milestone { display: inline-flex; align-items: center; gap: 0.3rem; background: var(--brand-olive-light); color: white; padding: 0.15rem 0.6rem; border-radius: 1rem; font-family: 'Roboto', sans-serif; font-size: 11px; font-weight: var(--font-weight-medium); white-space: nowrap; }
+        .milestone-launch { background: var(--brand-blue-dark); }
+
+        /* Badge */
+        .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 1rem; font-family: 'Roboto', sans-serif; font-size: var(--text-xs); font-weight: var(--font-weight-medium); margin: 0.15rem; }
+        .badge-blue { background: var(--brand-blue-dark); color: white; }
+        .badge-olive { background: var(--brand-olive-medium); color: white; }
+        .badge-green { background: #10b981; color: white; }
+
+        hr { border: none; border-top: 1px solid #e4e4e7; margin: 2rem 0; }
+
+        /* Print */
+        @media print {
+            .nav, .sidebar { display: none; }
+            .container { grid-template-columns: 1fr; padding: 0; }
+            .content { box-shadow: none; padding: 1rem; }
+            .phase-card { break-inside: avoid; }
+            .risk-card { break-inside: avoid; }
+        }
+        @media (max-width: 1024px) {
+            .container { grid-template-columns: 1fr; }
+            .sidebar { position: static; max-height: none; }
+        }
+        @media (max-width: 600px) {
+            .nav-content { flex-direction: column; align-items: flex-start; }
+            .content { padding: var(--forge-spacing-large); }
+            .metadata { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <div class="nav-content">
+        <h1>Project Plan &mdash; Incident Tracker</h1>
+        <div class="nav-links">
+            <a href="PRODUCT-REQUIREMENTS.html">Requirements</a>
+            <a href="index.html">&larr; Documentation Home</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <aside class="sidebar">
+        <h3>Table of Contents</h3>
+        <ul>
+            <li><a href="#overview">1. Project Overview</a></li>
+            <li><a href="#scope">2. Scope &amp; Assumptions</a></li>
+            <li><a href="#phases">3. Major Phases</a></li>
+            <li><a href="#workplan">4. Work Plan</a>
+                <ul>
+                    <li><a href="#phase1">Phase 1: Requirements</a></li>
+                    <li><a href="#phase2">Phase 2: Architecture</a></li>
+                    <li><a href="#phase3">Phase 3: UX/UI</a></li>
+                    <li><a href="#phase4">Phase 4: Backend</a></li>
+                    <li><a href="#phase5">Phase 5: Frontend</a></li>
+                    <li><a href="#phase6">Phase 6: Integrations</a></li>
+                    <li><a href="#phase7">Phase 7: QA &amp; Testing</a></li>
+                    <li><a href="#phase8">Phase 8: Hardening</a></li>
+                    <li><a href="#phase9">Phase 9: Launch</a></li>
+                    <li><a href="#phase10">Phase 10: Stabilization</a></li>
+                </ul>
+            </li>
+            <li><a href="#timeline">5. Timeline</a></li>
+            <li><a href="#resourcing">6. Effort &amp; Resourcing</a></li>
+            <li><a href="#risks">7. Risks &amp; Mitigation</a></li>
+            <li><a href="#references">Appendix: References</a></li>
+        </ul>
+    </aside>
+
+    <main class="content">
+        <h1>Student Transportation Incident Tracker</h1>
+        <p class="subtitle">Project Plan: Mock-Up to Production</p>
+
+        <div class="metadata">
+            <div class="metadata-item"><dt>Version</dt><dd>1.1</dd></div>
+            <div class="metadata-item"><dt>Created</dt><dd>February 24, 2026</dd></div>
+            <div class="metadata-item"><dt>Owner</dt><dd>Project Team</dd></div>
+            <div class="metadata-item"><dt>Status</dt><dd>Draft</dd></div>
+            <div class="metadata-item"><dt>Target Launch</dt><dd>August 24, 2026</dd></div>
+            <div class="metadata-item"><dt>Duration</dt><dd>~28 weeks</dd></div>
+        </div>
+
+        <!-- ======================================= -->
+        <!-- 1. PROJECT OVERVIEW                     -->
+        <!-- ======================================= -->
+        <h2 id="overview">1. Project Overview</h2>
+
+        <h3>Current State</h3>
+        <p>The Incident Tracker exists as a <strong>fully functional front-end prototype</strong> built with React, TypeScript, and Tailwind CSS using the Tyler Forge 3.x design system. It includes 8 key pages (Dashboard, Incidents, Students, New Incident, Reports, Driver Communications, Vehicles, Drivers), automatic workflow assignment based on severity/type, role-based UI, and comprehensive mock data. A complete Product Requirements Document with <strong>67 user stories across 11 feature areas</strong> has been finalized.</p>
+
+        <h3>Definition of "Production-Ready"</h3>
+        <ul>
+            <li><strong>Data Persistence</strong> &mdash; All data stored in a real database (Supabase/PostgreSQL) with proper schema</li>
+            <li><strong>Authentication &amp; Authorization</strong> &mdash; Role-based access control with secure login</li>
+            <li><strong>API Layer</strong> &mdash; RESTful or RPC-based backend APIs replacing all mock data</li>
+            <li><strong>Input Validation</strong> &mdash; Client-side and server-side validation on all forms</li>
+            <li><strong>Error Handling</strong> &mdash; Graceful error states, retry logic, user-friendly messages</li>
+            <li><strong>Performance</strong> &mdash; Page load &lt; 2s, API responses &lt; 500ms</li>
+            <li><strong>Security</strong> &mdash; OWASP Top 10 compliance, encryption at rest and in transit</li>
+            <li><strong>Accessibility</strong> &mdash; WCAG 2.1 AA compliance</li>
+            <li><strong>Monitoring</strong> &mdash; Logging, error tracking, uptime monitoring</li>
+            <li><strong>Deployment</strong> &mdash; CI/CD pipeline with staging and production environments</li>
+        </ul>
+
+        <h3>Key Goals &amp; Success Criteria</h3>
+        <table>
+            <thead><tr><th>Goal</th><th>Success Criteria</th></tr></thead>
+            <tbody>
+                <tr><td>Replace mock data with real persistence</td><td>All CRUD operations persist to database</td></tr>
+                <tr><td>Secure multi-user access</td><td>Users can only access data/actions for their role</td></tr>
+                <tr><td>Reliable incident workflow</td><td>Incidents auto-route correctly 100% of the time</td></tr>
+                <tr><td>Real-time communications</td><td>Driver messages delivered within 5 seconds</td></tr>
+                <tr><td>Production uptime</td><td>99.5% availability in first 90 days</td></tr>
+                <tr><td>User adoption</td><td>80% of target users active within 30 days of launch</td></tr>
+            </tbody>
+        </table>
+
+        <!-- ======================================= -->
+        <!-- 2. SCOPE & ASSUMPTIONS                  -->
+        <!-- ======================================= -->
+        <h2 id="scope">2. Scope &amp; Assumptions</h2>
+
+        <h3>In Scope</h3>
+        <ul>
+            <li>Database schema design and migration (Supabase/PostgreSQL)</li>
+            <li>Authentication and role-based authorization (Supabase Auth)</li>
+            <li>Backend API development for all 11 feature areas</li>
+            <li>Real-time messaging for driver communications</li>
+            <li>File upload for incident attachments and photos</li>
+            <li>Report generation and data export (CSV/PDF)</li>
+            <li>Email/SMS notification integration</li>
+            <li>Responsive design refinements and accessibility audit</li>
+            <li>Automated testing (unit, integration, E2E)</li>
+            <li>CI/CD pipeline and deployment infrastructure</li>
+            <li>Performance optimization and security hardening</li>
+        </ul>
+
+        <h3>Out of Scope</h3>
+        <div class="info-box">
+            <ul>
+                <li>Native mobile applications (iOS/Android)</li>
+                <li>GPS/AVL real-time vehicle tracking integration</li>
+                <li>Parent-facing portal</li>
+                <li>Integration with Student Information Systems (SIS)</li>
+                <li>Advanced AI/ML incident prediction</li>
+                <li>Multi-district/multi-tenant architecture</li>
+                <li>Offline-first/PWA capabilities</li>
+                <li>Legacy data migration from existing systems</li>
+            </ul>
+        </div>
+
+        <h3>Technical Assumptions</h3>
+        <table>
+            <thead><tr><th>Layer</th><th>Technology</th></tr></thead>
+            <tbody>
+                <tr><td>Frontend</td><td>React 18+, TypeScript, Tailwind CSS v4, Tyler Forge 3.x</td></tr>
+                <tr><td>Backend / Database</td><td>Supabase (PostgreSQL, Auth, Realtime, Storage, Edge Functions)</td></tr>
+                <tr><td>Hosting</td><td>Vercel or Netlify (frontend) &middot; Supabase Cloud (backend)</td></tr>
+                <tr><td>Authentication</td><td>Supabase Auth (email/password + SSO consideration)</td></tr>
+                <tr><td>File Storage</td><td>Supabase Storage</td></tr>
+                <tr><td>Real-time</td><td>Supabase Realtime (WebSocket channels)</td></tr>
+                <tr><td>Notifications</td><td>Supabase Edge Functions + SendGrid / Twilio</td></tr>
+                <tr><td>CI/CD</td><td>GitHub Actions</td></tr>
+                <tr><td>Monitoring</td><td>Sentry (errors) &middot; Supabase Dashboard (DB)</td></tr>
+            </tbody>
+        </table>
+
+        <!-- ======================================= -->
+        <!-- 3. MAJOR PHASES                         -->
+        <!-- ======================================= -->
+        <h2 id="phases">3. Major Phases</h2>
+
+        <table>
+            <thead><tr><th>#</th><th>Phase</th><th>Duration</th><th>Overlap</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td>Requirements Finalization</td><td>2 weeks</td><td>&mdash;</td></tr>
+                <tr><td>2</td><td>Architecture &amp; Technical Design</td><td>3 weeks</td><td>Overlaps Phase 1 by 1 wk</td></tr>
+                <tr><td>3</td><td>UX/UI Refinement</td><td>3 weeks</td><td>Overlaps Phase 2 by 1 wk</td></tr>
+                <tr><td>4</td><td>Backend/API Development</td><td>8 weeks</td><td>Starts after Phase 2</td></tr>
+                <tr><td>5</td><td>Frontend Development</td><td>8 weeks</td><td>Overlaps Phase 4 by 6 wks</td></tr>
+                <tr><td>6</td><td>Integrations</td><td>4 weeks</td><td>Overlaps Phase 5 by 2 wks</td></tr>
+                <tr><td>7</td><td>QA &amp; Testing</td><td>6 weeks</td><td>Overlaps Phase 6 by 2 wks</td></tr>
+                <tr><td>8</td><td>Performance &amp; Security Hardening</td><td>3 weeks</td><td>Overlaps Phase 7 by 1 wk</td></tr>
+                <tr><td>9</td><td>Deployment &amp; Launch</td><td>2 weeks</td><td>After Phase 8</td></tr>
+                <tr><td>10</td><td>Post-Launch Stabilization</td><td>4 weeks</td><td>After Phase 9</td></tr>
+            </tbody>
+        </table>
+        <p><strong>Total Elapsed Time:</strong> ~28 weeks (with phase overlaps)</p>
+
+        <!-- ======================================= -->
+        <!-- 4. WORK PLAN                            -->
+        <!-- ======================================= -->
+        <h2 id="workplan">4. Work Plan</h2>
+
+        <!-- Phase 1 -->
+        <div class="phase-card" id="phase1">
+            <h4>Phase 1: Requirements Finalization</h4>
+            <div class="phase-meta">
+                <span class="phase-meta-tag tag-effort">2 weeks</span>
+                <span class="phase-meta-tag tag-team">PM &middot; Designer &middot; Tech Lead</span>
+            </div>
+            <h5>Key Activities</h5>
+            <ul>
+                <li>Review and validate all 67 user stories with stakeholders</li>
+                <li>Prioritize into MVP vs. Post-MVP</li>
+                <li>Define acceptance criteria for each MVP story</li>
+                <li>Confirm technical assumptions and integration requirements</li>
+                <li>Establish data dictionary and domain model</li>
+            </ul>
+            <h5>Deliverables</h5>
+            <ul>
+                <li>Prioritized product backlog (MVP scope locked)</li>
+                <li>Acceptance criteria document</li>
+                <li>Signed-off data dictionary</li>
+            </ul>
+            <p><strong>Dependencies:</strong> Stakeholder availability for review sessions</p>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="phase-card" id="phase2">
+            <h4>Phase 2: Architecture &amp; Technical Design</h4>
+            <div class="phase-meta">
+                <span class="phase-meta-tag tag-effort">3 weeks (Weeks 2&ndash;5)</span>
+                <span class="phase-meta-tag tag-team">Tech Lead &middot; Backend Eng &middot; Frontend Eng</span>
+            </div>
+            <h5>Key Activities</h5>
+            <ul>
+                <li>Design Supabase database schema (tables, relationships, indexes, RLS policies)</li>
+                <li>Define API contract (endpoints, request/response shapes)</li>
+                <li>Plan authentication flow and role-permission matrix</li>
+                <li>Design real-time messaging architecture</li>
+                <li>Define file storage structure and upload workflows</li>
+            </ul>
+            <h5>Deliverables</h5>
+            <ul>
+                <li>Database ERD and migration scripts</li>
+                <li>API specification document</li>
+                <li>Auth &amp; RBAC design document</li>
+                <li>Technical architecture diagram</li>
+            </ul>
+            <p><strong>Dependencies:</strong> Finalized data dictionary from Phase 1</p>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="phase-card" id="phase3">
+            <h4>Phase 3: UX/UI Refinement</h4>
+            <div class="phase-meta">
+                <span class="phase-meta-tag tag-effort">3 weeks (Weeks 4&ndash;7)</span>
+                <span class="phase-meta-tag tag-team">Designer &middot; Frontend Eng</span>
+            </div>
+            <h5>Key Activities</h5>
+            <ul>
+                <li>Accessibility audit of existing prototype (WCAG 2.1 AA)</li>
+                <li>Refine error states, loading states, and empty states</li>
+                <li>Design notification UI patterns</li>
+                <li>Finalize responsive breakpoint behavior</li>
+                <li>Validate designs against Tyler Forge 3.x standards</li>
+            </ul>
+            <h5>Deliverables</h5>
+            <ul>
+                <li>Updated design specs with all states documented</li>
+                <li>Accessibility remediation plan</li>
+                <li>Finalized responsive design specifications</li>
+            </ul>
+            <p><strong>Dependencies:</strong> None (can work from existing prototype)</p>
+        </div>
+
+        <!-- Phase 4 -->
+        <div class="phase-card" id="phase4" style="border-left-color: var(--brand-olive-dark);">
+            <h4>Phase 4: Backend/API Development</h4>
+            <div class="phase-meta">
+                <span class="phase-meta-tag tag-effort">8 weeks (Weeks 5&ndash;13)</span>
+                <span class="phase-meta-tag tag-team">Backend Eng (2) &middot; Tech Lead (part-time)</span>
+            </div>
+            <h5>Key Activities</h5>
+            <ul>
+                <li>Set up Supabase project (database, auth, storage, realtime)</li>
+                <li>Implement database schema and seed data</li>
+                <li>Configure Row Level Security (RLS) policies for all tables</li>
+                <li>Build Edge Functions: workflow engine, notifications, reports</li>
+                <li>Implement file upload endpoints and real-time channels</li>
+                <li>Write backend unit tests</li>
+            </ul>
+            <h5>Key Database Tables</h5>
+            <table>
+                <thead><tr><th>Table</th><th>Purpose</th></tr></thead>
+                <tbody>
+                    <tr><td><code>users / profiles</code></td><td>User accounts and role assignments</td></tr>
+                    <tr><td><code>incidents</code></td><td>Core incident records</td></tr>
+                    <tr><td><code>incident_workflows</code></td><td>Workflow assignments and status</td></tr>
+                    <tr><td><code>students</code></td><td>Student directory</td></tr>
+                    <tr><td><code>vehicles</code></td><td>Vehicle fleet inventory</td></tr>
+                    <tr><td><code>drivers</code></td><td>Driver profiles and certifications</td></tr>
+                    <tr><td><code>messages</code></td><td>Driver-coordinator communications</td></tr>
+                    <tr><td><code>attachments</code></td><td>File references for incidents</td></tr>
+                    <tr><td><code>audit_log</code></td><td>Change tracking for compliance</td></tr>
+                </tbody>
+            </table>
+            <h5>Deliverables</h5>
+            <ul>
+                <li>Production database with RLS policies</li>
+                <li>Functional API layer (tested independently)</li>
+                <li>Workflow engine with assignment rules</li>
+                <li>Backend test suite (&gt;80% coverage)</li>
+            </ul>
+            <p><strong>Dependencies:</strong> Database schema from Phase 2</p>
+        </div>
+
+        <!-- Phase 5 -->
+        <div class="phase-card" id="phase5" style="border-left-color: var(--brand-olive-dark);">
+            <h4>Phase 5: Frontend Development</h4>
+            <div class="phase-meta">
+                <span class="phase-meta-tag tag-effort">8 weeks (Weeks 7&ndash;15)</span>
+                <span class="phase-meta-tag tag-team">Frontend Eng (2) &middot; Designer (part-time)</span>
+            </div>
+            <h5>Key Activities</h5>
+            <ul>
+                <li>Replace all mock data with Supabase client calls</li>
+                <li>Implement authentication UI (login, session management)</li>
+                <li>Connect all 8 pages to live data with pagination, filtering, sorting</li>
+                <li>Implement real-time dashboard metrics and messaging</li>
+                <li>Add loading, error, and empty states</li>
+                <li>Optimistic updates for better UX</li>
+                <li>Component unit tests</li>
+            </ul>
+            <h5>Deliverables</h5>
+            <ul>
+                <li>Fully connected frontend application</li>
+                <li>Auth flow with role-based route guards</li>
+                <li>Real-time dashboard and messaging</li>
+                <li>Frontend test suite</li>
+            </ul>
+            <p><strong>Dependencies:</strong> API availability from Phase 4 (iterative)</p>
+        </div>
+
+        <!-- Phase 6 -->
+        <div class="phase-card" id="phase6" style="border-left-color: var(--brand-olive-medium);">
+            <h4>Phase 6: Integrations</h4>
+            <div class="phase-meta">
+                <span class="phase-meta-tag tag-effort">4 weeks (Weeks 13&ndash;17)</span>
+                <span class="phase-meta-tag tag-team">Backend Eng &middot; Frontend Eng</span>
+            </div>
+            <h5>Key Activities</h5>
+            <ul>
+                <li>Email notification integration (SendGrid or similar)</li>
+                <li>SMS notification integration (Twilio or similar)</li>
+                <li>PDF report generation</li>
+                <li>CSV data export</li>
+                <li>Configure notification templates and triggers</li>
+                <li>Integration testing</li>
+            </ul>
+            <h5>Deliverables</h5>
+            <ul>
+                <li>Working email notifications for incident events</li>
+                <li>SMS alerts for critical/emergency incidents</li>
+                <li>Downloadable PDF reports and CSV exports</li>
+            </ul>
+            <p><strong>Dependencies:</strong> Backend APIs and Edge Functions from Phase 4</p>
+        </div>
+
+        <!-- Phase 7 -->
+        <div class="phase-card" id="phase7" style="border-left-color: #f59e0b;">
+            <h4>Phase 7: QA &amp; Testing</h4>
+            <div class="phase-meta">
+                <span class="phase-meta-tag tag-effort">6 weeks (Weeks 15&ndash;21)</span>
+                <span class="phase-meta-tag tag-team">QA Eng &middot; Frontend Eng &middot; Backend Eng</span>
+            </div>
+            <h5>Key Activities</h5>
+            <ul>
+                <li>Execute test cases from QA Testing Guide</li>
+                <li>End-to-end testing with Playwright or Cypress</li>
+                <li>Cross-browser testing (Chrome, Firefox, Safari, Edge)</li>
+                <li>Mobile/responsive testing on real devices</li>
+                <li>Accessibility testing (axe, screen readers)</li>
+                <li>Performance testing (Lighthouse, load testing)</li>
+                <li>Security testing (OWASP checklist)</li>
+                <li>User acceptance testing (UAT) with stakeholders</li>
+                <li>Bug triage, prioritization, and resolution</li>
+            </ul>
+            <h5>Deliverables</h5>
+            <ul>
+                <li>E2E test suite (automated)</li>
+                <li>Cross-browser &amp; accessibility compliance reports</li>
+                <li>Performance baseline report</li>
+                <li>UAT sign-off</li>
+                <li>Bug-free MVP (P0/P1 resolved)</li>
+            </ul>
+            <p><strong>Dependencies:</strong> Feature-complete application from Phases 5&ndash;6</p>
+        </div>
+
+        <!-- Phase 8 -->
+        <div class="phase-card" id="phase8" style="border-left-color: #dc2626;">
+            <h4>Phase 8: Performance &amp; Security Hardening</h4>
+            <div class="phase-meta">
+                <span class="phase-meta-tag tag-effort">3 weeks (Weeks 20.5&ndash;23)</span>
+                <span class="phase-meta-tag tag-team">Tech Lead &middot; Backend Eng &middot; DevOps</span>
+            </div>
+            <h5>Key Activities</h5>
+            <ul>
+                <li>Bundle size optimization (code splitting, lazy loading)</li>
+                <li>Database query optimization (indexes, query plans)</li>
+                <li>Rate limiting on APIs</li>
+                <li>Security audit (RLS review, input sanitization, CORS, CSP headers)</li>
+                <li>Backup and disaster recovery configuration</li>
+                <li>Load testing and stress testing</li>
+            </ul>
+            <h5>Deliverables</h5>
+            <ul>
+                <li>Optimized app (Lighthouse &gt; 90)</li>
+                <li>Security audit report</li>
+                <li>Backup/recovery procedures</li>
+            </ul>
+            <p><strong>Dependencies:</strong> Feature-complete, tested application</p>
+        </div>
+
+        <!-- Phase 9 -->
+        <div class="phase-card" id="phase9" style="border-left-color: #10b981;">
+            <h4>Phase 9: Deployment &amp; Launch</h4>
+            <div class="phase-meta">
+                <span class="phase-meta-tag tag-effort">2 weeks (Weeks 23&ndash;25)</span>
+                <span class="phase-meta-tag tag-team">DevOps &middot; Tech Lead &middot; PM</span>
+            </div>
+            <h5>Key Activities</h5>
+            <ul>
+                <li>Set up production Supabase project</li>
+                <li>Configure production environment variables and secrets</li>
+                <li>Set up CI/CD pipeline (GitHub Actions &rarr; Vercel/Netlify)</li>
+                <li>DNS and SSL configuration</li>
+                <li>Deploy staging &rarr; smoke test &rarr; production</li>
+                <li>Set up Sentry monitoring and uptime alerts</li>
+                <li>Prepare rollback procedures</li>
+                <li>User training materials and launch comms</li>
+            </ul>
+            <h5>Deliverables</h5>
+            <ul>
+                <li>Live production application</li>
+                <li>CI/CD pipeline (automated)</li>
+                <li>Monitoring dashboards</li>
+                <li>User training documentation</li>
+            </ul>
+            <p><strong>Dependencies:</strong> All prior phases; stakeholder sign-off</p>
+        </div>
+
+        <!-- Phase 10 -->
+        <div class="phase-card" id="phase10" style="border-left-color: #10b981;">
+            <h4>Phase 10: Post-Launch Stabilization</h4>
+            <div class="phase-meta">
+                <span class="phase-meta-tag tag-effort">4 weeks (Weeks 25&ndash;29)</span>
+                <span class="phase-meta-tag tag-team">Full team (reduced capacity)</span>
+            </div>
+            <h5>Key Activities</h5>
+            <ul>
+                <li>Monitor production logs and error rates</li>
+                <li>Rapid bug-fix response (P0 &lt; 4hrs, P1 &lt; 24hrs)</li>
+                <li>Performance monitoring and tuning</li>
+                <li>Collect user feedback and prioritize quick-win improvements</li>
+                <li>Conduct retrospective</li>
+            </ul>
+            <h5>Deliverables</h5>
+            <ul>
+                <li>Stabilized production application</li>
+                <li>Post-launch metrics report</li>
+                <li>Prioritized improvement backlog</li>
+                <li>Retrospective document</li>
+            </ul>
+            <p><strong>Dependencies:</strong> Live production environment</p>
+        </div>
+
+        <!-- ======================================= -->
+        <!-- 5. TIMELINE                             -->
+        <!-- ======================================= -->
+        <h2 id="timeline">5. Timeline</h2>
+
+        <div class="info-box">
+            <p><strong>Project Start:</strong> March 15, 2026 &nbsp;&middot;&nbsp; <strong>Target Launch:</strong> August 24, 2026 &nbsp;&middot;&nbsp; <strong>Stabilization End:</strong> September 26, 2026</p>
+        </div>
+
+        <h3>Weekly Schedule</h3>
+        <table>
+            <thead><tr><th>Week</th><th>Dates</th><th>Phase(s) Active</th><th>Milestone</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td>Mar 15&ndash;21</td><td>Requirements Finalization</td><td></td></tr>
+                <tr><td>2</td><td>Mar 22&ndash;28</td><td>Requirements Finalization, Architecture &amp; Design begins</td><td><span class="milestone">MVP Scope Locked</span></td></tr>
+                <tr><td>3</td><td>Mar 29&ndash;Apr 4</td><td>Architecture &amp; Technical Design</td><td></td></tr>
+                <tr><td>4</td><td>Apr 5&ndash;11</td><td>Architecture &amp; Design, UX/UI begins</td><td><span class="milestone">Technical Design Complete</span></td></tr>
+                <tr><td>5</td><td>Apr 12&ndash;18</td><td>UX/UI Refinement, Backend Dev begins</td><td></td></tr>
+                <tr><td>6</td><td>Apr 19&ndash;25</td><td>UX/UI Refinement wraps, Backend Dev</td><td><span class="milestone">Design Specs Finalized</span></td></tr>
+                <tr><td>7</td><td>Apr 26&ndash;May 2</td><td>Backend Dev, Frontend Dev begins</td><td></td></tr>
+                <tr><td>8</td><td>May 3&ndash;9</td><td>Backend Dev, Frontend Dev</td><td></td></tr>
+                <tr><td>9</td><td>May 10&ndash;16</td><td>Backend Dev, Frontend Dev</td><td></td></tr>
+                <tr><td>10</td><td>May 17&ndash;23</td><td>Backend Dev, Frontend Dev</td><td></td></tr>
+                <tr><td>11</td><td>May 24&ndash;30</td><td>Backend Dev, Frontend Dev</td><td></td></tr>
+                <tr><td>12</td><td>May 31&ndash;Jun 6</td><td>Backend Dev wraps, Frontend Dev</td><td><span class="milestone">Core APIs Complete</span></td></tr>
+                <tr><td>13</td><td>Jun 7&ndash;13</td><td>Frontend Dev, Integrations begin</td><td></td></tr>
+                <tr><td>14</td><td>Jun 14&ndash;20</td><td>Frontend Dev wraps, Integrations</td><td><span class="milestone">Frontend Feature Complete</span></td></tr>
+                <tr><td>15</td><td>Jun 21&ndash;27</td><td>Integrations, QA &amp; Testing begins</td><td></td></tr>
+                <tr><td>16</td><td>Jun 28&ndash;Jul 4</td><td>Integrations wrap, QA &amp; Testing</td><td><span class="milestone">All Integrations Complete</span></td></tr>
+                <tr><td>17</td><td>Jul 5&ndash;11</td><td>QA &amp; Testing</td><td></td></tr>
+                <tr><td>18</td><td>Jul 12&ndash;18</td><td>QA &amp; Testing</td><td></td></tr>
+                <tr><td>19</td><td>Jul 19&ndash;25</td><td>QA &amp; Testing</td><td><span class="milestone">UAT Sign-Off</span></td></tr>
+                <tr><td>20</td><td>Jul 26&ndash;Aug 1</td><td>QA &amp; Testing wraps, Hardening begins</td><td></td></tr>
+                <tr><td>21</td><td>Aug 2&ndash;8</td><td>Performance &amp; Security Hardening</td><td></td></tr>
+                <tr><td>22</td><td>Aug 9&ndash;15</td><td>Performance &amp; Security Hardening wraps</td><td><span class="milestone">Security Audit Passed</span></td></tr>
+                <tr><td>23</td><td>Aug 16&ndash;22</td><td>Deployment &amp; Launch prep</td><td></td></tr>
+                <tr><td>24</td><td>Aug 23&ndash;29</td><td>Deployment &amp; Launch</td><td><span class="milestone milestone-launch">PRODUCTION LAUNCH</span></td></tr>
+                <tr><td>25</td><td>Aug 30&ndash;Sep 5</td><td>Post-Launch Stabilization</td><td></td></tr>
+                <tr><td>26</td><td>Sep 6&ndash;12</td><td>Post-Launch Stabilization</td><td></td></tr>
+                <tr><td>27</td><td>Sep 13&ndash;19</td><td>Post-Launch Stabilization</td><td></td></tr>
+                <tr><td>28</td><td>Sep 20&ndash;26</td><td>Post-Launch Stabilization wraps</td><td><span class="milestone">Stabilization Complete</span></td></tr>
+            </tbody>
+        </table>
+
+        <h3>Gantt Chart</h3>
+        <div class="gantt">
+            <table class="gantt-table">
+                <thead>
+                    <tr>
+                        <th class="phase-label">Phase</th>
+                        <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th>
+                        <th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th>
+                        <th>15</th><th>16</th><th>17</th><th>18</th><th>19</th><th>20</th><th>21</th>
+                        <th>22</th><th>23</th><th>24</th><th>25</th><th>26</th><th>27</th><th>28</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="phase-label">1. Requirements</td>
+                        <td><div class="gantt-bar bar-blue"></div></td>
+                        <td><div class="gantt-bar bar-blue"></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="phase-label">2. Architecture</td>
+                        <td></td>
+                        <td><div class="gantt-bar bar-blue"></div></td>
+                        <td><div class="gantt-bar bar-blue"></div></td>
+                        <td><div class="gantt-bar bar-blue"></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="phase-label">3. UX/UI</td>
+                        <td></td><td></td><td></td>
+                        <td><div class="gantt-bar bar-blue"></div></td>
+                        <td><div class="gantt-bar bar-blue"></div></td>
+                        <td><div class="gantt-bar bar-blue"></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="phase-label">4. Backend</td>
+                        <td></td><td></td><td></td><td></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="phase-label">5. Frontend</td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="phase-label">6. Integrations</td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td><div class="gantt-bar bar-olive"></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="phase-label">7. QA &amp; Testing</td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td><div class="gantt-bar bar-orange"></div></td>
+                        <td><div class="gantt-bar bar-orange"></div></td>
+                        <td><div class="gantt-bar bar-orange"></div></td>
+                        <td><div class="gantt-bar bar-orange"></div></td>
+                        <td><div class="gantt-bar bar-orange"></div></td>
+                        <td><div class="gantt-bar bar-orange"></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="phase-label">8. Hardening</td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td><div class="gantt-bar bar-red"></div></td>
+                        <td><div class="gantt-bar bar-red"></div></td>
+                        <td><div class="gantt-bar bar-red"></div></td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="phase-label">9. Launch</td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td><div class="gantt-bar bar-green"></div></td>
+                        <td><div class="gantt-bar bar-green"></div></td>
+                        <td></td><td></td><td></td><td></td>
+                    </tr>
+                    <tr>
+                        <td class="phase-label">10. Stabilization</td>
+                        <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+                        <td><div class="gantt-bar bar-green"></div></td>
+                        <td><div class="gantt-bar bar-green"></div></td>
+                        <td><div class="gantt-bar bar-green"></div></td>
+                        <td><div class="gantt-bar bar-green"></div></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="text-align: center; margin-top: 0.5rem;">
+            <span class="badge badge-blue">Planning &amp; Design</span>
+            <span class="badge badge-olive">Core Development</span>
+            <span class="badge" style="background: #f59e0b; color: white;">QA &amp; Testing</span>
+            <span class="badge" style="background: #dc2626; color: white;">Hardening</span>
+            <span class="badge badge-green">Deploy &amp; Stabilize</span>
+        </p>
+
+        <!-- ======================================= -->
+        <!-- 6. EFFORT & RESOURCING                  -->
+        <!-- ======================================= -->
+        <h2 id="resourcing">6. Effort &amp; Resourcing</h2>
+
+        <div class="metadata">
+            <div class="metadata-item"><dt>Overall Size</dt><dd>Large</dd></div>
+            <div class="metadata-item"><dt>Total Effort</dt><dd>~104 team-weeks</dd></div>
+            <div class="metadata-item"><dt>Calendar Time</dt><dd>28 weeks</dd></div>
+            <div class="metadata-item"><dt>Min. Team Size</dt><dd>5 people</dd></div>
+        </div>
+
+        <h3>Suggested Team Composition</h3>
+        <table>
+            <thead><tr><th>Role</th><th>Count</th><th>Allocation</th><th>Phase Involvement</th></tr></thead>
+            <tbody>
+                <tr><td>Product Manager</td><td>1</td><td>50%</td><td>Phases 1, 7, 9, 10</td></tr>
+                <tr><td>UX/UI Designer</td><td>1</td><td>50%</td><td>Phases 3, 5, 7</td></tr>
+                <tr><td>Tech Lead</td><td>1</td><td>75%</td><td>Phases 2, 4, 8, 9</td></tr>
+                <tr><td>Frontend Engineer</td><td>2</td><td>100%</td><td>Phases 3, 5, 6, 7</td></tr>
+                <tr><td>Backend Engineer</td><td>2</td><td>100%</td><td>Phases 4, 6, 7, 8</td></tr>
+                <tr><td>QA Engineer</td><td>1</td><td>75%</td><td>Phases 7, 8, 9</td></tr>
+                <tr><td>DevOps Engineer</td><td>1</td><td>25%</td><td>Phases 8, 9</td></tr>
+            </tbody>
+        </table>
+
+        <div class="info-box">
+            <p><strong>Minimum Viable Team:</strong> 5 people &mdash; 1 PM/Designer combo, 1 Tech Lead, 2 Full-Stack Engineers, 1 QA</p>
+        </div>
+
+        <h3>Effort Breakdown by Phase</h3>
+        <table>
+            <thead><tr><th>Phase</th><th>Effort (team-weeks)</th></tr></thead>
+            <tbody>
+                <tr><td>Requirements Finalization</td><td>4</td></tr>
+                <tr><td>Architecture &amp; Technical Design</td><td>6</td></tr>
+                <tr><td>UX/UI Refinement</td><td>6</td></tr>
+                <tr><td>Backend/API Development</td><td>20</td></tr>
+                <tr><td>Frontend Development</td><td>20</td></tr>
+                <tr><td>Integrations</td><td>8</td></tr>
+                <tr><td>QA &amp; Testing</td><td>18</td></tr>
+                <tr><td>Performance &amp; Security</td><td>8</td></tr>
+                <tr><td>Deployment &amp; Launch</td><td>6</td></tr>
+                <tr><td>Post-Launch Stabilization</td><td>8</td></tr>
+                <tr style="background: #f0f9ff;"><td><strong>Total</strong></td><td><strong>~104 team-weeks</strong></td></tr>
+            </tbody>
+        </table>
+
+        <!-- ======================================= -->
+        <!-- 7. RISKS & MITIGATION                   -->
+        <!-- ======================================= -->
+        <h2 id="risks">7. Risks &amp; Mitigation</h2>
+
+        <div class="risk-card">
+            <div class="risk-num">1</div>
+            <div class="risk-content">
+                <h5>Scope Creep During Development</h5>
+                <div class="risk-badges">
+                    <span class="risk-badge likelihood-high">Likelihood: High</span>
+                    <span class="risk-badge impact-high">Impact: High</span>
+                </div>
+                <p>Stakeholders request features beyond MVP during build phases.</p>
+                <p><strong>Mitigation:</strong> Lock MVP scope in Phase 1 with signed-off backlog. Defer all non-MVP items to Phase 2 release. Use a strict change request process.</p>
+            </div>
+        </div>
+
+        <div class="risk-card">
+            <div class="risk-num">2</div>
+            <div class="risk-content">
+                <h5>Supabase RLS Complexity</h5>
+                <div class="risk-badges">
+                    <span class="risk-badge likelihood-medium">Likelihood: Medium</span>
+                    <span class="risk-badge impact-high">Impact: High</span>
+                </div>
+                <p>Row Level Security policies may be difficult to configure correctly for multi-role access patterns.</p>
+                <p><strong>Mitigation:</strong> Dedicate specific time in Phase 4 for RLS design and testing. Create comprehensive test matrix for all role/data combinations.</p>
+            </div>
+        </div>
+
+        <div class="risk-card">
+            <div class="risk-num">3</div>
+            <div class="risk-content">
+                <h5>Real-Time Messaging Reliability</h5>
+                <div class="risk-badges">
+                    <span class="risk-badge likelihood-medium">Likelihood: Medium</span>
+                    <span class="risk-badge impact-medium">Impact: Medium</span>
+                </div>
+                <p>WebSocket connections may be unreliable on school district networks with restrictive firewalls.</p>
+                <p><strong>Mitigation:</strong> Implement fallback polling mechanism. Test on representative network configurations. Add connection status indicators in UI.</p>
+            </div>
+        </div>
+
+        <div class="risk-card">
+            <div class="risk-num">4</div>
+            <div class="risk-content">
+                <h5>Data Migration from Existing Processes</h5>
+                <div class="risk-badges">
+                    <span class="risk-badge likelihood-medium">Likelihood: Medium</span>
+                    <span class="risk-badge impact-medium">Impact: Medium</span>
+                </div>
+                <p>Districts may have incident data in spreadsheets or legacy systems that needs to be brought over.</p>
+                <p><strong>Mitigation:</strong> Keep out of MVP scope but document migration pathways. Provide CSV import tooling as a fast-follow feature.</p>
+            </div>
+        </div>
+
+        <div class="risk-card">
+            <div class="risk-num">5</div>
+            <div class="risk-content">
+                <h5>Integration Dependencies</h5>
+                <div class="risk-badges">
+                    <span class="risk-badge likelihood-low">Likelihood: Low</span>
+                    <span class="risk-badge impact-medium">Impact: Medium</span>
+                </div>
+                <p>Email/SMS providers (SendGrid, Twilio) require account setup and API key management.</p>
+                <p><strong>Mitigation:</strong> Begin vendor setup in Phase 1. Use sandbox/test modes during development. Have fallback providers identified.</p>
+            </div>
+        </div>
+
+        <div class="risk-card">
+            <div class="risk-num">6</div>
+            <div class="risk-content">
+                <h5>Team Availability &amp; Knowledge Gaps</h5>
+                <div class="risk-badges">
+                    <span class="risk-badge likelihood-medium">Likelihood: Medium</span>
+                    <span class="risk-badge impact-medium">Impact: Medium</span>
+                </div>
+                <p>Supabase-specific expertise may be limited on the team.</p>
+                <p><strong>Mitigation:</strong> Schedule Supabase training/ramp-up in Week 1. Leverage documentation and community. Consider professional support plan.</p>
+            </div>
+        </div>
+
+        <div class="risk-card">
+            <div class="risk-num">7</div>
+            <div class="risk-content">
+                <h5>Accessibility Compliance</h5>
+                <div class="risk-badges">
+                    <span class="risk-badge likelihood-medium">Likelihood: Medium</span>
+                    <span class="risk-badge impact-high">Impact: High</span>
+                </div>
+                <p>Achieving WCAG 2.1 AA may require significant UI rework of existing prototype components.</p>
+                <p><strong>Mitigation:</strong> Start accessibility audit early (Phase 3). Use automated tools (axe) continuously during development. Budget additional time in QA for remediation.</p>
+            </div>
+        </div>
+
+        <!-- ======================================= -->
+        <!-- APPENDIX                                -->
+        <!-- ======================================= -->
+        <h2 id="references">Appendix: Key References</h2>
+
+        <table>
+            <thead><tr><th>Document</th><th>Location</th></tr></thead>
+            <tbody>
+                <tr><td>Product Requirements Document</td><td><a href="PRODUCT-REQUIREMENTS.html">PRODUCT-REQUIREMENTS.html</a></td></tr>
+                <tr><td>Design System Documentation</td><td><a href="DESIGN-SYSTEM.html">DESIGN-SYSTEM.html</a></td></tr>
+                <tr><td>Technical Documentation</td><td><a href="TECHNICAL-DOCUMENTATION.html">TECHNICAL-DOCUMENTATION.html</a></td></tr>
+                <tr><td>Workflow System</td><td><a href="v4-WORKFLOW-SYSTEM.html">v4-WORKFLOW-SYSTEM.html</a></td></tr>
+                <tr><td>QA Testing Guide</td><td><a href="../qa-testing-guide.html">qa-testing-guide.html</a></td></tr>
+                <tr><td>User Guide</td><td><a href="USER-GUIDE.html">USER-GUIDE.html</a></td></tr>
+                <tr><td>Features Documentation</td><td><a href="FEATURES.html">FEATURES.html</a></td></tr>
+            </tbody>
+        </table>
+
+        <hr>
+        <p style="text-align: center; color: #71717a;"><em>This project plan is a starting draft for stakeholder alignment. Estimates should be refined after Phase 1 when MVP scope is confirmed.</em></p>
+        <p style="text-align: center; color: #a1a1aa; margin-top: 0.25rem;">Student Transportation Incident Tracker &middot; Project Plan v1.1 &middot; February 24, 2026</p>
+    </main>
+</div>
+
+</body>
+</html>

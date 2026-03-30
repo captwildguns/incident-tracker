@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>v4 Workflow System - Student Transportation Incident Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; line-height: 1.6; color: #09090b; background: #fafafa; }
+        .nav { background: #4A6FA5; color: white; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .nav h1 { font-size: 1.25rem; font-weight: 600; }
+        .nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background 0.2s; }
+        .nav a:hover { background: rgba(255,255,255,0.1); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 250px 1fr; gap: 2rem; }
+        .sidebar { background: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); height: fit-content; position: sticky; top: 80px; }
+        .sidebar h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #4A6FA5; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin: 0.5rem 0; }
+        .sidebar a { color: #52525b; text-decoration: none; font-size: 0.875rem; transition: color 0.2s; }
+        .sidebar a:hover { color: #4A6FA5; }
+        .content { background: white; padding: 3rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .content h1 { font-size: 2.5rem; font-weight: 600; margin-bottom: 1rem; color: #4A6FA5; }
+        .content h2 { font-size: 2rem; font-weight: 600; margin: 2.5rem 0 1rem; color: #18181b; padding-bottom: 0.5rem; border-bottom: 2px solid #e4e4e7; }
+        .content h3 { font-size: 1.5rem; font-weight: 600; margin: 2rem 0 1rem; color: #18181b; }
+        .content h4 { font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: #18181b; }
+        .content p { margin: 1rem 0; color: #52525b; }
+        .content ul, .content ol { margin: 1rem 0 1rem 2rem; color: #52525b; }
+        .content li { margin: 0.5rem 0; }
+        .content code { background: #f4f4f5; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: 'Courier New', monospace; font-size: 0.875rem; color: #dc2626; }
+        .content pre { background: #18181b; color: #fafafa; padding: 1.5rem; border-radius: 0.5rem; overflow-x: auto; margin: 1.5rem 0; }
+        .content pre code { background: transparent; color: inherit; padding: 0; }
+        .content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        .content th, .content td { border: 1px solid #e4e4e7; padding: 0.75rem; text-align: left; }
+        .content th { background: #f4f4f5; font-weight: 600; }
+        .info-box { background: #f0f9ff; border-left: 4px solid #4A6FA5; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .warning-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .success-box { background: #d1fae5; border-left: 4px solid #10b981; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .workflow-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; }
+        .workflow-card h4 { margin-top: 0; color: #4A6FA5; }
+        .workflow-card .matches { font-size: 0.875rem; color: #6b7280; margin: 0.5rem 0; }
+        .workflow-card .steps-list { margin-top: 1rem; }
+        .step-badge { display: inline-block; padding: 0.25rem 0.75rem; background: #e5e7eb; border-radius: 0.25rem; font-size: 0.75rem; margin-right: 0.5rem; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } .sidebar { position: static; } }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <h1>v4 Workflow System - Incident Tracker</h1>
+            <a href="index.html">← Documentation Home</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#architecture">Workflow Architecture</a></li>
+                <li><a href="#workflows">Pre-configured Workflows</a></li>
+                <li><a href="#assignment">Auto-Assignment Logic</a></li>
+                <li><a href="#ui-components">UI Components</a></li>
+                <li><a href="#custom">Creating Custom Workflows</a></li>
+                <li><a href="#api">API Reference</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>v4 Workflow System Documentation</h1>
+            <p><em>Document Version: v4 | Last Updated: January 29, 2025 | Component Version: 250</em></p>
+
+            <section id="overview">
+                <h2>Overview</h2>
+                <p>The v4 Workflow System provides automated, multi-step approval processes for incident management. Workflows are automatically assigned based on incident type and severity, ensuring consistent handling across the district.</p>
+
+                <h3>Key Features</h3>
+                <ul>
+                    <li><strong>Automatic Assignment:</strong> Workflows trigger automatically when incidents match criteria</li>
+                    <li><strong>Multi-Step Processes:</strong> Define complex approval chains with dependencies</li>
+                    <li><strong>Role-Based Assignment:</strong> Steps assigned to specific roles (Driver, Principal, etc.)</li>
+                    <li><strong>Email Notifications:</strong> Configurable alerts for step transitions</li>
+                    <li><strong>Approval Requirements:</strong> Steps can require approval from specific users/roles</li>
+                    <li><strong>Time Delays:</strong> Automatic step triggers after specified time periods</li>
+                    <li><strong>Conditional Logic:</strong> Steps can trigger based on incident attributes</li>
+                    <li><strong>Progress Tracking:</strong> Visual timeline showing workflow status</li>
+                </ul>
+            </section>
+
+            <section id="architecture">
+                <h2>Workflow Architecture</h2>
+
+                <h3>Core Data Structures</h3>
+
+                <h4>Workflow Interface</h4>
+                <pre><code>export interface Workflow {
+  id: string;                    // Unique identifier (e.g., 'WF-001')
+  name: string;                  // Display name
+  description: string;           // Purpose description
+  incidentTypes: string[];       // Array of matching incident types
+  severityLevels: string[];      // Array of matching severity levels
+  steps: WorkflowStep[];         // Ordered array of workflow steps
+  isActive: boolean;             // Template is enabled in system
+  active?: boolean;              // Instance is actively being worked
+  createdBy: string;             // Creator name
+  createdDate: string;           // Creation timestamp
+  lastModified: string;          // Last modification timestamp
+}</code></pre>
+
+                <h4>WorkflowStep Interface</h4>
+                <pre><code>export interface WorkflowStep {
+  // Basic Information
+  id: string;                    // Unique step ID
+  name: string;                  // Step name
+  description: string;           // Step description/instructions
+  assignedRole: string;          // Role responsible for step
+  estimatedDuration: string;     // Expected time to complete
+  required: boolean;             // Step is mandatory
+  order: number;                 // Sequence order (1, 2, 3...)
+  
+  // Status Tracking
+  status?: 'Not Started' | 'In Progress' | 'Completed' | 
+           'Pending Approval' | 'Approved' | 'Rejected';
+  completedDate?: string;        // Timestamp of completion
+  completedBy?: string;          // User who completed step
+  comments?: string;             // Step completion notes
+  
+  // Approval Configuration
+  requiresApproval?: boolean;    // Step needs approval
+  approvers?: string[];          // Roles that can approve
+  allowedStatuses?: string[];    // Valid status values
+  
+  // Email Notifications
+  emailNotifications?: {
+    notifyOnStart: boolean;
+    notifyOnComplete: boolean;
+    notifyAssignee: boolean;
+    notifyApprovers: boolean;
+    notifyRoles?: string[];
+    additionalRecipients: string[];
+    emailTemplate?: string;
+  };
+  
+  // Step Triggers
+  trigger?: {
+    type: 'manual' | 'auto-complete' | 'time-delay' | 
+          'status-change' | 'approval-granted' | 'conditional';
+    delayAmount?: number;
+    delayUnit?: 'minutes' | 'hours' | 'days';
+    requiredStatus?: string;
+    conditions?: Array<{
+      field: string;
+      operator: string;
+      value: string;
+    }>;
+  };
+}</code></pre>
+
+                <h3>Trigger Types Explained</h3>
+
+                <h4>1. Manual Trigger</h4>
+                <pre><code>trigger: { type: 'manual' }</code></pre>
+                <ul>
+                    <li>Step requires manual initiation</li>
+                    <li>User must explicitly start the step</li>
+                    <li>Typically used for first step in workflow</li>
+                </ul>
+
+                <h4>2. Auto-Complete Trigger</h4>
+                <pre><code>trigger: { type: 'auto-complete' }</code></pre>
+                <ul>
+                    <li>Step automatically starts when previous step completes</li>
+                    <li>Most common trigger type</li>
+                    <li>Ensures smooth progression</li>
+                </ul>
+
+                <h4>3. Time Delay Trigger</h4>
+                <pre><code>trigger: {
+  type: 'time-delay',
+  delayAmount: 24,
+  delayUnit: 'hours'
+}</code></pre>
+                <ul>
+                    <li>Step starts after specified time delay</li>
+                    <li>Useful for follow-up tasks</li>
+                    <li>Examples: 30-day follow-up, next-day review</li>
+                </ul>
+
+                <h4>4. Conditional Trigger</h4>
+                <pre><code>trigger: {
+  type: 'conditional',
+  conditions: [
+    { field: 'repeatOffense', operator: 'equals', value: 'true' }
+  ]
+}</code></pre>
+                <ul>
+                    <li>Step triggers based on incident attributes</li>
+                    <li>Enables dynamic workflow paths</li>
+                    <li>Example: Escalate only if repeat offense</li>
+                </ul>
+            </section>
+
+            <section id="workflows">
+                <h2>Pre-configured Workflows</h2>
+                <p>Version 250 includes 7 built-in workflows for common incident types:</p>
+
+                <div class="workflow-card">
+                    <h4>WF-001: Physical Altercation Response</h4>
+                    <div class="matches">
+                        <strong>Matches:</strong> Physical Altercation | Severity: High
+                    </div>
+                    <div class="steps-list">
+                        <strong>Steps (5):</strong>
+                        <ol>
+                            <li><strong>Immediate Driver Response</strong> (Driver, 5 min) - Safely stop bus and separate students</li>
+                            <li><strong>Safety Coordinator Notification</strong> (Safety Coordinator, 15 min) - Review incident and check for injuries</li>
+                            <li><strong>Parent Notification</strong> (Principal, 30 min) - Contact all involved parents</li>
+                            <li><strong>Disciplinary Action Review</strong> (Administrator, 1 hour) - Requires approval, 2-hour delay</li>
+                            <li><strong>Documentation & Close</strong> (Safety Coordinator, 20 min) - Complete final documentation</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="workflow-card">
+                    <h4>WF-002: Bullying Investigation</h4>
+                    <div class="matches">
+                        <strong>Matches:</strong> Taunting/Bullying | Severity: High, Medium
+                    </div>
+                    <div class="steps-list">
+                        <strong>Steps (6):</strong>
+                        <ol>
+                            <li><strong>Initial Report Documentation</strong> (Driver, 15 min)</li>
+                            <li><strong>Victim Support & Assessment</strong> (Nurse, 30 min)</li>
+                            <li><strong>Witness Interviews</strong> (Principal, 45 min) - 1-hour delay</li>
+                            <li><strong>Parent Notification</strong> (Principal, 30 min)</li>
+                            <li><strong>Intervention Plan Development</strong> (Safety Coordinator, 1 hour) - Requires approval</li>
+                            <li><strong>30-Day Follow-up</strong> (Nurse, 20 min) - 30-day delay</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="workflow-card">
+                    <h4>WF-003: Seat Refusal - Standard</h4>
+                    <div class="matches">
+                        <strong>Matches:</strong> Seat Refusal | Severity: Low, Medium
+                    </div>
+                    <div class="steps-list">
+                        <strong>Steps (3):</strong>
+                        <ol>
+                            <li><strong>Driver Verbal Warning</strong> (Driver, 5 min)</li>
+                            <li><strong>Parent Notification</strong> (Safety Coordinator, 10 min)</li>
+                            <li><strong>Escalation Review</strong> (Safety Coordinator, 15 min) - Conditional: if repeat offense</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="workflow-card">
+                    <h4>WF-004: Offensive Language Protocol</h4>
+                    <div class="matches">
+                        <strong>Matches:</strong> Offensive Language | Severity: Medium, High
+                    </div>
+                    <div class="steps-list">
+                        <strong>Steps (4):</strong>
+                        <ol>
+                            <li><strong>Immediate Documentation</strong> (Driver, 10 min)</li>
+                            <li><strong>Principal Review</strong> (Principal, 20 min)</li>
+                            <li><strong>Parent Conference</strong> (Principal, 30 min) - 24-hour delay</li>
+                            <li><strong>Disciplinary Action</strong> (Administrator, 15 min) - Requires approval</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="workflow-card">
+                    <h4>WF-005: Disruptive Behavior - Minor</h4>
+                    <div class="matches">
+                        <strong>Matches:</strong> Disruptive Volume | Severity: Low, Medium
+                    </div>
+                    <div class="steps-list">
+                        <strong>Steps (3):</strong>
+                        <ol>
+                            <li><strong>Driver Warning & Documentation</strong> (Driver, 5 min)</li>
+                            <li><strong>Automated Parent Notification</strong> (Safety Coordinator, 5 min)</li>
+                            <li><strong>Close Incident</strong> (Safety Coordinator, 5 min) - 2-day delay</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="workflow-card">
+                    <h4>WF-006: Property Damage Investigation</h4>
+                    <div class="matches">
+                        <strong>Matches:</strong> Vandalism, Window Misuse | Severity: Medium, High
+                    </div>
+                    <div class="steps-list">
+                        <strong>Steps (5):</strong>
+                        <ol>
+                            <li><strong>Damage Assessment & Photo Documentation</strong> (Driver, 15 min)</li>
+                            <li><strong>Fleet Manager Review</strong> (Fleet Manager, 30 min)</li>
+                            <li><strong>Parent Notification & Restitution</strong> (Administrator, 45 min)</li>
+                            <li><strong>Disciplinary Action</strong> (Principal, 20 min) - Requires approval</li>
+                            <li><strong>Repair Scheduling</strong> (Fleet Manager, 2 hours)</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="workflow-card">
+                    <h4>WF-007: Food & Beverage Violation</h4>
+                    <div class="matches">
+                        <strong>Matches:</strong> Eating/Drinking Violation | Severity: Low, Medium
+                    </div>
+                    <div class="steps-list">
+                        <strong>Steps (3):</strong>
+                        <ol>
+                            <li><strong>Driver Warning & Cleanup</strong> (Driver, 10 min)</li>
+                            <li><strong>Parent Notification</strong> (Safety Coordinator, 5 min)</li>
+                            <li><strong>Review & Close</strong> (Safety Coordinator, 5 min) - 24-hour delay</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <table style="margin-top: 2rem;">
+                    <thead>
+                        <tr>
+                            <th>Workflow ID</th>
+                            <th>Name</th>
+                            <th>Incident Types</th>
+                            <th>Severity</th>
+                            <th>Steps</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>WF-001</td>
+                            <td>Physical Altercation Response</td>
+                            <td>Physical Altercation</td>
+                            <td>High</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>WF-002</td>
+                            <td>Bullying Investigation</td>
+                            <td>Taunting/Bullying</td>
+                            <td>High, Medium</td>
+                            <td>6</td>
+                        </tr>
+                        <tr>
+                            <td>WF-003</td>
+                            <td>Seat Refusal - Standard</td>
+                            <td>Seat Refusal</td>
+                            <td>Low, Medium</td>
+                            <td>3</td>
+                        </tr>
+                        <tr>
+                            <td>WF-004</td>
+                            <td>Offensive Language Protocol</td>
+                            <td>Offensive Language</td>
+                            <td>Medium, High</td>
+                            <td>4</td>
+                        </tr>
+                        <tr>
+                            <td>WF-005</td>
+                            <td>Disruptive Behavior - Minor</td>
+                            <td>Disruptive Volume</td>
+                            <td>Low, Medium</td>
+                            <td>3</td>
+                        </tr>
+                        <tr>
+                            <td>WF-006</td>
+                            <td>Property Damage Investigation</td>
+                            <td>Vandalism, Window Misuse</td>
+                            <td>Medium, High</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>WF-007</td>
+                            <td>Food & Beverage Violation</td>
+                            <td>Eating/Drinking Violation</td>
+                            <td>Low, Medium</td>
+                            <td>3</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="assignment">
+                <h2>Auto-Assignment Logic</h2>
+
+                <h3>Assignment Function</h3>
+                <pre><code>export function assignWorkflowToIncident(
+  incidentType: string, 
+  severity: string
+): Workflow | null {
+  // Find matching workflow
+  const matchingWorkflow = workflows.find(
+    (workflow) =>
+      workflow.isActive &&
+      workflow.incidentTypes.includes(incidentType) &&
+      workflow.severityLevels.includes(severity)
+  );
+
+  if (matchingWorkflow) {
+    // Clone workflow and reset step statuses for new incident
+    const newWorkflow: Workflow = {
+      ...matchingWorkflow,
+      active: true, // Set instance as active when first assigned
+      steps: matchingWorkflow.steps.map((step) => ({
+        ...step,
+        status: 'Not Started',
+        completedDate: undefined,
+        completedBy: undefined,
+        comments: undefined,
+      })),
+    };
+    
+    return newWorkflow;
+  }
+
+  return null;
+}</code></pre>
+
+                <h3>Assignment Rules</h3>
+                <ol>
+                    <li><strong>Both Type and Severity Must Match</strong>
+                        <ul>
+                            <li>Incident type must be in <code>workflow.incidentTypes</code> array</li>
+                            <li>Severity must be in <code>workflow.severityLevels</code> array</li>
+                            <li>Both conditions must be true</li>
+                        </ul>
+                    </li>
+                    <li><strong>Workflow Must Be Active</strong>
+                        <ul>
+                            <li>Only workflows with <code>isActive: true</code> are considered</li>
+                            <li>Inactive workflows are ignored</li>
+                        </ul>
+                    </li>
+                    <li><strong>First Match Wins</strong>
+                        <ul>
+                            <li>Workflows are checked in array order</li>
+                            <li>First matching workflow is assigned</li>
+                            <li>No multiple workflow assignment</li>
+                        </ul>
+                    </li>
+                    <li><strong>Fresh Instance Created</strong>
+                        <ul>
+                            <li>Template workflow is cloned</li>
+                            <li>All steps reset to "Not Started"</li>
+                            <li>Previous data cleared</li>
+                            <li><code>active: true</code> flag set</li>
+                        </ul>
+                    </li>
+                </ol>
+
+                <h3>Usage Example</h3>
+                <pre><code>// In NewIncidentForm.tsx
+const handleSubmit = async (formData) => {
+  // Create incident
+  const incident = await createIncident(formData);
+  
+  // Auto-assign workflow
+  const workflow = assignWorkflowToIncident(
+    formData.incidentType,
+    formData.severity
+  );
+  
+  if (workflow) {
+    // Attach workflow to incident
+    incident.workflow = workflow;
+    console.log(`Assigned workflow: ${workflow.name}`);
+  } else {
+    console.log('No matching workflow found');
+  }
+  
+  return incident;
+};</code></pre>
+            </section>
+
+            <section id="ui-components">
+                <h2>Workflow UI Components</h2>
+
+                <h3>IncidentWorkflowProgress Component</h3>
+                <p><strong>File:</strong> <code>/components/incidents/IncidentWorkflowProgress.tsx</code></p>
+                <p><strong>Purpose:</strong> Displays workflow progress timeline with step status</p>
+
+                <p><strong>Features:</strong></p>
+                <ul>
+                    <li>Progress bar showing completion percentage</li>
+                    <li>Vertical timeline with connecting lines</li>
+                    <li>Color-coded status badges</li>
+                    <li>Expandable step details</li>
+                    <li>Assigned role display</li>
+                    <li>Estimated duration</li>
+                    <li>Completion information</li>
+                    <li>Comments section</li>
+                </ul>
+
+                <h3>Workflow Badge in Incident Table</h3>
+                <pre><code>{incident.workflow && isWorkflowActive(incident.workflow) && (
+  &lt;Badge 
+    variant="outline"
+    style={{ 
+      color: 'var(--brand-blue-dark)',
+      borderColor: 'var(--brand-blue-dark)',
+    }}
+  &gt;
+    &lt;GitBranch className="h-3 w-3 mr-1" /&gt;
+    Workflow ({getWorkflowProgress(incident.workflow.steps)}%)
+  &lt;/Badge&gt;
+)}</code></pre>
+
+                <h3>Status Badge Colors</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Background</th>
+                            <th>Text Color</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Not Started</td>
+                            <td>bg-gray-100</td>
+                            <td>text-gray-600</td>
+                        </tr>
+                        <tr>
+                            <td>In Progress</td>
+                            <td>bg-blue-100</td>
+                            <td>text-blue-700</td>
+                        </tr>
+                        <tr>
+                            <td>Completed</td>
+                            <td>bg-green-100</td>
+                            <td>text-green-700</td>
+                        </tr>
+                        <tr>
+                            <td>Pending Approval</td>
+                            <td>bg-amber-100</td>
+                            <td>text-amber-700</td>
+                        </tr>
+                        <tr>
+                            <td>Approved</td>
+                            <td>bg-emerald-100</td>
+                            <td>text-emerald-700</td>
+                        </tr>
+                        <tr>
+                            <td>Rejected</td>
+                            <td>bg-red-100</td>
+                            <td>text-red-700</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="custom">
+                <h2>Creating Custom Workflows</h2>
+
+                <h3>Step-by-Step Guide</h3>
+
+                <h4>1. Define Workflow Template</h4>
+                <pre><code>const customWorkflow: Workflow = {
+  id: 'WF-CUSTOM-001',
+  name: 'Custom Incident Response',
+  description: 'Workflow for handling custom incident types',
+  incidentTypes: ['Custom Type'],
+  severityLevels: ['Medium', 'High'],
+  isActive: true,
+  createdBy: 'Admin User',
+  createdDate: '2025-01-29',
+  lastModified: '2025-01-29',
+  steps: []
+};</code></pre>
+
+                <h4>2. Add Workflow Steps</h4>
+                <pre><code>customWorkflow.steps = [
+  {
+    id: 'step-1',
+    name: 'Initial Assessment',
+    description: 'Driver assesses situation and documents details',
+    assignedRole: 'Driver',
+    estimatedDuration: '10 minutes',
+    required: true,
+    order: 1,
+    trigger: {
+      type: 'manual'
+    }
+  },
+  {
+    id: 'step-2',
+    name: 'Supervisor Review',
+    description: 'Supervisor reviews and approves initial assessment',
+    assignedRole: 'Supervisor',
+    estimatedDuration: '15 minutes',
+    required: true,
+    order: 2,
+    requiresApproval: true,
+    approvers: ['Supervisor', 'Administrator'],
+    trigger: {
+      type: 'auto-complete'
+    },
+    emailNotifications: {
+      notifyOnStart: true,
+      notifyOnComplete: true,
+      notifyAssignee: true,
+      notifyApprovers: true,
+      additionalRecipients: [],
+      emailTemplate: 'Approval Request'
+    }
+  }
+];</code></pre>
+
+                <h3>Best Practices</h3>
+                <ol>
+                    <li><strong>Clear Naming</strong> - Use descriptive workflow names and explain purpose</li>
+                    <li><strong>Logical Progression</strong> - Order steps sequentially with appropriate triggers</li>
+                    <li><strong>Proper Role Assignment</strong> - Assign to correct roles that exist in system</li>
+                    <li><strong>Email Configuration</strong> - Enable notifications for critical steps</li>
+                    <li><strong>Approval Gates</strong> - Require approval for consequential actions</li>
+                    <li><strong>Error Handling</strong> - Mark critical steps as required with clear descriptions</li>
+                </ol>
+            </section>
+
+            <section id="api">
+                <h2>API Reference</h2>
+
+                <h3>Core Functions</h3>
+
+                <h4>assignWorkflowToIncident()</h4>
+                <pre><code>function assignWorkflowToIncident(
+  incidentType: string,
+  severity: string
+): Workflow | null</code></pre>
+                <p>Finds and assigns matching workflow to incident.</p>
+                <p><strong>Returns:</strong> Cloned workflow instance or null</p>
+
+                <h4>isWorkflowActive()</h4>
+                <pre><code>function isWorkflowActive(workflow: Workflow | null): boolean</code></pre>
+                <p>Checks if workflow instance is currently active.</p>
+                <p><strong>Returns:</strong> true if active, false otherwise</p>
+
+                <h4>completeWorkflow()</h4>
+                <pre><code>function completeWorkflow(workflow: Workflow): Workflow</code></pre>
+                <p>Marks workflow as completed/inactive.</p>
+                <p><strong>Returns:</strong> Updated workflow with <code>active: false</code></p>
+
+                <h4>getWorkflowProgress()</h4>
+                <pre><code>function getWorkflowProgress(steps: WorkflowStep[]): number</code></pre>
+                <p>Calculates workflow completion percentage.</p>
+                <p><strong>Returns:</strong> Progress percentage (0-100)</p>
+
+                <h4>getCurrentStep()</h4>
+                <pre><code>function getCurrentStep(steps: WorkflowStep[]): WorkflowStep | null</code></pre>
+                <p>Finds first incomplete step.</p>
+                <p><strong>Returns:</strong> Current step or null if all complete</p>
+
+                <h3>Usage Examples</h3>
+                <pre><code>// Get workflow progress
+const progress = getWorkflowProgress(incident.workflow.steps);
+console.log(`${progress}% complete`);
+
+// Check if workflow active
+if (isWorkflowActive(incident.workflow)) {
+  console.log('Workflow in progress');
+}
+
+// Get current step
+const currentStep = getCurrentStep(incident.workflow.steps);
+if (currentStep) {
+  console.log(`Current step: ${currentStep.name}`);
+  console.log(`Assigned to: ${currentStep.assignedRole}`);
+}</code></pre>
+            </section>
+
+            <div class="success-box" style="margin-top: 3rem;">
+                <strong>✅ Related Documentation:</strong><br>
+                - <a href="v4-MIGRATION-GUIDE.html">v4 Migration Guide</a><br>
+                - <a href="v4-QUICK-REFERENCE.html">v4 Quick Reference Guide</a><br>
+                - <a href="TECHNICAL-DOCUMENTATION.html">Technical Documentation</a>
+            </div>
+
+            <p style="margin-top: 3rem; text-align: center; color: #71717a; font-size: 0.875rem;">
+                <strong>End of v4 Workflow System Documentation</strong><br>
+                Document Version: v4 | Last Updated: January 29, 2025
+            </p>
+        </main>
+    </div>
+</body>
+</html>

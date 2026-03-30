@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Release Notes v2.1.0 - Student Transportation Incident Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; line-height: 1.6; color: rgba(0,0,0,0.87); background: #fafafa; font-size: 14px; }
+
+        /* Navigation */
+        .nav { background: #4A6FA5; color: white; padding: 0.75rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+        .nav h1 { font-size: 1.125rem; font-weight: 500; }
+        .nav-meta { font-size: 0.75rem; opacity: 0.8; }
+        .nav-links { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+        .nav-links a { color: white; text-decoration: none; padding: 0.375rem 0.75rem; border-radius: 4px; transition: background 0.2s; font-size: 0.8125rem; }
+        .nav-links a:hover { background: rgba(255,255,255,0.15); }
+
+        /* Content */
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .content { background: white; padding: 2.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .content h1 { font-size: 1.75rem; font-weight: 500; margin-bottom: 0.5rem; color: #4A6FA5; }
+        .content h2 { font-size: 1.375rem; font-weight: 500; margin: 2.5rem 0 0.75rem; color: rgba(0,0,0,0.87); padding-bottom: 0.5rem; border-bottom: 2px solid rgba(224,224,224,1); }
+        .content h3 { font-size: 1.125rem; font-weight: 500; margin: 1.5rem 0 0.5rem; color: rgba(0,0,0,0.87); }
+        .content h4 { font-size: 1rem; font-weight: 500; margin: 1.25rem 0 0.5rem; color: #4A6FA5; }
+        .content p { margin: 0.75rem 0; color: rgba(0,0,0,0.6); }
+        .content ul, .content ol { margin: 0.75rem 0 0.75rem 1.5rem; color: rgba(0,0,0,0.6); }
+        .content li { margin: 0.375rem 0; }
+        .content strong { color: rgba(0,0,0,0.87); font-weight: 500; }
+        .content code { background: rgba(0,0,0,0.05); padding: 0.125rem 0.375rem; border-radius: 2px; font-size: 0.8125rem; font-family: 'Courier New', monospace; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: 0.8125rem; }
+        th { background: rgba(74,111,165,0.08); color: rgba(0,0,0,0.87); font-weight: 500; text-align: left; padding: 0.5rem 0.75rem; border: 1px solid rgba(224,224,224,1); }
+        td { padding: 0.5rem 0.75rem; border: 1px solid rgba(224,224,224,1); color: rgba(0,0,0,0.7); vertical-align: top; }
+        tr:nth-child(even) { background: rgba(0,0,0,0.015); }
+
+        /* Badges */
+        .badge { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 2px; font-size: 0.6875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-added { background: #E8F5E9; color: #2E7D32; }
+        .badge-enhanced { background: #E3F2FD; color: #1565C0; }
+        .badge-changed { background: #FFF3E0; color: #E65100; }
+        .badge-fixed { background: #FCE4EC; color: #AD1457; }
+
+        /* Version badge */
+        .version-tag { background: #4A6FA5; color: white; padding: 0.25rem 0.75rem; border-radius: 2px; font-size: 0.75rem; font-weight: 500; }
+        .version-new { background: #2E7D32; color: white; padding: 0.5rem 1rem; border-radius: 4px; font-size: 1rem; font-weight: 500; display: inline-block; margin-bottom: 1rem; }
+
+        /* Feature card */
+        .feature-card { background: rgba(74,111,165,0.04); border-left: 3px solid #4A6FA5; padding: 1rem 1.25rem; margin: 1rem 0; border-radius: 0 4px 4px 0; }
+        .feature-card h4 { margin-top: 0; }
+
+        /* Footer */
+        .footer { max-width: 1200px; margin: 2rem auto; padding: 1.5rem; text-align: center; color: rgba(0,0,0,0.38); font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <div class="nav-content">
+        <div>
+            <h1>Student Transportation Incident Tracker - Release Notes</h1>
+            <div class="nav-meta"><span class="version-tag">v2.1.0</span> &nbsp;Released March 11, 2026 &nbsp;|&nbsp; Tyler Forge 3.x</div>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">Docs Index</a>
+            <a href="USER-GUIDE.html">User Guide</a>
+            <a href="FEATURES.html">Features</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="content">
+        <span class="version-new">Version 2.1.0</span>
+        <h1>Release Notes</h1>
+        <p><strong>Release Date:</strong> March 11, 2026<br>
+        <strong>Previous Version:</strong> 2.0.0<br>
+        <strong>Build:</strong> Tyler Forge 3.x Design System</p>
+
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid rgba(224,224,224,1);">
+
+        <h2>✨ What's New in v2.1.0</h2>
+
+        <p>This release includes significant enhancements to the Reports page, particularly the Weekly Trends Analysis report, which has been transformed from a simple table into a comprehensive visual dashboard with charts and automated insights.</p>
+
+        <h2>📊 Reports Page Enhancements</h2>
+
+        <div class="feature-card">
+            <h4><span class="badge badge-enhanced">Enhanced</span> Weekly Trends Analysis - Visual Dashboard</h4>
+            <p>The Weekly Trends Analysis report has been completely redesigned to provide actionable insights through visualizations instead of raw data tables.</p>
+            
+            <h4 style="font-size: 0.9rem; margin-top: 1rem;">Summary Cards (4 KPI Tiles)</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Card</th>
+                        <th>Metric</th>
+                        <th>Features</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>This Week</td>
+                        <td>Current week incident count</td>
+                        <td>Week-over-week % change with directional arrow (up/down)</td>
+                    </tr>
+                    <tr>
+                        <td>Last Week</td>
+                        <td>Previous week count</td>
+                        <td>Week start date reference</td>
+                    </tr>
+                    <tr>
+                        <td>High Severity Trend</td>
+                        <td>High severity incidents</td>
+                        <td>Week-over-week % change with visual indicators</td>
+                    </tr>
+                    <tr>
+                        <td>4-Week Average</td>
+                        <td>Rolling average</td>
+                        <td>Incidents per week calculation</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4 style="font-size: 0.9rem; margin-top: 1rem;">Charts & Visualizations</h4>
+            <ul>
+                <li><strong>Weekly Incident Trend (Line Chart)</strong> - Displays total incidents and high severity incidents over time with color-coded lines</li>
+                <li><strong>This Week by Type (Progress Bars)</strong> - Shows top 5 incident types with counts and percentages</li>
+                <li><strong>Severity Distribution by Week (Stacked Bar Chart)</strong> - Visualizes High/Medium/Low severity breakdown per week</li>
+            </ul>
+
+            <h4 style="font-size: 0.9rem; margin-top: 1rem;">Key Insights Section</h4>
+            <p>Automated insights that dynamically appear based on data patterns:</p>
+            <ul>
+                <li><strong>Significant Increase Alert</strong> - Appears when week-over-week change > 10%, displayed in red with AlertTriangle icon</li>
+                <li><strong>Positive Trend</strong> - Appears when week-over-week change < -10%, displayed in green with TrendingUp icon</li>
+                <li><strong>Most Common Type</strong> - Highlights incident type with > 2 occurrences this week, shows percentage breakdown</li>
+            </ul>
+
+            <h4 style="font-size: 0.9rem; margin-top: 1rem;">Technical Implementation</h4>
+            <ul>
+                <li>Built with Recharts library for responsive, interactive charts</li>
+                <li>All styling uses Tyler Forge design system CSS variables (<code>var(--forge-*)</code>)</li>
+                <li>Unique data keys prevent React duplicate key warnings</li>
+                <li>Responsive containers adapt to different screen sizes</li>
+            </ul>
+        </div>
+
+        <div class="feature-card">
+            <h4><span class="badge badge-changed">Changed</span> Report Column Structure Updates</h4>
+            <p>Two reports have been updated with improved column structures for better readability:</p>
+            
+            <table style="margin-top: 0.75rem;">
+                <thead>
+                    <tr>
+                        <th>Report</th>
+                        <th>Previous Structure</th>
+                        <th>New Structure</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Driver Report Summary</td>
+                        <td>Incident ID → Date → Student → Type → Vehicle → Driver → Severity → Status</td>
+                        <td>Incident ID → Date → <strong>Driver</strong> → Type → Vehicle → Severity → Status<br><small>(Student column removed, Driver after Date)</small></td>
+                    </tr>
+                    <tr>
+                        <td>Vehicle Incident Report</td>
+                        <td>Incident ID → Date → Student → Type → Vehicle → Driver → Severity → Status</td>
+                        <td>Incident ID → Date → <strong>Driver</strong> → Type → Vehicle → Severity → Status<br><small>(Student column removed, Driver after Date)</small></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p style="margin-top: 0.75rem;"><strong>Rationale:</strong> These reports focus on driver and vehicle performance metrics, so prioritizing driver information provides more relevant context than student details.</p>
+        </div>
+
+        <h2>📱 Communications Page</h2>
+
+        <div class="feature-card">
+            <h4><span class="badge badge-added">Added</span> Unread Filter Option</h4>
+            <p>The Communications page now includes an "Unread" filter option, allowing safety coordinators to quickly identify and respond to messages that haven't been read yet.</p>
+            <ul>
+                <li>Filter by Unread status</li>
+                <li>Visual indicator for unread messages</li>
+                <li>Improves response time and workflow efficiency</li>
+            </ul>
+        </div>
+
+        <h2>📋 Incidents Page</h2>
+
+        <div class="feature-card">
+            <h4><span class="badge badge-enhanced">Enhanced</span> Clickable Table Rows</h4>
+            <p>Incident table rows are now fully clickable, providing improved navigation to incident details.</p>
+            <ul>
+                <li>Click anywhere on a row to view incident details</li>
+                <li>Hover state provides visual feedback</li>
+                <li>Consistent with other pages (Vehicles, Students, Drivers)</li>
+            </ul>
+        </div>
+
+        <h2>🚌 Vehicles Page</h2>
+
+        <div class="feature-card">
+            <h4><span class="badge badge-added">Added</span> Full Pagination Support</h4>
+            <p>The Vehicles page now includes complete pagination for all 15 vehicles in the fleet.</p>
+            <ul>
+                <li>10 vehicles per page</li>
+                <li>Previous/Next navigation</li>
+                <li>Clickable table rows for vehicle details</li>
+            </ul>
+        </div>
+
+        <h2>🐛 Bug Fixes</h2>
+
+        <div class="feature-card">
+            <h4><span class="badge badge-fixed">Fixed</span> React Key Warnings in Charts</h4>
+            <p>Resolved duplicate key warnings in Recharts components by adding unique identifiers to all chart data points:</p>
+            <ul>
+                <li>Line chart data: <code>id: `week-${index}`</code></li>
+                <li>Bar chart data: <code>id: `severity-week-${index}`</code></li>
+                <li>Eliminates console warnings</li>
+                <li>Improves React rendering performance</li>
+            </ul>
+        </div>
+
+        <div class="feature-card">
+            <h4><span class="badge badge-fixed">Fixed</span> Figma Inspector Props Warnings</h4>
+            <p>Applied <code>filterFigmaProps</code> utility function to remove Figma-specific props from production components, eliminating React warnings about unknown DOM properties.</p>
+        </div>
+
+        <h2>🎨 Design System Adherence</h2>
+
+        <p>All new features and enhancements strictly adhere to the Tyler Forge 3.x design system:</p>
+        
+        <ul>
+            <li><strong>CSS Variables:</strong> All colors, spacing, borders, radius, and typography use <code>var(--forge-*)</code> variables</li>
+            <li><strong>Typography:</strong> Roboto font family exclusively (<code>var(--forge-font-family)</code>)</li>
+            <li><strong>Consistent Styling:</strong> Ensures cohesive visual experience across the application</li>
+            <li><strong>Customizable:</strong> Design can be updated globally by modifying CSS variables</li>
+        </ul>
+
+        <h2>📖 Documentation Updates</h2>
+
+        <p>The following documentation has been updated to reflect v2.1.0 changes:</p>
+
+        <ul>
+            <li><code>/docs/CHANGELOG.md</code> - Updated with v2.1.0 changes</li>
+            <li><code>/docs/screens/reports.md</code> - Enhanced with Weekly Trends dashboard details</li>
+            <li><code>/docs/FEATURES.md</code> - Comprehensive Reports & Analytics section update</li>
+            <li><code>/docs/html/RELEASE-NOTES-2.1.0.html</code> - This document</li>
+        </ul>
+
+        <h2>🔄 Migration Notes</h2>
+
+        <p><strong>No breaking changes.</strong> This release is fully backward compatible with v2.0.0. All existing functionality remains intact while new features and enhancements are additive.</p>
+
+        <h2>📦 What's Included</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Count</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Enhanced Features</td>
+                    <td>4</td>
+                    <td>Weekly Trends dashboard, Clickable rows (Incidents, Vehicles), Report structures</td>
+                </tr>
+                <tr>
+                    <td>New Features</td>
+                    <td>3</td>
+                    <td>Unread filter, Full pagination, Trend visualizations</td>
+                </tr>
+                <tr>
+                    <td>Bug Fixes</td>
+                    <td>2</td>
+                    <td>React key warnings, Figma props warnings</td>
+                </tr>
+                <tr>
+                    <td>Documentation Files</td>
+                    <td>4</td>
+                    <td>Updated MD and HTML documentation</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>🚀 Coming Soon</h2>
+
+        <p>Features planned for future releases:</p>
+
+        <ul>
+            <li>Custom Report Builder with column selection and filters</li>
+            <li>Scheduled Reports with automated delivery</li>
+            <li>Enter-key-to-send in Communications</li>
+            <li>Keyboard navigation (arrow keys, Escape) for ForgeMultiSelect</li>
+            <li>Simulated delivered/read status for communications</li>
+            <li>Dynamic "Students w/ Incidents" KPI count on Dashboard</li>
+        </ul>
+
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid rgba(224,224,224,1);">
+
+        <p style="margin-top: 2rem; color: rgba(0,0,0,0.6); font-size: 0.875rem;">
+            <strong>Support:</strong> For questions or issues, please refer to the <a href="USER-GUIDE.html" style="color: #4A6FA5; text-decoration: none;">User Guide</a> or contact your system administrator.
+        </p>
+    </div>
+</div>
+
+<div class="footer">
+    <p>Student Transportation Incident Tracker v2.1.0 | Tyler Forge 3.x Design System</p>
+    <p>© 2026 | Built with React + Tailwind CSS</p>
+</div>
+
+</body>
+</html>

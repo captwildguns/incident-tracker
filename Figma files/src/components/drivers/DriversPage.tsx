@@ -1,0 +1,1155 @@
+import { useState } from 'react';
+import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
+import { defineCardComponent } from '@tylertech/forge';
+defineCardComponent();
+import { Badge } from '../ui/badge';
+import { defineButtonComponent } from '@tylertech/forge';
+defineButtonComponent();
+import { Input } from '../ui/input';
+import { ForgeMultiSelect } from '../ui/forge-multiselect';
+import { Search, Download, User, Phone, Mail, Calendar, AlertCircle, CheckCircle, Clock, FileText, MapPin, Bus, UserCircle, ChevronUp, ChevronDown, ChevronsUpDown, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '../ui/command';
+import { ExportDropdown } from '../shared/ExportDropdown';
+import type { ExportFormat } from '../shared/ExportDropdown';
+import { toast } from 'sonner@2.0.3';
+
+// Mock driver data
+const mockDrivers = [
+  {
+    id: 'DRV-001',
+    firstName: 'Sarah',
+    lastName: 'Mitchell',
+    fullName: 'Sarah Mitchell',
+    employeeId: 'EMP-2019-045',
+    phone: '(555) 123-4567',
+    email: 'sarah.mitchell@district.edu',
+    photo: 'https://images.unsplash.com/photo-1589220286904-3dcef62c68ee?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmZW1hbGUlMjBwcm9mZXNzaW9uYWwlMjBwYXNzcG9ydCUyMGhlYWRzaG90JTIwcGhvdG98ZW58MXx8fHwxNzY5NTI2ODE4fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    status: 'Active',
+    licenseNumber: 'CDL-NY-8472651',
+    licenseExpiry: '2026-08-15',
+    licenseClass: 'Class B CDL',
+    endorsements: ['P - Passenger', 'S - School Bus'],
+    hireDate: '2019-08-15',
+    yearsOfService: 5,
+    assignedVehicle: 'Bus 1',
+    vehicleId: 'VEH-001',
+    primaryRoute: 'Westside Elementary AM - Gold',
+    secondaryRoute: 'Westside Elementary PM - Gold',
+    defaultGarage: 'East Service Center',
+    incidentCount: 7,
+    safetyRating: 'Good',
+    lastTrainingDate: '2024-12-10',
+    nextTrainingDate: '2025-06-10',
+    certifications: ['First Aid', 'CPR', 'Defensive Driving', 'Student Management'],
+    medicalExamExpiry: '2025-12-20',
+    backgroundCheckExpiry: '2025-09-01',
+    performanceScore: 87,
+    onTimePercentage: 94,
+    notes: 'Excellent with special needs students'
+  },
+  {
+    id: 'DRV-002',
+    firstName: 'James',
+    lastName: 'Rodriguez',
+    fullName: 'James Rodriguez',
+    employeeId: 'EMP-2023-112',
+    phone: '(555) 234-5678',
+    email: 'james.rodriguez@district.edu',
+    photo: 'https://images.unsplash.com/photo-1567662851835-98c9c2a1180c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYWxlJTIwaGlzcGFuaWMlMjBwcm9mZXNzaW9uYWwlMjBwYXNzcG9ydCUyMGhlYWRzaG90fGVufDF8fHx8MTc2OTUyNjgxOHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    status: 'Active',
+    licenseNumber: 'CDL-NY-9584621',
+    licenseExpiry: '2027-03-22',
+    licenseClass: 'Class B CDL',
+    endorsements: ['P - Passenger', 'S - School Bus'],
+    hireDate: '2023-08-01',
+    yearsOfService: 1,
+    assignedVehicle: 'Bus 2',
+    vehicleId: 'VEH-002',
+    primaryRoute: 'Northside High AM - Silver',
+    secondaryRoute: 'Northside High PM - Silver',
+    defaultGarage: 'South District Garage',
+    incidentCount: 1,
+    safetyRating: 'Excellent',
+    lastTrainingDate: '2025-01-15',
+    nextTrainingDate: '2025-07-15',
+    certifications: ['First Aid', 'CPR', 'Defensive Driving'],
+    medicalExamExpiry: '2026-07-30',
+    backgroundCheckExpiry: '2026-08-01',
+    performanceScore: 96,
+    onTimePercentage: 98,
+    notes: 'New hire, excellent performance'
+  },
+  {
+    id: 'DRV-003',
+    firstName: 'Patricia',
+    lastName: 'Wilson',
+    fullName: 'Patricia Wilson',
+    employeeId: 'EMP-2017-089',
+    phone: '(555) 345-6789',
+    email: 'patricia.wilson@district.edu',
+    photo: 'https://images.unsplash.com/photo-1744127176890-66798b8e75af?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXR1cmUlMjBmZW1hbGUlMjBwcm9mZXNzaW9uYWwlMjBwYXNzcG9ydCUyMHBob3RvfGVufDF8fHx8MTc2OTUyNjgxOXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    status: 'Active',
+    licenseNumber: 'CDL-NY-7362514',
+    licenseExpiry: '2025-11-08',
+    licenseClass: 'Class B CDL',
+    endorsements: ['P - Passenger', 'S - School Bus'],
+    hireDate: '2017-09-01',
+    yearsOfService: 7,
+    assignedVehicle: 'Bus 3',
+    vehicleId: 'VEH-003',
+    primaryRoute: 'Central Elementary AM - Purple',
+    secondaryRoute: 'Central Elementary PM - Purple',
+    defaultGarage: 'Central Service Center',
+    incidentCount: 2,
+    safetyRating: 'Excellent',
+    lastTrainingDate: '2024-11-20',
+    nextTrainingDate: '2025-05-20',
+    certifications: ['First Aid', 'CPR', 'Defensive Driving', 'Student Management', 'Crisis Intervention'],
+    medicalExamExpiry: '2025-10-15',
+    backgroundCheckExpiry: '2025-09-01',
+    performanceScore: 93,
+    onTimePercentage: 97,
+    notes: 'Senior driver, mentor for new hires'
+  },
+  {
+    id: 'DRV-004',
+    firstName: 'Michael',
+    lastName: 'Chen',
+    fullName: 'Michael Chen',
+    employeeId: 'EMP-2020-067',
+    phone: '(555) 456-7890',
+    email: 'michael.chen@district.edu',
+    photo: 'https://images.unsplash.com/photo-1567662851835-98c9c2a1180c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhc2lhbiUyMG1hbGUlMjBwcm9mZXNzaW9uYWwlMjBwYXNzcG9ydCUyMGhlYWRzaG90fGVufDF8fHx8MTc2OTUyNjgxOXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    status: 'Active',
+    licenseNumber: 'CDL-NY-6251487',
+    licenseExpiry: '2026-05-14',
+    licenseClass: 'Class B CDL',
+    endorsements: ['P - Passenger', 'S - School Bus'],
+    hireDate: '2020-09-15',
+    yearsOfService: 4,
+    assignedVehicle: 'Bus 12',
+    vehicleId: 'VEH-012',
+    primaryRoute: 'Meyers Middle AM - Yellow',
+    secondaryRoute: 'Meyers Middle PM - Yellow',
+    defaultGarage: 'North District Garage',
+    incidentCount: 12,
+    safetyRating: 'Needs Improvement',
+    lastTrainingDate: '2024-09-15',
+    nextTrainingDate: '2025-03-15',
+    certifications: ['First Aid', 'CPR', 'Defensive Driving'],
+    medicalExamExpiry: '2025-08-20',
+    backgroundCheckExpiry: '2025-09-15',
+    performanceScore: 72,
+    onTimePercentage: 88,
+    notes: 'Additional training scheduled due to incident rate'
+  },
+  {
+    id: 'DRV-005',
+    firstName: 'Jennifer',
+    lastName: 'Martinez',
+    fullName: 'Jennifer Martinez',
+    employeeId: 'EMP-2021-098',
+    phone: '(555) 567-8901',
+    email: 'jennifer.martinez@district.edu',
+    photo: 'https://images.unsplash.com/photo-1750175473842-353543b839db?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoaXNwYW5pYyUyMGZlbWFsZSUyMHByb2Zlc3Npb25hbCUyMHBhc3Nwb3J0JTIwcGhvdG98ZW58MXx8fHwxNzY5NTI2ODIwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    status: 'Active',
+    licenseNumber: 'CDL-NY-5147896',
+    licenseExpiry: '2027-01-10',
+    licenseClass: 'Class B CDL',
+    endorsements: ['P - Passenger', 'S - School Bus'],
+    hireDate: '2021-08-20',
+    yearsOfService: 3,
+    assignedVehicle: 'Bus 9',
+    vehicleId: 'VEH-009',
+    primaryRoute: 'Lincoln Elementary AM - Green',
+    secondaryRoute: 'Lincoln Elementary PM - Green',
+    defaultGarage: 'Central Service Center',
+    incidentCount: 5,
+    safetyRating: 'Good',
+    lastTrainingDate: '2024-10-05',
+    nextTrainingDate: '2025-04-05',
+    certifications: ['First Aid', 'CPR', 'Defensive Driving', 'Student Management'],
+    medicalExamExpiry: '2026-01-15',
+    backgroundCheckExpiry: '2025-08-20',
+    performanceScore: 89,
+    onTimePercentage: 95,
+    notes: ''
+  },
+  {
+    id: 'DRV-006',
+    firstName: 'Robert',
+    lastName: 'Thompson',
+    fullName: 'Robert Thompson',
+    employeeId: 'EMP-2021-103',
+    phone: '(555) 678-9012',
+    email: 'robert.thompson@district.edu',
+    photo: 'https://images.unsplash.com/photo-1567662851835-98c9c2a1180c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYWxlJTIwcHJvZmVzc2lvbmFsJTIwcGFzc3BvcnQlMjBoZWFkc2hvdCUyMHBob3RvfGVufDF8fHx8MTc2OTUyNjgyMnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    status: 'Active',
+    licenseNumber: 'CDL-NY-4258963',
+    licenseExpiry: '2026-09-25',
+    licenseClass: 'Class B CDL',
+    endorsements: ['P - Passenger', 'S - School Bus'],
+    hireDate: '2021-09-10',
+    yearsOfService: 3,
+    assignedVehicle: 'Bus 14',
+    vehicleId: 'VEH-014',
+    primaryRoute: 'Roosevelt High AM - Red',
+    secondaryRoute: 'Roosevelt High PM - Red',
+    defaultGarage: 'South District Garage',
+    incidentCount: 6,
+    safetyRating: 'Good',
+    lastTrainingDate: '2024-11-01',
+    nextTrainingDate: '2025-05-01',
+    certifications: ['First Aid', 'CPR', 'Defensive Driving'],
+    medicalExamExpiry: '2025-11-30',
+    backgroundCheckExpiry: '2025-09-10',
+    performanceScore: 85,
+    onTimePercentage: 92,
+    notes: ''
+  },
+  {
+    id: 'DRV-007',
+    firstName: 'Lisa',
+    lastName: 'Anderson',
+    fullName: 'Lisa Anderson',
+    employeeId: 'EMP-2019-071',
+    phone: '(555) 789-0123',
+    email: 'lisa.anderson@district.edu',
+    photo: 'https://images.unsplash.com/photo-1740153204804-200310378f2f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhc2lhbiUyMGZlbWFsZSUyMHByb2Zlc3Npb25hbCUyMHBhc3Nwb3J0JTIwaGVhZHNob3R8ZW58MXx8fHwxNzY5NTI2ODIwfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    status: 'Active',
+    licenseNumber: 'CDL-NY-3698521',
+    licenseExpiry: '2026-06-18',
+    licenseClass: 'Class B CDL',
+    endorsements: ['P - Passenger', 'S - School Bus'],
+    hireDate: '2019-09-05',
+    yearsOfService: 5,
+    assignedVehicle: 'Bus 8',
+    vehicleId: 'VEH-008',
+    primaryRoute: 'Washington High PM - Wolf Rd',
+    secondaryRoute: '',
+    defaultGarage: 'South District Garage',
+    incidentCount: 9,
+    safetyRating: 'Good',
+    lastTrainingDate: '2024-08-22',
+    nextTrainingDate: '2025-02-22',
+    certifications: ['First Aid', 'CPR', 'Defensive Driving', 'Student Management'],
+    medicalExamExpiry: '2025-09-10',
+    backgroundCheckExpiry: '2025-09-05',
+    performanceScore: 81,
+    onTimePercentage: 90,
+    notes: 'Part-time driver'
+  },
+  {
+    id: 'DRV-008',
+    firstName: 'David',
+    lastName: 'Park',
+    fullName: 'David Park',
+    employeeId: 'EMP-2022-134',
+    phone: '(555) 890-1234',
+    email: 'david.park@district.edu',
+    photo: 'https://images.unsplash.com/photo-1567662851835-98c9c2a1180c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhc2lhbiUyMG1hbGUlMjBwYXNzcG9ydCUyMHByb2Zlc3Npb25hbCUyMHBob3RvfGVufDF8fHx8MTc2OTUyNjgyMXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    status: 'Active',
+    licenseNumber: 'CDL-NY-2581473',
+    licenseExpiry: '2027-04-12',
+    licenseClass: 'Class B CDL',
+    endorsements: ['P - Passenger', 'S - School Bus'],
+    hireDate: '2022-08-15',
+    yearsOfService: 2,
+    assignedVehicle: 'Bus 15',
+    vehicleId: 'VEH-015',
+    primaryRoute: 'Jefferson Middle AM - Blue',
+    secondaryRoute: 'Jefferson Middle PM - Blue',
+    defaultGarage: 'North District Garage',
+    incidentCount: 8,
+    safetyRating: 'Good',
+    lastTrainingDate: '2024-12-01',
+    nextTrainingDate: '2025-06-01',
+    certifications: ['First Aid', 'CPR', 'Defensive Driving'],
+    medicalExamExpiry: '2026-08-30',
+    backgroundCheckExpiry: '2025-08-15',
+    performanceScore: 84,
+    onTimePercentage: 91,
+    notes: ''
+  },
+  {
+    id: 'DRV-009',
+    firstName: 'Robert',
+    lastName: 'Martinez',
+    fullName: 'Robert Martinez',
+    employeeId: 'EMP-2022-145',
+    phone: '(555) 901-2345',
+    email: 'robert.martinez@district.edu',
+    photo: 'https://images.unsplash.com/photo-1567662851835-98c9c2a1180c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoaXNwYW5pYyUyMG1hbGUlMjBwYXNzcG9ydCUyMHByb2Zlc3Npb25hbCUyMGhlYWRzaG90fGVufDF8fHx8MTc2OTUyNjgyMXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    status: 'Active',
+    licenseNumber: 'CDL-NY-1472589',
+    licenseExpiry: '2027-07-22',
+    licenseClass: 'Class B CDL',
+    endorsements: ['P - Passenger', 'S - School Bus'],
+    hireDate: '2022-09-01',
+    yearsOfService: 2,
+    assignedVehicle: 'Bus 7',
+    vehicleId: 'VEH-007',
+    primaryRoute: 'Lincoln Elementary AM - Orange',
+    secondaryRoute: 'Lincoln Elementary PM - Orange',
+    defaultGarage: 'North District Garage',
+    incidentCount: 3,
+    safetyRating: 'Excellent',
+    lastTrainingDate: '2025-01-05',
+    nextTrainingDate: '2025-07-05',
+    certifications: ['First Aid', 'CPR', 'Defensive Driving', 'Student Management'],
+    medicalExamExpiry: '2027-02-15',
+    backgroundCheckExpiry: '2025-09-01',
+    performanceScore: 92,
+    onTimePercentage: 96,
+    notes: ''
+  },
+  {
+    id: 'DRV-010',
+    firstName: 'Karen',
+    lastName: 'Taylor',
+    fullName: 'Karen Taylor',
+    employeeId: 'EMP-2018-056',
+    phone: '(555) 012-3456',
+    email: 'karen.taylor@district.edu',
+    photo: 'https://images.unsplash.com/photo-1589220286904-3dcef62c68ee?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYXR1cmUlMjBmZW1hbGUlMjBwYXNzcG9ydCUyMHByb2Zlc3Npb25hbCUyMGhlYWRzaG90fGVufDF8fHx8MTc2OTUyNjgyMnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    status: 'Inactive',
+    licenseNumber: 'CDL-NY-0369852',
+    licenseExpiry: '2026-02-14',
+    licenseClass: 'Class B CDL',
+    endorsements: ['P - Passenger', 'S - School Bus'],
+    hireDate: '2018-08-30',
+    yearsOfService: 6,
+    assignedVehicle: 'Unassigned',
+    vehicleId: '',
+    primaryRoute: '',
+    secondaryRoute: '',
+    defaultGarage: 'East Service Center',
+    incidentCount: 4,
+    safetyRating: 'Good',
+    lastTrainingDate: '2024-07-15',
+    nextTrainingDate: '2025-01-15',
+    certifications: ['First Aid', 'CPR', 'Defensive Driving', 'Student Management'],
+    medicalExamExpiry: '2025-06-20',
+    backgroundCheckExpiry: '2025-08-30',
+    performanceScore: 88,
+    onTimePercentage: 93,
+    notes: 'Medical leave until March 2025'
+  },
+  {
+    id: 'DRV-011',
+    firstName: 'Marcus',
+    lastName: 'Washington',
+    fullName: 'Marcus Washington',
+    employeeId: 'EMP-2022-158',
+    phone: '(555) 112-3344',
+    email: 'marcus.washington@district.edu',
+    photo: 'https://images.unsplash.com/photo-1745174837801-b7f37abe9d2e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwYW1lcmljYW4lMjBtYWxlJTIwcHJvZmVzc2lvbmFsJTIwaGVhZHNob3QlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NzI4MDkwMjJ8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    status: 'Active',
+    licenseNumber: 'CDL-NY-7714523',
+    licenseExpiry: '2027-05-20',
+    licenseClass: 'Class B CDL',
+    endorsements: ['P - Passenger', 'S - School Bus'],
+    hireDate: '2022-09-12',
+    yearsOfService: 3,
+    assignedVehicle: 'Bus 4',
+    vehicleId: 'VEH-004',
+    primaryRoute: 'Eastside Middle AM - Teal',
+    secondaryRoute: 'Eastside Middle PM - Teal',
+    defaultGarage: 'East Service Center',
+    incidentCount: 3,
+    safetyRating: 'Good',
+    lastTrainingDate: '2025-01-20',
+    nextTrainingDate: '2025-07-20',
+    certifications: ['First Aid', 'CPR', 'Defensive Driving'],
+    medicalExamExpiry: '2026-09-12',
+    backgroundCheckExpiry: '2025-09-12',
+    performanceScore: 86,
+    onTimePercentage: 93,
+    notes: 'Reliable morning route driver'
+  },
+  {
+    id: 'DRV-012',
+    firstName: 'Angela',
+    lastName: 'Foster',
+    fullName: 'Angela Foster',
+    employeeId: 'EMP-2023-171',
+    phone: '(555) 223-4455',
+    email: 'angela.foster@district.edu',
+    photo: 'https://images.unsplash.com/photo-1589220286904-3dcef62c68ee?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXVjYXNpYW4lMjBmZW1hbGUlMjBwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MjgwOTAyMnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    status: 'Active',
+    licenseNumber: 'CDL-NY-6623418',
+    licenseExpiry: '2027-08-14',
+    licenseClass: 'Class B CDL',
+    endorsements: ['P - Passenger', 'S - School Bus'],
+    hireDate: '2023-08-28',
+    yearsOfService: 2,
+    assignedVehicle: 'Bus 6',
+    vehicleId: 'VEH-006',
+    primaryRoute: 'Oakwood Elementary AM - Bronze',
+    secondaryRoute: 'Oakwood Elementary PM - Bronze',
+    defaultGarage: 'Central Service Center',
+    incidentCount: 2,
+    safetyRating: 'Excellent',
+    lastTrainingDate: '2025-02-10',
+    nextTrainingDate: '2025-08-10',
+    certifications: ['First Aid', 'CPR', 'Defensive Driving', 'Student Management'],
+    medicalExamExpiry: '2026-08-28',
+    backgroundCheckExpiry: '2026-08-28',
+    performanceScore: 94,
+    onTimePercentage: 97,
+    notes: 'Strong rapport with elementary students'
+  },
+  {
+    id: 'DRV-013',
+    firstName: 'Thomas',
+    lastName: 'Nguyen',
+    fullName: 'Thomas Nguyen',
+    employeeId: 'EMP-2019-082',
+    phone: '(555) 334-5566',
+    email: 'thomas.nguyen@district.edu',
+    photo: 'https://images.unsplash.com/photo-1753367034674-d38bf4e4d1fb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aWV0bmFtZXNlJTIwbWFsZSUyMHByb2Zlc3Npb25hbCUyMGhlYWRzaG90JTIwcG9ydHJhaXR8ZW58MXx8fHwxNzcyODA5MDIzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    status: 'Active',
+    licenseNumber: 'CDL-NY-5532197',
+    licenseExpiry: '2026-11-30',
+    licenseClass: 'Class B CDL',
+    endorsements: ['P - Passenger', 'S - School Bus'],
+    hireDate: '2019-10-01',
+    yearsOfService: 6,
+    assignedVehicle: 'Bus 11',
+    vehicleId: 'VEH-011',
+    primaryRoute: 'Hillcrest High AM - Crimson',
+    secondaryRoute: 'Hillcrest High PM - Crimson',
+    defaultGarage: 'South District Garage',
+    incidentCount: 2,
+    safetyRating: 'Good',
+    lastTrainingDate: '2024-12-15',
+    nextTrainingDate: '2025-06-15',
+    certifications: ['First Aid', 'CPR', 'Defensive Driving', 'Student Management', 'Crisis Intervention'],
+    medicalExamExpiry: '2026-04-01',
+    backgroundCheckExpiry: '2025-10-01',
+    performanceScore: 90,
+    onTimePercentage: 95,
+    notes: 'Experienced high school route driver'
+  },
+  {
+    id: 'DRV-014',
+    firstName: 'Sandra',
+    lastName: 'Brooks',
+    fullName: 'Sandra Brooks',
+    employeeId: 'EMP-2017-041',
+    phone: '(555) 445-6677',
+    email: 'sandra.brooks@district.edu',
+    photo: 'https://images.unsplash.com/photo-1643921330459-6fb64282f467?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhZnJpY2FuJTIwYW1lcmljYW4lMjBmZW1hbGUlMjBwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MjgwOTAyM3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    status: 'Inactive',
+    licenseNumber: 'CDL-NY-4419876',
+    licenseExpiry: '2026-03-10',
+    licenseClass: 'Class B CDL',
+    endorsements: ['P - Passenger', 'S - School Bus'],
+    hireDate: '2017-08-15',
+    yearsOfService: 8,
+    assignedVehicle: 'Unassigned',
+    vehicleId: '',
+    primaryRoute: '',
+    secondaryRoute: '',
+    defaultGarage: 'North District Garage',
+    incidentCount: 1,
+    safetyRating: 'Good',
+    lastTrainingDate: '2024-06-20',
+    nextTrainingDate: '2025-01-20',
+    certifications: ['First Aid', 'CPR', 'Defensive Driving', 'Student Management'],
+    medicalExamExpiry: '2025-08-15',
+    backgroundCheckExpiry: '2025-08-15',
+    performanceScore: 82,
+    onTimePercentage: 91,
+    notes: 'Retired effective January 2025'
+  },
+  {
+    id: 'DRV-015',
+    firstName: 'Derek',
+    lastName: 'Coleman',
+    fullName: 'Derek Coleman',
+    employeeId: 'EMP-2024-203',
+    phone: '(555) 556-7788',
+    email: 'derek.coleman@district.edu',
+    photo: 'https://images.unsplash.com/photo-1758613654360-45f1ff78c0cf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx5b3VuZyUyMG1hbGUlMjBwcm9mZXNzaW9uYWwlMjBoZWFkc2hvdCUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MjgwOTAyM3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    status: 'Active',
+    licenseNumber: 'CDL-NY-3318745',
+    licenseExpiry: '2028-01-15',
+    licenseClass: 'Class B CDL',
+    endorsements: ['P - Passenger', 'S - School Bus'],
+    hireDate: '2024-08-19',
+    yearsOfService: 1,
+    assignedVehicle: 'Bus 10',
+    vehicleId: 'VEH-010',
+    primaryRoute: 'Parkview Middle AM - Navy',
+    secondaryRoute: 'Parkview Middle PM - Navy',
+    defaultGarage: 'East Service Center',
+    incidentCount: 2,
+    safetyRating: 'Excellent',
+    lastTrainingDate: '2025-02-01',
+    nextTrainingDate: '2025-08-01',
+    certifications: ['First Aid', 'CPR', 'Defensive Driving'],
+    medicalExamExpiry: '2027-08-19',
+    backgroundCheckExpiry: '2027-08-19',
+    performanceScore: 95,
+    onTimePercentage: 98,
+    notes: 'Newest hire, showing excellent promise'
+  },
+];
+
+interface DriversPageProps {
+  onNavigate: (page: string) => void;
+}
+
+export function DriversPage({ onNavigate }: DriversPageProps) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [yearsOfServiceFilter, setYearsOfServiceFilter] = useState<string[]>([]);
+  const [selectedDriver, setSelectedDriver] = useState<any>(null);
+  const [driverLookupOpen, setDriverLookupOpen] = useState(false);
+  
+  // Sorting state
+  const [sortColumn, setSortColumn] = useState<'id' | 'name' | 'contact' | 'email' | 'yearsOfService' | 'status'>('name');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  
+  // Pagination state
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Calculate summary statistics
+  const totalDrivers = mockDrivers.length;
+  const activeDrivers = mockDrivers.filter(d => d.status === 'Active').length;
+  const expiringCerts = mockDrivers.filter(d => {
+    const licenseExpiry = new Date(d.licenseExpiry);
+    const medicalExpiry = new Date(d.medicalExamExpiry);
+    const bgExpiry = new Date(d.backgroundCheckExpiry);
+    const threeMonthsFromNow = new Date();
+    threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
+    return licenseExpiry <= threeMonthsFromNow || medicalExpiry <= threeMonthsFromNow || bgExpiry <= threeMonthsFromNow;
+  }).length;
+  const avgPerformance = Math.round(mockDrivers.reduce((sum, d) => sum + d.performanceScore, 0) / totalDrivers);
+  const avgIncidents = (mockDrivers.reduce((sum, d) => sum + d.incidentCount, 0) / totalDrivers).toFixed(1);
+
+  // Filter drivers
+  const filteredDrivers = mockDrivers.filter((driver) => {
+    const matchesSearch =
+      driver.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      driver.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      driver.employeeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      driver.assignedVehicle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      driver.primaryRoute.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter.length === 0 || statusFilter.includes(driver.status);
+    
+    const matchesYears = yearsOfServiceFilter.length === 0 || yearsOfServiceFilter.some((range) => {
+      const yos = driver.yearsOfService;
+      switch (range) {
+        case '1-5': return yos >= 1 && yos <= 5;
+        case '6-10': return yos >= 6 && yos <= 10;
+        case '11-15': return yos >= 11 && yos <= 15;
+        case '16-20': return yos >= 16 && yos <= 20;
+        case '20+': return yos > 20;
+        default: return false;
+      }
+    });
+
+    return matchesSearch && matchesStatus && matchesYears;
+  });
+  
+  // Function to handle column header clicks
+  const handleSort = (column: typeof sortColumn) => {
+    if (sortColumn === column) {
+      // Toggle direction if clicking the same column
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      // Set new column with ascending direction
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+  
+  // Sort the filtered drivers
+  const sortedDrivers = [...filteredDrivers].sort((a, b) => {
+    let compareResult = 0;
+    
+    switch (sortColumn) {
+      case 'id':
+        compareResult = a.employeeId.localeCompare(b.employeeId);
+        break;
+      case 'name':
+        compareResult = a.fullName.localeCompare(b.fullName);
+        break;
+      case 'contact':
+        compareResult = a.phone.localeCompare(b.phone);
+        break;
+      case 'email':
+        compareResult = a.email.localeCompare(b.email);
+        break;
+      case 'yearsOfService':
+        compareResult = a.yearsOfService - b.yearsOfService;
+        break;
+      case 'status':
+        compareResult = a.status.localeCompare(b.status);
+        break;
+    }
+    
+    return sortDirection === 'asc' ? compareResult : -compareResult;
+  });
+
+  // Pagination
+  const totalPages = Math.ceil(sortedDrivers.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const paginatedDrivers = sortedDrivers.slice(startIndex, startIndex + rowsPerPage);
+  
+  // Render sort icon for column header
+  const SortIcon = ({ column }: { column: typeof sortColumn }) => {
+    if (sortColumn !== column) {
+      return <ChevronsUpDown className="h-4 w-4 ml-1 text-muted-foreground" />;
+    }
+    return sortDirection === 'asc' 
+      ? <ChevronUp className="h-4 w-4 ml-1" /> 
+      : <ChevronDown className="h-4 w-4 ml-1" />;
+  };
+
+  const isExpiringOrExpired = (dateString: string) => {
+    const expiryDate = new Date(dateString);
+    const threeMonthsFromNow = new Date();
+    threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
+    const today = new Date();
+    
+    if (expiryDate < today) return { status: 'expired', color: 'text-red-600' };
+    if (expiryDate <= threeMonthsFromNow) return { status: 'expiring', color: 'text-orange-500' };
+    return { status: 'valid', color: 'text-green-600' };
+  };
+
+  const handleExport = (format: ExportFormat) => {
+    const formatLabels: Record<ExportFormat, string> = {
+      excel: 'Excel Spreadsheet', word: 'Word Document', csv: 'CSV', 'csv-no-header': 'CSV (no header)',
+    };
+    const formatExtensions: Record<ExportFormat, string> = {
+      excel: 'xlsx', word: 'docx', csv: 'csv', 'csv-no-header': 'csv',
+    };
+
+    toast.success('Export started', {
+      description: `Preparing ${formatLabels[format]} export for drivers data.`,
+    });
+
+    setTimeout(() => {
+      const headers = ['Driver ID', 'Name', 'Employee ID', 'Status', 'Phone', 'Email', 'License', 'Years of Service', 'Primary Route', 'Safety Rating', 'Incidents', 'Performance', 'On-Time %'];
+      const rows = sortedDrivers.map(d => [
+        d.id, `"${d.fullName}"`, d.employeeId, d.status, d.phone, d.email,
+        d.licenseNumber, d.yearsOfService, `"${d.primaryRoute}"`,
+        d.safetyRating, d.incidentCount, d.performanceScore, d.onTimePercentage
+      ].join(','));
+
+      const csvContent = format === 'csv-no-header'
+        ? rows.join('\n')
+        : [headers.join(','), ...rows].join('\n');
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `drivers-export-${new Date().toISOString().split('T')[0]}.${formatExtensions[format]}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      toast.success('Export complete', {
+        description: `Your ${formatLabels[format]} has been downloaded.`,
+      });
+    }, 1500);
+  };
+
+  return (
+    <div style={{ padding: 'var(--forge-spacing-xlarge)' }}>
+      {/* Page Header */}
+      <div className="flex items-center justify-between" style={{ marginBottom: 'var(--forge-spacing-large)' }}>
+        <div>
+          <h1 style={{ margin: 0, marginBottom: '8px' }}>Driver Management</h1>
+          <p className="text-muted-foreground" style={{ margin: 0 }}>
+            Monitor and manage all district bus drivers
+          </p>
+        </div>
+      </div>
+
+      {/* Summary Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" style={{ marginBottom: 'var(--forge-spacing-large)' }}>
+        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', borderRadius: 'var(--forge-radius-large)', borderColor: 'var(--forge-color-border-default)' }}>
+          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
+            <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>Total Drivers</h3>
+            <User className="h-4 w-4" style={{ color: 'var(--brand-blue-dark)' }} />
+          </div>
+          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
+            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: 'var(--brand-blue-dark)', fontFamily: 'Roboto, sans-serif' }}>
+              {totalDrivers}
+            </div>
+            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'Roboto, sans-serif' }}>
+              In transportation fleet
+            </p>
+          </div>
+        </ForgeCard>
+
+        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', borderRadius: 'var(--forge-radius-large)', borderColor: 'var(--forge-color-border-default)' }}>
+          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
+            <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>Active Drivers</h3>
+            <CheckCircle className="h-4 w-4" style={{ color: 'var(--brand-olive-medium)' }} />
+          </div>
+          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
+            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: 'var(--brand-olive-medium)', fontFamily: 'Roboto, sans-serif' }}>
+              {activeDrivers}
+            </div>
+            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'Roboto, sans-serif' }}>
+              Currently on duty
+            </p>
+          </div>
+        </ForgeCard>
+
+        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', borderRadius: 'var(--forge-radius-large)', borderColor: 'var(--forge-color-border-default)' }}>
+          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
+            <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>Expiring Certifications</h3>
+            <AlertCircle className="h-4 w-4" style={{ color: expiringCerts > 0 ? '#dc2626' : 'var(--brand-blue-dark)' }} />
+          </div>
+          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
+            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: expiringCerts > 0 ? '#dc2626' : 'var(--brand-blue-dark)', fontFamily: 'Roboto, sans-serif' }}>
+              {expiringCerts}
+            </div>
+            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'Roboto, sans-serif' }}>
+              {expiringCerts > 0 ? 'Need attention' : 'All current'}
+            </p>
+          </div>
+        </ForgeCard>
+
+        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', borderRadius: 'var(--forge-radius-large)', borderColor: 'var(--forge-color-border-default)' }}>
+          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
+            <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>Avg. Performance</h3>
+            <TrendingUp className="h-4 w-4" style={{ color: 'var(--brand-blue-medium)' }} />
+          </div>
+          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
+            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: 'var(--brand-blue-medium)', fontFamily: 'Roboto, sans-serif' }}>
+              {avgPerformance}<span style={{ fontSize: 'var(--text-sm)' }}>%</span>
+            </div>
+            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'Roboto, sans-serif' }}>
+              Fleet performance score
+            </p>
+          </div>
+        </ForgeCard>
+      </div>
+
+      {/* Filters Card */}
+      <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', marginBottom: 'var(--forge-spacing-large)' }}>
+        <div style={{ padding: 'var(--forge-spacing-medium)', paddingTop: 'var(--forge-spacing-large)' }}>
+          <div className="flex items-center" style={{ gap: 'var(--forge-spacing-medium)' }}>
+            {/* Search */}
+            <div className="flex-1 min-w-0">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" style={{ zIndex: 1 }} />
+                <Input
+                  placeholder="Search drivers, vehicles, or routes..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setDriverLookupOpen(true);
+                  }}
+                  onFocus={() => setDriverLookupOpen(true)}
+                  className="pl-10"
+                />
+                {driverLookupOpen && searchTerm && (
+                  <div 
+                    className="absolute z-50 w-full mt-1 border rounded-md shadow-lg max-h-[400px] overflow-auto"
+                    style={{ 
+                      backgroundColor: 'var(--popover)', 
+                      borderColor: 'var(--border)',
+                      boxShadow: 'var(--forge-elevation-4)'
+                    }}
+                  >
+                    <Command>
+                      <CommandList>
+                        <CommandEmpty>No driver found.</CommandEmpty>
+                        <CommandGroup>
+                          {mockDrivers
+                            .filter((driver) =>
+                              driver.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              driver.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              driver.employeeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              driver.assignedVehicle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              driver.primaryRoute.toLowerCase().includes(searchTerm.toLowerCase())
+                            )
+                            .slice(0, 8)
+                            .map((driver) => (
+                              <CommandItem
+                                key={driver.id}
+                                value={driver.fullName}
+                                onSelect={() => {
+                                  setSearchTerm(driver.fullName);
+                                  setDriverLookupOpen(false);
+                                }}
+                                style={{
+                                  cursor: 'pointer',
+                                  padding: 'var(--forge-spacing-small)',
+                                }}
+                              >
+                                <div className="flex flex-col w-full">
+                                  <div className="flex items-center justify-between">
+                                    <span style={{ fontWeight: 500 }}>{driver.fullName}</span>
+                                    <Badge variant={driver.status === 'Active' ? 'default' : 'secondary'} style={{ fontSize: '0.75rem' }}>
+                                      {driver.status}
+                                    </Badge>
+                                  </div>
+                                  <div className="text-sm text-muted-foreground mt-1">
+                                    {driver.id} • {driver.employeeId}
+                                  </div>
+                                  <div className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
+                                    <span className="flex items-center gap-1">
+                                      <Bus className="h-3 w-3" />
+                                      {driver.assignedVehicle}
+                                    </span>
+                                    {driver.primaryRoute && (
+                                      <span className="flex items-center gap-1">
+                                        <MapPin className="h-3 w-3" />
+                                        {driver.primaryRoute}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </CommandItem>
+                            ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Status Filter */}
+            <div className="shrink-0">
+              <ForgeMultiSelect
+                options={[
+                  { value: 'Active', label: 'Active' },
+                  { value: 'Inactive', label: 'Inactive' },
+                ]}
+                selected={statusFilter}
+                onChange={(val) => { setStatusFilter(val); setCurrentPage(1); }}
+                placeholder="Status"
+                allLabel="All Statuses"
+                width="200px"
+              />
+            </div>
+
+            {/* Years of Service Filter */}
+            <div className="shrink-0">
+              <ForgeMultiSelect
+                options={[
+                  { value: '1-5', label: '1–5 Years' },
+                  { value: '6-10', label: '6–10 Years' },
+                  { value: '11-15', label: '11–15 Years' },
+                  { value: '16-20', label: '16–20 Years' },
+                  { value: '20+', label: '20+ Years' },
+                ]}
+                selected={yearsOfServiceFilter}
+                onChange={(val) => { setYearsOfServiceFilter(val); setCurrentPage(1); }}
+                placeholder="Years of Service"
+                allLabel="All Years of Service"
+                width="220px"
+              />
+            </div>
+          </div>
+        </div>
+      </ForgeCard>
+
+      {/* Drivers Table */}
+      <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
+        <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between">
+          <h3 className="forge-typography--heading4">
+            All Drivers <span className="text-muted-foreground">({filteredDrivers.length})</span>
+          </h3>
+          <div className="flex gap-2">
+            <ExportDropdown onExport={handleExport} />
+          </div>
+        </div>
+        <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
+          <div className="overflow-x-auto">
+            <table className="forge-table">
+              <thead>
+                <tr>
+                  <th className="forge-table-cell forge-table-cell--header">
+                    <button
+                      onClick={() => handleSort('id')}
+                      className="flex items-center hover:text-primary transition-colors cursor-pointer"
+                    >
+                      Employee ID
+                      <SortIcon column="id" />
+                    </button>
+                  </th>
+                  <th className="forge-table-cell forge-table-cell--header">
+                    <button
+                      onClick={() => handleSort('name')}
+                      className="flex items-center hover:text-primary transition-colors cursor-pointer"
+                    >
+                      Name
+                      <SortIcon column="name" />
+                    </button>
+                  </th>
+                  <th className="forge-table-cell forge-table-cell--header">
+                    <button
+                      onClick={() => handleSort('contact')}
+                      className="flex items-center hover:text-primary transition-colors cursor-pointer"
+                    >
+                      Contact
+                      <SortIcon column="contact" />
+                    </button>
+                  </th>
+                  <th className="forge-table-cell forge-table-cell--header">
+                    <button
+                      onClick={() => handleSort('email')}
+                      className="flex items-center hover:text-primary transition-colors cursor-pointer"
+                    >
+                      Email
+                      <SortIcon column="email" />
+                    </button>
+                  </th>
+                  <th className="forge-table-cell forge-table-cell--header">
+                    <button
+                      onClick={() => handleSort('yearsOfService')}
+                      className="flex items-center hover:text-primary transition-colors cursor-pointer"
+                    >
+                      Years of Service
+                      <SortIcon column="yearsOfService" />
+                    </button>
+                  </th>
+                  <th className="forge-table-cell forge-table-cell--header">
+                    <button
+                      onClick={() => handleSort('status')}
+                      className="flex items-center hover:text-primary transition-colors cursor-pointer"
+                    >
+                      Status
+                      <SortIcon column="status" />
+                    </button>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedDrivers.map((driver) => (
+                  <Dialog key={driver.id}>
+                    <DialogTrigger asChild>
+                      <tr
+                        className="forge-table-row cursor-pointer"
+                        onClick={() => setSelectedDriver(driver)}
+                      >
+                        <td className="forge-table-cell">
+                          <span style={{ fontWeight: 500, fontFamily: 'var(--forge-font-family)', color: 'var(--foreground)' }}>
+                            {driver.employeeId}
+                          </span>
+                        </td>
+                        <td className="forge-table-cell">
+                          <div style={{ fontWeight: 500, fontFamily: 'var(--forge-font-family)' }}>{driver.fullName}</div>
+                        </td>
+                      <td className="forge-table-cell">
+                        <div style={{ fontSize: '0.875rem' }}>
+                          <div className="flex items-center gap-1">
+                            <Phone className="h-3 w-3 text-muted-foreground" />
+                            <span>{driver.phone}</span>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="forge-table-cell">
+                        <span style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--foreground)' }}>
+                          {driver.email}
+                        </span>
+                      </td>
+                      <td className="forge-table-cell">
+                        <span style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--foreground)' }}>
+                          {driver.yearsOfService} {driver.yearsOfService === 1 ? 'year' : 'years'}
+                        </span>
+                      </td>
+                      <td className="forge-table-cell">
+                        <Badge variant={driver.status === 'Active' ? 'default' : 'secondary'}>
+                          {driver.status}
+                        </Badge>
+                      </td>
+                    </tr>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-lg max-h-[85vh] flex flex-col" aria-describedby={undefined}>
+                      <DialogHeader>
+                        <div className="flex items-center justify-between">
+                          <DialogTitle style={{ fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)' }}>Driver Profile - {driver.fullName}</DialogTitle>
+                          {selectedDriver && (
+                            <Badge
+                              variant={selectedDriver.status === 'Active' ? 'default' : 'secondary'}
+                              style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-xs)', marginRight: 'var(--forge-spacing-large)' }}
+                            >
+                              {selectedDriver.status}
+                            </Badge>
+                          )}
+                        </div>
+                      </DialogHeader>
+                      <div className="overflow-y-auto flex-1 pr-2" style={{ maxHeight: 'calc(85vh - 120px)' }}>
+                        {selectedDriver && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-large)' }}>
+
+                            {/* Personal Information */}
+                            <div style={{ borderTop: '1px solid var(--forge-color-border-default)', paddingTop: 'var(--forge-spacing-medium)' }}>
+                              <h3 style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-lg)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-small)' }}>
+                                Personal Information
+                              </h3>
+                              <div className="grid grid-cols-2" style={{ gap: 'var(--forge-spacing-medium)' }}>
+                                <div>
+                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Employee ID</div>
+                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)' }}>{selectedDriver.employeeId}</div>
+                                </div>
+                                <div>
+                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Phone</div>
+                                  <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)' }}>
+                                    <Phone className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                                    <a href={`tel:${selectedDriver.phone}`} className="hover:underline" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--primary)' }}>
+                                      {selectedDriver.phone}
+                                    </a>
+                                  </div>
+                                </div>
+                                <div>
+                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Hire Date</div>
+                                  <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)', fontFamily: 'var(--forge-font-family)' }}>
+                                    <Calendar className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                                    <span>{selectedDriver.hireDate}</span>
+                                  </div>
+                                </div>
+                                <div>
+                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Email</div>
+                                  <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)' }}>
+                                    <Mail className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                                    <a href={`mailto:${selectedDriver.email}`} className="hover:underline" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--primary)' }}>
+                                      {selectedDriver.email}
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* License & Certifications */}
+                            <div style={{ borderTop: '1px solid var(--forge-color-border-default)', paddingTop: 'var(--forge-spacing-medium)' }}>
+                              <h3 style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-lg)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-small)' }}>
+                                License & Certifications
+                              </h3>
+                              <div className="grid grid-cols-2" style={{ gap: 'var(--forge-spacing-medium)' }}>
+                                <div>
+                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>License Number</div>
+                                  <div style={{ fontFamily: 'var(--forge-font-family)' }}>{selectedDriver.licenseNumber}</div>
+                                </div>
+                                <div>
+                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>License Expiry</div>
+                                  <div className={isExpiringOrExpired(selectedDriver.licenseExpiry).color} style={{ fontFamily: 'var(--forge-font-family)' }}>
+                                    {selectedDriver.licenseExpiry}
+                                    {isExpiringOrExpired(selectedDriver.licenseExpiry).status === 'expired' && ' (EXPIRED)'}
+                                    {isExpiringOrExpired(selectedDriver.licenseExpiry).status === 'expiring' && ' (Expiring Soon)'}
+                                  </div>
+                                </div>
+                                <div>
+                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>License Class</div>
+                                  <div style={{ fontFamily: 'var(--forge-font-family)' }}>{selectedDriver.licenseClass}</div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Current Assignment */}
+                            <div style={{ borderTop: '1px solid var(--forge-color-border-default)', paddingTop: 'var(--forge-spacing-medium)' }}>
+                              <h3 style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-lg)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-small)' }}>
+                                Current Assignment
+                              </h3>
+                              <div className="grid grid-cols-2" style={{ gap: 'var(--forge-spacing-medium)' }}>
+                                <div>
+                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Assigned Vehicle</div>
+                                  <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)', fontFamily: 'var(--forge-font-family)' }}>
+                                    <Bus className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                                    <span>{selectedDriver.assignedVehicle}</span>
+                                  </div>
+                                </div>
+                                <div>
+                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Default Garage</div>
+                                  <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)', fontFamily: 'var(--forge-font-family)' }}>
+                                    <MapPin className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                                    <span>{selectedDriver.defaultGarage}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                          </div>
+                        )}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="flex items-center justify-between" style={{ paddingTop: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--forge-color-border-subtle)', marginTop: 'var(--forge-spacing-medium)' }}>
+            <div className="flex items-center" style={{ gap: 'var(--forge-spacing-small)' }}>
+              <span style={{ fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)' }}>
+                Showing {startIndex + 1}–{Math.min(startIndex + rowsPerPage, sortedDrivers.length)} of {sortedDrivers.length} drivers
+              </span>
+              {rowsPerPage === 10 && sortedDrivers.length > 10 && (
+                <ForgeButton
+                  variant="outlined"
+                  size="sm"
+                  onClick={() => { setRowsPerPage(25); setCurrentPage(1); }}
+                  style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}
+                >
+                  Show 25
+                </ForgeButton>
+              )}
+              {rowsPerPage === 25 && (
+                <ForgeButton
+                  variant="outlined"
+                  size="sm"
+                  onClick={() => { setRowsPerPage(10); setCurrentPage(1); }}
+                  style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}
+                >
+                  Show 10
+                </ForgeButton>
+              )}
+            </div>
+
+            {totalPages > 1 && (
+              <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)' }}>
+                <ForgeButton
+                  variant="outlined"
+                  size="sm"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  style={{ padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)' }}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </ForgeButton>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <ForgeButton
+                    key={page}
+                    variant={page === currentPage ? 'raised' : 'outlined'}
+                    size="sm"
+                    onClick={() => setCurrentPage(page)}
+                    style={{ minWidth: '32px', padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)', fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}
+                  >
+                    {page}
+                  </ForgeButton>
+                ))}
+                <ForgeButton
+                  variant="outlined"
+                  size="sm"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  style={{ padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)' }}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </ForgeButton>
+              </div>
+            )}
+          </div>
+        </div>
+      </ForgeCard>
+    </div>
+  );
+}

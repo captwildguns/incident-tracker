@@ -1,0 +1,213 @@
+{
+  "version": "2.0.0",
+  "previousVersion": "1.0.0",
+  "date": "2026-02-24",
+  "totalChanges": 95,
+  "summary": {
+    "screensAdded": 4,
+    "screensEdited": 8,
+    "screensUnchanged": 1,
+    "sectionsAdded": 13,
+    "fieldsDocumented": 180,
+    "todosCreated": 13
+  },
+  "changes": [
+    {
+      "id": "CHG-001",
+      "section": "Introduction",
+      "type": "edited",
+      "description": "Updated capabilities list to include workflows, dual incident categories, role-based triage",
+      "original": "6 bullet points: Track, Manage Students, Monitor Fleet, Oversee Drivers, Generate Reports, Communicate",
+      "updated": "9 bullet points adding: Manage Workflows, Personal Triage, Help & Support; updated descriptions",
+      "rationale": "Original list did not reflect actual product features"
+    },
+    {
+      "id": "CHG-002",
+      "section": "Getting Started > Navigation",
+      "type": "edited",
+      "description": "Navigation items updated to match actual slideout menu",
+      "original": "Dashboard, Incidents, Students, Vehicles, Drivers, New Incident, Reports, Communications",
+      "updated": "Dashboard, Incidents, Students, Drivers, Vehicles, Communications, Reports, Workflows. New Incident accessed via Incidents page button.",
+      "rationale": "New Incident is not a nav item; Workflows added; order matches actual nav"
+    },
+    {
+      "id": "CHG-003",
+      "section": "Getting Started > Default View",
+      "type": "edited",
+      "description": "Default landing page corrected",
+      "original": "The application will load showing the Dashboard as the default view",
+      "updated": "The application loads showing the Incidents page as the default view",
+      "rationale": "App.tsx useState('incidents') sets Incidents as default"
+    },
+    {
+      "id": "CHG-004",
+      "section": "Dashboard",
+      "type": "edited",
+      "description": "Complete redesign from informational metrics to role-based triage",
+      "original": "4 metric cards; line chart trends; pie chart (5 types); bar chart by school; recent incidents timeline",
+      "updated": "My Incidents section; Needs Attention queue; Unanswered Driver Communications; pie chart (6 categories); bar chart by driver; bar chart by day of week; action dropdowns per incident; reassign dialog",
+      "rationale": "Dashboard was completely redesigned in the product"
+    },
+    {
+      "id": "CHG-005",
+      "section": "Dashboard > Pie Chart",
+      "type": "edited",
+      "description": "Incident type categories updated",
+      "original": "Student Behavior, Safety Violation, Mechanical, Accident, Other",
+      "updated": "Behavioral, Safety Violation, Aggression/Violence, Driver Defiance, Property Damage, Prohibited Items",
+      "rationale": "Categories from IncidentTypes.ts with brand color mapping"
+    },
+    {
+      "id": "CHG-006",
+      "section": "Dashboard > Bar Chart",
+      "type": "edited",
+      "description": "Chart subject changed",
+      "original": "Incidents by School",
+      "updated": "Incidents by Driver",
+      "rationale": "Product shows driver-based bar chart, not school-based"
+    },
+    {
+      "id": "CHG-007",
+      "section": "Incidents List > Status Values",
+      "type": "edited",
+      "description": "Incident status enum reduced from 4 to 3 values",
+      "original": "Open, Under Review, Resolved, Closed",
+      "updated": "Open, In Progress, Closed",
+      "rationale": "Product uses 3 statuses; 'Under Review' and 'Resolved' not implemented"
+    },
+    {
+      "id": "CHG-008",
+      "section": "Incidents List > Type Filter",
+      "type": "edited",
+      "description": "Incident types expanded from 5 generic to 35+ specific",
+      "original": "Student Behavior, Safety Violation, Mechanical, Accident, Other",
+      "updated": "35+ types across 10 categories (Behavioral, Safety Violation, Aggression/Violence, Driver Defiance, Property Damage, Prohibited Items, Privacy Violation, Driver Operational, Driver Safety, Vehicle Incident)",
+      "rationale": "IncidentTypes.ts defines comprehensive type taxonomy"
+    },
+    {
+      "id": "CHG-009",
+      "section": "Incidents List > Detail Navigation",
+      "type": "edited",
+      "description": "Incident detail changed from dialog to full page",
+      "original": "Click ID opens detailed incident view in a dialog",
+      "updated": "Click ID navigates to full Incident Detail Page with workflow auto-assignment",
+      "rationale": "IncidentDetailPage is a dedicated full-page component"
+    },
+    {
+      "id": "CHG-010",
+      "section": "Incident Detail Page",
+      "type": "edited",
+      "description": "Expanded from dialog to full page with 6 tabs",
+      "original": "Dialog with Basic Info, Involved Parties, Details, Witnesses, Timeline, Action Buttons",
+      "updated": "Full page with tabs: Overview, Workflow, History, Photos, Documents, Communications; workflow step management; approval dialog; inline messaging; incident navigation",
+      "rationale": "Major feature expansion for workflow management and document/communications integration"
+    },
+    {
+      "id": "CHG-011",
+      "section": "New Incident Form",
+      "type": "edited",
+      "description": "Redesigned from 5-step wizard to single-page form",
+      "original": "5-step wizard: Basic Info > Involved Parties > Details > Additional Info > Review",
+      "updated": "Single-page form with category selector (Student/Driver), autocomplete lookups, file uploads, interactive map",
+      "rationale": "Form redesigned for efficiency; no multi-step wizard implemented"
+    },
+    {
+      "id": "CHG-012",
+      "section": "New Incident Form > Types",
+      "type": "edited",
+      "description": "Types expanded and categorized by incident subject",
+      "original": "5 types: Student Behavior, Safety Violation, Mechanical, Accident, Other",
+      "updated": "35+ types filtered by incidentCategory (student vs driver) with auto-severity defaults",
+      "rationale": "IncidentTypes.ts provides comprehensive categorization"
+    },
+    {
+      "id": "CHG-013",
+      "section": "Student Management > Filters",
+      "type": "edited",
+      "description": "Grade filter replaced with school filter",
+      "original": "Grade filter: K, 1-12 dropdown",
+      "updated": "School filter: multi-select autocomplete (Command component)",
+      "rationale": "Product implements school-based filtering, not grade-based"
+    },
+    {
+      "id": "CHG-014",
+      "section": "Driver Management > Safety Rating",
+      "type": "edited",
+      "description": "Rating system changed from numeric to qualitative",
+      "original": "Safety Rating: Performance rating (star out of 5.0)",
+      "updated": "Safety Rating: text label (Good/Excellent/Needs Improvement); separate Performance Score (0-100%) and On-Time Percentage",
+      "rationale": "Driver data model uses qualitative safety rating with separate numeric scores"
+    },
+    {
+      "id": "CHG-015",
+      "section": "Communications",
+      "type": "edited",
+      "description": "Redesigned from generic comms to incident-centric messaging",
+      "original": "Communications table with Type/Subject/Priority columns; separate communication management",
+      "updated": "Two-panel incident-linked messaging; coordinator/driver roles; message status tracking (sent/delivered/read); deep-link from Dashboard",
+      "rationale": "Communications built as incident-specific messaging hub"
+    },
+    {
+      "id": "CHG-016",
+      "section": "Reports",
+      "type": "edited",
+      "description": "Simplified from comprehensive analytics to quick reports",
+      "original": "5 quick reports; Custom Report Builder (6 steps); Analytics Dashboard; Scheduled Reports",
+      "updated": "8 quick report cards with preview dialog and CSV export",
+      "rationale": "Custom builder, analytics dashboard, and scheduling not yet implemented"
+    },
+    {
+      "id": "CHG-017",
+      "section": "Workflows",
+      "type": "added",
+      "description": "New screen for workflow template management",
+      "rationale": "Major feature not documented in original guide"
+    },
+    {
+      "id": "CHG-018",
+      "section": "Workflow Builder",
+      "type": "added",
+      "description": "New screen for visual workflow editing",
+      "rationale": "Major feature not documented in original guide"
+    },
+    {
+      "id": "CHG-019",
+      "section": "Help & Support",
+      "type": "added",
+      "description": "New screen with Getting Started, User Guide, and FAQ tabs",
+      "rationale": "HelpPage.tsx exists but was undocumented"
+    },
+    {
+      "id": "CHG-020",
+      "section": "Notifications",
+      "type": "added",
+      "description": "Header notification dropdown component documented",
+      "rationale": "NotificationsDropdown.tsx exists but was undocumented"
+    },
+    {
+      "id": "CHG-021",
+      "section": "Severity Levels",
+      "type": "edited",
+      "description": "Reduced from 4 to 3 severity levels",
+      "original": "Critical, High, Medium, Low",
+      "updated": "High, Medium, Low",
+      "rationale": "Product uses 3 levels; Critical not a separate severity value"
+    },
+    {
+      "id": "CHG-022",
+      "section": "System-wide sections",
+      "type": "added",
+      "description": "Added 13 new system-wide documentation sections",
+      "rationale": "Template requirements: Global UI Components, Search/Filter behavior, Incident Lifecycle, Workflow Reference, Notifications & Integrations, Audit & Logs, Security & Permissions, Design Tokens, Accessibility, Developer Notes, Glossary expansion"
+    },
+    {
+      "id": "CHG-023",
+      "section": "All screens",
+      "type": "edited",
+      "description": "Sample data rows removed throughout; replaced with field-level metadata",
+      "original": "Some sections contained sample data tables",
+      "updated": "NOTE: Sample rows removed. See field definitions for the kind of data stored.",
+      "rationale": "Per documentation policy - no sample rows or dataset dumps"
+    }
+  ]
+}

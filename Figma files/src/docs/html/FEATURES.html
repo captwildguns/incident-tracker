@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Features - Student Transportation Incident Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; line-height: 1.6; color: #09090b; background: #fafafa; }
+        .nav { background: #4A6FA5; color: white; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .nav h1 { font-size: 1.25rem; font-weight: 600; }
+        .nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background 0.2s; }
+        .nav a:hover { background: rgba(255,255,255,0.1); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 250px 1fr; gap: 2rem; }
+        .sidebar { background: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); height: fit-content; position: sticky; top: 80px; }
+        .sidebar h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #4A6FA5; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin: 0.5rem 0; }
+        .sidebar a { color: #52525b; text-decoration: none; font-size: 0.875rem; transition: color 0.2s; }
+        .sidebar a:hover { color: #4A6FA5; }
+        .content { background: white; padding: 3rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .content h1 { font-size: 2.5rem; font-weight: 600; margin-bottom: 1rem; color: #4A6FA5; }
+        .content h2 { font-size: 2rem; font-weight: 600; margin: 2.5rem 0 1rem; color: #18181b; padding-bottom: 0.5rem; border-bottom: 2px solid #e4e4e7; }
+        .content h3 { font-size: 1.5rem; font-weight: 600; margin: 2rem 0 1rem; color: #18181b; }
+        .content h4 { font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: #4A6FA5; }
+        .content p { margin: 1rem 0; color: #52525b; }
+        .content ul, .content ol { margin: 1rem 0 1rem 2rem; color: #52525b; }
+        .content li { margin: 0.5rem 0; }
+        .content img { max-width: 100%; height: auto; border-radius: 0.5rem; margin: 1.5rem 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        .content th, .content td { border: 1px solid #e4e4e7; padding: 0.75rem; text-align: left; }
+        .content th { background: #f4f4f5; font-weight: 600; }
+        .feature-card { background: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 0.5rem; padding: 1.5rem; margin: 1.5rem 0; }
+        .feature-card h4 { color: #4A6FA5; margin-top: 0; }
+        .info-box { background: #f0f9ff; border-left: 4px solid #4A6FA5; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } .sidebar { position: static; } }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <h1>Features - Incident Tracker</h1>
+            <a href="index.html">← Documentation Home</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#incidents">Incidents Management</a></li>
+                <li><a href="#students">Students Management</a></li>
+                <li><a href="#vehicles">Fleet Management</a></li>
+                <li><a href="#drivers">Driver Management</a></li>
+                <li><a href="#new-incident">New Incident Entry</a></li>
+                <li><a href="#reports">Reports & Analytics</a></li>
+                <li><a href="#communications">Driver Communications</a></li>
+                <li><a href="#search">Search & Filtering</a></li>
+                <li><a href="#sorting">Sorting Functionality</a></li>
+                <li><a href="#future">Future Enhancements</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>Feature Documentation</h1>
+            <p><em>In-depth documentation of all application features and capabilities</em></p>
+
+            <section id="dashboard">
+                <h2>Dashboard</h2>
+
+                <h3>Purpose</h3>
+                <p>The Dashboard provides a comprehensive overview of incident activity, trends, and key metrics for safety coordinators and administrators.</p>
+
+                <div class="feature-card">
+                    <h4>Key Statistics Cards</h4>
+                    <ol>
+                        <li><strong>Total Incidents:</strong> Complete count of all incidents in the system</li>
+                        <li><strong>Active Incidents:</strong> Number of incidents currently open or under review</li>
+                        <li><strong>Critical Incidents:</strong> High-priority incidents requiring immediate attention</li>
+                        <li><strong>Avg Response Time:</strong> Average time from incident creation to first action</li>
+                    </ol>
+                </div>
+
+                <h3>Incident Trends Chart</h3>
+                <p><strong>Type:</strong> Line Chart (Recharts)</p>
+                <ul>
+                    <li>X-Axis: Time period (months)</li>
+                    <li>Y-Axis: Number of incidents</li>
+                    <li>Color: Brand blue (#4A6FA5)</li>
+                    <li>Interactive hover tooltips</li>
+                </ul>
+
+                <h3>Incidents by Type (Pie Chart)</h3>
+                <p>Visual breakdown of incident categories:</p>
+                <ul>
+                    <li>Student Behavior</li>
+                    <li>Safety Violation</li>
+                    <li>Mechanical</li>
+                    <li>Accident</li>
+                    <li>Other</li>
+                </ul>
+
+                <h3>Recent Incidents Timeline</h3>
+                <p>Shows the 5 most recent incidents with clickable Incident IDs that open detailed views in a modal dialog.</p>
+            </section>
+
+            <section id="incidents">
+                <h2>Incidents Management</h2>
+
+                <h3>Advanced Filtering System</h3>
+                <ul>
+                    <li><strong>Search Bar:</strong> Real-time search across incident ID, student name, driver name, description</li>
+                    <li><strong>Status Filter:</strong> All, Open, Under Review, Resolved, Closed</li>
+                    <li><strong>Severity Filter:</strong> All, Critical, High, Medium, Low</li>
+                    <li><strong>Type Filter:</strong> All, Student Behavior, Safety Violation, Mechanical, Accident, Other</li>
+                </ul>
+
+                <div class="feature-card">
+                    <h4>Sortable Columns</h4>
+                    <p>All 8 columns support sorting:</p>
+                    <ul>
+                        <li>Incident ID</li>
+                        <li>Date (default sort: descending)</li>
+                        <li>Student</li>
+                        <li>Driver</li>
+                        <li>Vehicle</li>
+                        <li>Type</li>
+                        <li>Severity (custom order: Critical → High → Medium → Low)</li>
+                        <li>Status (custom order: Open → Under Review → Resolved → Closed)</li>
+                    </ul>
+                    <p><strong>Visual Indicators:</strong></p>
+                    <ul>
+                        <li>⇅ Double chevron: Sortable but not active</li>
+                        <li>↑ Up chevron: Sorted ascending</li>
+                        <li>↓ Down chevron: Sorted descending</li>
+                    </ul>
+                </div>
+
+                <h3>Export Functionality</h3>
+                <p>Export filtered incident list to CSV format with all visible columns included.</p>
+            </section>
+
+            <section id="students">
+                <h2>Students Management</h2>
+
+                <h3>Student Table with Photos</h3>
+                <div class="feature-card">
+                    <h4>Visual Features</h4>
+                    <ul>
+                        <li><strong>Student Photos:</strong> 40px circular avatars with professional photos or initials</li>
+                        <li><strong>Active Incident Badge:</strong> Orange "Active" badge appears next to name for students with open incidents</li>
+                        <li><strong>Grade Filter:</strong> Filter by specific grade level (K-12)</li>
+                        <li><strong>Default Sort:</strong> By Name (ascending)</li>
+                    </ul>
+                </div>
+
+                <h3>Student Detail View</h3>
+                <p>Click Student ID to view comprehensive profile including:</p>
+                <ul>
+                    <li>Contact information</li>
+                    <li>Transportation details (route, pickup/dropoff)</li>
+                    <li>Medical information</li>
+                    <li>Complete incident history</li>
+                </ul>
+            </section>
+
+            <section id="vehicles">
+                <h2>Fleet Management (Vehicles)</h2>
+
+                <h3>Vehicle Table with Bus Images</h3>
+                <div class="feature-card">
+                    <h4>Visual Features</h4>
+                    <ul>
+                        <li><strong>Bus Photos:</strong> 40px circular images showing actual bus models
+                            <ul>
+                                <li>Blue Bird Vision</li>
+                                <li>IC Bus CE Series</li>
+                                <li>Thomas Saf-T-Liner C2</li>
+                                <li>Blue Bird All American</li>
+                                <li>Thomas Saf-T-Liner HDX</li>
+                            </ul>
+                        </li>
+                        <li><strong>Maintenance Icons:</strong>
+                            <ul>
+                                <li>✓ Checkmark: Excellent/Good</li>
+                                <li>⚠ Warning: Needs Attention</li>
+                                <li>🔧 Wrench: In Repair</li>
+                            </ul>
+                        </li>
+                        <li><strong>Trend Indicators:</strong>
+                            <ul>
+                                <li>↑ Red: High incidents (>8)</li>
+                                <li>↓ Green: Low incidents (<4)</li>
+                            </ul>
+                        </li>
+                        <li><strong>Default Sort:</strong> By Details/Name (ascending)</li>
+                    </ul>
+                </div>
+
+                <h3>Vehicle Detail View</h3>
+                <p>Comprehensive vehicle information including:</p>
+                <ul>
+                    <li>Full-size bus photo and specifications</li>
+                    <li>GPS & AVL configuration</li>
+                    <li>Garage assignments</li>
+                    <li>Maintenance & inspection schedule</li>
+                    <li>Complete incident history</li>
+                </ul>
+            </section>
+
+            <section id="drivers">
+                <h2>Driver Management</h2>
+
+                <h3>Driver Table with Photos</h3>
+                <div class="feature-card">
+                    <h4>Visual Features</h4>
+                    <ul>
+                        <li><strong>Driver Photos:</strong> 40px circular avatars with professional photos</li>
+                        <li><strong>Employee ID:</strong> Displayed below name in smaller text</li>
+                        <li><strong>Safety Rating:</strong> Star icon with rating out of 5.0</li>
+                        <li><strong>Default Sort:</strong> By Name (ascending)</li>
+                    </ul>
+                </div>
+
+                <h3>Driver Detail View</h3>
+                <p>Complete driver profile including:</p>
+                <ul>
+                    <li>Employment information and years of service</li>
+                    <li>Certifications & licenses (CDL, First Aid, Training)</li>
+                    <li>Assignment information (vehicle, routes)</li>
+                    <li>Safety & performance metrics</li>
+                    <li>Complete incident history</li>
+                    <li>Communication history</li>
+                </ul>
+            </section>
+
+            <section id="new-incident">
+                <h2>New Incident Entry</h2>
+
+                <h3>5-Step Wizard</h3>
+                <ol>
+                    <li><strong>Basic Information:</strong> Date, time, type, severity, location</li>
+                    <li><strong>Involved Parties:</strong> Student(s), driver, vehicle</li>
+                    <li><strong>Incident Details:</strong> Description, actions taken, injuries, witnesses</li>
+                    <li><strong>Additional Information:</strong> Attachments, follow-up, notes, tags</li>
+                    <li><strong>Review & Submit:</strong> Review all information and submit or save as draft</li>
+                </ol>
+
+                <div class="info-box">
+                    <p><strong>Auto-Save:</strong> Form automatically saves every 2 minutes to prevent data loss.</p>
+                </div>
+            </section>
+
+            <section id="reports">
+                <h2>Reports & Analytics</h2>
+
+                <h3>Quick Reports</h3>
+                <ol>
+                    <li><strong>Incident Summary Report:</strong> Total incidents by type, severity, status</li>
+                    <li><strong>Driver Performance Report:</strong> Individual driver statistics and safety ratings</li>
+                    <li><strong>Vehicle Maintenance Report:</strong> Maintenance status and upcoming inspections</li>
+                    <li><strong>Student Incident Report:</strong> Students with multiple incidents and patterns</li>
+                    <li><strong>Compliance Report:</strong> State and federal reporting requirements</li>
+                </ol>
+
+                <h3>Custom Report Builder</h3>
+                <p>6-step process to create custom reports:</p>
+                <ol>
+                    <li>Select Data Source (Incidents, Students, Drivers, Vehicles)</li>
+                    <li>Choose Columns to include</li>
+                    <li>Apply Filters with complex logic</li>
+                    <li>Set Sorting & Grouping options</li>
+                    <li>Add Visualization (charts)</li>
+                    <li>Preview & Export (PDF, Excel, CSV)</li>
+                </ol>
+            </section>
+
+            <section id="communications">
+                <h2>Driver Communications</h2>
+
+                <h3>Communication Hub Features</h3>
+                <ul>
+                    <li>Track all driver communications in one place</li>
+                    <li>Message threading with complete conversation history</li>
+                    <li>Communication status tracking (Pending, Responded, Acknowledged)</li>
+                    <li>Filter by driver, incident, date range, status, priority</li>
+                    <li>Templates for common communications</li>
+                    <li>Complete audit trail for compliance</li>
+                </ul>
+
+                <h3>Communication Types</h3>
+                <ul>
+                    <li>Email</li>
+                    <li>Phone</li>
+                    <li>In-Person</li>
+                    <li>Text Message</li>
+                </ul>
+            </section>
+
+            <section id="search">
+                <h2>Search & Filtering</h2>
+
+                <h3>Universal Search Features</h3>
+                <ul>
+                    <li><strong>Real-time filtering:</strong> Results update as you type</li>
+                    <li><strong>Case-insensitive:</strong> Matches regardless of case</li>
+                    <li><strong>Partial matches:</strong> Finds results containing search term</li>
+                    <li><strong>Multi-field search:</strong> Searches across multiple columns</li>
+                </ul>
+
+                <h3>Advanced Filtering</h3>
+                <p>All data pages support:</p>
+                <ul>
+                    <li>Search bar for text searches</li>
+                    <li>Dropdown filters for categories</li>
+                    <li>Date range filters</li>
+                    <li>Multiple filters can be combined</li>
+                    <li>Clear all filters button</li>
+                </ul>
+            </section>
+
+            <section id="sorting">
+                <h2>Sorting Functionality</h2>
+
+                <div class="feature-card">
+                    <h4>Sort Behavior</h4>
+                    <ol>
+                        <li><strong>First Click:</strong> Sort ascending (A→Z, 0→9, oldest→newest)</li>
+                        <li><strong>Second Click:</strong> Sort descending (Z→A, 9→0, newest→oldest)</li>
+                    </ol>
+
+                    <h4>Visual Indicators</h4>
+                    <ul>
+                        <li><strong>⇅ Double chevron (gray):</strong> Column is sortable but not currently sorted</li>
+                        <li><strong>↑ Up chevron (black):</strong> Sorted ascending</li>
+                        <li><strong>↓ Down chevron (black):</strong> Sorted descending</li>
+                    </ul>
+                </div>
+
+                <h3>Default Sorts by Page</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Page</th>
+                            <th>Default Column</th>
+                            <th>Direction</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Dashboard</td>
+                            <td>Date</td>
+                            <td>Descending</td>
+                        </tr>
+                        <tr>
+                            <td>Incidents</td>
+                            <td>Date</td>
+                            <td>Descending</td>
+                        </tr>
+                        <tr>
+                            <td>Students</td>
+                            <td>Name</td>
+                            <td>Ascending</td>
+                        </tr>
+                        <tr>
+                            <td>Vehicles</td>
+                            <td>Details (Name)</td>
+                            <td>Ascending</td>
+                        </tr>
+                        <tr>
+                            <td>Drivers</td>
+                            <td>Name</td>
+                            <td>Ascending</td>
+                        </tr>
+                        <tr>
+                            <td>Communications</td>
+                            <td>Date</td>
+                            <td>Descending</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="future">
+                <h2>Future Enhancements</h2>
+
+                <h3>Planned Features</h3>
+                <ul>
+                    <li><strong>Real-time Notifications:</strong> Push notifications for new incidents</li>
+                    <li><strong>Mobile Application:</strong> Native iOS and Android apps</li>
+                    <li><strong>Advanced Analytics:</strong> Machine learning for pattern detection</li>
+                    <li><strong>GPS Tracking Integration:</strong> Real-time vehicle location</li>
+                    <li><strong>SIS Integration:</strong> Student information system sync</li>
+                    <li><strong>Automated Incident Detection:</strong> AI-powered incident triggers</li>
+                    <li><strong>Parent Portal:</strong> Parent access to student incidents</li>
+                    <li><strong>Multi-Language Support:</strong> Spanish and other languages</li>
+                    <li><strong>Voice Input:</strong> Voice-to-text for incident descriptions</li>
+                    <li><strong>Workflow Automation:</strong> Auto-assignment and escalation rules</li>
+                </ul>
+            </section>
+
+            <div class="info-box">
+                <p><strong>Document Version:</strong> 1.0.0<br>
+                <strong>Last Updated:</strong> January 27, 2026<br>
+                <strong>Maintained By:</strong> Product Team</p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

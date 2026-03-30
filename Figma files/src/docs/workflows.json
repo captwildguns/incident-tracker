@@ -1,0 +1,133 @@
+{
+  "version": "2.0.0",
+  "lastUpdated": "2026-02-24",
+  "workflowAssignmentLogic": {
+    "description": "When an incident is created or first viewed in detail, the system matches workflow templates by incidentTypes and severityLevels. Falls back to WF-DEFAULT if no match.",
+    "function": "assignWorkflowToIncident(type, severity)",
+    "steps": [
+      "Search workflows WHERE incidentTypes CONTAINS type AND severityLevels CONTAINS severity AND isActive = true",
+      "If found: return first matching workflow (deep-cloned)",
+      "If not found: return WF-DEFAULT"
+    ]
+  },
+  "stepStatusValues": [
+    {
+      "status": "Not Started",
+      "meaning": "Step not yet reached in sequence",
+      "visual": "Gray empty circle, muted border"
+    },
+    {
+      "status": "In Progress",
+      "meaning": "Currently active step being worked on",
+      "visual": "Blue clock icon, blue border (--brand-blue-medium)"
+    },
+    {
+      "status": "Completed",
+      "meaning": "Step finished successfully",
+      "visual": "Green checkmark icon, olive border (--brand-olive-dark)"
+    },
+    {
+      "status": "Pending Approval",
+      "meaning": "Awaiting designated approver sign-off",
+      "visual": "Amber alert icon, amber border (#FFC107)"
+    },
+    {
+      "status": "Approved",
+      "meaning": "Approval granted (transitions to Completed)",
+      "visual": "Same as Completed"
+    },
+    {
+      "status": "Rejected",
+      "meaning": "Approval denied - requires re-work",
+      "visual": "TODO: confirm - rejection flow not fully implemented"
+    }
+  ],
+  "triggerTypes": [
+    {
+      "type": "manual",
+      "description": "User must manually complete the step"
+    },
+    {
+      "type": "auto-complete",
+      "description": "Step completes automatically when conditions are met"
+    },
+    {
+      "type": "time-delay",
+      "description": "Step starts after a configurable delay period",
+      "config": {"delayAmount": "integer", "delayUnit": "minutes | hours | days"}
+    },
+    {
+      "type": "status-change",
+      "description": "Step triggers when incident status changes",
+      "config": {"requiredStatus": "string"}
+    },
+    {
+      "type": "approval-granted",
+      "description": "Step triggers after previous approval step is approved"
+    },
+    {
+      "type": "conditional",
+      "description": "Step triggers based on field conditions",
+      "config": {"conditions": [{"field": "string", "operator": "string", "value": "string"}]}
+    }
+  ],
+  "workflows": [
+    {
+      "id": "WF-001",
+      "name": "Physical Altercation Response",
+      "description": "Workflow for handling physical altercations between students requiring immediate intervention and parent notification",
+      "incidentTypes": ["Physical Altercation"],
+      "severityLevels": ["High"],
+      "isActive": true,
+      "stepsCount": 6,
+      "stepNames": [
+        "Immediate Driver Response",
+        "Supervisor Notification",
+        "Parent Notification",
+        "Investigation & Documentation",
+        "Administration Review",
+        "Resolution & Follow-up"
+      ]
+    },
+    {
+      "id": "WF-DEFAULT",
+      "name": "Default Incident Response",
+      "description": "Generic workflow applied when no specific workflow template matches the incident type and severity",
+      "incidentTypes": ["(all unmatched)"],
+      "severityLevels": ["Low", "Medium", "High"],
+      "isActive": true,
+      "stepsCount": 5,
+      "stepNames": [
+        "Initial Review",
+        "Investigation",
+        "Action Plan",
+        "Follow-up",
+        "Close Incident"
+      ]
+    }
+  ],
+  "workflowStepSchema": {
+    "id": {"type": "string", "example": "step-1"},
+    "name": {"type": "string", "maxLength": 100, "example": "Parent Notification"},
+    "description": {"type": "string", "maxLength": 500, "example": "Contact parents about the incident"},
+    "assignedRole": {"type": "string", "allowedValues": ["Driver", "Safety Coordinator", "Supervisor", "Administrator", "School Admin"], "example": "Safety Coordinator"},
+    "estimatedDuration": {"type": "string", "format": "{n} {unit}", "example": "24 hours"},
+    "required": {"type": "boolean", "default": true},
+    "order": {"type": "integer", "min": 1},
+    "status": {"type": "enum", "values": ["Not Started", "In Progress", "Completed", "Pending Approval", "Approved", "Rejected"]},
+    "completedDate": {"type": "datetime", "format": "MM/DD/YYYY h:mm AM/PM", "nullable": true},
+    "completedBy": {"type": "string", "nullable": true, "example": "Sarah Williams"},
+    "comments": {"type": "string", "maxLength": 1000, "nullable": true},
+    "requiresApproval": {"type": "boolean", "default": false},
+    "approvers": {"type": "array of strings", "nullable": true},
+    "emailNotifications": {
+      "notifyOnStart": {"type": "boolean", "default": false},
+      "notifyOnComplete": {"type": "boolean", "default": false},
+      "notifyAssignee": {"type": "boolean", "default": true},
+      "notifyApprovers": {"type": "boolean", "default": false}
+    },
+    "trigger": {
+      "type": {"type": "enum", "values": ["manual", "auto-complete", "time-delay", "status-change", "approval-granted", "conditional"]}
+    }
+  }
+}

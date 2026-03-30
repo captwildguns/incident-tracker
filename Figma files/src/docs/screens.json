@@ -1,0 +1,669 @@
+{
+  "version": "2.0.0",
+  "lastUpdated": "2026-02-24",
+  "screens": [
+    {
+      "screenId": "dashboard",
+      "screenName": "Dashboard",
+      "path": "dashboard",
+      "purpose": "Personalized command center showing assigned incidents, triage queue, unanswered driver messages, and analytics charts",
+      "primaryRoles": ["Safety Coordinator", "Supervisor"],
+      "status": "Edited",
+      "changeRationale": "Redesigned from generic metrics to role-based triage with My Incidents, Needs Attention, and Unanswered Communications",
+      "tabs": [],
+      "fields": [
+        {
+          "fieldName": "myIncidentsBadge",
+          "label": "My Incidents Count",
+          "type": "read-only integer",
+          "required": true,
+          "default": "computed",
+          "validation": ">= 0",
+          "source": "computed: needsAttention.filter(assignedTo === currentUser).length",
+          "usedInSearchSort": false,
+          "representativeExample": 12
+        },
+        {
+          "fieldName": "id",
+          "label": "Incident ID",
+          "type": "read-only string",
+          "required": true,
+          "default": null,
+          "validation": "Regex: ^INC-\\d{4}-\\d{4}$, max length 13",
+          "source": "server",
+          "usedInSearchSort": true,
+          "representativeExample": "INC-2025-0044"
+        },
+        {
+          "fieldName": "student",
+          "label": "Student Name",
+          "type": "read-only string",
+          "required": true,
+          "default": null,
+          "validation": "max 100 chars",
+          "source": "server",
+          "usedInSearchSort": true,
+          "representativeExample": "Christopher Adams"
+        },
+        {
+          "fieldName": "type",
+          "label": "Incident Type",
+          "type": "read-only string",
+          "required": true,
+          "default": null,
+          "validation": "Must match INCIDENT_TYPES registry (35+ values)",
+          "source": "server",
+          "usedInSearchSort": true,
+          "representativeExample": "Physical Altercation"
+        },
+        {
+          "fieldName": "bus",
+          "label": "Vehicle",
+          "type": "read-only string",
+          "required": true,
+          "default": null,
+          "validation": "Format: 'Bus ##' or 'Vehicle ##'",
+          "source": "server",
+          "usedInSearchSort": false,
+          "representativeExample": "Bus 15"
+        },
+        {
+          "fieldName": "priority",
+          "label": "Priority Level",
+          "type": "read-only enum",
+          "required": true,
+          "default": null,
+          "validation": "critical | high | medium",
+          "source": "computed from severity + status + age",
+          "usedInSearchSort": true,
+          "representativeExample": "critical"
+        },
+        {
+          "fieldName": "time",
+          "label": "Time Since Report",
+          "type": "read-only string",
+          "required": true,
+          "default": null,
+          "validation": "Relative time format",
+          "source": "computed",
+          "usedInSearchSort": true,
+          "representativeExample": "5 mins ago"
+        },
+        {
+          "fieldName": "actionNeeded",
+          "label": "Recommended Action",
+          "type": "read-only string",
+          "required": true,
+          "default": null,
+          "validation": "max 200 chars",
+          "source": "computed",
+          "usedInSearchSort": false,
+          "representativeExample": "Contact parents immediately"
+        },
+        {
+          "fieldName": "assignedTo",
+          "label": "Assigned To",
+          "type": "read-only string",
+          "required": true,
+          "default": null,
+          "validation": "max 100 chars",
+          "source": "server",
+          "usedInSearchSort": true,
+          "representativeExample": "Sarah Williams"
+        }
+      ],
+      "buttons": [
+        {
+          "name": "viewAllMyIncidents",
+          "label": "View All My Incidents",
+          "type": "Outline",
+          "onClickBehavior": "Navigate to Incidents page filtered by assignedTo=currentUser and status=Open"
+        },
+        {
+          "name": "viewDetails",
+          "label": "View Details",
+          "type": "Secondary (dropdown)",
+          "onClickBehavior": "Navigate to Incident Detail page"
+        },
+        {
+          "name": "editIncident",
+          "label": "Edit Incident",
+          "type": "Secondary (dropdown)",
+          "onClickBehavior": "Opens EditIncidentDialog"
+        },
+        {
+          "name": "reassign",
+          "label": "Reassign",
+          "type": "Secondary (dropdown)",
+          "onClickBehavior": "Opens Reassign dialog"
+        },
+        {
+          "name": "markResolved",
+          "label": "Mark as Resolved",
+          "type": "Secondary (dropdown)",
+          "onClickBehavior": "Updates status to Resolved; toast notification"
+        },
+        {
+          "name": "respondNow",
+          "label": "Respond Now",
+          "type": "Primary",
+          "onClickBehavior": "Navigate to Communications page with incident pre-selected"
+        }
+      ],
+      "modals": [
+        {
+          "name": "ReassignDialog",
+          "trigger": "Reassign dropdown action",
+          "fields": [
+            {
+              "fieldName": "selectedAssignee",
+              "label": "Reassign to",
+              "type": "select dropdown",
+              "required": true,
+              "source": "static list: availableAssignees",
+              "representativeExample": "Sarah Williams"
+            }
+          ]
+        }
+      ],
+      "charts": [
+        {
+          "name": "Incidents by Type",
+          "type": "PieChart",
+          "calculation": "COUNT(incidents) GROUP BY category",
+          "categories": ["Behavioral", "Safety Violation", "Aggression/Violence", "Driver Defiance", "Property Damage", "Prohibited Items"]
+        },
+        {
+          "name": "Incidents by Driver",
+          "type": "BarChart",
+          "calculation": "COUNT(incidents) GROUP BY driver ORDER BY count DESC LIMIT 6"
+        },
+        {
+          "name": "Incidents by Day of Week",
+          "type": "BarChart",
+          "calculation": "COUNT(incidents) GROUP BY dayOfWeek(date)"
+        }
+      ]
+    },
+    {
+      "screenId": "incidents",
+      "screenName": "Incidents",
+      "path": "incidents",
+      "purpose": "Searchable, filterable, sortable list of all incidents with summary statistics",
+      "primaryRoles": ["Safety Coordinator", "Supervisor"],
+      "status": "Edited",
+      "changeRationale": "Expanded incident types from 5 to 35+; added Assigned To filter; click opens full page instead of dialog; added communication and workflow indicators",
+      "tabs": [],
+      "fields": [
+        {
+          "fieldName": "searchQuery",
+          "label": "Search",
+          "type": "text input",
+          "required": false,
+          "default": "",
+          "validation": "max 200 chars; searches id, student, driver, description, type",
+          "source": "user-entered",
+          "usedInSearchSort": true,
+          "representativeExample": "INC-2025"
+        },
+        {
+          "fieldName": "statusFilter",
+          "label": "Status",
+          "type": "select",
+          "required": false,
+          "default": "all",
+          "validation": "all | Open | In Progress | Closed",
+          "source": "static list",
+          "usedInSearchSort": true,
+          "representativeExample": "Open"
+        },
+        {
+          "fieldName": "severityFilter",
+          "label": "Severity",
+          "type": "select",
+          "required": false,
+          "default": "all",
+          "validation": "all | Low | Medium | High",
+          "source": "static list",
+          "usedInSearchSort": true,
+          "representativeExample": "High"
+        },
+        {
+          "fieldName": "typeFilter",
+          "label": "Type",
+          "type": "autocomplete/command",
+          "required": false,
+          "default": "",
+          "validation": "Must match INCIDENT_TYPES registry",
+          "source": "INCIDENT_TYPES (35+ entries)",
+          "usedInSearchSort": true,
+          "representativeExample": "Physical Altercation"
+        },
+        {
+          "fieldName": "assignedToFilter",
+          "label": "Assigned To",
+          "type": "autocomplete/command",
+          "required": false,
+          "default": "",
+          "validation": "Must match staff member name",
+          "source": "Staff list",
+          "usedInSearchSort": true,
+          "representativeExample": "Sarah Williams"
+        }
+      ],
+      "tableColumns": [
+        {"name": "id", "type": "string link", "sortable": true},
+        {"name": "date", "type": "date YYYY-MM-DD", "sortable": true},
+        {"name": "student", "type": "string + avatar", "sortable": true},
+        {"name": "driver", "type": "string", "sortable": true},
+        {"name": "bus", "type": "string", "sortable": true},
+        {"name": "route", "type": "string", "sortable": true},
+        {"name": "type", "type": "string + badge", "sortable": true},
+        {"name": "severity", "type": "enum + badge", "sortable": true},
+        {"name": "status", "type": "enum + badge", "sortable": true},
+        {"name": "hasComm", "type": "icon indicator", "sortable": false},
+        {"name": "hasWorkflow", "type": "icon indicator", "sortable": false}
+      ],
+      "buttons": [
+        {"name": "newIncident", "label": "+ New Incident", "type": "Primary", "onClickBehavior": "Navigate to new-incident page"},
+        {"name": "exportCSV", "label": "Export CSV", "type": "Outline", "onClickBehavior": "Download current filtered view as CSV"},
+        {"name": "clearFilters", "label": "Clear", "type": "Ghost", "onClickBehavior": "Reset all filters"}
+      ]
+    },
+    {
+      "screenId": "incident-detail",
+      "screenName": "Incident Detail",
+      "path": "incident-detail",
+      "purpose": "Full-page view of a single incident with tabbed sections for overview, workflow, history, photos, documents, and communications",
+      "primaryRoles": ["Safety Coordinator", "Supervisor"],
+      "status": "Edited",
+      "changeRationale": "Changed from dialog to full page with 6 tabs; added workflow management, document viewer, photo viewer, and inline communications",
+      "tabs": [
+        {"name": "Overview", "purpose": "Core incident info", "default": true},
+        {"name": "Workflow", "purpose": "Step-by-step workflow progress", "default": false},
+        {"name": "History", "purpose": "Audit trail of changes", "default": false},
+        {"name": "Photos", "purpose": "Photo evidence gallery", "default": false},
+        {"name": "Documents", "purpose": "Attached documents", "default": false},
+        {"name": "Communications", "purpose": "Message thread with driver", "default": false}
+      ],
+      "fields": [
+        {
+          "fieldName": "incidentId",
+          "label": "Incident ID",
+          "type": "read-only string",
+          "required": true,
+          "validation": "^INC-\\d{4}-\\d{4}$",
+          "source": "server",
+          "representativeExample": "INC-2025-0044"
+        },
+        {
+          "fieldName": "workflowName",
+          "label": "Workflow Name",
+          "type": "read-only string",
+          "required": true,
+          "validation": "max 100 chars",
+          "source": "workflows data",
+          "representativeExample": "Physical Altercation Response"
+        },
+        {
+          "fieldName": "progressPercentage",
+          "label": "Workflow Progress",
+          "type": "read-only percentage",
+          "required": true,
+          "validation": "0-100",
+          "source": "computed: completedSteps / totalSteps * 100",
+          "representativeExample": 33
+        }
+      ],
+      "buttons": [
+        {"name": "backToIncidents", "label": "Back to Incidents", "type": "Ghost", "onClickBehavior": "Navigate to incidents page"},
+        {"name": "editIncident", "label": "Edit", "type": "Secondary", "onClickBehavior": "Opens EditIncidentDialog"},
+        {"name": "completeStep", "label": "Complete Step", "type": "Primary", "onClickBehavior": "Marks workflow step completed"},
+        {"name": "approveStep", "label": "Approve", "type": "Primary", "onClickBehavior": "Opens approval dialog"},
+        {"name": "sendMessage", "label": "Send", "type": "Primary", "onClickBehavior": "Sends message in communications tab"},
+        {"name": "prevIncident", "label": "Previous", "type": "Ghost", "onClickBehavior": "Navigate to previous incident in filtered list"},
+        {"name": "nextIncident", "label": "Next", "type": "Ghost", "onClickBehavior": "Navigate to next incident in filtered list"}
+      ]
+    },
+    {
+      "screenId": "new-incident",
+      "screenName": "New Incident",
+      "path": "new-incident",
+      "purpose": "Single-page form for creating student or driver incidents with category selection, lookups, file uploads, and map",
+      "primaryRoles": ["Safety Coordinator", "Supervisor"],
+      "status": "Edited",
+      "changeRationale": "Redesigned from 5-step wizard to single-page form with category selector, 35+ incident types, student/driver/address autocomplete, photo/document uploads, and interactive map",
+      "tabs": [],
+      "fields": [
+        {
+          "fieldName": "incidentCategory",
+          "label": "Incident Category",
+          "type": "button group",
+          "required": true,
+          "default": null,
+          "validation": "student | driver",
+          "source": "static",
+          "representativeExample": "student"
+        },
+        {
+          "fieldName": "student",
+          "label": "Student",
+          "type": "autocomplete (Command)",
+          "required": true,
+          "default": "",
+          "validation": "Must select from list",
+          "source": "API /api/students or mock",
+          "representativeExample": "Sarah Mitchell"
+        },
+        {
+          "fieldName": "incidentType",
+          "label": "Incident Type",
+          "type": "select (grouped by category)",
+          "required": true,
+          "default": "",
+          "validation": "Must match INCIDENT_TYPES filtered by incidentCategory",
+          "source": "INCIDENT_TYPES registry",
+          "representativeExample": "seat-refusal"
+        },
+        {
+          "fieldName": "severity",
+          "label": "Severity",
+          "type": "select",
+          "required": true,
+          "default": "auto-set from type defaultSeverity",
+          "validation": "low | medium | high",
+          "source": "static list; auto-populated",
+          "representativeExample": "medium"
+        },
+        {
+          "fieldName": "description",
+          "label": "Description",
+          "type": "textarea",
+          "required": true,
+          "default": "",
+          "validation": "min 1 char, max 2000 chars",
+          "source": "user-entered",
+          "representativeExample": "Student refused to remain seated during transport"
+        },
+        {
+          "fieldName": "location",
+          "label": "Location",
+          "type": "select (grouped)",
+          "required": true,
+          "default": "",
+          "validation": "Must select from context-dependent list",
+          "source": "static list varies by incidentCategory",
+          "representativeExample": "on-bus"
+        },
+        {
+          "fieldName": "address",
+          "label": "Address / Intersection",
+          "type": "autocomplete (Command)",
+          "required": false,
+          "default": "",
+          "validation": "Must select from verified address list",
+          "source": "Google Places API (mock)",
+          "representativeExample": "1234 Main Street, Meridian, ID 83642"
+        },
+        {
+          "fieldName": "driver",
+          "label": "Driver",
+          "type": "autocomplete",
+          "required": true,
+          "default": "",
+          "validation": "Must select from list",
+          "source": "API /api/drivers or mock",
+          "representativeExample": "Michael Chen"
+        },
+        {
+          "fieldName": "witnessPresent",
+          "label": "Witness Present",
+          "type": "checkbox",
+          "required": false,
+          "default": false,
+          "validation": "boolean",
+          "source": "user-entered",
+          "representativeExample": true
+        },
+        {
+          "fieldName": "parentNotified",
+          "label": "Parent/Guardian Notified",
+          "type": "checkbox",
+          "required": false,
+          "default": false,
+          "validation": "boolean",
+          "source": "user-entered",
+          "representativeExample": false
+        },
+        {
+          "fieldName": "uploadedPhotos",
+          "label": "Photos",
+          "type": "file input (multi)",
+          "required": false,
+          "validation": "Accepted: image/* (JPG, PNG); displayed with thumbnail, name, size",
+          "source": "user file system",
+          "representativeExample": "incident-photo.jpg (245 KB)"
+        },
+        {
+          "fieldName": "uploadedDocuments",
+          "label": "Documents",
+          "type": "file input (multi)",
+          "required": false,
+          "validation": "Accepted: .pdf, .doc, .docx, .txt",
+          "source": "user file system",
+          "representativeExample": "Witness-Statement.pdf (1.2 MB)"
+        }
+      ],
+      "buttons": [
+        {"name": "submitIncident", "label": "Submit Incident", "type": "Primary", "onClickBehavior": "Submit form; show success alert; navigate to Incidents after 3s"},
+        {"name": "cancel", "label": "Cancel", "type": "Ghost", "onClickBehavior": "Navigate back to incidents"}
+      ]
+    },
+    {
+      "screenId": "students",
+      "screenName": "Students",
+      "path": "students",
+      "purpose": "Searchable student roster with incident history and student detail dialog",
+      "primaryRoles": ["Safety Coordinator", "Supervisor"],
+      "status": "Edited",
+      "changeRationale": "School filter replaced grade filter; table columns adjusted; detail view is dialog not page",
+      "tabs": [],
+      "fields": [
+        {
+          "fieldName": "searchQuery",
+          "label": "Search",
+          "type": "text input",
+          "required": false,
+          "validation": "max 200 chars; searches name, ID, school, grade",
+          "source": "user-entered",
+          "representativeExample": "Mitchell"
+        },
+        {
+          "fieldName": "schoolFilter",
+          "label": "School",
+          "type": "multi-select autocomplete (Command)",
+          "required": false,
+          "default": "[]",
+          "validation": "Must match schools in dataset",
+          "source": "static list from student data",
+          "representativeExample": "Lincoln Middle School"
+        }
+      ],
+      "tableColumns": [
+        {"name": "id", "type": "string link", "sortable": true},
+        {"name": "name", "type": "string + avatar", "sortable": true},
+        {"name": "grade", "type": "string", "sortable": true},
+        {"name": "school", "type": "string", "sortable": true},
+        {"name": "bus", "type": "string", "sortable": true},
+        {"name": "route", "type": "string", "sortable": true},
+        {"name": "incidentCount", "type": "integer", "sortable": true},
+        {"name": "lastIncident", "type": "date YYYY-MM-DD", "sortable": true}
+      ]
+    },
+    {
+      "screenId": "drivers",
+      "screenName": "Drivers",
+      "path": "drivers",
+      "purpose": "Searchable driver roster with certifications, performance, and detail dialog",
+      "primaryRoles": ["Safety Coordinator", "Supervisor"],
+      "status": "Edited",
+      "changeRationale": "Safety rating is text label not numeric; added performance score, on-time %, certifications with expiry dates, garage assignment",
+      "tabs": [],
+      "fields": [
+        {
+          "fieldName": "searchQuery",
+          "label": "Search",
+          "type": "text input",
+          "required": false,
+          "validation": "max 200 chars; searches name, employeeId, route",
+          "source": "user-entered",
+          "representativeExample": "Chen"
+        },
+        {
+          "fieldName": "statusFilter",
+          "label": "Status",
+          "type": "select",
+          "required": false,
+          "default": "all",
+          "validation": "all | Active | On Leave | Inactive",
+          "source": "static list",
+          "representativeExample": "Active"
+        }
+      ],
+      "tableColumns": [
+        {"name": "id", "type": "string", "sortable": true},
+        {"name": "fullName", "type": "string + avatar + employeeId", "sortable": true},
+        {"name": "phone", "type": "string", "sortable": true},
+        {"name": "assignedVehicle", "type": "string", "sortable": true},
+        {"name": "primaryRoute", "type": "string", "sortable": true},
+        {"name": "status", "type": "enum + badge", "sortable": true},
+        {"name": "safetyRating", "type": "string + badge", "sortable": true}
+      ]
+    },
+    {
+      "screenId": "vehicles",
+      "screenName": "Vehicles",
+      "path": "vehicles",
+      "purpose": "Fleet overview with bus photos, maintenance, GPS/AVL, and vehicle detail dialog",
+      "primaryRoles": ["Safety Coordinator", "Supervisor", "Fleet Manager"],
+      "status": "Unchanged",
+      "changeRationale": "Minor field-level metadata additions only",
+      "tabs": [],
+      "tableColumns": [
+        {"name": "id", "type": "string link", "sortable": true},
+        {"name": "name", "type": "string + bus photo", "sortable": true},
+        {"name": "driver", "type": "string", "sortable": true},
+        {"name": "primaryRoute", "type": "string", "sortable": true},
+        {"name": "status", "type": "enum + badge", "sortable": true},
+        {"name": "maintenance", "type": "string + icon", "sortable": true},
+        {"name": "incidentCount", "type": "integer + trend", "sortable": true},
+        {"name": "mileage", "type": "formatted integer", "sortable": true}
+      ]
+    },
+    {
+      "screenId": "communications",
+      "screenName": "Communications",
+      "path": "communications",
+      "purpose": "Incident-linked messaging hub between coordinators and drivers",
+      "primaryRoles": ["Safety Coordinator", "Supervisor"],
+      "status": "Edited",
+      "changeRationale": "Redesigned from generic comms table to incident-centric two-panel messaging with thread status",
+      "tabs": [],
+      "fields": [
+        {
+          "fieldName": "searchQuery",
+          "label": "Search",
+          "type": "text input",
+          "required": false,
+          "validation": "Searches incidentId, student, driver, content",
+          "source": "user-entered",
+          "representativeExample": "Mitchell"
+        },
+        {
+          "fieldName": "statusFilter",
+          "label": "Status",
+          "type": "select",
+          "required": false,
+          "default": "all",
+          "validation": "all | pending | in-progress | resolved",
+          "source": "static list",
+          "representativeExample": "pending"
+        },
+        {
+          "fieldName": "newMessage",
+          "label": "New Message",
+          "type": "textarea",
+          "required": false,
+          "validation": "max 2000 chars; non-empty to send",
+          "source": "user-entered",
+          "representativeExample": "Please provide more details"
+        }
+      ]
+    },
+    {
+      "screenId": "reports",
+      "screenName": "Reports",
+      "path": "reports",
+      "purpose": "Quick report cards with preview dialog and CSV export",
+      "primaryRoles": ["Safety Coordinator", "Supervisor", "Administrator"],
+      "status": "Edited",
+      "changeRationale": "8 quick reports instead of 5; no Custom Report Builder or scheduled reports yet",
+      "tabs": [],
+      "quickReports": [
+        {"id": "monthly-summary", "title": "Monthly Summary"},
+        {"id": "student-history", "title": "Student Incident History"},
+        {"id": "driver-performance", "title": "Driver Report Summary"},
+        {"id": "high-severity", "title": "High Severity Incidents"},
+        {"id": "vehicle-report", "title": "Vehicle Incident Report"},
+        {"id": "open-incidents", "title": "Open Incidents Report"},
+        {"id": "weekly-trends", "title": "Weekly Trends Analysis"},
+        {"id": "repeat-offenders", "title": "Repeat Offender Report"}
+      ]
+    },
+    {
+      "screenId": "workflows",
+      "screenName": "Workflows",
+      "path": "workflows",
+      "purpose": "Central hub for managing workflow templates and step template library",
+      "primaryRoles": ["Supervisor", "Administrator"],
+      "status": "Added",
+      "changeRationale": "New screen not in original guide",
+      "tabs": [
+        {"name": "Workflows", "purpose": "Template management", "default": true},
+        {"name": "Step Templates", "purpose": "Reusable step library", "default": false}
+      ]
+    },
+    {
+      "screenId": "workflow-builder",
+      "screenName": "Workflow Builder",
+      "path": "workflow-builder",
+      "purpose": "Visual editor for creating/editing workflow templates with steps, triggers, and notifications",
+      "primaryRoles": ["Supervisor", "Administrator"],
+      "status": "Added",
+      "changeRationale": "New screen not in original guide"
+    },
+    {
+      "screenId": "help",
+      "screenName": "Help & Support",
+      "path": "help",
+      "purpose": "In-app help center with Getting Started, User Guide, and FAQ tabs",
+      "primaryRoles": ["All"],
+      "status": "Added",
+      "changeRationale": "New screen not in original guide",
+      "tabs": [
+        {"name": "Getting Started", "default": true},
+        {"name": "User Guide", "default": false},
+        {"name": "FAQ", "default": false}
+      ]
+    },
+    {
+      "screenId": "notifications",
+      "screenName": "Notifications Dropdown",
+      "path": null,
+      "purpose": "Header bell icon dropdown showing recent system notifications",
+      "primaryRoles": ["All"],
+      "status": "Added",
+      "changeRationale": "Component exists but was not documented"
+    }
+  ]
+}

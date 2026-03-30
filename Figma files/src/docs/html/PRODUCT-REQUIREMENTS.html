@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Requirements Document - Student Transportation Incident Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; line-height: 1.6; color: #09090b; background: #fafafa; }
+        .nav { background: #4A6FA5; color: white; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .nav h1 { font-size: 1.25rem; font-weight: 600; }
+        .nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background 0.2s; }
+        .nav a:hover { background: rgba(255,255,255,0.1); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 280px 1fr; gap: 2rem; }
+        .sidebar { background: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); height: fit-content; position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto; }
+        .sidebar h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #4A6FA5; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin: 0.25rem 0; }
+        .sidebar li li { margin-left: 1rem; font-size: 0.8125rem; }
+        .sidebar a { color: #52525b; text-decoration: none; font-size: 0.875rem; transition: color 0.2s; display: block; padding: 0.25rem 0; }
+        .sidebar a:hover { color: #4A6FA5; }
+        .content { background: white; padding: 3rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .content h1 { font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; color: #4A6FA5; }
+        .content .subtitle { font-size: 1.125rem; color: #71717a; margin-bottom: 2rem; }
+        .content h2 { font-size: 2rem; font-weight: 600; margin: 3rem 0 1rem; color: #18181b; padding-bottom: 0.5rem; border-bottom: 2px solid #e4e4e7; }
+        .content h3 { font-size: 1.5rem; font-weight: 600; margin: 2rem 0 1rem; color: #18181b; }
+        .content h4 { font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: #27272a; }
+        .content h5 { font-size: 1.125rem; font-weight: 600; margin: 1.25rem 0 0.5rem; color: #3f3f46; }
+        .content p { margin: 1rem 0; color: #52525b; }
+        .content ul, .content ol { margin: 1rem 0 1rem 2rem; color: #52525b; }
+        .content li { margin: 0.5rem 0; }
+        .content strong { color: #18181b; font-weight: 600; }
+        .content em { color: #71717a; }
+        .content code { background: #f4f4f5; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: 'Courier New', monospace; font-size: 0.875rem; color: #dc2626; }
+        .content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9375rem; }
+        .content th, .content td { border: 1px solid #e4e4e7; padding: 0.75rem; text-align: left; }
+        .content th { background: #f4f4f5; font-weight: 600; color: #18181b; }
+        .content tr:nth-child(even) { background: #fafafa; }
+        .info-box { background: #f0f9ff; border-left: 4px solid #4A6FA5; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .info-box p { margin: 0.5rem 0; }
+        .warning-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .success-box { background: #d1fae5; border-left: 4px solid #10b981; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .user-story { background: #fafafa; border-left: 4px solid #8B9264; padding: 1.25rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .user-story h5 { margin-top: 0; color: #7B8458; }
+        .user-story .story-text { font-style: italic; color: #3f3f46; margin: 0.75rem 0; }
+        .metadata { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 2rem 0; }
+        .metadata-item { background: #f4f4f5; padding: 1rem; border-radius: 0.5rem; }
+        .metadata-item dt { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #71717a; font-weight: 600; margin-bottom: 0.5rem; }
+        .metadata-item dd { font-size: 1rem; color: #18181b; font-weight: 500; }
+        .badge { display: inline-block; background: #4A6FA5; color: white; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; margin: 0.25rem; }
+        .badge-olive { background: #8B9264; }
+        .badge-green { background: #10b981; }
+        .badge-red { background: #ef4444; }
+        .badge-orange { background: #f59e0b; }
+        hr { border: none; border-top: 1px solid #e4e4e7; margin: 2rem 0; }
+        @media (max-width: 1024px) { .container { grid-template-columns: 1fr; } .sidebar { position: static; max-height: none; } }
+        @media print { .nav, .sidebar { display: none; } .container { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <h1>Product Requirements Document - Incident Tracker</h1>
+            <a href="index.html">← Documentation Home</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#executive-summary">Executive Summary</a></li>
+                <li><a href="#user-personas">User Personas</a></li>
+                <li><a href="#functional-requirements">Functional Requirements</a>
+                    <ul>
+                        <li><a href="#dashboard">1. Dashboard</a></li>
+                        <li><a href="#incident-management">2. Incident Management</a></li>
+                        <li><a href="#student-management">3. Student Management</a></li>
+                        <li><a href="#vehicle-management">4. Vehicle Management</a></li>
+                        <li><a href="#driver-management">5. Driver Management</a></li>
+                        <li><a href="#communications">6. Communications</a></li>
+                        <li><a href="#workflow-system">7. Workflow System</a></li>
+                        <li><a href="#reports-analytics">8. Reports & Analytics</a></li>
+                        <li><a href="#new-incident">9. New Incident Entry</a></li>
+                        <li><a href="#search-filtering">10. Search & Filtering</a></li>
+                        <li><a href="#navigation">11. Navigation & Layout</a></li>
+                    </ul>
+                </li>
+                <li><a href="#cross-cutting">Cross-Cutting Concerns</a></li>
+                <li><a href="#out-of-scope">Out of Scope</a></li>
+                <li><a href="#assumptions">Assumptions & Constraints</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>Student Transportation Incident Tracker</h1>
+            <p class="subtitle">Product Requirements Document</p>
+
+            <div class="metadata">
+                <div class="metadata-item">
+                    <dt>Version</dt>
+                    <dd>1.0</dd>
+                </div>
+                <div class="metadata-item">
+                    <dt>Last Updated</dt>
+                    <dd>February 6, 2026</dd>
+                </div>
+                <div class="metadata-item">
+                    <dt>Document Owner</dt>
+                    <dd>Product Team</dd>
+                </div>
+                <div class="metadata-item">
+                    <dt>Status</dt>
+                    <dd><span class="badge badge-green">Active</span></dd>
+                </div>
+            </div>
+
+            <hr>
+
+            <!-- EXECUTIVE SUMMARY -->
+            <section id="executive-summary">
+                <h2>Executive Summary</h2>
+                
+                <p>The Student Transportation Incident Tracker is a comprehensive web application designed to help school district transportation departments capture, manage, track, and communicate about student transportation incidents. The system provides role-based workflows, automated notifications, real-time communication tools, and analytics dashboards to ensure student safety and regulatory compliance.</p>
+
+                <div class="info-box">
+                    <h4>Primary Goals</h4>
+                    <ul>
+                        <li><strong>Streamline incident reporting</strong> and response workflows</li>
+                        <li><strong>Improve communication</strong> between drivers and safety coordinators</li>
+                        <li><strong>Provide visibility</strong> into incident trends and patterns</li>
+                        <li><strong>Ensure consistent handling</strong> of incidents based on severity and type</li>
+                        <li><strong>Create comprehensive audit trails</strong> for compliance</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- USER PERSONAS -->
+            <section id="user-personas">
+                <h2>User Personas</h2>
+
+                <h3>1. Safety Coordinator (Primary User)</h3>
+                <p><strong>Role:</strong> Oversees all transportation safety operations<br>
+                <strong>Responsibilities:</strong> Review incidents, communicate with parents, manage workflows, analyze trends<br>
+                <strong>Technical Proficiency:</strong> Moderate<br>
+                <strong>Primary Use Case:</strong> Daily incident triage and management</p>
+
+                <h3>2. Transportation Driver</h3>
+                <p><strong>Role:</strong> Operates school buses and transports students<br>
+                <strong>Responsibilities:</strong> Report incidents, respond to coordinator questions, document events<br>
+                <strong>Technical Proficiency:</strong> Basic to Moderate<br>
+                <strong>Primary Use Case:</strong> Submit incident reports and answer follow-up questions</p>
+
+                <h3>3. Transportation Director</h3>
+                <p><strong>Role:</strong> Department leadership and oversight<br>
+                <strong>Responsibilities:</strong> Review reports, monitor trends, make policy decisions<br>
+                <strong>Technical Proficiency:</strong> Moderate<br>
+                <strong>Primary Use Case:</strong> High-level analytics and strategic planning</p>
+
+                <h3>4. District Administrator</h3>
+                <p><strong>Role:</strong> Executive leadership<br>
+                <strong>Responsibilities:</strong> Oversight, compliance, budget allocation<br>
+                <strong>Technical Proficiency:</strong> Basic to Moderate<br>
+                <strong>Primary Use Case:</strong> Executive reporting and compliance verification</p>
+
+                <h3>5. Fleet Manager</h3>
+                <p><strong>Role:</strong> Vehicle maintenance and assignment oversight<br>
+                <strong>Responsibilities:</strong> Track vehicle-related incidents, schedule maintenance<br>
+                <strong>Technical Proficiency:</strong> Moderate<br>
+                <strong>Primary Use Case:</strong> Vehicle health monitoring and incident correlation</p>
+            </section>
+
+            <!-- FUNCTIONAL REQUIREMENTS -->
+            <section id="functional-requirements">
+                <h2>Functional Requirements by Feature</h2>
+
+                <!-- DASHBOARD -->
+                <section id="dashboard">
+                    <h3>1. Dashboard</h3>
+                    
+                    <h4>Feature Overview</h4>
+                    <p>Central command center providing at-a-glance visibility into incident activity, urgent items requiring attention, performance metrics, and trend analysis.</p>
+
+                    <div class="user-story">
+                        <h5>1.1 View Key Metrics</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to see summary statistics of all incidents (total, open, critical, response time) so that I can quickly assess the current state of transportation safety.</p>
+                        
+                        <p><strong>Primary User Types:</strong> <span class="badge">Safety Coordinator</span> <span class="badge">Transportation Director</span> <span class="badge">District Administrator</span></p>
+
+                        <p><strong>Key Interactions:</strong></p>
+                        <ul>
+                            <li>View statistic cards displaying counts and metrics</li>
+                            <li>Click "Students w/ Incidents" card to navigate to Students page</li>
+                            <li>Observe visual color coding (red for critical, green for good performance)</li>
+                        </ul>
+
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Display total incidents count</li>
+                            <li>Display open incidents count with breakdown</li>
+                            <li>Display critical incidents requiring immediate attention</li>
+                            <li>Calculate and display average response time with color coding (green &lt;6hrs, orange 6-24hrs, red &gt;24hrs)</li>
+                            <li>Update metrics in real-time when incidents are added or updated</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>1.2 Manage My Assigned Incidents</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to see incidents specifically assigned to me so that I can focus on my responsibilities without being overwhelmed by district-wide data.</p>
+                        
+                        <p><strong>Primary User Types:</strong> <span class="badge">Safety Coordinator</span> <span class="badge">Transportation Director</span></p>
+
+                        <p><strong>Key Interactions:</strong></p>
+                        <ul>
+                            <li>View "My Incidents" section showing top 3 most urgent assigned items</li>
+                            <li>Click "View All My Incidents" to filter incident list to only assigned items</li>
+                            <li>Click incident card to view full details</li>
+                            <li>Use dropdown menu for quick actions (View, Edit, Message Driver, Reassign, Mark In Progress, Mark Resolved)</li>
+                            <li>Use quick action buttons (View, Message, Resolve) on card footer</li>
+                        </ul>
+
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Filter incidents where assignedTo = current user</li>
+                            <li>Sort by priority (critical &gt; high &gt; medium) then by time (oldest first)</li>
+                            <li>Display badge with total count of assigned incidents</li>
+                            <li>Provide one-click navigation to filtered incidents list</li>
+                            <li>Support quick status changes without leaving dashboard</li>
+                            <li>Display toast notifications for all actions</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>1.3 View Incident Trends</h5>
+                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to visualize incident trends over time so that I can identify patterns and allocate resources effectively.</p>
+                        
+                        <p><strong>Primary User Types:</strong> <span class="badge">Transportation Director</span> <span class="badge">District Administrator</span> <span class="badge">Safety Coordinator</span></p>
+
+                        <p><strong>Key Interactions:</strong></p>
+                        <ul>
+                            <li>View pie chart showing incidents by type distribution</li>
+                            <li>View bar chart showing incidents by driver (top 6 drivers)</li>
+                            <li>View bar chart showing incidents by day of week</li>
+                            <li>Hover over charts for detailed tooltips</li>
+                        </ul>
+
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Pie chart uses brand colors for incident categories</li>
+                            <li>Bar charts show clear labels and values</li>
+                            <li>Charts are responsive and resize appropriately</li>
+                            <li>Data reflects current filtered time period</li>
+                            <li>Interactive hover states show exact values</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>1.4 Review Active Incidents</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to see a list of currently active incidents so that I can monitor ongoing situations.</p>
+                        
+                        <p><strong>Key Interactions:</strong></p>
+                        <ul>
+                            <li>View table of most recent active incidents</li>
+                            <li>Click incident ID to view full details in modal</li>
+                            <li>Click message icon to view driver communications</li>
+                            <li>Click "View All" to navigate to full incidents page</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>1.5 Triage Urgent Items</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to quickly identify and act on incidents requiring immediate attention so that I can respond appropriately to urgent safety concerns.</p>
+                        
+                        <p><strong>Key Interactions:</strong></p>
+                        <ul>
+                            <li>View cards for incidents needing attention with priority color coding</li>
+                            <li>See reason why item needs attention</li>
+                            <li>Click card to view full incident details</li>
+                            <li>Use dropdown actions and quick action buttons for rapid triage</li>
+                        </ul>
+
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Display incidents sorted by urgency (critical &gt; high &gt; medium)</li>
+                            <li>Show clear reason for attention</li>
+                            <li>Priority color coding: red (critical), orange (high), yellow (medium)</li>
+                            <li>Quick action buttons work without page navigation</li>
+                            <li>Toast notifications confirm all actions</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- INCIDENT MANAGEMENT -->
+                <section id="incident-management">
+                    <h3>2. Incident Management</h3>
+                    
+                    <h4>Feature Overview</h4>
+                    <p>Comprehensive system for viewing, filtering, sorting, and managing all transportation incidents with full detail views and workflow integration.</p>
+
+                    <div class="user-story">
+                        <h5>2.1 View All Incidents</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to see a complete list of all incidents in the system so that I can monitor overall incident activity.</p>
+                        
+                        <p><strong>Key Interactions:</strong></p>
+                        <ul>
+                            <li>View incidents in sortable table format</li>
+                            <li>See summary statistics (total, open, under review, critical)</li>
+                            <li>Scroll through paginated results</li>
+                            <li>Click incident ID to view details</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>2.2 Filter Incidents</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to filter incidents by various criteria so that I can focus on specific subsets of incidents.</p>
+                        
+                        <p><strong>Key Interactions:</strong></p>
+                        <ul>
+                            <li>Enter text in search bar to filter by ID, student, driver, vehicle, or description</li>
+                            <li>Select status filter (All, Open, In Progress, Under Review, Resolved, Closed)</li>
+                            <li>Select severity filter (All, High, Medium, Low)</li>
+                            <li>Select type filter (All types, or specific incident categories)</li>
+                            <li>Select assigned to filter (All, or specific user)</li>
+                            <li>Click "Clear Filters" to reset all filters</li>
+                        </ul>
+
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Search is real-time and case-insensitive</li>
+                            <li>All filters work independently and in combination</li>
+                            <li>Filter selections persist during session</li>
+                            <li>Clear Filters button resets to default state</li>
+                            <li>Results update immediately when filters change</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>2.3 Sort Incidents</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to sort incidents by different columns so that I can organize data in the most useful way for my current task.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>All columns are sortable (ID, Date, Student, Driver, Vehicle, Type, Severity, Status)</li>
+                            <li>Visual indicators show current sort column and direction</li>
+                            <li>Default sort is Date descending (newest first)</li>
+                            <li>Severity sorts in logical order: Critical &gt; High &gt; Medium &gt; Low</li>
+                            <li>Status sorts in logical order: Open &gt; In Progress &gt; Under Review &gt; Resolved &gt; Closed</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>2.4 View Incident Details</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to view complete information about a specific incident so that I can understand the full context and take appropriate action.</p>
+                        
+                        <p><strong>Key Interactions:</strong></p>
+                        <ul>
+                            <li>Click incident ID from any table or list</li>
+                            <li>View tabbed interface with Overview, Workflow, Documents, Photos, and History</li>
+                            <li>Navigate between tabs</li>
+                            <li>See all incident metadata, description, and involved parties</li>
+                        </ul>
+
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Overview tab displays all core incident information</li>
+                            <li>Workflow tab shows assigned workflow with step progress</li>
+                            <li>Documents tab lists all attached documents with download capability</li>
+                            <li>Photos tab displays incident photos in gallery view</li>
+                            <li>History tab shows chronological timeline of all changes</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>2.5 Edit Incident</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to modify incident details so that I can correct errors or update information as new facts emerge.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Form pre-populates with current incident data</li>
+                            <li>All editable fields can be modified</li>
+                            <li>Validation prevents invalid data entry</li>
+                            <li>Save button updates incident and shows success message</li>
+                            <li>Changes appear in History tab with timestamp and user</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>2.6 Update Incident Status</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to change the status of an incident so that I can track its progression through the resolution process.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Available statuses: Open, In Progress, Under Review, Resolved, Closed</li>
+                            <li>Status change creates history entry with timestamp</li>
+                            <li>Status badge updates throughout UI</li>
+                            <li>Toast notification confirms status change</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>2.7 Navigate to Related Records</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to click on student, driver, or vehicle names/IDs so that I can quickly view related information.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Student names link to student detail modal</li>
+                            <li>Driver names link to driver detail modal</li>
+                            <li>Vehicle numbers link to vehicle detail modal</li>
+                            <li>Related incident history appears in linked records</li>
+                        </ul>
+                    </div>
+
+                    <div class="warning-box">
+                        <h5>Out of Scope</h5>
+                        <ul>
+                            <li>Bulk editing multiple incidents simultaneously</li>
+                            <li>Custom incident fields configured per district</li>
+                            <li>Workflow step completion directly from incident list</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- STUDENT MANAGEMENT -->
+                <section id="student-management">
+                    <h3>3. Student Management</h3>
+                    
+                    <h4>Feature Overview</h4>
+                    <p>Centralized student information system with transportation details, behavioral history tracking, and incident correlation for student-focused case management.</p>
+
+                    <div class="user-story">
+                        <h5>3.1 View Student Roster</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to see all students using transportation services so that I can monitor the student population and identify those needing intervention.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Display all students in table with photos</li>
+                            <li>Show student ID, name, grade, school, contact, route, incident count, last incident</li>
+                            <li>Photos display as circular avatars (40px)</li>
+                            <li>"Active" badge appears for students with open incidents</li>
+                            <li>Default sort by name (alphabetical)</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>3.2 Search and Filter Students</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to search and filter the student list so that I can quickly find specific students or groups.</p>
+                        
+                        <p><strong>Key Interactions:</strong></p>
+                        <ul>
+                            <li>Enter text in search bar</li>
+                            <li>Select grade level filter</li>
+                            <li>Select school filter</li>
+                            <li>Select route filter</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>3.3 View Student Profile</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to view complete information about a student so that I can understand their transportation needs and incident history.</p>
+                        
+                        <p><strong>Key Interactions:</strong></p>
+                        <ul>
+                            <li>View profile information (name, ID, grade, school, DOB, age)</li>
+                            <li>See contact information (parent phone, email, emergency contact)</li>
+                            <li>Review transportation details (route, bus, driver, pickup/dropoff)</li>
+                            <li>View medical information (conditions, allergies, medications)</li>
+                            <li>Review complete incident history in timeline</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>3.4 Identify High-Risk Students</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to easily identify students with multiple incidents so that I can provide targeted interventions.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Incident count displays prominently</li>
+                            <li>Color coding: Red (5+ incidents), Orange (3-4), Green (1-2), Gray (0)</li>
+                            <li>Sortable incident count column</li>
+                            <li>Active incident badge for students with open incidents</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>3.5 Update Student Information</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to modify student information so that I can keep records current and accurate.</p>
+                    </div>
+
+                    <div class="warning-box">
+                        <h5>Out of Scope</h5>
+                        <ul>
+                            <li>Student enrollment/registration functions</li>
+                            <li>Grade advancement/school year transitions</li>
+                            <li>Academic records integration</li>
+                            <li>Photo upload (assumed to come from student information system)</li>
+                            <li>Adding new students to roster (integration point)</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- VEHICLE MANAGEMENT -->
+                <section id="vehicle-management">
+                    <h3>4. Vehicle Management</h3>
+                    
+                    <h4>Feature Overview</h4>
+                    <p>Comprehensive fleet management system with visual bus identification, maintenance tracking, incident correlation, and GPS integration for operational oversight.</p>
+
+                    <div class="user-story">
+                        <h5>4.1 View Fleet Inventory</h5>
+                        <p class="story-text">As a <strong>Fleet Manager</strong>, I want to see all vehicles in the fleet so that I can monitor fleet status and availability.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Display all vehicles in table with photos</li>
+                            <li>Show vehicle ID, details, driver, route, status, maintenance, incidents, mileage</li>
+                            <li>Vehicle photos display as circular avatars showing actual bus model</li>
+                            <li>Maintenance condition shows icon and color coding</li>
+                            <li>Incident count includes trend indicator (up/down arrow)</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>4.2 Filter Fleet</h5>
+                        <p class="story-text">As a <strong>Fleet Manager</strong>, I want to filter vehicles by status and maintenance condition so that I can focus on vehicles needing attention.</p>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>4.3 View Vehicle Details</h5>
+                        <p class="story-text">As a <strong>Fleet Manager</strong>, I want to view complete information about a vehicle so that I can manage maintenance, assignments, and track incidents.</p>
+                        
+                        <p><strong>Key Interactions:</strong></p>
+                        <ul>
+                            <li>View basic information (ID, name, status, license, make, model, year, VIN)</li>
+                            <li>See GPS & AVL configuration (GPS hardware ID, TYD AVL integration status)</li>
+                            <li>Review garage assignments (default garage, mid-day garage)</li>
+                            <li>View assignment information (driver, routes, incident count)</li>
+                            <li>Review maintenance & inspection data</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>4.4 Track Maintenance</h5>
+                        <p class="story-text">As a <strong>Fleet Manager</strong>, I want to monitor vehicle maintenance status and schedules so that I can ensure fleet safety and compliance.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Maintenance status shows: Excellent, Good, Needs Attention, In Repair</li>
+                            <li>Last inspection date displays with calendar icon</li>
+                            <li>Next inspection calculates days remaining</li>
+                            <li>Color coding: Green (&gt;30 days), Orange (15-30 days), Red (&lt;15 days)</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>4.5 Correlate Vehicle Incidents</h5>
+                        <p class="story-text">As a <strong>Fleet Manager</strong>, I want to see incidents associated with specific vehicles so that I can identify vehicles with recurring issues.</p>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>4.6 Manage Vehicle Assignments</h5>
+                        <p class="story-text">As a <strong>Fleet Manager</strong>, I want to view and update vehicle assignments so that I can optimize fleet utilization.</p>
+                    </div>
+
+                    <div class="warning-box">
+                        <h5>Out of Scope</h5>
+                        <ul>
+                            <li>Real-time GPS tracking map interface</li>
+                            <li>Maintenance work order creation and management</li>
+                            <li>Fuel tracking and cost analysis</li>
+                            <li>Integration with maintenance management systems</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- DRIVER MANAGEMENT -->
+                <section id="driver-management">
+                    <h3>5. Driver Management</h3>
+                    
+                    <h4>Feature Overview</h4>
+                    <p>Comprehensive driver management with professional photos, safety performance tracking, certification monitoring, and incident correlation for workforce oversight.</p>
+
+                    <div class="user-story">
+                        <h5>5.1 View Driver Roster</h5>
+                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to see all drivers in the system so that I can monitor driver status and performance.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Display all drivers in table with photos</li>
+                            <li>Show driver ID, name (with photo), contact, assigned vehicle, route, status, safety rating</li>
+                            <li>Driver photos display as circular avatars (40px)</li>
+                            <li>Safety rating shows as numeric value out of 5.0</li>
+                            <li>Color coding for safety rating based on performance</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>5.2 Monitor Driver Certifications</h5>
+                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to track driver certifications and renewal dates so that I can ensure compliance and prevent lapses.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Dashboard shows count of certifications expiring within 60 days</li>
+                            <li>Driver profile displays all certifications with expiration dates</li>
+                            <li>Color coding based on expiration urgency</li>
+                            <li>Includes: CDL, First Aid/CPR, training certifications, physical exam</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>5.3 View Driver Profile</h5>
+                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to view complete information about a driver so that I can assess performance, assignments, and compliance.</p>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>5.4 Track Driver Safety Performance</h5>
+                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to monitor driver safety ratings and incident history so that I can identify training needs and recognize excellence.</p>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>5.5 Filter and Search Drivers</h5>
+                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to search and filter the driver list so that I can quickly find specific drivers or groups.</p>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>5.6 Manage Driver Assignments</h5>
+                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to view and update driver assignments so that I can optimize route coverage.</p>
+                    </div>
+
+                    <div class="warning-box">
+                        <h5>Out of Scope</h5>
+                        <ul>
+                            <li>Driver scheduling and shift management</li>
+                            <li>Payroll integration</li>
+                            <li>Performance review workflows</li>
+                            <li>Training registration and completion tracking</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- COMMUNICATIONS -->
+                <section id="communications">
+                    <h3>6. Communications</h3>
+                    
+                    <h4>Feature Overview</h4>
+                    <p>Integrated messaging system enabling real-time communication between safety coordinators and drivers about specific incidents, with message threading, status tracking, and notification capabilities.</p>
+
+                    <div class="user-story">
+                        <h5>6.1 View Communications Dashboard</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to see all incident communications in one place so that I can manage driver correspondence efficiently.</p>
+                        
+                        <p><strong>Key Interactions:</strong></p>
+                        <ul>
+                            <li>View list of incidents with active communications</li>
+                            <li>See incident details and unread message count</li>
+                            <li>View last message preview and timestamp</li>
+                            <li>Filter by status and search by incident/student/driver</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>6.2 View Conversation Thread</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to view the complete message history for an incident so that I can understand the full context of communications.</p>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>6.3 Send Messages</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to send messages to drivers about incidents so that I can request additional information or provide guidance.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Text input supports multi-line messages</li>
+                            <li>Character limit of 2000 characters</li>
+                            <li>Message appears immediately after sending</li>
+                            <li>Delivery status updates when received</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>6.4 Receive Driver Responses</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to be notified when drivers respond to my messages so that I can provide timely follow-up.</p>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>6.5 Navigate from Communications to Incident</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to easily navigate between communications and full incident details so that I can access all information needed to respond effectively.</p>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>6.6 Filter and Search Communications</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to filter and search communications so that I can find specific conversations quickly.</p>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>6.7 Mark Communications as Resolved</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to mark communication threads as resolved so that I can focus on active conversations.</p>
+                    </div>
+
+                    <div class="warning-box">
+                        <h5>Out of Scope</h5>
+                        <ul>
+                            <li>Email notifications (future enhancement)</li>
+                            <li>SMS messaging integration</li>
+                            <li>File attachments in messages</li>
+                            <li>Group messaging</li>
+                            <li>Message editing or deletion</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- WORKFLOW SYSTEM -->
+                <section id="workflow-system">
+                    <h3>7. Workflow System</h3>
+                    
+                    <h4>Feature Overview</h4>
+                    <p>Automated workflow assignment and step-by-step process management ensuring consistent incident handling based on type and severity, with approval processes, notifications, and complete audit trails.</p>
+
+                    <div class="user-story">
+                        <h5>7.1 View Workflow Templates</h5>
+                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to see all available workflow templates so that I can understand how different incident types are processed.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Display all workflow templates in card or list format</li>
+                            <li>Show key metadata: name, description, steps, duration, incident types, severity</li>
+                            <li>Active badge for enabled workflows</li>
+                            <li>Filter and search update results in real-time</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>7.2 Automatically Assign Workflow to Incident</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want incidents to automatically receive appropriate workflows so that I don't have to manually determine the correct process each time.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Workflow assigned based on incident type and severity matching template criteria</li>
+                            <li>If no workflow matches, assign default "General Incident Review" workflow</li>
+                            <li>Assignment happens automatically when incident is created</li>
+                            <li>Coordinator can manually change workflow if needed</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>7.3 View Workflow Progress</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to see the progress of an incident through its workflow so that I can understand where we are in the process and what's next.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Overview tab shows workflow name and progress percentage</li>
+                            <li>Progress circle visually represents completion</li>
+                            <li>Workflow tab lists all steps in order with status</li>
+                            <li>Current step highlighted</li>
+                            <li>Completed steps show completion date/time and completing user</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>7.4 Complete Workflow Steps</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to mark workflow steps as complete so that I can progress the incident through the resolution process.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Only current step can be completed (steps must be done in order)</li>
+                            <li>Completion requires comments (minimum 10 characters)</li>
+                            <li>User name and timestamp recorded automatically</li>
+                            <li>Completion creates entry in History tab with full datetime</li>
+                            <li>Cannot "uncomplete" a step once marked complete</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>7.5 Handle Approval Steps</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to request approval from supervisors for certain steps so that critical decisions receive appropriate oversight.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Steps requiring approval flagged in workflow configuration</li>
+                            <li>Pending Approval status clearly visible</li>
+                            <li>Approval/rejection requires comments</li>
+                            <li>Approval decision logged in history with approver name and timestamp</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>7.6 View Workflow History</h5>
+                        <p class="story-text">As a <strong>District Administrator</strong>, I want to see a complete audit trail of workflow activities so that I can ensure accountability and compliance.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>History tab shows all workflow step completions</li>
+                            <li>Each entry shows: activity type icon, description, user, date/time</li>
+                            <li>Format: "Step [Name] completed by [User] on MM/DD/YYYY at HH:MM AM/PM"</li>
+                            <li>Export history to PDF option</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>7.7 Create Custom Workflows</h5>
+                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to create custom workflows for district-specific processes so that our unique procedures are reflected in the system.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Workflow creation wizard guides user through process</li>
+                            <li>Can add unlimited steps</li>
+                            <li>Step library provides common pre-configured steps</li>
+                            <li>Drag and drop to reorder steps</li>
+                            <li>Validation prevents incomplete or invalid workflows</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>7.8 Edit Workflow Templates</h5>
+                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to modify existing workflow templates so that I can improve processes based on experience.</p>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>7.9 View Workflow Step Library</h5>
+                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to browse pre-configured workflow step templates so that I can build workflows faster using proven step definitions.</p>
+                    </div>
+
+                    <div class="warning-box">
+                        <h5>Out of Scope</h5>
+                        <ul>
+                            <li>Conditional branching in workflows (if/then logic)</li>
+                            <li>Parallel step execution</li>
+                            <li>Automatic workflow selection based on AI/ML</li>
+                            <li>Mobile app for workflow step completion</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- REPORTS & ANALYTICS -->
+                <section id="reports-analytics">
+                    <h3>8. Reports & Analytics</h3>
+                    
+                    <h4>Feature Overview</h4>
+                    <p>Comprehensive reporting and data visualization tools enabling data-driven decision making, trend analysis, and regulatory compliance through pre-configured and custom reports.</p>
+
+                    <div class="user-story">
+                        <h5>8.1 Generate Quick Reports</h5>
+                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to generate common reports with one click so that I can quickly access key information without configuration.</p>
+                        
+                        <p><strong>Key Interactions:</strong></p>
+                        <ul>
+                            <li>View list of available quick reports</li>
+                            <li>Click report card to generate</li>
+                            <li>Select export format (PDF or CSV)</li>
+                            <li>Download report file</li>
+                        </ul>
+
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Quick reports include: Monthly Summary, Student History, Driver Performance, High Severity, Vehicle Report, Open Incidents, Weekly Trends, Repeat Offenders</li>
+                            <li>PDF format includes charts and formatted layout</li>
+                            <li>CSV format includes all data columns</li>
+                            <li>Filename includes report name and current date</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>8.2 Filter Report Data</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to filter data before generating a report so that I can focus on specific time periods, schools, or incident types.</p>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>8.3 View Report Preview</h5>
+                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to preview a report before downloading so that I can verify it contains the correct information.</p>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>8.4 Schedule Recurring Reports</h5>
+                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to schedule reports to generate automatically so that I receive regular updates without manual effort.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Frequency options: Daily, Weekly, Monthly, Custom</li>
+                            <li>Email delivery includes PDF attachment</li>
+                            <li>Dashboard delivery saves to "Scheduled Reports" area</li>
+                            <li>Can edit or cancel scheduled reports</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>8.5 Export Data</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to export raw data in CSV format so that I can perform custom analysis in Excel or other tools.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Export includes all visible columns</li>
+                            <li>Respects current filters and sorting</li>
+                            <li>CSV format opens in Excel/Google Sheets</li>
+                            <li>Special characters properly encoded</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>8.6 View Dashboard Analytics</h5>
+                        <p class="story-text">As a <strong>District Administrator</strong>, I want to see high-level analytics on the dashboard so that I can monitor overall transportation safety at a glance.</p>
+                    </div>
+
+                    <div class="warning-box">
+                        <h5>Out of Scope</h5>
+                        <ul>
+                            <li>Custom report builder with drag-and-drop fields</li>
+                            <li>Advanced analytics (predictive modeling, risk scoring)</li>
+                            <li>Benchmarking against other districts</li>
+                            <li>Interactive dashboards with drill-down capability</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- NEW INCIDENT ENTRY -->
+                <section id="new-incident">
+                    <h3>9. New Incident Entry</h3>
+                    
+                    <h4>Feature Overview</h4>
+                    <p>Streamlined incident reporting form allowing drivers and coordinators to quickly capture incident details, upload documentation, and initiate workflow processes.</p>
+
+                    <div class="user-story">
+                        <h5>9.1 Create New Incident Report</h5>
+                        <p class="story-text">As a <strong>Driver</strong>, I want to report an incident that occurred on my route so that safety coordinators are aware and can take appropriate action.</p>
+                        
+                        <p><strong>Key Interactions:</strong></p>
+                        <ul>
+                            <li>Click "New Incident" button</li>
+                            <li>Select incident type from categorized dropdown</li>
+                            <li>Enter incident date and time</li>
+                            <li>Select student involved (if applicable)</li>
+                            <li>Select vehicle/bus</li>
+                            <li>Provide detailed description</li>
+                            <li>Rate severity</li>
+                            <li>Submit report</li>
+                        </ul>
+
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Form organized into logical sections</li>
+                            <li>Incident types grouped by category</li>
+                            <li>Student selection searchable by name or ID</li>
+                            <li>Description required, minimum 20 characters</li>
+                            <li>All required fields validated before submission</li>
+                            <li>Submission creates incident and auto-assigns workflow</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>9.2 Select Incident Type</h5>
+                        <p class="story-text">As a <strong>Driver</strong>, I want to choose the incident type from a clear categorized list so that I accurately classify what happened.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Types organized by parent category</li>
+                            <li>Each type has clear label and description</li>
+                            <li>Categories: Behavioral, Safety Violation, Aggression/Violence, Driver Defiance, Property Damage, Prohibited Items, etc.</li>
+                            <li>Selection updates recommended severity</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>9.3 Search and Select Students</h5>
+                        <p class="story-text">As a <strong>Driver</strong>, I want to easily find the student involved in the incident so that I don't have to remember student IDs.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Autocomplete search as user types</li>
+                            <li>Shows photo, name, ID, grade, school</li>
+                            <li>Matches first name, last name, or student ID</li>
+                            <li>At least 2 characters required to search</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>9.4 Upload Photos and Documents</h5>
+                        <p class="story-text">As a <strong>Driver</strong>, I want to attach photos and documents to an incident report so that I can provide visual evidence and supporting information.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Supports common image formats (JPG, PNG, HEIC)</li>
+                            <li>Supports common document formats (PDF, DOC, DOCX)</li>
+                            <li>Maximum file size: 10MB per file</li>
+                            <li>Maximum 10 photos and 5 documents per incident</li>
+                            <li>Drag and drop support (desktop)</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>9.5 Add Witness Information</h5>
+                        <p class="story-text">As a <strong>Driver</strong>, I want to record witness information so that investigators have contacts for follow-up.</p>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>9.6 Save Draft Incident</h5>
+                        <p class="story-text">As a <strong>Driver</strong>, I want to save an incomplete incident report as a draft so that I can finish it later without losing information.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Save Draft button always available</li>
+                            <li>No required field validation for drafts</li>
+                            <li>User can have multiple drafts</li>
+                            <li>Can edit, delete, or submit drafts</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>9.7 Review and Submit Incident</h5>
+                        <p class="story-text">As a <strong>Driver</strong>, I want to review all information before submitting so that I can ensure accuracy.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Review screen shows all entered data</li>
+                            <li>Can return to form to edit</li>
+                            <li>Submit button creates incident</li>
+                            <li>Workflow automatically assigned</li>
+                            <li>Confirmation message with incident ID</li>
+                        </ul>
+                    </div>
+
+                    <div class="warning-box">
+                        <h5>Out of Scope</h5>
+                        <ul>
+                            <li>Offline incident reporting (mobile app)</li>
+                            <li>Voice-to-text for description entry</li>
+                            <li>Map-based location selection</li>
+                            <li>Integration with dash camera footage</li>
+                            <li>Multi-incident reporting</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- SEARCH & FILTERING -->
+                <section id="search-filtering">
+                    <h3>10. Search & Filtering</h3>
+                    
+                    <h4>Feature Overview</h4>
+                    <p>Universal search and advanced filtering capabilities across all data entities enabling users to quickly find information and identify patterns.</p>
+
+                    <div class="user-story">
+                        <h5>10.1 Universal Search</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to search across all entities from one search box so that I can find information quickly without knowing where to look.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Search box accessible from all pages</li>
+                            <li>Searches across: Incident IDs, student names, driver names, vehicle numbers, routes</li>
+                            <li>Results grouped by entity type</li>
+                            <li>Shows top 5 results per category</li>
+                            <li>Real-time search with debounce</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>10.2 Filter Incidents by Multiple Criteria</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to apply multiple filters simultaneously to incidents so that I can narrow results to exactly what I need.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>All filters work in combination (AND logic)</li>
+                            <li>Results update in real-time</li>
+                            <li>Active filters shown as badges</li>
+                            <li>Can remove individual filter without clearing all</li>
+                            <li>Filters persist during session</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>10.3 Sort Data Tables</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to sort data by different columns so that I can organize information in the most useful way.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>All table columns are sortable</li>
+                            <li>Visual indicator shows sort column and direction</li>
+                            <li>Custom sort for severity and status</li>
+                            <li>Sort preserved with filters applied</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>10.4 Advanced Filtering</h5>
+                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to build complex filters with multiple conditions so that I can perform sophisticated data analysis.</p>
+                        
+                        <div class="warning-box">
+                            <p><strong>Note:</strong> This feature is planned for future release. Current version supports basic single-field filters only.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- NAVIGATION & LAYOUT -->
+                <section id="navigation">
+                    <h3>11. Navigation & Layout</h3>
+                    
+                    <h4>Feature Overview</h4>
+                    <p>Intuitive navigation system with sidebar menu, page routing, breadcrumbs, and responsive design ensuring users can efficiently move through the application.</p>
+
+                    <div class="user-story">
+                        <h5>11.1 Navigate Between Pages</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to easily navigate between different sections of the application so that I can access the information I need quickly.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Sidebar shows all main pages: Dashboard, Incidents, Students, Vehicles, Drivers, Communications, Workflows, Reports, Help</li>
+                            <li>Current page highlighted in sidebar</li>
+                            <li>Breadcrumb trail shows navigation path</li>
+                            <li>Browser history works correctly</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>11.2 View Notifications</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to see notifications about important events so that I can stay informed of urgent matters.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Bell icon shows unread count badge</li>
+                            <li>Notification types: New incident, Message received, Workflow step pending, Certification expiring</li>
+                            <li>Click notification navigates to related page/item</li>
+                            <li>Real-time updates (polling every 60 seconds)</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>11.3 Access Help and Documentation</h5>
+                        <p class="story-text">As a <strong>Driver</strong>, I want to access help documentation so that I can learn how to use the system.</p>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>11.4 Responsive Mobile Layout</h5>
+                        <p class="story-text">As a <strong>Driver</strong>, I want to use the application on my mobile device so that I can report incidents immediately when they occur.</p>
+                        
+                        <p><strong>Acceptance Criteria:</strong></p>
+                        <ul>
+                            <li>Responsive design for screens 320px and up</li>
+                            <li>Sidebar converts to hamburger menu on mobile</li>
+                            <li>Tables convert to stacked cards or horizontal scroll</li>
+                            <li>Forms optimized for touch input</li>
+                            <li>Large touch targets (minimum 44px)</li>
+                        </ul>
+                    </div>
+
+                    <div class="user-story">
+                        <h5>11.5 User Profile and Settings</h5>
+                        <p class="story-text">As a <strong>Safety Coordinator</strong>, I want to view and edit my profile so that my contact information is current.</p>
+                    </div>
+
+                    <div class="warning-box">
+                        <h5>Out of Scope (Current Version)</h5>
+                        <ul>
+                            <li>Multi-language support</li>
+                            <li>Dark mode theme</li>
+                            <li>Customizable dashboard layouts</li>
+                            <li>Keyboard shortcuts configuration</li>
+                        </ul>
+                    </div>
+                </section>
+            </section>
+
+            <!-- CROSS-CUTTING CONCERNS -->
+            <section id="cross-cutting">
+                <h2>Cross-Cutting Concerns</h2>
+
+                <h3>Authentication & Authorization</h3>
+                
+                <div class="user-story">
+                    <h5>User Authentication</h5>
+                    <p class="story-text">As a <strong>System Administrator</strong>, I want users to log in with credentials so that only authorized personnel can access the system.</p>
+                    
+                    <p><strong>Assumptions:</strong></p>
+                    <ul>
+                        <li>Authentication handled by external identity provider (SSO) or built-in auth</li>
+                        <li>Password policies enforced (complexity, expiration)</li>
+                        <li>Session timeout after inactivity</li>
+                    </ul>
+                </div>
+
+                <div class="user-story">
+                    <h5>Role-Based Access Control</h5>
+                    <p class="story-text">As a <strong>System Administrator</strong>, I want to control what features users can access based on their role so that sensitive information is protected.</p>
+                    
+                    <p><strong>Roles:</strong></p>
+                    <ul>
+                        <li><strong>Driver:</strong> Report incidents, view own incidents, respond to messages</li>
+                        <li><strong>Safety Coordinator:</strong> Full access to incidents, students, communications, workflows</li>
+                        <li><strong>Fleet Manager:</strong> Full access to vehicles, drivers, maintenance</li>
+                        <li><strong>Transportation Director:</strong> Full access to all features</li>
+                        <li><strong>District Administrator:</strong> Read-only access to reports and analytics</li>
+                    </ul>
+                </div>
+
+                <h3>Data Export & Reporting</h3>
+                <p>All data tables support CSV export. Exports respect current user permissions and filters.</p>
+
+                <h3>Audit Trail & Logging</h3>
+                <p><strong>What is Logged:</strong></p>
+                <ul>
+                    <li>Incident creation, editing, status changes</li>
+                    <li>Workflow step completions</li>
+                    <li>Message sending</li>
+                    <li>Report generation</li>
+                    <li>User logins/logouts</li>
+                </ul>
+
+                <h3>Performance & Scalability</h3>
+                <p><strong>Requirements:</strong></p>
+                <ul>
+                    <li>Page load time &lt; 2 seconds</li>
+                    <li>Search results return within 500ms</li>
+                    <li>Support 500+ concurrent users</li>
+                    <li>Handle 10,000+ incidents</li>
+                    <li>Handle 5,000+ students</li>
+                </ul>
+
+                <h3>Data Validation & Business Rules</h3>
+                <div class="info-box">
+                    <p><strong>Incident Creation Rules:</strong></p>
+                    <ul>
+                        <li>Cannot create incident without incident type</li>
+                        <li>Description minimum 20 characters</li>
+                        <li>Date cannot be more than 7 days in past without special permission</li>
+                    </ul>
+
+                    <p><strong>Workflow Rules:</strong></p>
+                    <ul>
+                        <li>Steps must be completed in order</li>
+                        <li>Cannot skip required steps</li>
+                        <li>Step completion requires comments</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- OUT OF SCOPE -->
+            <section id="out-of-scope">
+                <h2>Out of Scope</h2>
+
+                <p>The following features are explicitly out of scope for the current version:</p>
+
+                <h3>Future Enhancements</h3>
+                <ul>
+                    <li><strong>Mobile Native Apps:</strong> iOS and Android native applications</li>
+                    <li><strong>Offline Mode:</strong> Ability to use app without internet connection</li>
+                    <li><strong>Push Notifications:</strong> Real-time mobile push notifications</li>
+                    <li><strong>Email Integration:</strong> Automatic email notifications for incidents and workflow steps</li>
+                    <li><strong>SMS Notifications:</strong> Text message alerts for critical incidents</li>
+                    <li><strong>Video Upload:</strong> Dash cam footage integration</li>
+                    <li><strong>Map Integration:</strong> Real-time GPS tracking and incident location mapping</li>
+                    <li><strong>Parent Portal:</strong> Parent self-service for viewing student incidents</li>
+                    <li><strong>Advanced Analytics:</strong> Predictive modeling, risk scoring, ML-based insights</li>
+                    <li><strong>Custom Fields:</strong> District-configurable custom fields per incident type</li>
+                    <li><strong>Multi-Language:</strong> Support for languages beyond English</li>
+                    <li><strong>Dark Mode:</strong> Alternative dark color scheme</li>
+                    <li><strong>Voice Input:</strong> Speech-to-text for incident descriptions</li>
+                </ul>
+
+                <h3>Integrations (Future)</h3>
+                <ul>
+                    <li>Student Information System (SIS) integration</li>
+                    <li>Human Resources (HR) system integration</li>
+                    <li>Fleet maintenance management system integration</li>
+                    <li>GPS/AVL system real-time feed integration</li>
+                    <li>Email/calendar system integration</li>
+                    <li>Business intelligence tools (Power BI, Tableau)</li>
+                </ul>
+            </section>
+
+            <!-- ASSUMPTIONS & CONSTRAINTS -->
+            <section id="assumptions">
+                <h2>Assumptions & Constraints</h2>
+
+                <h3>Assumptions</h3>
+
+                <h4>User Access</h4>
+                <ul>
+                    <li>All users have modern web browsers (Chrome, Firefox, Safari, Edge - latest versions)</li>
+                    <li>Users have reliable internet connection during use</li>
+                    <li>Minimum screen resolution: 1024x768 for desktop, 320px width for mobile</li>
+                </ul>
+
+                <h4>Data</h4>
+                <ul>
+                    <li>Student roster maintained in external system and imported</li>
+                    <li>Driver roster maintained in external system and imported</li>
+                    <li>Vehicle information maintained in external system and imported</li>
+                    <li>User photos (students, drivers) provided by district</li>
+                </ul>
+
+                <h4>Infrastructure</h4>
+                <ul>
+                    <li>Application hosted on secure, reliable cloud infrastructure</li>
+                    <li>Regular automated backups performed</li>
+                    <li>SSL/TLS encryption for all communications</li>
+                    <li>File storage for photos/documents available and scalable</li>
+                </ul>
+
+                <h4>Business Process</h4>
+                <ul>
+                    <li>Districts have defined incident types and categories</li>
+                    <li>Districts have defined user roles and responsibilities</li>
+                    <li>Districts have workflow processes they want to encode</li>
+                    <li>Support team available for user questions and issues</li>
+                </ul>
+
+                <h4>Compliance</h4>
+                <ul>
+                    <li>Solution meets FERPA requirements for student data privacy</li>
+                    <li>Solution meets accessibility standards (WCAG 2.1 AA - future goal)</li>
+                    <li>Data retention policies defined by district</li>
+                    <li>Incident records may be subject to public records requests</li>
+                </ul>
+
+                <h3>Constraints</h3>
+
+                <h4>Technical</h4>
+                <ul>
+                    <li>Web-based application only (no native mobile apps in v1)</li>
+                    <li>Browser-based notifications only (no push notifications in v1)</li>
+                    <li>Synchronous workflow processing</li>
+                    <li>File size limits for uploads (10MB per file)</li>
+                </ul>
+
+                <h4>Functional</h4>
+                <ul>
+                    <li>English language only in initial release</li>
+                    <li>Single timezone per district</li>
+                    <li>Incident workflows are sequential (no parallel branches in v1)</li>
+                    <li>No custom reporting builder (pre-defined reports only in v1)</li>
+                </ul>
+
+                <h4>Business</h4>
+                <ul>
+                    <li>Implementation requires district IT involvement</li>
+                    <li>Training required for all users before go-live</li>
+                    <li>Ongoing support and maintenance budget required</li>
+                </ul>
+            </section>
+
+            <!-- DOCUMENT CONTROL -->
+            <section id="document-control">
+                <h2>Document Control</h2>
+
+                <h3>Version History</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Version</th>
+                            <th>Date</th>
+                            <th>Author</th>
+                            <th>Changes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1.0</td>
+                            <td>2026-02-06</td>
+                            <td>Product Team</td>
+                            <td>Initial comprehensive PRD</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Approval</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Role</th>
+                            <th>Name</th>
+                            <th>Date</th>
+                            <th>Signature</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Product Owner</td>
+                            <td>TBD</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Transportation Director</td>
+                            <td>TBD</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>Technical Lead</td>
+                            <td>TBD</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- APPENDIX -->
+            <section id="appendix">
+                <h2>Appendix</h2>
+
+                <h3>Glossary</h3>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td><strong>AVL</strong></td>
+                            <td>Automatic Vehicle Location - GPS tracking system</td>
+                        </tr>
+                        <tr>
+                            <td><strong>CDL</strong></td>
+                            <td>Commercial Driver's License</td>
+                        </tr>
+                        <tr>
+                            <td><strong>FERPA</strong></td>
+                            <td>Family Educational Rights and Privacy Act</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Incident</strong></td>
+                            <td>Any event requiring documentation related to student transportation</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SIS</strong></td>
+                            <td>Student Information System</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TYD</strong></td>
+                            <td>Tyler Technologies (vendor)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Workflow</strong></td>
+                            <td>Defined series of steps for processing an incident</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Related Documents</h3>
+                <ul>
+                    <li><a href="TECHNICAL-DOCUMENTATION.html">Technical Architecture Document</a></li>
+                    <li><a href="DESIGN-SYSTEM.html">Design System Guide</a></li>
+                    <li><a href="USER-GUIDE.html">User Guide</a></li>
+                    <li><a href="v4-WORKFLOW-SYSTEM.html">Workflow System Documentation</a></li>
+                </ul>
+            </section>
+
+            <hr>
+            <p style="text-align: center; color: #71717a; margin-top: 3rem;"><strong>End of Document</strong></p>
+        </main>
+    </div>
+</body>
+</html>

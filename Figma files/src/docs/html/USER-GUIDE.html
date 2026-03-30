@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Guide v2.0.0 - Student Transportation Incident Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; line-height: 1.6; color: rgba(0,0,0,0.87); background: #fafafa; font-size: 14px; }
+
+        /* Navigation */
+        .nav { background: #4A6FA5; color: white; padding: 0.75rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.15); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+        .nav h1 { font-size: 1.125rem; font-weight: 500; }
+        .nav-meta { font-size: 0.75rem; opacity: 0.8; }
+        .nav-links { display: flex; gap: 0.25rem; flex-wrap: wrap; }
+        .nav-links a { color: white; text-decoration: none; padding: 0.375rem 0.75rem; border-radius: 4px; transition: background 0.2s; font-size: 0.8125rem; }
+        .nav-links a:hover { background: rgba(255,255,255,0.15); }
+
+        /* Layout */
+        .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; display: grid; grid-template-columns: 260px 1fr; gap: 1.5rem; }
+        @media (max-width: 900px) { .container { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+        /* Sidebar */
+        .sidebar { background: white; padding: 1.25rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); height: fit-content; position: sticky; top: 56px; max-height: calc(100vh - 72px); overflow-y: auto; }
+        .sidebar h3 { font-size: 0.875rem; font-weight: 500; margin-bottom: 0.75rem; color: #4A6FA5; text-transform: uppercase; letter-spacing: 0.5px; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin: 0.25rem 0; }
+        .sidebar a { color: rgba(0,0,0,0.6); text-decoration: none; font-size: 0.8125rem; display: block; padding: 0.25rem 0.5rem; border-radius: 4px; transition: all 0.2s; }
+        .sidebar a:hover { color: #4A6FA5; background: rgba(74,111,165,0.06); }
+        .sidebar .section-group { margin-bottom: 1rem; }
+        .sidebar .section-group-label { font-size: 0.6875rem; font-weight: 500; color: rgba(0,0,0,0.38); text-transform: uppercase; letter-spacing: 0.5px; margin: 0.75rem 0 0.25rem 0.5rem; }
+
+        /* Content */
+        .content { background: white; padding: 2.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .content h1 { font-size: 1.75rem; font-weight: 500; margin-bottom: 0.5rem; color: #4A6FA5; }
+        .content h2 { font-size: 1.375rem; font-weight: 500; margin: 2.5rem 0 0.75rem; color: rgba(0,0,0,0.87); padding-bottom: 0.5rem; border-bottom: 2px solid rgba(224,224,224,1); }
+        .content h3 { font-size: 1.125rem; font-weight: 500; margin: 1.5rem 0 0.5rem; color: rgba(0,0,0,0.87); }
+        .content h4 { font-size: 1rem; font-weight: 500; margin: 1.25rem 0 0.5rem; color: #4A6FA5; }
+        .content p { margin: 0.75rem 0; color: rgba(0,0,0,0.6); }
+        .content ul, .content ol { margin: 0.75rem 0 0.75rem 1.5rem; color: rgba(0,0,0,0.6); }
+        .content li { margin: 0.375rem 0; }
+        .content strong { color: rgba(0,0,0,0.87); font-weight: 500; }
+        .content code { background: rgba(0,0,0,0.05); padding: 0.125rem 0.375rem; border-radius: 2px; font-size: 0.8125rem; }
+        .content pre { background: rgba(0,0,0,0.04); padding: 1rem; border-radius: 4px; overflow-x: auto; margin: 0.75rem 0; font-size: 0.8125rem; }
+        .content pre code { background: none; padding: 0; }
+        .content blockquote { border-left: 3px solid #5B8BB8; padding: 0.75rem 1rem; margin: 0.75rem 0; background: rgba(91,139,184,0.06); border-radius: 0 4px 4px 0; }
+        .content blockquote p { color: rgba(0,0,0,0.7); margin: 0; }
+        .content hr { border: none; border-top: 1px solid rgba(224,224,224,1); margin: 2rem 0; }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; font-size: 0.8125rem; }
+        th { background: rgba(74,111,165,0.08); color: rgba(0,0,0,0.87); font-weight: 500; text-align: left; padding: 0.5rem 0.75rem; border: 1px solid rgba(224,224,224,1); }
+        td { padding: 0.5rem 0.75rem; border: 1px solid rgba(224,224,224,1); color: rgba(0,0,0,0.7); vertical-align: top; }
+        tr:nth-child(even) { background: rgba(0,0,0,0.015); }
+
+        /* Badges */
+        .badge { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 2px; font-size: 0.6875rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .badge-added { background: #E8F5E9; color: #2E7D32; }
+        .badge-edited { background: #FFF3E0; color: #E65100; }
+        .badge-removed { background: #FFEBEE; color: #C62828; }
+        .badge-unchanged { background: rgba(0,0,0,0.06); color: rgba(0,0,0,0.6); }
+        .badge-todo { background: #FCE4EC; color: #AD1457; }
+        .badge-blue { background: #E3F2FD; color: #1565C0; }
+        .badge-green { background: #E8F5E9; color: #2E7D32; }
+        .badge-amber { background: #FFF8E1; color: #F57F17; }
+        .badge-red { background: #FFEBEE; color: #C62828; }
+
+        /* Wireframe placeholder */
+        .wireframe { background: rgba(0,0,0,0.04); border: 2px dashed rgba(0,0,0,0.15); border-radius: 8px; padding: 3rem; text-align: center; color: rgba(0,0,0,0.3); margin: 1rem 0; font-size: 0.875rem; }
+        .wireframe-label { font-weight: 500; margin-bottom: 0.25rem; }
+
+        /* Screen metadata card */
+        .screen-meta { background: rgba(74,111,165,0.04); border: 1px solid rgba(74,111,165,0.15); border-radius: 4px; padding: 1rem 1.25rem; margin: 1rem 0; }
+        .screen-meta table { margin: 0; }
+        .screen-meta th { background: rgba(74,111,165,0.08); }
+
+        /* Note callout */
+        .note { background: #FFF8E1; border-left: 3px solid #FFC107; padding: 0.75rem 1rem; margin: 0.75rem 0; border-radius: 0 4px 4px 0; font-size: 0.8125rem; color: rgba(0,0,0,0.7); }
+
+        /* Version badge */
+        .version-tag { background: #4A6FA5; color: white; padding: 0.25rem 0.75rem; border-radius: 2px; font-size: 0.75rem; font-weight: 500; }
+
+        /* Footer */
+        .footer { max-width: 1400px; margin: 2rem auto; padding: 1.5rem 1.5rem; text-align: center; color: rgba(0,0,0,0.38); font-size: 0.75rem; }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <div class="nav-content">
+        <div>
+            <h1>Student Transportation Incident Tracker - User Guide</h1>
+            <div class="nav-meta"><span class="version-tag">v2.0.0</span> &nbsp;Updated Feb 24, 2026 &nbsp;|&nbsp; Tyler Forge 3.x</div>
+        </div>
+        <div class="nav-links">
+            <a href="index.html">Docs Index</a>
+            <a href="PRODUCT-REQUIREMENTS.html">PRD</a>
+            <a href="PROJECT-PLAN.html">Plan</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <!-- Sidebar TOC -->
+    <aside class="sidebar">
+        <h3>Table of Contents</h3>
+
+        <div class="section-group">
+            <div class="section-group-label">Overview</div>
+            <ul>
+                <li><a href="#s1">1. Introduction</a></li>
+                <li><a href="#s2">2. Getting Started</a></li>
+            </ul>
+        </div>
+
+        <div class="section-group">
+            <div class="section-group-label">Screens</div>
+            <ul>
+                <li><a href="#s3">3. Dashboard</a></li>
+                <li><a href="#s4">4. Incidents List</a></li>
+                <li><a href="#s5">5. Incident Detail</a></li>
+                <li><a href="#s6">6. New Incident</a></li>
+                <li><a href="#s7">7. Students</a></li>
+                <li><a href="#s8">8. Drivers</a></li>
+                <li><a href="#s9">9. Vehicles</a></li>
+                <li><a href="#s10">10. Communications</a></li>
+                <li><a href="#s11">11. Reports</a></li>
+                <li><a href="#s12">12. Workflows</a></li>
+                <li><a href="#s13">13. Workflow Builder</a></li>
+                <li><a href="#s14">14. Help & Support</a></li>
+                <li><a href="#s15">15. Notifications</a></li>
+            </ul>
+        </div>
+
+        <div class="section-group">
+            <div class="section-group-label">System Reference</div>
+            <ul>
+                <li><a href="#s16">16. UI Components</a></li>
+                <li><a href="#s17">17. Search & Tables</a></li>
+                <li><a href="#s18">18. Incident Lifecycle</a></li>
+                <li><a href="#s19">19. Workflow System</a></li>
+                <li><a href="#s20">20. Type Taxonomy</a></li>
+                <li><a href="#s21">21. Notifications</a></li>
+                <li><a href="#s22">22. Audit & Logs</a></li>
+                <li><a href="#s23">23. Security</a></li>
+                <li><a href="#s24">24. Design Tokens</a></li>
+                <li><a href="#s25">25. Accessibility</a></li>
+                <li><a href="#s26">26. Developer Notes</a></li>
+                <li><a href="#s27">27. Glossary</a></li>
+                <li><a href="#s28">28. Status Definitions</a></li>
+                <li><a href="#s29">29. Best Practices</a></li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="content">
+        <h1>Student Transportation Incident Tracker</h1>
+        <p><span class="version-tag">v2.0.0</span> &nbsp; Last Updated: February 24, 2026 &nbsp;|&nbsp; Previous: <a href="../Incidents-User-Guide-original.md">v1.0.0</a> &nbsp;|&nbsp; <a href="../CHANGELOG.md">Changelog</a></p>
+
+        <hr>
+
+        <!-- Section 1 -->
+        <h2 id="s1">1. Introduction</h2>
+        <div class="screen-meta">
+            <table>
+                <tr><th>Status</th><td><span class="badge badge-edited">Edited</span></td></tr>
+                <tr><th>Rationale</th><td>Updated capabilities list; added role-based context</td></tr>
+            </table>
+        </div>
+
+        <h3>Purpose</h3>
+        <p>The Student Transportation Incident Tracker is your comprehensive tool for managing all incidents that occur during student transportation. Built on the Tyler Forge design system and integrated into Student Transportation (powered by Traversa), the system helps safety coordinators, supervisors, and administrators track behavioral incidents, manage workflows, communicate with drivers, monitor fleet vehicles, and generate reports.</p>
+
+        <h3>What Can You Do?</h3>
+        <ul>
+            <li><strong>Track Incidents:</strong> Record and monitor student and driver incidents across 10 categories and 35+ specific types</li>
+            <li><strong>Personal Triage:</strong> Dashboard shows your assigned incidents, priority queue, and unanswered driver messages</li>
+            <li><strong>Manage Students:</strong> View student profiles and their incident histories</li>
+            <li><strong>Monitor Fleet:</strong> Track vehicle status, maintenance, GPS/AVL, and incidents</li>
+            <li><strong>Oversee Drivers:</strong> Manage driver information, certifications, safety ratings, and performance scores</li>
+            <li><strong>Manage Workflows:</strong> Create, configure, and execute multi-step workflow templates</li>
+            <li><strong>Generate Reports:</strong> Run 8 quick reports with preview and CSV export</li>
+            <li><strong>Communicate:</strong> Incident-linked messaging hub between coordinators and drivers</li>
+            <li><strong>Get Help:</strong> In-app help center with Getting Started, User Guide, and FAQ</li>
+        </ul>
+
+        <h3>Primary User Roles</h3>
+        <table>
+            <tr><th>Role</th><th>Description</th><th>Access</th></tr>
+            <tr><td><strong>Safety Coordinator</strong></td><td>Primary user - manages incidents</td><td>Full CRUD on assigned incidents; messaging; reports</td></tr>
+            <tr><td><strong>Supervisor</strong></td><td>Oversees coordinators</td><td>All coordinator access + workflow management + reassignment</td></tr>
+            <tr><td><strong>Administrator</strong></td><td>System configuration</td><td>Full access including workflow builder</td></tr>
+            <tr><td><strong>Read-Only / Viewer</strong></td><td><span class="badge badge-todo">TODO</span> Not yet implemented</td><td>View-only access</td></tr>
+        </table>
+
+        <hr>
+
+        <!-- Section 2 -->
+        <h2 id="s2">2. Getting Started</h2>
+        <div class="screen-meta">
+            <table>
+                <tr><th>Status</th><td><span class="badge badge-edited">Edited</span></td></tr>
+                <tr><th>Rationale</th><td>Default view changed; navigation items reordered; Term Context Bar documented</td></tr>
+            </table>
+        </div>
+
+        <h3>Accessing the System</h3>
+        <ol>
+            <li>Open your web browser (Chrome, Firefox, Safari, or Edge)</li>
+            <li>Navigate to the application URL provided by your district</li>
+            <li>The application loads showing the <strong>Incidents page</strong> as the default view</li>
+        </ol>
+        <blockquote><p><strong>Change from v1.0.0:</strong> The original guide stated Dashboard was the default. The app initializes to the Incidents page.</p></blockquote>
+
+        <h3>Navigation</h3>
+        <table>
+            <tr><th>Tab</th><th>Route</th><th>Purpose</th></tr>
+            <tr><td>Dashboard</td><td><code>dashboard</code></td><td>Personal triage and analytics</td></tr>
+            <tr><td>Incidents</td><td><code>incidents</code></td><td>Incident list and management</td></tr>
+            <tr><td>Students</td><td><code>students</code></td><td>Student roster and history</td></tr>
+            <tr><td>Drivers</td><td><code>drivers</code></td><td>Driver roster and performance</td></tr>
+            <tr><td>Vehicles</td><td><code>vehicles</code></td><td>Fleet management</td></tr>
+            <tr><td>Communications</td><td><code>communications</code></td><td>Incident messaging</td></tr>
+            <tr><td>Reports</td><td><code>reports</code></td><td>Quick reports and export</td></tr>
+            <tr><td>Workflows</td><td><code>workflows</code></td><td>Workflow template management</td></tr>
+        </table>
+        <blockquote><p><strong>Change from v1.0.0:</strong> "New Incident" removed from nav (accessed via Incidents page button). Workflows tab added.</p></blockquote>
+
+        <hr>
+
+        <!-- Section 3 -->
+        <h2 id="s3">3. Dashboard</h2>
+        <div class="screen-meta">
+            <table>
+                <tr><th>Screen Name</th><td>Dashboard</td></tr>
+                <tr><th>Path</th><td><code>dashboard</code></td></tr>
+                <tr><th>Status</th><td><span class="badge badge-edited">Edited</span> - Complete redesign</td></tr>
+                <tr><th>Roles</th><td>Safety Coordinator, Supervisor</td></tr>
+            </table>
+        </div>
+        <div class="wireframe"><div class="wireframe-label">Wireframe Placeholder</div>Dashboard - 1440 x 900</div>
+
+        <h3>My Incidents Section</h3>
+        <p>Displays incidents assigned to the current user, sorted by priority (critical &gt; high &gt; medium) then age. Shows top 3 most urgent.</p>
+
+        <h3>Needs Attention Queue</h3>
+        <p>Shows the 3 oldest items requiring attention across all staff.</p>
+
+        <h3>Unanswered Driver Communications</h3>
+        <p>Driver messages awaiting coordinator response, with quick "Respond Now" action.</p>
+
+        <h3>Analytics Charts</h3>
+        <table>
+            <tr><th>Chart</th><th>Type</th><th>Calculation</th></tr>
+            <tr><td>Incidents by Type</td><td>PieChart</td><td>COUNT GROUP BY category (6 categories)</td></tr>
+            <tr><td>Incidents by Driver</td><td>BarChart</td><td>COUNT GROUP BY driver, top 6</td></tr>
+            <tr><td>Incidents by Day</td><td>BarChart</td><td>COUNT GROUP BY dayOfWeek</td></tr>
+        </table>
+
+        <h4>Dashboard Fields</h4>
+        <table>
+            <tr><th>Field</th><th>Type</th><th>Validation</th><th>Source</th><th>Example</th></tr>
+            <tr><td>myIncidentsBadge</td><td>read-only integer</td><td>&gt;= 0</td><td>computed</td><td><code>12</code></td></tr>
+            <tr><td>id</td><td>read-only string</td><td><code>^INC-\d{4}-\d{4}$</code></td><td>server</td><td><code>INC-2025-0044</code></td></tr>
+            <tr><td>priority</td><td>read-only enum</td><td>critical / high / medium</td><td>computed</td><td><code>critical</code></td></tr>
+            <tr><td>assignedTo</td><td>read-only string</td><td>max 100 chars</td><td>server</td><td><code>Sarah Williams</code></td></tr>
+        </table>
+        <div class="note">NOTE: Sample rows removed. See field definitions for the kind of data stored.</div>
+
+        <hr>
+
+        <!-- Section 4 -->
+        <h2 id="s4">4. Incidents List</h2>
+        <div class="screen-meta">
+            <table>
+                <tr><th>Path</th><td><code>incidents</code></td></tr>
+                <tr><th>Status</th><td><span class="badge badge-edited">Edited</span></td></tr>
+                <tr><th>Key Changes</th><td>35+ types; Assigned To filter; full page detail; status values changed</td></tr>
+            </table>
+        </div>
+        <div class="wireframe"><div class="wireframe-label">Wireframe Placeholder</div>Incidents List - 1440 x 900</div>
+
+        <h4>Filter Fields</h4>
+        <table>
+            <tr><th>Field</th><th>Type</th><th>Default</th><th>Validation</th><th>Example</th></tr>
+            <tr><td>searchQuery</td><td>text input</td><td>""</td><td>max 200 chars</td><td><code>INC-2025</code></td></tr>
+            <tr><td>statusFilter</td><td>select</td><td>all</td><td>all / Open / In Progress / Closed</td><td><code>Open</code></td></tr>
+            <tr><td>severityFilter</td><td>select</td><td>all</td><td>all / Low / Medium / High</td><td><code>High</code></td></tr>
+            <tr><td>typeFilter</td><td>autocomplete</td><td>""</td><td>INCIDENT_TYPES (35+)</td><td><code>Physical Altercation</code></td></tr>
+            <tr><td>assignedToFilter</td><td>autocomplete</td><td>""</td><td>Staff list</td><td><code>Sarah Williams</code></td></tr>
+        </table>
+
+        <h4>Table Columns</h4>
+        <table>
+            <tr><th>Column</th><th>Type</th><th>Sortable</th></tr>
+            <tr><td>Incident ID</td><td>string link</td><td>Yes</td></tr>
+            <tr><td>Date</td><td>date</td><td>Yes</td></tr>
+            <tr><td>Student</td><td>string + avatar</td><td>Yes</td></tr>
+            <tr><td>Driver</td><td>string</td><td>Yes</td></tr>
+            <tr><td>Type</td><td>badge</td><td>Yes</td></tr>
+            <tr><td>Severity</td><td>badge</td><td>Yes</td></tr>
+            <tr><td>Status</td><td>badge</td><td>Yes</td></tr>
+            <tr><td>Comm.</td><td>icon</td><td>No</td></tr>
+            <tr><td>Workflow</td><td>icon</td><td>No</td></tr>
+        </table>
+        <div class="note">NOTE: Sample rows removed. See field definitions.</div>
+
+        <hr>
+
+        <!-- Section 5 -->
+        <h2 id="s5">5. Incident Detail Page</h2>
+        <div class="screen-meta">
+            <table>
+                <tr><th>Path</th><td><code>incident-detail</code></td></tr>
+                <tr><th>Status</th><td><span class="badge badge-edited">Edited</span> - Dialog &rarr; Full page with 6 tabs</td></tr>
+            </table>
+        </div>
+        <div class="wireframe"><div class="wireframe-label">Wireframe Placeholder</div>Incident Detail - 1440 x 900</div>
+
+        <h4>Tabs</h4>
+        <table>
+            <tr><th>Tab</th><th>Purpose</th><th>Default</th></tr>
+            <tr><td>Overview</td><td>Core incident info</td><td>Yes</td></tr>
+            <tr><td>Workflow</td><td>Step progress &amp; actions</td><td>No</td></tr>
+            <tr><td>History</td><td>Audit trail</td><td>No</td></tr>
+            <tr><td>Photos</td><td>Evidence gallery</td><td>No</td></tr>
+            <tr><td>Documents</td><td>Attachments</td><td>No</td></tr>
+            <tr><td>Communications</td><td>Message thread</td><td>No</td></tr>
+        </table>
+
+        <hr>
+
+        <!-- Section 6 -->
+        <h2 id="s6">6. New Incident Form</h2>
+        <div class="screen-meta">
+            <table>
+                <tr><th>Path</th><td><code>new-incident</code></td></tr>
+                <tr><th>Status</th><td><span class="badge badge-edited">Edited</span> - 5-step wizard &rarr; single-page form</td></tr>
+            </table>
+        </div>
+        <div class="wireframe"><div class="wireframe-label">Wireframe Placeholder</div>New Incident - 1440 x 900</div>
+
+        <h4>Key Fields</h4>
+        <table>
+            <tr><th>Field</th><th>Type</th><th>Required</th><th>Validation</th><th>Example</th></tr>
+            <tr><td>incidentCategory</td><td>button group</td><td>Y</td><td>student / driver</td><td><code>student</code></td></tr>
+            <tr><td>student</td><td>autocomplete</td><td>Y (student)</td><td>Must select from list</td><td><code>Sarah Mitchell</code></td></tr>
+            <tr><td>incidentType</td><td>select (grouped)</td><td>Y</td><td>INCIDENT_TYPES by category</td><td><code>seat-refusal</code></td></tr>
+            <tr><td>severity</td><td>select</td><td>Y</td><td>low / medium / high; auto-set from type</td><td><code>medium</code></td></tr>
+            <tr><td>description</td><td>textarea</td><td>Y</td><td>min 1, max 2000 chars</td><td><code>Student refused to remain seated</code></td></tr>
+            <tr><td>location</td><td>select (grouped)</td><td>Y</td><td>Context-dependent</td><td><code>on-bus</code></td></tr>
+            <tr><td>address</td><td>autocomplete</td><td>N</td><td>Verified addresses</td><td><code>1234 Main St, Meridian, ID</code></td></tr>
+            <tr><td>uploadedPhotos</td><td>file multi</td><td>N</td><td>image/* (JPG, PNG)</td><td><code>photo.jpg (245 KB)</code></td></tr>
+            <tr><td>uploadedDocuments</td><td>file multi</td><td>N</td><td>.pdf,.doc,.docx,.txt</td><td><code>Statement.pdf (1.2 MB)</code></td></tr>
+        </table>
+
+        <hr>
+
+        <!-- Section 7 -->
+        <h2 id="s7">7. Student Management</h2>
+        <div class="screen-meta">
+            <table>
+                <tr><th>Path</th><td><code>students</code></td></tr>
+                <tr><th>Status</th><td><span class="badge badge-edited">Edited</span> - School filter replaced grade filter</td></tr>
+            </table>
+        </div>
+        <div class="wireframe"><div class="wireframe-label">Wireframe Placeholder</div>Students - 1440 x 900</div>
+        <div class="note">NOTE: Sample rows removed. Detail view is a dialog with student profile and incident history table.</div>
+
+        <hr>
+
+        <!-- Section 8 -->
+        <h2 id="s8">8. Driver Management</h2>
+        <div class="screen-meta">
+            <table>
+                <tr><th>Path</th><td><code>drivers</code></td></tr>
+                <tr><th>Status</th><td><span class="badge badge-edited">Edited</span> - Safety rating text; added performance metrics</td></tr>
+            </table>
+        </div>
+        <div class="wireframe"><div class="wireframe-label">Wireframe Placeholder</div>Drivers - 1440 x 900</div>
+        <p>Key change: Safety Rating is now a text label (Good/Excellent/Needs Improvement), not a numeric star rating. Added Performance Score (0-100), On-Time %, endorsements, garage, and compliance dates.</p>
+
+        <hr>
+
+        <!-- Section 9 -->
+        <h2 id="s9">9. Fleet Management (Vehicles)</h2>
+        <div class="screen-meta">
+            <table>
+                <tr><th>Path</th><td><code>vehicles</code></td></tr>
+                <tr><th>Status</th><td><span class="badge badge-unchanged">Unchanged</span></td></tr>
+            </table>
+        </div>
+        <div class="wireframe"><div class="wireframe-label">Wireframe Placeholder</div>Vehicles - 1440 x 900</div>
+        <p>Fleet overview with bus model photos, maintenance status indicators, GPS/AVL integration, and vehicle detail dialog. Structure matches original guide.</p>
+
+        <hr>
+
+        <!-- Section 10 -->
+        <h2 id="s10">10. Driver Communications</h2>
+        <div class="screen-meta">
+            <table>
+                <tr><th>Path</th><td><code>communications</code></td></tr>
+                <tr><th>Status</th><td><span class="badge badge-edited">Edited</span> - Redesigned to incident-centric two-panel messaging</td></tr>
+            </table>
+        </div>
+        <div class="wireframe"><div class="wireframe-label">Wireframe Placeholder</div>Communications - 1440 x 900</div>
+        <p>Two-panel layout: left panel shows incident-linked conversation list; right panel shows message thread. All communications are in-app messages with delivery status tracking (sent/delivered/read).</p>
+
+        <hr>
+
+        <!-- Section 11 -->
+        <h2 id="s11">11. Reports</h2>
+        <div class="screen-meta">
+            <table>
+                <tr><th>Path</th><td><code>reports</code></td></tr>
+                <tr><th>Status</th><td><span class="badge badge-edited">Edited</span> - 8 quick reports; no custom builder yet</td></tr>
+            </table>
+        </div>
+        <div class="wireframe"><div class="wireframe-label">Wireframe Placeholder</div>Reports - 1440 x 900</div>
+
+        <h4>Quick Reports</h4>
+        <table>
+            <tr><th>Report</th><th>Description</th></tr>
+            <tr><td>Monthly Summary</td><td>Incident statistics and trends for the current month</td></tr>
+            <tr><td>Student Incident History</td><td>Complete incident history by student</td></tr>
+            <tr><td>Driver Report Summary</td><td>Incidents reported by driver with response metrics</td></tr>
+            <tr><td>High Severity Incidents</td><td>All high severity incidents requiring immediate attention</td></tr>
+            <tr><td>Vehicle Incident Report</td><td>Incidents grouped by vehicle number</td></tr>
+            <tr><td>Open Incidents Report</td><td>All currently open incidents requiring action</td></tr>
+            <tr><td>Weekly Trends Analysis</td><td>Week-over-week incident trends and patterns</td></tr>
+            <tr><td>Repeat Offender Report</td><td>Students with multiple incidents requiring intervention</td></tr>
+        </table>
+
+        <hr>
+
+        <!-- Section 12 -->
+        <h2 id="s12">12. Workflows</h2>
+        <div class="screen-meta">
+            <table>
+                <tr><th>Path</th><td><code>workflows</code></td></tr>
+                <tr><th>Status</th><td><span class="badge badge-added">Added</span></td></tr>
+                <tr><th>Roles</th><td>Supervisor, Administrator</td></tr>
+            </table>
+        </div>
+        <div class="wireframe"><div class="wireframe-label">Wireframe Placeholder</div>Workflows - 1440 x 900</div>
+        <p>Central hub for managing workflow templates with two tabs: Workflows (template management) and Step Templates (reusable step library). Supports create, edit, duplicate, delete, and enable/disable operations.</p>
+
+        <hr>
+
+        <!-- Section 13 -->
+        <h2 id="s13">13. Workflow Builder</h2>
+        <div class="screen-meta">
+            <table>
+                <tr><th>Path</th><td><code>workflow-builder</code></td></tr>
+                <tr><th>Status</th><td><span class="badge badge-added">Added</span></td></tr>
+                <tr><th>Roles</th><td>Supervisor, Administrator</td></tr>
+            </table>
+        </div>
+        <div class="wireframe"><div class="wireframe-label">Wireframe Placeholder</div>Workflow Builder - 1440 x 900</div>
+        <p>Visual editor for workflow templates. Configure steps with assigned roles, estimated durations, triggers (manual/auto/time-delay/conditional), approval gates, and email notification settings.</p>
+
+        <hr>
+
+        <!-- Section 14 -->
+        <h2 id="s14">14. Help & Support</h2>
+        <div class="screen-meta">
+            <table>
+                <tr><th>Path</th><td><code>help</code></td></tr>
+                <tr><th>Status</th><td><span class="badge badge-added">Added</span></td></tr>
+            </table>
+        </div>
+        <p>Three tabs: Getting Started (overview, navigation, features), User Guide (accordion by topic), FAQ (accordion Q&amp;A).</p>
+
+        <hr>
+
+        <!-- Section 15 -->
+        <h2 id="s15">15. Notifications</h2>
+        <div class="screen-meta">
+            <table>
+                <tr><th>Component</th><td>NotificationsDropdown (header bell icon)</td></tr>
+                <tr><th>Status</th><td><span class="badge badge-added">Added</span></td></tr>
+            </table>
+        </div>
+        <p>Popover showing recent notifications: new incidents, driver responses, unanswered communications, system events. Supports mark-all-read and click-to-navigate.</p>
+
+        <hr>
+
+        <!-- System Reference Sections -->
+        <h2 id="s16">16. Global UI Components</h2>
+        <p>Application uses Radix UI primitives (shadcn/ui) with Tyler Forge styling. Key components: Button, Card, Dialog (with forwardRef), Badge, Select, Input, Textarea, Checkbox, Avatar, Tabs, Accordion, Command, Popover, DropdownMenu, Tooltip, ScrollArea. Toasts via Sonner 2.0.3.</p>
+
+        <hr>
+
+        <h2 id="s17">17. Search, Filters & Table Behavior</h2>
+        <p>All search is <strong>client-side, case-insensitive, substring matching</strong>. Filters combine with AND logic. Tables support single-column sorting via header click (ascending &rarr; descending &rarr; default). No pagination in prototype.</p>
+        <div class="note">NOTE: Sample rows removed from all tables. See per-screen field definitions.</div>
+
+        <hr>
+
+        <h2 id="s18">18. Incident Lifecycle</h2>
+        <pre><code>  Open  &rarr;  In Progress  &rarr;  Closed
+    \________________________/
+         (direct close)</code></pre>
+        <blockquote><p><strong>Change from v1.0.0:</strong> Reduced from 4 statuses (Open/Under Review/Resolved/Closed) to 3 (Open/In Progress/Closed).</p></blockquote>
+
+        <h4>Severity Levels</h4>
+        <table>
+            <tr><th>Level</th><th>Color</th><th>Examples</th></tr>
+            <tr><td><span class="badge badge-red">High</span></td><td>Red</td><td>Physical Altercation, Vehicle Accident, Unsafe Driving</td></tr>
+            <tr><td><span class="badge badge-amber">Medium</span></td><td>Amber</td><td>Seat Refusal, Vandalism, Route Deviation</td></tr>
+            <tr><td><span class="badge" style="background:#f5f5f5;color:#666;">Low</span></td><td>Gray</td><td>Late Arrival, Mirror Strike, Inappropriate Affection</td></tr>
+        </table>
+
+        <hr>
+
+        <h2 id="s19">19. Workflow System Reference</h2>
+        <p>Auto-assignment via <code>assignWorkflowToIncident(type, severity)</code>. Falls back to WF-DEFAULT. Step statuses: Not Started, In Progress, Completed, Pending Approval, Approved, Rejected. Trigger types: manual, auto-complete, time-delay, status-change, approval-granted, conditional.</p>
+
+        <hr>
+
+        <h2 id="s20">20. Incident Type Taxonomy</h2>
+        <p>35+ incident types across 10 categories. Student types: Behavioral (6), Safety Violation (5), Aggression/Violence (4), Driver Defiance (3), Property Damage (1), Prohibited Items (4), Privacy Violation (1). Driver types: Operational (5), Safety (4), Vehicle Incident (9). Each type has a <code>defaultSeverity</code> that auto-populates the severity field.</p>
+
+        <hr>
+
+        <h2 id="s21">21. Notifications & Integrations</h2>
+        <p>In-app triggers: new incident, driver response, unanswered comms (&gt;24h), workflow step complete, approval required. Email notifications configurable per workflow step. <span class="badge badge-todo">TODO</span> Webhook integration not implemented.</p>
+
+        <hr>
+
+        <h2 id="s22">22. Audit & Logs</h2>
+        <p>Audited events: incident CRUD, status changes, workflow step actions, communications, reassignments. Format: JSON with eventId, eventType, timestamp, userId, incidentId, details.</p>
+        <div class="note">NOTE: No sample audit rows included. See format specification in full guide.</div>
+
+        <hr>
+
+        <h2 id="s23">23. Security & Permissions</h2>
+        <p>RBAC matrix defined for Safety Coordinator, Supervisor, and Administrator roles. <span class="badge badge-todo">TODO</span> RBAC not enforced in prototype - all users have full access.</p>
+
+        <hr>
+
+        <h2 id="s24">24. Design Tokens & Branding</h2>
+        <table>
+            <tr><th>Token</th><th>Value</th><th>Usage</th></tr>
+            <tr><td><code>--brand-blue-dark</code></td><td><span style="display:inline-block;width:14px;height:14px;background:#4A6FA5;border-radius:2px;vertical-align:middle;"></span> #4A6FA5</td><td>Primary header, nav active</td></tr>
+            <tr><td><code>--brand-blue-medium</code></td><td><span style="display:inline-block;width:14px;height:14px;background:#5B8BB8;border-radius:2px;vertical-align:middle;"></span> #5B8BB8</td><td>Secondary actions</td></tr>
+            <tr><td><code>--brand-blue-light</code></td><td><span style="display:inline-block;width:14px;height:14px;background:#6B9BC5;border-radius:2px;vertical-align:middle;"></span> #6B9BC5</td><td>Tertiary accents</td></tr>
+            <tr><td><code>--brand-olive-dark</code></td><td><span style="display:inline-block;width:14px;height:14px;background:#7B8458;border-radius:2px;vertical-align:middle;"></span> #7B8458</td><td>Charts, completed</td></tr>
+            <tr><td><code>--brand-olive-medium</code></td><td><span style="display:inline-block;width:14px;height:14px;background:#8B9264;border-radius:2px;vertical-align:middle;"></span> #8B9264</td><td>Charts</td></tr>
+            <tr><td><code>--brand-olive-light</code></td><td><span style="display:inline-block;width:14px;height:14px;background:#9FA870;border-radius:2px;vertical-align:middle;"></span> #9FA870</td><td>Charts</td></tr>
+        </table>
+        <p>Font: Roboto (400, 500) via Google Fonts. Spacing: 4/8/12/16/24/32/48px tokens. Radius: 2/4/8px. Elevation: 5 shadow levels.</p>
+
+        <hr>
+
+        <h2 id="s25">25. Accessibility & Localization</h2>
+        <p>ARIA patterns: dialog (focus trap), tablist, combobox, menu, alert, tooltip. Keyboard: Tab/Shift+Tab, Enter, Space, Escape, Arrow keys. <span class="badge badge-todo">TODO</span> All strings hardcoded in English; no i18n framework.</p>
+
+        <hr>
+
+        <h2 id="s26">26. Developer Notes</h2>
+        <p>Known limitations: no auth, client-side data only, no pagination, no real file uploads, no email delivery, no address API, no offline support, no i18n. forwardRef warning resolved in dialog.tsx.</p>
+
+        <hr>
+
+        <h2 id="s27">27. Glossary</h2>
+        <table>
+            <tr><th>Term</th><th>Definition</th></tr>
+            <tr><td>AVL</td><td>Automatic Vehicle Location - GPS tracking</td></tr>
+            <tr><td>CDL</td><td>Commercial Driver's License</td></tr>
+            <tr><td>FERPA</td><td>Family Educational Rights and Privacy Act</td></tr>
+            <tr><td>Forge</td><td>Tyler Forge - the design system</td></tr>
+            <tr><td>Incident ID</td><td>Format: INC-YYYY-NNNN</td></tr>
+            <tr><td>Traversa</td><td>Tyler Technologies Student Transportation product</td></tr>
+            <tr><td>Workflow</td><td>Multi-step process template auto-assigned to incidents</td></tr>
+        </table>
+        <p>See full glossary in the <a href="../USER-GUIDE.md#27-glossary">Markdown guide</a>.</p>
+
+        <hr>
+
+        <h2 id="s28">28. Status & Severity Definitions</h2>
+        <h4>Incident Status</h4>
+        <table>
+            <tr><th>Status</th><th>Meaning</th><th>Visual</th></tr>
+            <tr><td><span class="badge badge-blue">Open</span></td><td>Newly reported, awaiting review</td><td>Blue badge</td></tr>
+            <tr><td><span class="badge badge-amber">In Progress</span></td><td>Being investigated; workflow active</td><td>Amber badge</td></tr>
+            <tr><td><span class="badge badge-green">Closed</span></td><td>Fully resolved and archived</td><td>Green badge</td></tr>
+        </table>
+
+        <hr>
+
+        <h2 id="s29">29. Tips & Best Practices</h2>
+        <ul>
+            <li>Start each day on the Dashboard reviewing My Incidents</li>
+            <li>Address critical-priority items first</li>
+            <li>Respond to driver communications within 24 hours</li>
+            <li>Complete workflow steps in order with comments for audit trail</li>
+            <li>Use filters and search to manage large incident lists</li>
+            <li>Protect student information per FERPA guidelines</li>
+        </ul>
+
+        <hr>
+        <p style="text-align:center; font-size: 0.75rem; color: rgba(0,0,0,0.38); margin-top: 2rem;">
+            Document Version: 2.0.0 &nbsp;|&nbsp; Last Updated: February 24, 2026 &nbsp;|&nbsp;
+            <a href="../CHANGELOG.md">Changelog</a> &nbsp;|&nbsp;
+            <a href="../Incidents-User-Guide-original.md">Original v1.0.0</a>
+        </p>
+    </main>
+</div>
+
+<footer class="footer">
+    <p>Student Transportation Incident Tracker &nbsp;|&nbsp; Tyler Forge 3.x Design System &nbsp;|&nbsp; &copy; 2026 District Transportation Department</p>
+</footer>
+
+</body>
+</html>

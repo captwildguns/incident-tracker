@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>v4 Migration Guide - Student Transportation Incident Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; line-height: 1.6; color: #09090b; background: #fafafa; }
+        .nav { background: #4A6FA5; color: white; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .nav h1 { font-size: 1.25rem; font-weight: 600; }
+        .nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background 0.2s; }
+        .nav a:hover { background: rgba(255,255,255,0.1); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 250px 1fr; gap: 2rem; }
+        .sidebar { background: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); height: fit-content; position: sticky; top: 80px; }
+        .sidebar h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #4A6FA5; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin: 0.5rem 0; }
+        .sidebar a { color: #52525b; text-decoration: none; font-size: 0.875rem; transition: color 0.2s; }
+        .sidebar a:hover { color: #4A6FA5; }
+        .content { background: white; padding: 3rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .content h1 { font-size: 2.5rem; font-weight: 600; margin-bottom: 1rem; color: #4A6FA5; }
+        .content h2 { font-size: 2rem; font-weight: 600; margin: 2.5rem 0 1rem; color: #18181b; padding-bottom: 0.5rem; border-bottom: 2px solid #e4e4e7; }
+        .content h3 { font-size: 1.5rem; font-weight: 600; margin: 2rem 0 1rem; color: #18181b; }
+        .content h4 { font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: #18181b; }
+        .content p { margin: 1rem 0; color: #52525b; }
+        .content ul, .content ol { margin: 1rem 0 1rem 2rem; color: #52525b; }
+        .content li { margin: 0.5rem 0; }
+        .content code { background: #f4f4f5; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: 'Courier New', monospace; font-size: 0.875rem; color: #dc2626; }
+        .content pre { background: #18181b; color: #fafafa; padding: 1.5rem; border-radius: 0.5rem; overflow-x: auto; margin: 1.5rem 0; }
+        .content pre code { background: transparent; color: inherit; padding: 0; }
+        .content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        .content th, .content td { border: 1px solid #e4e4e7; padding: 0.75rem; text-align: left; }
+        .content th { background: #f4f4f5; font-weight: 600; }
+        .info-box { background: #f0f9ff; border-left: 4px solid #4A6FA5; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .warning-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .success-box { background: #d1fae5; border-left: 4px solid #10b981; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin: 0 0.25rem; }
+        .badge-new { background: #dcfce7; color: #166534; }
+        .badge-changed { background: #fef3c7; color: #92400e; }
+        .badge-removed { background: #fee2e2; color: #991b1b; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } .sidebar { position: static; } }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <h1>v4 Migration Guide - Incident Tracker</h1>
+            <a href="index.html">← Documentation Home</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#incident-forms">1. Incident Creation Forms</a></li>
+                <li><a href="#workflow-system">2. Workflow System</a></li>
+                <li><a href="#incidents-page">3. Incidents Page & Table</a></li>
+                <li><a href="#search">4. Search Functionality</a></li>
+                <li><a href="#location-mapping">5. Location Mapping</a></li>
+                <li><a href="#design-system">6. Design System</a></li>
+                <li><a href="#breaking-changes">7. Breaking Changes</a></li>
+                <li><a href="#checklist">8. Migration Checklist</a></li>
+                <li><a href="#examples">9. Code Examples</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>v4 Migration Guide</h1>
+            <p><strong>Version 194 to Version 250</strong></p>
+            <p><em>Document Version: v4 | Last Updated: January 29, 2025 | Target Audience: Developers</em></p>
+
+            <section id="overview">
+                <h2>Overview</h2>
+                <p>This guide provides comprehensive documentation for migrating the Incident Tracker application from version 194 to version 250. This document covers all major changes, new features, and implementation details needed to bring version 194 up to current standards.</p>
+                
+                <div class="info-box">
+                    <strong>Migration Scope:</strong> This migration includes significant updates to incident creation forms, introduction of automated workflow systems, enhanced search capabilities, and a redesigned location mapping interface.
+                </div>
+            </section>
+
+            <section id="incident-forms">
+                <h2>1. Incident Creation Forms</h2>
+                <span class="badge badge-new">NEW</span>
+                <span class="badge badge-changed">CHANGED</span>
+
+                <h3>1.1 Overview</h3>
+                <p>Version 250 introduces completely redesigned incident creation forms with support for both <strong>Student Incidents</strong> and <strong>Driver Incidents</strong>. The forms feature improved UX, validation, and integration with the workflow system.</p>
+
+                <h3>1.2 Key Components</h3>
+                <p><strong>Primary Component:</strong></p>
+                <ul>
+                    <li><code>/components/incidents/NewIncidentForm.tsx</code> - Main form component</li>
+                </ul>
+
+                <p><strong>Supporting Components:</strong></p>
+                <ul>
+                    <li><code>/components/incidents/IncidentLocationMap.tsx</code> - Interactive location selector</li>
+                    <li><code>/components/incidents/IncidentTypes.ts</code> - Centralized incident type definitions</li>
+                    <li><code>/components/incidents/INCIDENT_TYPES_REFERENCE.md</code> - Type documentation</li>
+                </ul>
+
+                <h3>1.3 Form Types</h3>
+
+                <h4>Student Incident Form</h4>
+                <p><strong>Features:</strong></p>
+                <ul>
+                    <li>Student search with profile photos and details</li>
+                    <li>Categorized incident type selector (dropdowns grouped by category)</li>
+                    <li>Severity assignment (Low, Medium, High)</li>
+                    <li>Location mapping with crosshair-based selection</li>
+                    <li>File attachment support (photos, documents)</li>
+                    <li>Related student tagging</li>
+                    <li>Workflow auto-assignment based on incident type and severity</li>
+                </ul>
+
+                <h4>Form Fields Structure</h4>
+                <pre><code>{
+  incidentType: string;           // Selected from categorized dropdown
+  severity: 'Low' | 'Medium' | 'High';
+  student: {
+    id: string;
+    name: string;
+    grade: string;
+    school: string;
+    photoUrl: string;
+    bus: string;
+    route: string;
+  };
+  description: string;            // Detailed incident description
+  location: {                     // GPS coordinates
+    lat: number;
+    lng: number;
+  } | null;
+  relatedStudents: string[];      // Array of student IDs
+  attachments: File[];            // Photos/documents
+  date: string;
+  time: string;
+  bus: string;
+  route: string;
+  driver: string;
+}</code></pre>
+
+                <h3>1.4 Incident Type Selector</h3>
+                <p><strong>Design Pattern:</strong> Categorized dropdown with visual hierarchy</p>
+                
+                <p><strong>Categories Include:</strong></p>
+                <ul>
+                    <li>🚌 Boarding & Seating</li>
+                    <li>🗣️ Behavioral Issues</li>
+                    <li>🤜 Physical Safety</li>
+                    <li>📱 Device & Personal Items</li>
+                    <li>🚪 Vehicle Safety</li>
+                    <li>🚗 Driver Performance</li>
+                    <li>🔧 Vehicle Maintenance</li>
+                </ul>
+
+                <div class="info-box">
+                    <strong>Category Label Styling:</strong><br>
+                    - Background: <code>var(--muted)</code> (light grey)<br>
+                    - Text: <code>var(--muted-foreground)</code> (dark grey)<br>
+                    - Font: Roboto, medium weight<br>
+                    - Not selectable (disabled state)
+                </div>
+
+                <h3>1.5 Location Mapping Component</h3>
+                <span class="badge badge-new">NEW</span>
+                
+                <p><strong>New Interactive System:</strong> The location mapping system uses an embedded Google Maps iframe with a crosshair-based selection interface.</p>
+
+                <p><strong>User Flow:</strong></p>
+                <ol>
+                    <li>Click "Select Location on Map" button</li>
+                    <li>Map enters selection mode with blue crosshair overlay</li>
+                    <li>User navigates the map using standard Google Maps controls</li>
+                    <li>User positions crosshair over desired location</li>
+                    <li>User clicks "Confirm Location" to save coordinates</li>
+                    <li>Location is saved as lat/lng coordinates</li>
+                </ol>
+
+                <p><strong>Component Features:</strong></p>
+                <ul>
+                    <li>Crosshair targeting system (blue Target icon)</li>
+                    <li>Standard Google Maps controls (zoom, street view, satellite)</li>
+                    <li>"Use Current Location" button (geolocation API)</li>
+                    <li>"Open in Google Maps" button for directions</li>
+                    <li>Coordinate display with 6 decimal precision</li>
+                    <li>Clear pin functionality</li>
+                    <li>Visual feedback (map border turns blue during selection)</li>
+                    <li>Instruction overlay</li>
+                </ul>
+
+                <h3>1.6 File Attachments</h3>
+                <p><strong>Supported File Types:</strong></p>
+                <ul>
+                    <li>Images: <code>.jpg</code>, <code>.jpeg</code>, <code>.png</code>, <code>.gif</code></li>
+                    <li>Documents: <code>.pdf</code>, <code>.doc</code>, <code>.docx</code></li>
+                    <li>Text: <code>.txt</code></li>
+                </ul>
+
+                <p><strong>Features:</strong></p>
+                <ul>
+                    <li>Drag-and-drop upload</li>
+                    <li>File preview with thumbnails</li>
+                    <li>Remove individual files</li>
+                    <li>File type icons</li>
+                    <li>Size validation</li>
+                    <li>Multiple file support</li>
+                </ul>
+            </section>
+
+            <section id="workflow-system">
+                <h2>2. Workflow System</h2>
+                <span class="badge badge-new">NEW</span>
+
+                <h3>2.1 Overview</h3>
+                <p>Version 250 introduces an automated workflow assignment system that triggers multi-step approval processes based on incident type and severity.</p>
+
+                <h3>2.2 Core Components</h3>
+                <p><strong>Data Layer:</strong></p>
+                <ul>
+                    <li><code>/data/workflows.ts</code> - Workflow definitions and logic</li>
+                </ul>
+
+                <p><strong>UI Components:</strong></p>
+                <ul>
+                    <li><code>/components/incidents/IncidentWorkflowProgress.tsx</code> - Progress visualization</li>
+                    <li><code>/components/workflows/WorkflowBuilderPage.tsx</code> - Workflow template editor</li>
+                    <li><code>/components/workflows/WorkflowsPage.tsx</code> - Workflow management</li>
+                    <li><code>/components/workflows/StepConfigDialog.tsx</code> - Step configuration</li>
+                </ul>
+
+                <h3>2.3 Pre-configured Workflows</h3>
+                <p><strong>Version 250 includes 7 built-in workflows:</strong></p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Incident Types</th>
+                            <th>Severity</th>
+                            <th>Steps</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>WF-001</td>
+                            <td>Physical Altercation Response</td>
+                            <td>Physical Altercation</td>
+                            <td>High</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>WF-002</td>
+                            <td>Bullying Investigation</td>
+                            <td>Taunting/Bullying</td>
+                            <td>High, Medium</td>
+                            <td>6</td>
+                        </tr>
+                        <tr>
+                            <td>WF-003</td>
+                            <td>Seat Refusal - Standard</td>
+                            <td>Seat Refusal</td>
+                            <td>Low, Medium</td>
+                            <td>3</td>
+                        </tr>
+                        <tr>
+                            <td>WF-004</td>
+                            <td>Offensive Language Protocol</td>
+                            <td>Offensive Language</td>
+                            <td>Medium, High</td>
+                            <td>4</td>
+                        </tr>
+                        <tr>
+                            <td>WF-005</td>
+                            <td>Disruptive Behavior - Minor</td>
+                            <td>Disruptive Volume</td>
+                            <td>Low, Medium</td>
+                            <td>3</td>
+                        </tr>
+                        <tr>
+                            <td>WF-006</td>
+                            <td>Property Damage Investigation</td>
+                            <td>Vandalism, Window Misuse</td>
+                            <td>Medium, High</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>WF-007</td>
+                            <td>Food & Beverage Violation</td>
+                            <td>Eating/Drinking Violation</td>
+                            <td>Low, Medium</td>
+                            <td>3</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>2.4 Automatic Assignment Logic</h3>
+                <pre><code>export function assignWorkflowToIncident(
+  incidentType: string, 
+  severity: string
+): Workflow | null {
+  // Find matching workflow
+  const matchingWorkflow = workflows.find(
+    (workflow) =>
+      workflow.isActive &&
+      workflow.incidentTypes.includes(incidentType) &&
+      workflow.severityLevels.includes(severity)
+  );
+
+  if (matchingWorkflow) {
+    // Clone workflow and reset step statuses
+    const newWorkflow: Workflow = {
+      ...matchingWorkflow,
+      active: true,
+      steps: matchingWorkflow.steps.map((step) => ({
+        ...step,
+        status: 'Not Started',
+        completedDate: undefined,
+        completedBy: undefined,
+        comments: undefined,
+      })),
+    };
+    
+    return newWorkflow;
+  }
+
+  return null;
+}</code></pre>
+
+                <p><strong>Assignment Triggers:</strong></p>
+                <ul>
+                    <li>Automatically assigns workflow when incident is created</li>
+                    <li>Matches on both <code>incidentType</code> AND <code>severity</code></li>
+                    <li>Only assigns if workflow <code>isActive: true</code></li>
+                    <li>Creates new instance with reset statuses</li>
+                </ul>
+
+                <div class="info-box">
+                    <strong>Detailed Workflow Documentation:</strong> For comprehensive workflow system documentation including all 7 workflows, step triggers, and API reference, see <a href="v4-WORKFLOW-SYSTEM.html">v4 Workflow System Documentation</a>.
+                </div>
+            </section>
+
+            <section id="incidents-page">
+                <h2>3. Incidents Page & Table</h2>
+                <span class="badge badge-changed">ENHANCED</span>
+
+                <h3>3.1 Overview</h3>
+                <p>The Incidents page has been enhanced with advanced filtering, sorting, and workflow integration.</p>
+
+                <h3>3.2 Key Features</h3>
+                <p><strong>Table Columns:</strong></p>
+                <ol>
+                    <li>Incident ID (e.g., <code>INC-2025-0062</code>)</li>
+                    <li>Date</li>
+                    <li>Student/Driver Name</li>
+                    <li>Type (categorized)</li>
+                    <li>Description (truncated)</li>
+                    <li>Bus Number</li>
+                    <li>Route</li>
+                    <li>Driver Name</li>
+                    <li>Severity Badge (color-coded)</li>
+                    <li>Status Badge</li>
+                    <li>Workflow Indicator</li>
+                    <li>Actions (View, Edit, Message)</li>
+                </ol>
+
+                <p><strong>Enhanced Features:</strong></p>
+                <ul>
+                    <li><strong>Search:</strong> Global search across all fields</li>
+                    <li><strong>Filtering:</strong> By status, severity, type, date range</li>
+                    <li><strong>Sorting:</strong> Multi-column sort with direction indicators</li>
+                    <li><strong>Pagination:</strong> Configurable page size</li>
+                    <li><strong>Export:</strong> Download as CSV/PDF</li>
+                    <li><strong>Bulk Actions:</strong> Select multiple incidents</li>
+                    <li><strong>Quick Actions:</strong> View details, Edit, Send message</li>
+                    <li><strong>Workflow Badge:</strong> Shows active workflow with progress</li>
+                </ul>
+
+                <h3>3.3 Status Badges</h3>
+                <p><strong>Status Types:</strong></p>
+                <ul>
+                    <li><strong>Open</strong> - New incident, not yet addressed</li>
+                    <li><strong>In Progress</strong> - Currently being worked on</li>
+                    <li><strong>Closed</strong> - Resolved and closed</li>
+                </ul>
+
+                <h3>3.4 Severity Badges</h3>
+                <p><strong>Severity Levels:</strong></p>
+                <ul>
+                    <li><strong>Low</strong> - Minor issues, minimal impact</li>
+                    <li><strong>Medium</strong> - Moderate issues, requires attention</li>
+                    <li><strong>High</strong> - Serious issues, immediate action required</li>
+                </ul>
+
+                <h3>3.5 Workflow Integration</h3>
+                <p><strong>Workflow Indicator Badge:</strong></p>
+                <ul>
+                    <li>Shows GitBranch icon when workflow is active</li>
+                    <li>Displays workflow progress percentage</li>
+                    <li>Click to expand workflow details</li>
+                    <li>Color: <code>var(--brand-blue-dark)</code></li>
+                </ul>
+
+                <pre><code>{incident.workflow && (
+  &lt;Badge variant="outline"&gt;
+    &lt;GitBranch className="h-3 w-3 mr-1" /&gt;
+    Workflow ({getWorkflowProgress(incident.workflow.steps)}%)
+  &lt;/Badge&gt;
+)}</code></pre>
+            </section>
+
+            <section id="search">
+                <h2>4. Search Functionality</h2>
+                <span class="badge badge-new">NEW</span>
+
+                <h3>4.1 Overview</h3>
+                <p>Advanced search functionality has been implemented across Drivers and Vehicles pages using Command palette pattern.</p>
+
+                <h3>4.2 Drivers Page Search</h3>
+                <p><strong>Searchable Fields:</strong></p>
+                <ul>
+                    <li>First Name</li>
+                    <li>Last Name</li>
+                    <li>Employee ID</li>
+                    <li>Phone Number</li>
+                    <li>Email</li>
+                    <li>Assigned Vehicle</li>
+                    <li>Primary Route</li>
+                    <li>License Number</li>
+                    <li>Status</li>
+                </ul>
+
+                <p><strong>Search Features:</strong></p>
+                <ul>
+                    <li>Real-time filtering</li>
+                    <li>Fuzzy matching</li>
+                    <li>Multi-field search</li>
+                    <li>Result highlighting</li>
+                    <li>Sort by relevance</li>
+                </ul>
+
+                <h3>4.3 Vehicles Page Search</h3>
+                <p><strong>Searchable Fields:</strong></p>
+                <ul>
+                    <li>Vehicle Name/Number</li>
+                    <li>VIN</li>
+                    <li>License Plate</li>
+                    <li>Make</li>
+                    <li>Model</li>
+                    <li>Driver Name</li>
+                    <li>Primary Route</li>
+                    <li>GPS Hardware ID</li>
+                    <li>Status</li>
+                </ul>
+            </section>
+
+            <section id="location-mapping">
+                <h2>5. Location Mapping System</h2>
+                <span class="badge badge-new">NEW</span>
+
+                <h3>5.1 Component Details</h3>
+                <p><strong>File:</strong> <code>/components/incidents/IncidentLocationMap.tsx</code></p>
+
+                <p><strong>Props Interface:</strong></p>
+                <pre><code>interface IncidentLocationMapProps {
+  location: LocationCoordinates | null;
+  onLocationChange: (location: LocationCoordinates | null) => void;
+  showManualEntry?: boolean;  // Deprecated in v250
+}
+
+interface LocationCoordinates {
+  lat: number;  // Latitude (-90 to 90)
+  lng: number;  // Longitude (-180 to 180)
+}</code></pre>
+
+                <h3>5.2 Selection Modes</h3>
+                <p><strong>1. Normal Mode:</strong></p>
+                <ul>
+                    <li>Shows map preview if location is set</li>
+                    <li>Shows placeholder if no location</li>
+                    <li>Action buttons: "Use Current Location", "Select Location on Map"</li>
+                </ul>
+
+                <p><strong>2. Selection Mode:</strong></p>
+                <ul>
+                    <li>Blue crosshair overlay at center</li>
+                    <li>Map border turns blue</li>
+                    <li>Standard Google Maps controls enabled</li>
+                    <li>Instruction overlay at bottom</li>
+                    <li>Action buttons: "Confirm Location", "Cancel"</li>
+                </ul>
+
+                <h3>5.3 Geolocation API Integration</h3>
+                <pre><code>const handleUseCurrentLocation = () => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const newLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        onLocationChange(newLocation);
+      },
+      (error) => {
+        console.warn('Geolocation not available:', error.message);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  }
+};</code></pre>
+            </section>
+
+            <section id="design-system">
+                <h2>6. Design System Updates</h2>
+                <span class="badge badge-changed">UPDATED</span>
+
+                <h3>6.1 CSS Variables</h3>
+                <p><strong>File:</strong> <code>/styles/globals.css</code></p>
+
+                <p><strong>Brand Colors:</strong></p>
+                <pre><code>/* Deep Blues */
+--brand-blue-dark: #4A6FA5;
+--brand-blue-medium: #5B8BB8;
+--brand-blue-light: #6B9BC5;
+
+/* Olives */
+--brand-olive-dark: #7B8458;
+--brand-olive-medium: #8B9264;
+--brand-olive-light: #9FA870;</code></pre>
+
+                <p><strong>Spacing:</strong></p>
+                <pre><code>--forge-spacing-xsmall: 4px;
+--forge-spacing-small: 8px;
+--forge-spacing-medium: 16px;
+--forge-spacing-large: 24px;
+--forge-spacing-xlarge: 32px;</code></pre>
+
+                <p><strong>Typography:</strong></p>
+                <pre><code>/* Font Family */
+--font-family-primary: 'Roboto', sans-serif;
+
+/* Font Sizes */
+--text-xs: 0.75rem;    /* 12px */
+--text-sm: 0.875rem;   /* 14px */
+--text-base: 1rem;     /* 16px */
+--text-lg: 1.125rem;   /* 18px */
+--text-xl: 1.25rem;    /* 20px */
+
+/* Font Weights */
+--font-weight-normal: 400;
+--font-weight-medium: 500;
+--font-weight-semibold: 600;
+--font-weight-bold: 700;</code></pre>
+
+                <h3>6.2 Typography Standards</h3>
+                <div class="warning-box">
+                    <strong>⚠️ Important:</strong> All text elements MUST use CSS variables, not Tailwind classes.
+                </div>
+
+                <p><strong>Do NOT use Tailwind font classes:</strong></p>
+                <ul>
+                    <li>❌ <code>text-2xl</code>, <code>text-lg</code>, <code>text-sm</code></li>
+                    <li>❌ <code>font-bold</code>, <code>font-semibold</code></li>
+                    <li>❌ <code>leading-none</code>, <code>leading-tight</code></li>
+                </ul>
+
+                <p><strong>Use CSS variables instead:</strong></p>
+                <ul>
+                    <li>✅ <code>fontSize: 'var(--text-lg)'</code></li>
+                    <li>✅ <code>fontWeight: 'var(--font-weight-medium)'</code></li>
+                    <li>✅ <code>fontFamily: 'Roboto, sans-serif'</code></li>
+                </ul>
+            </section>
+
+            <section id="breaking-changes">
+                <h2>7. Breaking Changes</h2>
+                <span class="badge badge-removed">BREAKING</span>
+
+                <h3>7.1 Removed Features</h3>
+                <div class="warning-box">
+                    <strong>Manual Coordinate Entry:</strong><br>
+                    - The manual lat/lng input fields have been removed<br>
+                    - Users must now use the crosshair map selector or "Use Current Location"<br>
+                    - <strong>Migration:</strong> Remove any references to <code>showManualEntry</code> prop
+                </div>
+
+                <div class="warning-box">
+                    <strong>Old Map Interface:</strong><br>
+                    - Previous iframe-only map removed<br>
+                    - Replaced with interactive crosshair system<br>
+                    - <strong>Migration:</strong> Update any components using old <code>IncidentLocationMap</code>
+                </div>
+
+                <h3>7.2 Changed Interfaces</h3>
+                <pre><code>// OLD (v194)
+interface Props {
+  location: LocationCoordinates | null;
+  onLocationChange: (location: LocationCoordinates | null) => void;
+  showManualEntry: boolean;  // Used to toggle manual input
+}
+
+// NEW (v250)
+interface Props {
+  location: LocationCoordinates | null;
+  onLocationChange: (location: LocationCoordinates | null) => void;
+  showManualEntry?: boolean;  // Deprecated, no effect
+}</code></pre>
+            </section>
+
+            <section id="checklist">
+                <h2>8. Migration Checklist</h2>
+
+                <h3>8.1 Pre-Migration</h3>
+                <ul>
+                    <li>☐ Backup version 194 codebase</li>
+                    <li>☐ Document custom modifications in v194</li>
+                    <li>☐ Review all incident forms</li>
+                    <li>☐ Identify location mapping usage</li>
+                    <li>☐ List all styled components</li>
+                </ul>
+
+                <h3>8.2 Core Updates</h3>
+                <p><strong>Incident Forms:</strong></p>
+                <ul>
+                    <li>☐ Update <code>NewIncidentForm.tsx</code> with new structure</li>
+                    <li>☐ Add <code>IncidentTypes.ts</code> definitions</li>
+                    <li>☐ Implement categorized dropdown selector</li>
+                    <li>☐ Add workflow assignment logic</li>
+                    <li>☐ Update form validation</li>
+                    <li>☐ Add file attachment support</li>
+                </ul>
+
+                <p><strong>Location Mapping:</strong></p>
+                <ul>
+                    <li>☐ Replace old map component with new <code>IncidentLocationMap.tsx</code></li>
+                    <li>☐ Remove manual coordinate entry UI</li>
+                    <li>☐ Implement crosshair selection</li>
+                    <li>☐ Add geolocation support</li>
+                    <li>☐ Update parent components to handle new flow</li>
+                </ul>
+
+                <p><strong>Workflows:</strong></p>
+                <ul>
+                    <li>☐ Add <code>/data/workflows.ts</code> file</li>
+                    <li>☐ Import 7 pre-configured workflows</li>
+                    <li>☐ Add <code>IncidentWorkflowProgress.tsx</code> component</li>
+                    <li>☐ Implement auto-assignment logic</li>
+                    <li>☐ Add workflow indicators to incident table</li>
+                    <li>☐ Create workflow management pages</li>
+                </ul>
+
+                <h3>8.3 Design System</h3>
+                <ul>
+                    <li>☐ Update <code>/styles/globals.css</code> with new variables</li>
+                    <li>☐ Add brand color variables</li>
+                    <li>☐ Add spacing variables</li>
+                    <li>☐ Add typography variables</li>
+                    <li>☐ Add border radius variables</li>
+                    <li>☐ Remove all Tailwind typography classes from components</li>
+                    <li>☐ Update all components to use CSS variables</li>
+                    <li>☐ Ensure Roboto font is loaded</li>
+                    <li>☐ Test all styled components</li>
+                </ul>
+
+                <h3>8.4 Testing</h3>
+                <p><strong>Functional Testing:</strong></p>
+                <ul>
+                    <li>☐ Test student incident creation</li>
+                    <li>☐ Test driver incident creation</li>
+                    <li>☐ Test categorized dropdown selection</li>
+                    <li>☐ Test location map selection</li>
+                    <li>☐ Test crosshair positioning</li>
+                    <li>☐ Test geolocation</li>
+                    <li>☐ Test workflow assignment</li>
+                    <li>☐ Test workflow progress display</li>
+                    <li>☐ Test search on Drivers page</li>
+                    <li>☐ Test search on Vehicles page</li>
+                </ul>
+            </section>
+
+            <section id="examples">
+                <h2>9. Code Examples</h2>
+
+                <h3>9.1 Complete Incident Form Usage</h3>
+                <pre><code>import { NewIncidentForm } from './components/incidents/NewIncidentForm';
+
+function IncidentPage() {
+  const [showForm, setShowForm] = useState(false);
+  
+  const handleIncidentCreated = (incident) => {
+    console.log('Incident created:', incident);
+    // Handle workflow assignment
+    const workflow = assignWorkflowToIncident(
+      incident.incidentType,
+      incident.severity
+    );
+    if (workflow) {
+      console.log('Workflow assigned:', workflow.name);
+    }
+  };
+  
+  return (
+    &lt;Dialog open={showForm} onOpenChange={setShowForm}&gt;
+      &lt;DialogTrigger asChild&gt;
+        &lt;Button&gt;Create Incident&lt;/Button&gt;
+      &lt;/DialogTrigger&gt;
+      &lt;DialogContent className="max-w-6xl"&gt;
+        &lt;NewIncidentForm onComplete={handleIncidentCreated} /&gt;
+      &lt;/DialogContent&gt;
+    &lt;/Dialog&gt;
+  );
+}</code></pre>
+
+                <h3>9.2 Location Map Usage</h3>
+                <pre><code>import { IncidentLocationMap } from './components/incidents/IncidentLocationMap';
+
+function LocationForm() {
+  const [location, setLocation] = useState&lt;LocationCoordinates | null&gt;(null);
+  
+  return (
+    &lt;IncidentLocationMap
+      location={location}
+      onLocationChange={setLocation}
+    /&gt;
+  );
+}</code></pre>
+
+                <h3>9.3 Search Implementation</h3>
+                <pre><code>const [searchTerm, setSearchTerm] = useState('');
+const [filteredDrivers, setFilteredDrivers] = useState(mockDrivers);
+
+useEffect(() => {
+  const filtered = mockDrivers.filter((driver) => {
+    const search = searchTerm.toLowerCase();
+    return (
+      driver.fullName.toLowerCase().includes(search) ||
+      driver.employeeId.toLowerCase().includes(search) ||
+      driver.assignedVehicle.toLowerCase().includes(search) ||
+      driver.primaryRoute.toLowerCase().includes(search)
+    );
+  });
+  setFilteredDrivers(filtered);
+}, [searchTerm]);</code></pre>
+            </section>
+
+            <div class="success-box" style="margin-top: 3rem;">
+                <strong>✅ Additional Resources:</strong><br>
+                - <a href="v4-WORKFLOW-SYSTEM.html">v4 Workflow System Documentation</a><br>
+                - <a href="v4-QUICK-REFERENCE.html">v4 Quick Reference Guide</a><br>
+                - <a href="DESIGN-SYSTEM.html">Design System Documentation</a><br>
+                - <a href="TECHNICAL-DOCUMENTATION.html">Technical Documentation</a>
+            </div>
+
+            <p style="margin-top: 3rem; text-align: center; color: #71717a; font-size: 0.875rem;">
+                <strong>End of v4 Migration Guide</strong><br>
+                Document Version: v4 | Last Updated: January 29, 2025
+            </p>
+        </main>
+    </div>
+</body>
+</html>

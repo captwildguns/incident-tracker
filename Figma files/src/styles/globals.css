@@ -1,0 +1,272 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* ==============================================
+     FORGE SEMANTIC COLOR TOKENS
+     Map Forge theme tokens to the app's color palette.
+     These align with the official Forge design system.
+     ============================================== */
+
+  /* Forge Theme - Surface Colors */
+  --forge-theme-surface: #ffffff;
+  --forge-theme-surface-dim: #f5f5f5;
+  --forge-theme-surface-bright: #ffffff;
+  --forge-theme-surface-container: #f5f5f5;
+  --forge-theme-surface-container-minimum: #fafafa;
+  --forge-theme-surface-container-low: #f5f5f5;
+  --forge-theme-surface-container-medium: #eeeeee;
+  --forge-theme-surface-container-high: #e0e0e0;
+
+  /* Forge Theme - Brand */
+  --forge-theme-brand: #3F51B5;
+
+  /* Forge Theme - Primary */
+  --forge-theme-primary: #3F51B5;
+  --forge-theme-primary-container: rgba(63, 81, 181, 0.12);
+  --forge-theme-primary-container-low: rgba(63, 81, 181, 0.08);
+  --forge-theme-primary-container-minimum: rgba(63, 81, 181, 0.04);
+  --forge-theme-primary-container-high: rgba(63, 81, 181, 0.20);
+
+  /* Forge Theme - Secondary */
+  --forge-theme-secondary: #FFC107;
+  --forge-theme-secondary-container: rgba(255, 193, 7, 0.12);
+
+  /* Forge Theme - Tertiary */
+  --forge-theme-tertiary: #4A6FA5;
+  --forge-theme-tertiary-container: rgba(74, 111, 165, 0.12);
+
+  /* Forge Theme - Semantic Status */
+  --forge-theme-error: #B00020;
+  --forge-theme-error-container: rgba(176, 0, 32, 0.12);
+  --forge-theme-error-container-low: rgba(176, 0, 32, 0.08);
+
+  --forge-theme-success: #2E7D32;
+  --forge-theme-success-container: rgba(46, 125, 50, 0.12);
+  --forge-theme-success-container-low: rgba(46, 125, 50, 0.08);
+
+  --forge-theme-warning: #E65100;
+  --forge-theme-warning-container: rgba(230, 81, 0, 0.12);
+  --forge-theme-warning-container-low: rgba(230, 81, 0, 0.08);
+
+  --forge-theme-info: #1565C0;
+  --forge-theme-info-container: rgba(21, 101, 192, 0.12);
+  --forge-theme-info-container-low: rgba(21, 101, 192, 0.08);
+
+  /* Forge Theme - Text Colors */
+  --forge-theme-text-high: rgba(0, 0, 0, 0.87);
+  --forge-theme-text-medium: rgba(0, 0, 0, 0.60);
+  --forge-theme-text-low: rgba(0, 0, 0, 0.38);
+  --forge-theme-text-lowest: rgba(0, 0, 0, 0.12);
+  --forge-theme-text-high-inverse: rgba(255, 255, 255, 1);
+  --forge-theme-text-medium-inverse: rgba(255, 255, 255, 0.70);
+  --forge-theme-text-low-inverse: rgba(255, 255, 255, 0.50);
+
+  /* Forge Theme - Outline */
+  --forge-theme-outline: rgba(0, 0, 0, 0.12);
+  --forge-theme-outline-low: rgba(0, 0, 0, 0.06);
+  --forge-theme-outline-medium: rgba(0, 0, 0, 0.20);
+  --forge-theme-outline-high: rgba(0, 0, 0, 0.38);
+
+  /* ==============================================
+     FORGE SPACING TOKENS (official values)
+     ============================================== */
+  --forge-spacing-xxxsmall: 2px;
+  --forge-spacing-xxsmall: 4px;
+  --forge-spacing-xsmall: 8px;
+  --forge-spacing-small: 12px;
+  --forge-spacing-medium: 16px;
+  --forge-spacing-medium-large: 20px;
+  --forge-spacing-large: 24px;
+  --forge-spacing-xlarge: 32px;
+  --forge-spacing-xxlarge: 48px;
+  --forge-spacing-xxxlarge: 56px;
+
+  /* ==============================================
+     FORGE SHAPE TOKENS (official values)
+     ============================================== */
+  --forge-shape-extra-small: 1px;
+  --forge-shape-small: 2px;
+  --forge-shape-medium: 4px;
+  --forge-shape-large: 8px;
+  --forge-shape-extra-large: 16px;
+  --forge-shape-full: 9999px;
+  --forge-shape-round: 50%;
+
+  /* ==============================================
+     FORGE ELEVATION TOKENS (official 3-shadow Material Design spec)
+     ============================================== */
+  --forge-elevation-0: 0px 0px 0px 0px rgba(0, 0, 0, 0.2), 0px 0px 0px 0px rgba(0, 0, 0, 0.14), 0px 0px 0px 0px rgba(0, 0, 0, 0.12);
+  --forge-elevation-1: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+  --forge-elevation-2: 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12);
+  --forge-elevation-3: 0px 3px 3px -2px rgba(0, 0, 0, 0.2), 0px 3px 4px 0px rgba(0, 0, 0, 0.14), 0px 1px 8px 0px rgba(0, 0, 0, 0.12);
+  --forge-elevation-4: 0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12);
+  --forge-elevation-6: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);
+  --forge-elevation-8: 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);
+  --forge-elevation-12: 0px 7px 8px -4px rgba(0, 0, 0, 0.2), 0px 12px 17px 2px rgba(0, 0, 0, 0.14), 0px 5px 22px 4px rgba(0, 0, 0, 0.12);
+  --forge-elevation-16: 0px 8px 10px -5px rgba(0, 0, 0, 0.2), 0px 16px 24px 2px rgba(0, 0, 0, 0.14), 0px 6px 30px 5px rgba(0, 0, 0, 0.12);
+  --forge-elevation-24: 0px 11px 15px -7px rgba(0, 0, 0, 0.2), 0px 24px 38px 3px rgba(0, 0, 0, 0.14), 0px 9px 46px 8px rgba(0, 0, 0, 0.12);
+
+  /* ==============================================
+     LEGACY TOKENS (kept for backward compatibility during migration)
+     Mapped to Forge semantic equivalents where possible
+     ============================================== */
+
+  /* Typography Variables (legacy) */
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 20px;
+  --text-3xl: 24px;
+
+  /* Brand Colors - Deep Blues (legacy, use --forge-theme-tertiary) */
+  --brand-blue-dark: #4A6FA5;
+  --brand-blue-medium: #5B8BB8;
+  --brand-blue-light: #6B9BC5;
+
+  /* Brand Colors - Olives (legacy) */
+  --brand-olive-dark: #7B8458;
+  --brand-olive-medium: #8B9264;
+  --brand-olive-light: #9FA870;
+
+  /* Forge Slideout Colors (app-specific, kept for drawer) */
+  --forge-slideout-bg: #2a2a2a;
+  --forge-slideout-border: rgba(255, 255, 255, 0.1);
+  --forge-slideout-hover: rgba(255, 255, 255, 0.08);
+  --forge-slideout-active: rgba(255, 255, 255, 0.12);
+
+  /* Forge Neutral Colors (app-specific) */
+  --forge-neutral-400: rgba(255, 255, 255, 0.6);
+  --forge-neutral-600: rgba(255, 255, 255, 0.4);
+
+  /* ==============================================
+     SHADCN/TAILWIND THEME TOKENS
+     (Mapped to Forge semantic tokens for consistency)
+     ============================================== */
+  --background: var(--forge-theme-surface);
+  --foreground: var(--forge-theme-text-high);
+  --card: var(--forge-theme-surface);
+  --card-foreground: var(--forge-theme-text-high);
+  --popover: var(--forge-theme-surface-bright);
+  --popover-foreground: var(--forge-theme-text-high);
+  --primary: var(--forge-theme-primary);
+  --primary-foreground: var(--forge-theme-text-high-inverse);
+  --secondary: var(--forge-theme-secondary);
+  --secondary-foreground: rgba(0, 0, 0, 1);
+  --muted: var(--forge-theme-surface-container-medium);
+  --muted-foreground: var(--forge-theme-text-low);
+  --accent: var(--forge-theme-primary);
+  --accent-foreground: var(--forge-theme-text-high-inverse);
+  --destructive: var(--forge-theme-error);
+  --destructive-foreground: var(--forge-theme-text-high-inverse);
+  --border: var(--forge-theme-outline);
+  --input: var(--forge-theme-surface-container-minimum);
+  --input-background: var(--forge-theme-surface-container-minimum);
+  --ring: var(--forge-theme-primary);
+  --elevation-sm: var(--forge-elevation-1);
+  --chart-1: var(--forge-theme-primary);
+  --chart-2: var(--forge-theme-success);
+  --chart-3: var(--forge-theme-warning);
+  --chart-4: var(--forge-theme-info);
+  --chart-5: var(--forge-theme-error);
+  --radius: var(--forge-shape-medium);
+  --sidebar: var(--forge-theme-surface);
+  --sidebar-foreground: var(--forge-theme-text-high);
+  --sidebar-primary: var(--forge-theme-primary);
+  --sidebar-primary-foreground: var(--forge-theme-text-high-inverse);
+  --sidebar-accent: var(--forge-theme-primary);
+  --sidebar-accent-foreground: var(--forge-theme-text-high-inverse);
+  --sidebar-border: var(--forge-theme-outline);
+  --sidebar-ring: var(--forge-theme-primary);
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+}
+
+.dark {
+  --forge-theme-surface: rgba(18, 18, 18, 1);
+  --forge-theme-surface-dim: rgba(12, 12, 12, 1);
+  --forge-theme-surface-bright: rgba(40, 40, 40, 1);
+  --forge-theme-surface-container: rgba(30, 30, 30, 1);
+  --forge-theme-surface-container-minimum: rgba(22, 22, 22, 1);
+  --forge-theme-surface-container-low: rgba(25, 25, 25, 1);
+  --forge-theme-surface-container-medium: rgba(35, 35, 35, 1);
+  --forge-theme-surface-container-high: rgba(45, 45, 45, 1);
+  --forge-theme-primary: rgba(121, 134, 203, 1);
+  --forge-theme-secondary: rgba(255, 213, 79, 1);
+  --forge-theme-error: rgba(239, 68, 68, 1);
+  --forge-theme-success: rgba(74, 222, 128, 1);
+  --forge-theme-warning: rgba(251, 146, 60, 1);
+  --forge-theme-info: rgba(96, 165, 250, 1);
+  --forge-theme-text-high: rgba(255, 255, 255, 0.87);
+  --forge-theme-text-medium: rgba(255, 255, 255, 0.60);
+  --forge-theme-text-low: rgba(255, 255, 255, 0.38);
+  --forge-theme-text-high-inverse: rgba(18, 18, 18, 1);
+  --forge-theme-outline: rgba(255, 255, 255, 0.12);
+
+  --secondary-foreground: rgba(18, 18, 18, 1);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* ==============================================
+   FORGE TABLE CSS-ONLY OVERRIDES
+   Supplements forge.css table classes for CSS-only
+   usage on native HTML <table> elements.
+   ============================================== */
+.forge-table-cell--header {
+  color: var(--forge-theme-text-medium, rgba(0, 0, 0, 0.6));
+  font-weight: bold;
+  text-align: left;
+  font-size: calc(var(--forge-typography-font-size, 1rem) * 0.75);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

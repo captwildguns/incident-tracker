@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>v4 Quick Reference - Student Transportation Incident Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; line-height: 1.6; color: #09090b; background: #fafafa; }
+        .nav { background: #4A6FA5; color: white; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .nav h1 { font-size: 1.25rem; font-weight: 600; }
+        .nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background 0.2s; }
+        .nav a:hover { background: rgba(255,255,255,0.1); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 250px 1fr; gap: 2rem; }
+        .sidebar { background: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); height: fit-content; position: sticky; top: 80px; }
+        .sidebar h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #4A6FA5; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin: 0.5rem 0; }
+        .sidebar a { color: #52525b; text-decoration: none; font-size: 0.875rem; transition: color 0.2s; }
+        .sidebar a:hover { color: #4A6FA5; }
+        .content { background: white; padding: 3rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .content h1 { font-size: 2.5rem; font-weight: 600; margin-bottom: 1rem; color: #4A6FA5; }
+        .content h2 { font-size: 2rem; font-weight: 600; margin: 2.5rem 0 1rem; color: #18181b; padding-bottom: 0.5rem; border-bottom: 2px solid #e4e4e7; }
+        .content h3 { font-size: 1.5rem; font-weight: 600; margin: 2rem 0 1rem; color: #18181b; }
+        .content h4 { font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: #18181b; }
+        .content p { margin: 1rem 0; color: #52525b; }
+        .content ul, .content ol { margin: 1rem 0 1rem 2rem; color: #52525b; }
+        .content li { margin: 0.5rem 0; }
+        .content code { background: #f4f4f5; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: 'Courier New', monospace; font-size: 0.875rem; color: #dc2626; }
+        .content pre { background: #18181b; color: #fafafa; padding: 1.5rem; border-radius: 0.5rem; overflow-x: auto; margin: 1.5rem 0; }
+        .content pre code { background: transparent; color: inherit; padding: 0; }
+        .content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        .content th, .content td { border: 1px solid #e4e4e7; padding: 0.75rem; text-align: left; }
+        .content th { background: #f4f4f5; font-weight: 600; }
+        .info-box { background: #f0f9ff; border-left: 4px solid #4A6FA5; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .warning-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .success-box { background: #d1fae5; border-left: 4px solid #10b981; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .error-box { background: #fee2e2; border-left: 4px solid #dc2626; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .quick-card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; }
+        .quick-card h4 { margin-top: 0; color: #4A6FA5; }
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin: 0 0.25rem; }
+        .badge-breaking { background: #fee2e2; color: #991b1b; }
+        .badge-new { background: #dcfce7; color: #166534; }
+        .emoji { font-size: 1.25rem; margin-right: 0.5rem; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } .sidebar { position: static; } }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <h1>v4 Quick Reference - Incident Tracker</h1>
+            <a href="index.html">← Documentation Home</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Quick Links</h3>
+            <ul>
+                <li><a href="#changes">Critical Changes</a></li>
+                <li><a href="#files">File Structure</a></li>
+                <li><a href="#patterns">Code Patterns</a></li>
+                <li><a href="#css">Design System</a></li>
+                <li><a href="#workflows">Workflows</a></li>
+                <li><a href="#types">Incident Types</a></li>
+                <li><a href="#checklist">Migration Checklist</a></li>
+                <li><a href="#troubleshooting">Troubleshooting</a></li>
+                <li><a href="#api">API Reference</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>v4 Quick Reference Guide</h1>
+            <p><strong>Target Version: 250</strong></p>
+            <p><em>Document Version: v4 | Last Updated: January 29, 2025</em></p>
+
+            <div class="info-box">
+                <strong>Full Documentation:</strong><br>
+                - <a href="v4-MIGRATION-GUIDE.html">v4 Migration Guide</a><br>
+                - <a href="v4-WORKFLOW-SYSTEM.html">v4 Workflow System</a><br>
+                - <a href="DESIGN-SYSTEM.html">Design System</a>
+            </div>
+
+            <section id="changes">
+                <h2>Critical Changes Summary</h2>
+
+                <h3>🚨 Breaking Changes</h3>
+                <span class="badge badge-breaking">BREAKING</span>
+
+                <div class="error-box">
+                    <strong>1. Manual Coordinate Entry Removed</strong><br>
+                    - Old: Users could type lat/lng manually<br>
+                    - New: Crosshair-based map selection only<br>
+                    - Action: Remove all manual input UI
+                </div>
+
+                <div class="error-box">
+                    <strong>2. Incident Type Selector Redesigned</strong><br>
+                    - Old: Flat dropdown list<br>
+                    - New: Categorized dropdown with visual hierarchy<br>
+                    - Action: Update to use <code>IncidentTypes.ts</code>
+                </div>
+
+                <div class="error-box">
+                    <strong>3. CSS Variables Required</strong><br>
+                    - Old: Could use Tailwind typography classes<br>
+                    - New: Must use CSS variables only<br>
+                    - Action: Replace all <code>text-*</code>, <code>font-*</code> classes
+                </div>
+
+                <h3>✨ New Features</h3>
+                <span class="badge badge-new">NEW</span>
+
+                <div class="success-box">
+                    <strong>1. Workflow System</strong><br>
+                    - Auto-assignment based on type + severity<br>
+                    - Multi-step approval processes<br>
+                    - Progress tracking UI<br>
+                    - 7 pre-configured workflows
+                </div>
+
+                <div class="success-box">
+                    <strong>2. Enhanced Search</strong><br>
+                    - Command palette pattern<br>
+                    - Real-time filtering<br>
+                    - Multi-field search<br>
+                    - Available on Drivers & Vehicles pages
+                </div>
+
+                <div class="success-box">
+                    <strong>3. Location Mapping</strong><br>
+                    - Interactive crosshair selection<br>
+                    - Geolocation support<br>
+                    - Google Maps integration<br>
+                    - "Open in Maps" feature
+                </div>
+
+                <div class="success-box">
+                    <strong>4. Incident Forms</strong><br>
+                    - Separate Student & Driver forms<br>
+                    - File attachment support<br>
+                    - Related students tagging<br>
+                    - Photo upload
+                </div>
+            </section>
+
+            <section id="files">
+                <h2>File Structure Changes</h2>
+
+                <h3>New Files (v250)</h3>
+                <pre><code>/components/incidents/
+  ├── IncidentLocationMap.tsx        ← Interactive map with crosshair
+  ├── IncidentTypes.ts               ← Centralized type definitions
+  ├── IncidentWorkflowProgress.tsx   ← Workflow timeline UI
+  └── INCIDENT_TYPES_REFERENCE.md    ← Type documentation
+
+/data/
+  └── workflows.ts                   ← Workflow definitions & logic
+
+/components/workflows/
+  ├── WorkflowBuilderPage.tsx        ← Template editor
+  ├── WorkflowsPage.tsx              ← Workflow management
+  └── StepConfigDialog.tsx           ← Step configuration
+
+/docs/
+  ├── v4-MIGRATION-GUIDE.md          ← Full migration guide
+  ├── v4-WORKFLOW-SYSTEM.md          ← Workflow documentation
+  └── v4-QUICK-REFERENCE.md          ← This file</code></pre>
+
+                <h3>Modified Files</h3>
+                <pre><code>/components/incidents/
+  ├── NewIncidentForm.tsx            ← Complete redesign
+  ├── IncidentsPage.tsx              ← Added workflow badges
+  └── IncidentDetailPage.tsx         ← Added workflow display
+
+/components/drivers/
+  └── DriversPage.tsx                ← Added search functionality
+
+/components/vehicles/
+  └── VehiclesPage.tsx               ← Added search functionality
+
+/styles/
+  └── globals.css                    ← New CSS variables</code></pre>
+            </section>
+
+            <section id="patterns">
+                <h2>Common Code Patterns</h2>
+
+                <h3>Using Incident Location Map</h3>
+                <pre><code>import { IncidentLocationMap } from './components/incidents/IncidentLocationMap';
+
+const [location, setLocation] = useState&lt;LocationCoordinates | null&gt;(null);
+
+&lt;IncidentLocationMap
+  location={location}
+  onLocationChange={setLocation}
+/&gt;</code></pre>
+
+                <h3>Assigning Workflow</h3>
+                <pre><code>import { assignWorkflowToIncident } from '../data/workflows';
+
+const workflow = assignWorkflowToIncident(
+  incidentType,  // e.g., 'Physical Altercation'
+  severity       // e.g., 'High'
+);
+
+if (workflow) {
+  incident.workflow = workflow;
+}</code></pre>
+
+                <h3>Displaying Workflow Badge</h3>
+                <pre><code>import { GitBranch } from 'lucide-react';
+import { getWorkflowProgress, isWorkflowActive } from '../data/workflows';
+
+{incident.workflow && isWorkflowActive(incident.workflow) && (
+  &lt;Badge variant="outline"&gt;
+    &lt;GitBranch className="h-3 w-3 mr-1" /&gt;
+    Workflow ({getWorkflowProgress(incident.workflow.steps)}%)
+  &lt;/Badge&gt;
+)}</code></pre>
+
+                <h3>Using CSS Variables</h3>
+                <pre><code>// ❌ WRONG - Don't use Tailwind classes
+&lt;div className="text-lg font-bold"&gt;
+
+// ✅ CORRECT - Use CSS variables
+&lt;div style={{
+  fontFamily: 'Roboto, sans-serif',
+  fontSize: 'var(--text-lg)',
+  fontWeight: 'var(--font-weight-bold)',
+}}&gt;</code></pre>
+
+                <h3>Implementing Search</h3>
+                <pre><code>const [searchTerm, setSearchTerm] = useState('');
+
+// Filter logic
+const filteredData = data.filter((item) => {
+  const search = searchTerm.toLowerCase();
+  return (
+    item.name.toLowerCase().includes(search) ||
+    item.id.toLowerCase().includes(search) ||
+    item.email.toLowerCase().includes(search)
+  );
+});
+
+// UI
+&lt;div className="relative"&gt;
+  &lt;Search className="absolute left-3 top-3 h-4 w-4" /&gt;
+  &lt;Input
+    placeholder="Search..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    style={{
+      fontFamily: 'Roboto, sans-serif',
+      paddingLeft: 'var(--forge-spacing-large)',
+    }}
+  /&gt;
+&lt;/div&gt;</code></pre>
+            </section>
+
+            <section id="css">
+                <h2>Design System Quick Reference</h2>
+
+                <h3>CSS Variables</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Variable</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="3"><strong>Colors (Blues)</strong></td>
+                            <td><code>--brand-blue-dark</code></td>
+                            <td>#4A6FA5</td>
+                        </tr>
+                        <tr>
+                            <td><code>--brand-blue-medium</code></td>
+                            <td>#5B8BB8</td>
+                        </tr>
+                        <tr>
+                            <td><code>--brand-blue-light</code></td>
+                            <td>#6B9BC5</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3"><strong>Colors (Olives)</strong></td>
+                            <td><code>--brand-olive-dark</code></td>
+                            <td>#7B8458</td>
+                        </tr>
+                        <tr>
+                            <td><code>--brand-olive-medium</code></td>
+                            <td>#8B9264</td>
+                        </tr>
+                        <tr>
+                            <td><code>--brand-olive-light</code></td>
+                            <td>#9FA870</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="5"><strong>Spacing</strong></td>
+                            <td><code>--forge-spacing-xsmall</code></td>
+                            <td>4px</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-spacing-small</code></td>
+                            <td>8px</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-spacing-medium</code></td>
+                            <td>16px</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-spacing-large</code></td>
+                            <td>24px</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-spacing-xlarge</code></td>
+                            <td>32px</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="5"><strong>Typography (Size)</strong></td>
+                            <td><code>--text-xs</code></td>
+                            <td>0.75rem (12px)</td>
+                        </tr>
+                        <tr>
+                            <td><code>--text-sm</code></td>
+                            <td>0.875rem (14px)</td>
+                        </tr>
+                        <tr>
+                            <td><code>--text-base</code></td>
+                            <td>1rem (16px)</td>
+                        </tr>
+                        <tr>
+                            <td><code>--text-lg</code></td>
+                            <td>1.125rem (18px)</td>
+                        </tr>
+                        <tr>
+                            <td><code>--text-xl</code></td>
+                            <td>1.25rem (20px)</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="4"><strong>Typography (Weight)</strong></td>
+                            <td><code>--font-weight-normal</code></td>
+                            <td>400</td>
+                        </tr>
+                        <tr>
+                            <td><code>--font-weight-medium</code></td>
+                            <td>500</td>
+                        </tr>
+                        <tr>
+                            <td><code>--font-weight-semibold</code></td>
+                            <td>600</td>
+                        </tr>
+                        <tr>
+                            <td><code>--font-weight-bold</code></td>
+                            <td>700</td>
+                        </tr>
+                        <tr>
+                            <td rowspan="3"><strong>Border Radius</strong></td>
+                            <td><code>--forge-radius-small</code></td>
+                            <td>4px</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-radius-medium</code></td>
+                            <td>8px</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-radius-large</code></td>
+                            <td>12px</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="workflows">
+                <h2>Workflow Quick Reference</h2>
+
+                <h3>7 Pre-configured Workflows</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Incident Types</th>
+                            <th>Severity</th>
+                            <th>Steps</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>WF-001</td>
+                            <td>Physical Altercation Response</td>
+                            <td>Physical Altercation</td>
+                            <td>High</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>WF-002</td>
+                            <td>Bullying Investigation</td>
+                            <td>Taunting/Bullying</td>
+                            <td>High, Medium</td>
+                            <td>6</td>
+                        </tr>
+                        <tr>
+                            <td>WF-003</td>
+                            <td>Seat Refusal - Standard</td>
+                            <td>Seat Refusal</td>
+                            <td>Low, Medium</td>
+                            <td>3</td>
+                        </tr>
+                        <tr>
+                            <td>WF-004</td>
+                            <td>Offensive Language Protocol</td>
+                            <td>Offensive Language</td>
+                            <td>Medium, High</td>
+                            <td>4</td>
+                        </tr>
+                        <tr>
+                            <td>WF-005</td>
+                            <td>Disruptive Behavior - Minor</td>
+                            <td>Disruptive Volume</td>
+                            <td>Low, Medium</td>
+                            <td>3</td>
+                        </tr>
+                        <tr>
+                            <td>WF-006</td>
+                            <td>Property Damage Investigation</td>
+                            <td>Vandalism, Window Misuse</td>
+                            <td>Medium, High</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>WF-007</td>
+                            <td>Food & Beverage Violation</td>
+                            <td>Eating/Drinking Violation</td>
+                            <td>Low, Medium</td>
+                            <td>3</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Trigger Types</h3>
+                <ul>
+                    <li><strong>manual</strong> - User must start step manually</li>
+                    <li><strong>auto-complete</strong> - Starts when previous completes</li>
+                    <li><strong>time-delay</strong> - Starts after specified delay</li>
+                    <li><strong>status-change</strong> - Starts on incident status change</li>
+                    <li><strong>approval-granted</strong> - Starts after approval</li>
+                    <li><strong>conditional</strong> - Starts based on conditions</li>
+                </ul>
+
+                <h3>Step Statuses</h3>
+                <ul>
+                    <li><strong>Not Started</strong> - Step hasn't begun</li>
+                    <li><strong>In Progress</strong> - Currently being worked on</li>
+                    <li><strong>Completed</strong> - Step finished</li>
+                    <li><strong>Pending Approval</strong> - Waiting for approval</li>
+                    <li><strong>Approved</strong> - Approved by designated approvers</li>
+                    <li><strong>Rejected</strong> - Rejected by approvers</li>
+                </ul>
+            </section>
+
+            <section id="types">
+                <h2>Incident Types by Category</h2>
+
+                <div class="quick-card">
+                    <h4><span class="emoji">🚌</span>Boarding & Seating</h4>
+                    <ul>
+                        <li>Boarding Zone Violation</li>
+                        <li>Seat Refusal</li>
+                        <li>Aisle Obstruction</li>
+                        <li>Late Boarding</li>
+                    </ul>
+                </div>
+
+                <div class="quick-card">
+                    <h4><span class="emoji">🗣️</span>Behavioral Issues</h4>
+                    <ul>
+                        <li>Disruptive Volume</li>
+                        <li>Offensive Language</li>
+                        <li>Taunting/Bullying</li>
+                        <li>Defiance of Driver</li>
+                    </ul>
+                </div>
+
+                <div class="quick-card">
+                    <h4><span class="emoji">🤜</span>Physical Safety</h4>
+                    <ul>
+                        <li>Physical Altercation</li>
+                        <li>Inappropriate Physical Contact</li>
+                        <li>Pushing/Shoving</li>
+                    </ul>
+                </div>
+
+                <div class="quick-card">
+                    <h4><span class="emoji">📱</span>Device & Personal Items</h4>
+                    <ul>
+                        <li>Electronic Device Misuse</li>
+                        <li>Headphone Volume Violation</li>
+                        <li>Unauthorized Recording</li>
+                    </ul>
+                </div>
+
+                <div class="quick-card">
+                    <h4><span class="emoji">🚪</span>Vehicle Safety</h4>
+                    <ul>
+                        <li>Window Misuse</li>
+                        <li>Emergency Exit Tampering</li>
+                        <li>Door Interference</li>
+                    </ul>
+                </div>
+
+                <div class="quick-card">
+                    <h4><span class="emoji">🚗</span>Driver Performance</h4>
+                    <ul>
+                        <li>Speeding</li>
+                        <li>Unsafe Driving</li>
+                        <li>Route Deviation</li>
+                        <li>Unprofessional Conduct</li>
+                    </ul>
+                </div>
+
+                <div class="quick-card">
+                    <h4><span class="emoji">🔧</span>Vehicle Maintenance</h4>
+                    <ul>
+                        <li>Mechanical Issue</li>
+                        <li>Cleanliness Issue</li>
+                        <li>Safety Equipment Failure</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="checklist">
+                <h2>Migration Checklist (Quick)</h2>
+
+                <h3>Phase 1: Core Updates</h3>
+                <ul>
+                    <li>☐ Update <code>NewIncidentForm.tsx</code></li>
+                    <li>☐ Add <code>IncidentTypes.ts</code></li>
+                    <li>☐ Add <code>IncidentLocationMap.tsx</code></li>
+                    <li>☐ Add <code>workflows.ts</code></li>
+                    <li>☐ Add <code>IncidentWorkflowProgress.tsx</code></li>
+                </ul>
+
+                <h3>Phase 2: Page Updates</h3>
+                <ul>
+                    <li>☐ Update <code>IncidentsPage.tsx</code> (workflow badges)</li>
+                    <li>☐ Update <code>DriversPage.tsx</code> (search)</li>
+                    <li>☐ Update <code>VehiclesPage.tsx</code> (search)</li>
+                    <li>☐ Update <code>IncidentDetailPage.tsx</code> (workflow display)</li>
+                </ul>
+
+                <h3>Phase 3: Design System</h3>
+                <ul>
+                    <li>☐ Update <code>globals.css</code> (new variables)</li>
+                    <li>☐ Remove Tailwind typography classes</li>
+                    <li>☐ Apply Roboto font everywhere</li>
+                    <li>☐ Use CSS variables for spacing</li>
+                    <li>☐ Use CSS variables for colors</li>
+                </ul>
+
+                <h3>Phase 4: Testing</h3>
+                <ul>
+                    <li>☐ Test incident creation (student & driver)</li>
+                    <li>☐ Test location selection</li>
+                    <li>☐ Test workflow assignment</li>
+                    <li>☐ Test search functionality</li>
+                    <li>☐ Test responsive layouts</li>
+                </ul>
+            </section>
+
+            <section id="troubleshooting">
+                <h2>Troubleshooting</h2>
+
+                <h3>Workflow Not Assigning</h3>
+                <pre><code>// Debug workflow assignment
+console.log('Incident Type:', incidentType);
+console.log('Severity:', severity);
+const workflow = assignWorkflowToIncident(incidentType, severity);
+console.log('Assigned Workflow:', workflow?.name || 'None');</code></pre>
+
+                <h3>Location Map Not Working</h3>
+                <pre><code>// Check location state
+console.log('Current location:', location);
+console.log('Is selecting:', isSelectingLocation);
+
+// Verify Google Maps URL
+const mapUrl = `https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
+console.log('Map URL:', mapUrl);</code></pre>
+
+                <h3>Search Not Filtering</h3>
+                <pre><code>// Debug search
+console.log('Search term:', searchTerm);
+console.log('Original data length:', data.length);
+console.log('Filtered data length:', filteredData.length);</code></pre>
+
+                <h3>CSS Variables Not Applied</h3>
+                <pre><code>// Check if variables are defined
+const element = document.querySelector('[style*="--text-base"]');
+const computed = getComputedStyle(element);
+console.log('Font size:', computed.fontSize);</code></pre>
+            </section>
+
+            <section id="api">
+                <h2>API Quick Reference</h2>
+
+                <h3>Workflow Functions</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Function</th>
+                            <th>Description</th>
+                            <th>Returns</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>assignWorkflowToIncident()</code></td>
+                            <td>Assign workflow to incident</td>
+                            <td>Workflow | null</td>
+                        </tr>
+                        <tr>
+                            <td><code>isWorkflowActive()</code></td>
+                            <td>Check if workflow is active</td>
+                            <td>boolean</td>
+                        </tr>
+                        <tr>
+                            <td><code>completeWorkflow()</code></td>
+                            <td>Mark workflow as complete</td>
+                            <td>Workflow</td>
+                        </tr>
+                        <tr>
+                            <td><code>getWorkflowProgress()</code></td>
+                            <td>Calculate progress percentage</td>
+                            <td>number (0-100)</td>
+                        </tr>
+                        <tr>
+                            <td><code>getCurrentStep()</code></td>
+                            <td>Get current incomplete step</td>
+                            <td>WorkflowStep | null</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Incident Types</h3>
+                <pre><code>// Get all types
+import { INCIDENT_TYPES } from './IncidentTypes';
+
+// Get categories
+import { getAllCategories } from './IncidentTypes';
+
+// Get types by category
+import { getTypesByCategory } from './IncidentTypes';</code></pre>
+            </section>
+
+            <div class="info-box" style="margin-top: 3rem;">
+                <strong>📚 Support Resources:</strong><br><br>
+                <strong>Documentation:</strong><br>
+                - <a href="v4-MIGRATION-GUIDE.html">Full Migration Guide</a><br>
+                - <a href="v4-WORKFLOW-SYSTEM.html">Workflow System Docs</a><br>
+                - <a href="DESIGN-SYSTEM.html">Design System</a><br>
+                - <a href="TECHNICAL-DOCUMENTATION.html">Technical Docs</a><br><br>
+                <strong>Source Code:</strong><br>
+                - <code>/components/incidents/NewIncidentForm.tsx</code><br>
+                - <code>/components/incidents/IncidentLocationMap.tsx</code><br>
+                - <code>/data/workflows.ts</code><br>
+                - <code>/components/incidents/IncidentTypes.ts</code>
+            </div>
+
+            <p style="margin-top: 3rem; text-align: center; color: #71717a; font-size: 0.875rem;">
+                <strong>End of v4 Quick Reference Guide</strong><br>
+                Document Version: v4 | Last Updated: January 29, 2025
+            </p>
+        </main>
+    </div>
+</body>
+</html>

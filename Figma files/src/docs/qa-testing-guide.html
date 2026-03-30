@@ -1,0 +1,2177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QA Testing Guide - Student Transportation Incident Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Typography Variables */
+            --text-xs: 12px;
+            --text-sm: 14px;
+            --text-base: 14px;
+            --text-lg: 16px;
+            --text-xl: 18px;
+            --text-2xl: 20px;
+            --text-3xl: 24px;
+            
+            /* Brand Colors - Deep Blues */
+            --brand-blue-dark: #4A6FA5;
+            --brand-blue-medium: #5B8BB8;
+            --brand-blue-light: #6B9BC5;
+            
+            /* Brand Colors - Olives */
+            --brand-olive-dark: #7B8458;
+            --brand-olive-medium: #8B9264;
+            --brand-olive-light: #9FA870;
+            
+            /* Forge Spacing Tokens */
+            --forge-spacing-xxsmall: 4px;
+            --forge-spacing-xsmall: 8px;
+            --forge-spacing-small: 12px;
+            --forge-spacing-medium: 16px;
+            --forge-spacing-large: 24px;
+            --forge-spacing-xlarge: 32px;
+            --forge-spacing-xxlarge: 48px;
+            
+            /* Forge Border Tokens */
+            --forge-color-border-default: rgba(224, 224, 224, 1);
+            --forge-color-border-subtle: rgba(235, 235, 235, 1);
+            
+            /* Forge Radius Tokens */
+            --forge-radius-small: 2px;
+            --forge-radius-medium: 4px;
+            --forge-radius-large: 8px;
+            
+            /* Forge Font Weights */
+            --forge-font-weight-regular: 400;
+            --forge-font-weight-medium: 500;
+            --forge-font-weight-semibold: 600;
+            --forge-font-weight-bold: 700;
+            
+            /* Background Colors */
+            --background: rgba(255, 255, 255, 1);
+            --foreground: rgba(0, 0, 0, 0.87);
+            --card: rgba(255, 255, 255, 1);
+            --muted: rgba(245, 245, 245, 1);
+            --muted-foreground: rgba(0, 0, 0, 0.6);
+            --border: rgba(224, 224, 224, 1);
+            
+            /* Status Colors */
+            --success: #2e7d32;
+            --warning: #ed6c02;
+            --error: #d32f2f;
+            --info: #0288d1;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: var(--text-base);
+            font-weight: var(--forge-font-weight-regular);
+            line-height: 1.6;
+            color: var(--foreground);
+            background-color: var(--background);
+            padding: var(--forge-spacing-large);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--card);
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--brand-blue-dark), var(--brand-blue-medium));
+            color: white;
+            padding: var(--forge-spacing-xlarge);
+            border-radius: var(--forge-radius-large);
+            margin-bottom: var(--forge-spacing-xlarge);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        header h1 {
+            font-family: 'Roboto', sans-serif;
+            font-size: 32px;
+            font-weight: var(--forge-font-weight-bold);
+            margin-bottom: var(--forge-spacing-small);
+        }
+        
+        .doc-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--forge-spacing-medium);
+            margin-top: var(--forge-spacing-large);
+            padding: var(--forge-spacing-medium);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: var(--forge-radius-medium);
+        }
+        
+        .doc-info-item {
+            font-size: var(--text-sm);
+        }
+        
+        .doc-info-item strong {
+            display: block;
+            font-weight: var(--forge-font-weight-medium);
+            margin-bottom: var(--forge-spacing-xxsmall);
+        }
+        
+        /* Navigation */
+        nav {
+            background: var(--muted);
+            padding: var(--forge-spacing-large);
+            border-radius: var(--forge-radius-medium);
+            margin-bottom: var(--forge-spacing-xlarge);
+            border: 1px solid var(--forge-color-border-default);
+        }
+        
+        nav h2 {
+            font-family: 'Roboto', sans-serif;
+            font-size: var(--text-xl);
+            font-weight: var(--forge-font-weight-medium);
+            margin-bottom: var(--forge-spacing-medium);
+            color: var(--brand-blue-dark);
+        }
+        
+        nav ul {
+            list-style: none;
+            columns: 2;
+            column-gap: var(--forge-spacing-large);
+        }
+        
+        nav ul li {
+            margin-bottom: var(--forge-spacing-small);
+            break-inside: avoid;
+        }
+        
+        nav ul li a {
+            font-family: 'Roboto', sans-serif;
+            font-size: var(--text-sm);
+            color: var(--brand-blue-dark);
+            text-decoration: none;
+            display: block;
+            padding: var(--forge-spacing-xsmall);
+            border-radius: var(--forge-radius-small);
+            transition: all 0.2s;
+        }
+        
+        nav ul li a:hover {
+            background: var(--brand-blue-light);
+            color: white;
+            padding-left: var(--forge-spacing-medium);
+        }
+        
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Roboto', sans-serif;
+            font-weight: var(--forge-font-weight-medium);
+            line-height: 1.3;
+            margin-top: var(--forge-spacing-xlarge);
+            margin-bottom: var(--forge-spacing-medium);
+            color: var(--brand-blue-dark);
+        }
+        
+        h1 {
+            font-size: var(--text-3xl);
+            border-bottom: 3px solid var(--brand-blue-medium);
+            padding-bottom: var(--forge-spacing-small);
+        }
+        
+        h2 {
+            font-size: var(--text-2xl);
+            border-bottom: 2px solid var(--forge-color-border-default);
+            padding-bottom: var(--forge-spacing-small);
+        }
+        
+        h3 {
+            font-size: var(--text-xl);
+            color: var(--brand-blue-medium);
+        }
+        
+        h4 {
+            font-size: var(--text-lg);
+            color: var(--brand-olive-dark);
+        }
+        
+        p {
+            font-family: 'Roboto', sans-serif;
+            font-size: var(--text-base);
+            margin-bottom: var(--forge-spacing-medium);
+            line-height: 1.6;
+        }
+        
+        /* Test Case Cards */
+        .test-case {
+            background: var(--card);
+            border: 1px solid var(--forge-color-border-default);
+            border-radius: var(--forge-radius-medium);
+            padding: var(--forge-spacing-large);
+            margin-bottom: var(--forge-spacing-large);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .test-case h4 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: var(--forge-spacing-small);
+        }
+        
+        .test-case-meta {
+            display: flex;
+            gap: var(--forge-spacing-medium);
+            margin-bottom: var(--forge-spacing-medium);
+            flex-wrap: wrap;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: var(--forge-spacing-xxsmall) var(--forge-spacing-small);
+            border-radius: var(--forge-radius-small);
+            font-size: var(--text-xs);
+            font-weight: var(--forge-font-weight-medium);
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .badge-p0 {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .badge-p1 {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        .badge-p2 {
+            background: #fff9c4;
+            color: #f57f17;
+        }
+        
+        .badge-p3 {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        /* Lists */
+        ul, ol {
+            margin-left: var(--forge-spacing-large);
+            margin-bottom: var(--forge-spacing-medium);
+        }
+        
+        ul li, ol li {
+            font-family: 'Roboto', sans-serif;
+            font-size: var(--text-base);
+            margin-bottom: var(--forge-spacing-xsmall);
+            line-height: 1.6;
+        }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: var(--forge-spacing-large);
+            font-family: 'Roboto', sans-serif;
+            border: 1px solid var(--forge-color-border-default);
+            border-radius: var(--forge-radius-medium);
+            overflow: hidden;
+        }
+        
+        th {
+            background: var(--brand-blue-dark);
+            color: white;
+            padding: var(--forge-spacing-medium);
+            text-align: left;
+            font-weight: var(--forge-font-weight-medium);
+            font-size: var(--text-sm);
+        }
+        
+        td {
+            padding: var(--forge-spacing-medium);
+            border-bottom: 1px solid var(--forge-color-border-default);
+            font-size: var(--text-sm);
+        }
+        
+        tr:hover {
+            background: var(--muted);
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        /* Code blocks */
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: var(--text-sm);
+            background: var(--muted);
+            padding: 2px var(--forge-spacing-xsmall);
+            border-radius: var(--forge-radius-small);
+            color: var(--error);
+        }
+        
+        pre {
+            background: var(--muted);
+            padding: var(--forge-spacing-medium);
+            border-radius: var(--forge-radius-medium);
+            overflow-x: auto;
+            margin-bottom: var(--forge-spacing-medium);
+            border: 1px solid var(--forge-color-border-default);
+        }
+        
+        pre code {
+            background: none;
+            padding: 0;
+            color: var(--foreground);
+        }
+        
+        /* Checkboxes */
+        .checkbox-list {
+            list-style: none;
+            margin-left: 0;
+        }
+        
+        .checkbox-list li {
+            display: flex;
+            align-items: center;
+            gap: var(--forge-spacing-small);
+            margin-bottom: var(--forge-spacing-small);
+        }
+        
+        .checkbox-list li::before {
+            content: '☐';
+            font-size: var(--text-lg);
+            color: var(--brand-blue-medium);
+        }
+        
+        /* Status indicators */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--forge-spacing-xsmall);
+            font-size: var(--text-sm);
+        }
+        
+        .status::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .status-success::before {
+            background: var(--success);
+        }
+        
+        .status-warning::before {
+            background: var(--warning);
+        }
+        
+        .status-error::before {
+            background: var(--error);
+        }
+        
+        /* Alert boxes */
+        .alert {
+            padding: var(--forge-spacing-medium);
+            border-radius: var(--forge-radius-medium);
+            margin-bottom: var(--forge-spacing-medium);
+            border-left: 4px solid;
+        }
+        
+        .alert-info {
+            background: #e3f2fd;
+            border-color: var(--info);
+            color: #01579b;
+        }
+        
+        .alert-warning {
+            background: #fff3e0;
+            border-color: var(--warning);
+            color: #e65100;
+        }
+        
+        .alert-success {
+            background: #e8f5e9;
+            border-color: var(--success);
+            color: #1b5e20;
+        }
+        
+        /* Section dividers */
+        hr {
+            border: none;
+            border-top: 2px solid var(--forge-color-border-default);
+            margin: var(--forge-spacing-xlarge) 0;
+        }
+        
+        /* Print styles */
+        @media print {
+            body {
+                padding: 0;
+            }
+            
+            header {
+                background: var(--brand-blue-dark);
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .test-case {
+                page-break-inside: avoid;
+            }
+            
+            nav ul {
+                columns: 1;
+            }
+            
+            a {
+                color: var(--brand-blue-dark);
+                text-decoration: none;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: var(--forge-spacing-medium);
+            }
+            
+            header {
+                padding: var(--forge-spacing-large);
+            }
+            
+            header h1 {
+                font-size: 24px;
+            }
+            
+            nav ul {
+                columns: 1;
+            }
+            
+            .doc-info {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: var(--text-xs);
+            }
+            
+            th, td {
+                padding: var(--forge-spacing-small);
+            }
+        }
+        
+        /* Back to top button */
+        .back-to-top {
+            position: fixed;
+            bottom: var(--forge-spacing-large);
+            right: var(--forge-spacing-large);
+            background: var(--brand-blue-dark);
+            color: white;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+            font-size: 24px;
+        }
+        
+        .back-to-top:hover {
+            background: var(--brand-blue-medium);
+            transform: translateY(-4px);
+        }
+        
+        /* Expected results list */
+        .expected-results {
+            background: #e8f5e9;
+            padding: var(--forge-spacing-medium);
+            border-radius: var(--forge-radius-medium);
+            border-left: 4px solid var(--success);
+        }
+        
+        .expected-results li::before {
+            content: '✅ ';
+            margin-right: var(--forge-spacing-xsmall);
+        }
+        
+        /* Design system check */
+        .design-check {
+            background: #e3f2fd;
+            padding: var(--forge-spacing-medium);
+            border-radius: var(--forge-radius-medium);
+            border-left: 4px solid var(--info);
+        }
+        
+        .design-check li::before {
+            content: '◻️ ';
+            margin-right: var(--forge-spacing-xsmall);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>QA Testing Guide</h1>
+            <p style="font-size: var(--text-lg); margin-bottom: 0;">Student Transportation Incident Tracker</p>
+            <div class="doc-info">
+                <div class="doc-info-item">
+                    <strong>Version:</strong>
+                    <span>1.0</span>
+                </div>
+                <div class="doc-info-item">
+                    <strong>Design System:</strong>
+                    <span>Tyler Forge 3.x</span>
+                </div>
+                <div class="doc-info-item">
+                    <strong>Last Updated:</strong>
+                    <span>January 28, 2026</span>
+                </div>
+                <div class="doc-info-item">
+                    <strong>Purpose:</strong>
+                    <span>Comprehensive Testing Guide</span>
+                </div>
+            </div>
+        </header>
+
+        <nav id="toc">
+            <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#testing-overview">1. Testing Overview</a></li>
+                <li><a href="#test-environment">2. Test Environment Setup</a></li>
+                <li><a href="#navigation">3. Navigation & Layout Tests</a></li>
+                <li><a href="#dashboard">4. Dashboard Page Tests</a></li>
+                <li><a href="#incidents">5. Incidents Page Tests</a></li>
+                <li><a href="#new-incident">6. New Incident Form Tests</a></li>
+                <li><a href="#students">7. Students Page Tests</a></li>
+                <li><a href="#drivers">8. Drivers Page Tests</a></li>
+                <li><a href="#vehicles">9. Vehicles Page Tests</a></li>
+                <li><a href="#communications">10. Communications Tests</a></li>
+                <li><a href="#reports">11. Reports Page Tests</a></li>
+                <li><a href="#workflows">12. Workflows Tests</a></li>
+                <li><a href="#incident-detail">13. Incident Detail Tests</a></li>
+                <li><a href="#design-system">14. Design System Compliance</a></li>
+                <li><a href="#accessibility">15. Accessibility Testing</a></li>
+                <li><a href="#browser-responsive">16. Cross-Browser & Responsive</a></li>
+                <li><a href="#performance">17. Performance Testing</a></li>
+                <li><a href="#bug-reporting">18. Bug Reporting Guidelines</a></li>
+            </ul>
+        </nav>
+
+        <main>
+            <!-- Testing Overview -->
+            <section id="testing-overview">
+                <h1>1. Testing Overview</h1>
+                
+                <h3>Application Scope</h3>
+                <p>The Student Transportation Incident Tracker is a comprehensive incident management system for school districts to capture, manage, and communicate student and driver incidents.</p>
+                
+                <h3>Key Features to Test</h3>
+                <ul>
+                    <li>Dashboard with metrics and analytics</li>
+                    <li>Incident management (create, view, edit, track)</li>
+                    <li>Student management</li>
+                    <li>Driver management</li>
+                    <li>Vehicle management</li>
+                    <li>Communications system</li>
+                    <li>Reports generation</li>
+                    <li>Workflow automation</li>
+                    <li>Interactive location mapping</li>
+                </ul>
+                
+                <h3>Testing Priorities</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Priority</th>
+                            <th>Description</th>
+                            <th>Examples</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge badge-p0">P0</span></td>
+                            <td>Critical</td>
+                            <td>Core incident reporting, data accuracy, workflow assignment</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-p1">P1</span></td>
+                            <td>High</td>
+                            <td>Navigation, search, filtering, communications</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-p2">P2</span></td>
+                            <td>Medium</td>
+                            <td>UI/UX polish, design system compliance, animations</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-p3">P3</span></td>
+                            <td>Low</td>
+                            <td>Edge cases, nice-to-have features</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <hr>
+
+            <!-- Test Environment Setup -->
+            <section id="test-environment">
+                <h1>2. Test Environment Setup</h1>
+                
+                <h3>Prerequisites</h3>
+                <ul class="checkbox-list">
+                    <li>Access to the application URL</li>
+                    <li>Test user accounts with different permission levels</li>
+                    <li>Sample data loaded (students, drivers, vehicles, incidents)</li>
+                    <li>Multiple browsers installed (Chrome, Firefox, Safari, Edge)</li>
+                    <li>Mobile devices or browser dev tools for responsive testing</li>
+                    <li>Screen reader software for accessibility testing</li>
+                </ul>
+                
+                <h3>Test Data Requirements</h3>
+                <ul>
+                    <li><strong>Students:</strong> At least 20 test student records across different grades and schools</li>
+                    <li><strong>Drivers:</strong> At least 10 test driver records with different routes</li>
+                    <li><strong>Vehicles:</strong> At least 15 test vehicles with varying statuses</li>
+                    <li><strong>Incidents:</strong> Mix of student and driver incidents with varying severities</li>
+                    <li><strong>Routes:</strong> Multiple routes assigned to different drivers and vehicles</li>
+                </ul>
+                
+                <h3>Browser Support Matrix</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Browser</th>
+                            <th>Version</th>
+                            <th>Desktop</th>
+                            <th>Mobile</th>
+                            <th>Priority</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Chrome</td>
+                            <td>Latest</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td><span class="badge badge-p0">P0</span></td>
+                        </tr>
+                        <tr>
+                            <td>Firefox</td>
+                            <td>Latest</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td><span class="badge badge-p1">P1</span></td>
+                        </tr>
+                        <tr>
+                            <td>Safari</td>
+                            <td>Latest</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td><span class="badge badge-p0">P0</span></td>
+                        </tr>
+                        <tr>
+                            <td>Edge</td>
+                            <td>Latest</td>
+                            <td>✅</td>
+                            <td>✅</td>
+                            <td><span class="badge badge-p1">P1</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <hr>
+
+            <!-- Navigation Tests -->
+            <section id="navigation">
+                <h1>3. Navigation & Layout Tests</h1>
+                
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-NAV-001: Sidebar Navigation</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify sidebar navigation functions correctly</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Load the application</li>
+                        <li>Click on each navigation item:
+                            <ul>
+                                <li>Dashboard</li>
+                                <li>Incidents</li>
+                                <li>Students</li>
+                                <li>Drivers</li>
+                                <li>Vehicles</li>
+                                <li>Communications</li>
+                                <li>Reports</li>
+                                <li>Workflows</li>
+                                <li>Help</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Each page loads without errors</li>
+                            <li>Active page is highlighted in sidebar</li>
+                            <li>Page title updates correctly</li>
+                            <li>URL updates to reflect current page</li>
+                            <li>Sidebar remains visible and functional on all pages</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="design-check">
+                        <h5>Design System Check:</h5>
+                        <ul class="checkbox-list">
+                            <li>Navigation uses Roboto font</li>
+                            <li>Hover states use brand colors (#4A6FA5, #5B8BB8, #6B9BC5)</li>
+                            <li>Active state shows proper highlighting</li>
+                            <li>Spacing matches Forge spacing tokens</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p1">P1</span> TC-NAV-002: Notifications Dropdown</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify notifications dropdown displays and functions correctly</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Click the bell icon in the top navigation</li>
+                        <li>Verify notifications are displayed</li>
+                        <li>Click on a notification</li>
+                        <li>Click outside to close dropdown</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Dropdown opens smoothly</li>
+                            <li>Notifications list is visible and scrollable</li>
+                            <li>Clicking a notification performs expected action</li>
+                            <li>Dropdown closes when clicking outside</li>
+                            <li>Badge shows unread count (if applicable)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p1">P1</span> TC-NAV-003: User Profile Menu</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify user profile menu functions correctly</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Click the user avatar/profile icon</li>
+                        <li>Verify profile menu displays</li>
+                        <li>Test all menu options</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Profile menu opens correctly</li>
+                            <li>User information displays accurately</li>
+                            <li>Menu items are clickable and functional</li>
+                            <li>Logout function works (if implemented)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Dashboard Tests -->
+            <section id="dashboard">
+                <h1>4. Dashboard Page Tests</h1>
+                
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-DASH-001: Dashboard Metrics Display</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify all dashboard metrics load and display correctly</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Navigate to Dashboard</li>
+                        <li>Verify the following metric cards appear:
+                            <ul>
+                                <li>Total Incidents (current month)</li>
+                                <li>Pending Reviews</li>
+                                <li>High Severity</li>
+                                <li>Avg. Resolution Time</li>
+                            </ul>
+                        </li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>All four metric cards are visible</li>
+                            <li>Numbers display without errors</li>
+                            <li>Trend indicators (↑/↓) show with percentage</li>
+                            <li>Icons display correctly</li>
+                            <li>Data updates when date range changes (if applicable)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="design-check">
+                        <h5>Design System Check:</h5>
+                        <ul class="checkbox-list">
+                            <li>Card backgrounds use design system tokens</li>
+                            <li>Typography uses Roboto font</li>
+                            <li>Colors match brand palette</li>
+                            <li>Spacing uses Forge tokens</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-DASH-002: Recent Incidents Table</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify recent incidents table displays and functions correctly</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Scroll to "Recent Incidents" section</li>
+                        <li>Verify table displays with columns: ID, Type, Student/Driver, Date, Severity, Status, Actions</li>
+                        <li>Click "View" button on an incident</li>
+                        <li>Test pagination (if applicable)</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Table renders with all columns</li>
+                            <li>Data is properly formatted</li>
+                            <li>Severity badges display correct colors</li>
+                            <li>Status badges display correct states</li>
+                            <li>"View" button navigates to incident detail</li>
+                            <li>Pagination works correctly</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p1">P1</span> TC-DASH-003: Incident Trends Chart</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify incident trends chart displays data correctly</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Locate the "Incident Trends" chart</li>
+                        <li>Verify chart displays student and driver incident lines</li>
+                        <li>Hover over data points</li>
+                        <li>Change time period (if filters available)</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Chart renders without errors</li>
+                            <li>Both student and driver data lines display</li>
+                            <li>Legend is accurate</li>
+                            <li>Tooltips show on hover</li>
+                            <li>Chart is responsive</li>
+                            <li>Data updates when filters change</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p1">P1</span> TC-DASH-004: Severity Distribution Chart</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify severity distribution pie/donut chart functions correctly</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Locate severity distribution chart</li>
+                        <li>Verify all severity levels are shown (Low, Medium, High)</li>
+                        <li>Hover over chart segments</li>
+                        <li>Verify percentages add up to 100%</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Chart renders with correct data</li>
+                            <li>Colors match severity levels (red for high, yellow for medium, green for low)</li>
+                            <li>Percentages are accurate</li>
+                            <li>Tooltips display on hover</li>
+                            <li>Legend displays correctly</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Incidents Page Tests -->
+            <section id="incidents">
+                <h1>5. Incidents Page Tests</h1>
+                
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-INC-001: Incidents List Display</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify incidents list displays all incidents correctly</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Navigate to Incidents page</li>
+                        <li>Verify incidents table displays with all columns</li>
+                        <li>Verify data is properly formatted</li>
+                        <li>Test sorting by clicking column headers</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>All incidents load and display</li>
+                            <li>Table columns are properly aligned</li>
+                            <li>Data formats correctly (dates, IDs, etc.)</li>
+                            <li>Sorting works on sortable columns</li>
+                            <li>No layout breaking or overflow issues</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-INC-002: Search Functionality</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify search bar filters incidents correctly</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Locate search input field</li>
+                        <li>Enter search term (student name, incident ID, etc.)</li>
+                        <li>Verify results update in real-time</li>
+                        <li>Clear search and verify all incidents return</li>
+                        <li>Test invalid/no results search</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Search filters results as you type</li>
+                            <li>Results are relevant to search term</li>
+                            <li>Clearing search restores all incidents</li>
+                            <li>"No results" message displays when appropriate</li>
+                            <li>Search is case-insensitive</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-INC-003: Status Filter</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify status filter dropdown works correctly</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Click status filter dropdown</li>
+                        <li>Select "Open" status</li>
+                        <li>Verify only open incidents display</li>
+                        <li>Change to "In Progress"</li>
+                        <li>Change to "Resolved"</li>
+                        <li>Select "All Statuses"</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Dropdown displays all status options</li>
+                            <li>Table updates immediately when status selected</li>
+                            <li>Only incidents matching selected status display</li>
+                            <li>"All Statuses" shows all incidents</li>
+                            <li>Filter state persists during session</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-INC-005: View Incident Details</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify clicking an incident opens detail view</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Click "View" button on any incident</li>
+                        <li>Verify incident detail page/modal opens</li>
+                        <li>Verify all incident information displays</li>
+                        <li>Test "Back" or "Close" button</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Detail view opens correctly</li>
+                            <li>All incident data displays accurately</li>
+                            <li>Photos/documents load if attached</li>
+                            <li>Workflow progress shows correctly</li>
+                            <li>Back/Close returns to incidents list</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- New Incident Form Tests -->
+            <section id="new-incident">
+                <h1>6. New Incident Form Tests</h1>
+                
+                <div class="alert alert-info">
+                    <strong>Note:</strong> The New Incident Form has 25+ dedicated test cases covering category selection, form fields, interactive map features, file uploads, and validation.
+                </div>
+                
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-FORM-001: Incident Category Selection</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify incident category selection (Student vs Driver)</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Navigate to "New Incident" page</li>
+                        <li>Verify two category cards display: "Student Incident" and "Driver Incident"</li>
+                        <li>Click "Student Incident"</li>
+                        <li>Verify form updates to student incident fields</li>
+                        <li>Click "Change Incident Type" to go back</li>
+                        <li>Click "Driver Incident"</li>
+                        <li>Verify form updates to driver incident fields</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Both category cards are visible and clickable</li>
+                            <li>Student card shows Users icon and appropriate description</li>
+                            <li>Driver card shows UserCircle2 icon and appropriate description</li>
+                            <li>Clicking a category updates form fields correctly</li>
+                            <li>"Change Incident Type" button allows going back</li>
+                            <li>Hover states work on category cards</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="design-check">
+                        <h5>Design System Check:</h5>
+                        <ul class="checkbox-list">
+                            <li>Cards use Forge border radius tokens</li>
+                            <li>Hover states use brand colors</li>
+                            <li>Typography uses Roboto font</li>
+                            <li>Icon colors match design (blue for student, green for driver)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-FORM-002: Student Lookup and Selection</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify student lookup autocomplete works correctly</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Select "Student Incident" category</li>
+                        <li>Click in "Student Name" field</li>
+                        <li>Type partial student name (e.g., "Sara")</li>
+                        <li>Verify autocomplete suggestions appear</li>
+                        <li>Click on a student from the list</li>
+                        <li>Verify student details populate: Student ID, photo, grade, school, bus, route</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Autocomplete dropdown appears as you type</li>
+                            <li>Search is case-insensitive</li>
+                            <li>Results filter based on name and ID</li>
+                            <li>Selecting a student populates all fields</li>
+                            <li>Student photo displays in rounded frame</li>
+                            <li>Student ID field becomes disabled/read-only</li>
+                            <li>Bus and route fields auto-populate</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Edge Cases:</strong>
+                        <ul class="checkbox-list">
+                            <li>Search with no results shows "No student found"</li>
+                            <li>Clicking outside closes dropdown</li>
+                            <li>Special characters in name work correctly</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-FORM-010: Interactive Map - Location Pinning</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify interactive map allows location pinning</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Scroll to "Incident Location" map section</li>
+                        <li>Verify map loads correctly</li>
+                        <li>Click anywhere on the map</li>
+                        <li>Verify a pin appears at clicked location</li>
+                        <li>Verify coordinates display below map</li>
+                        <li>Click a different location</li>
+                        <li>Verify pin moves to new location</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Map loads with default center (Albany, NY area)</li>
+                            <li>Clicking map places a red pin marker</li>
+                            <li>Pin location coordinates display accurately</li>
+                            <li>Clicking again moves the pin</li>
+                            <li>Only one pin displays at a time</li>
+                            <li>Coordinates update when pin moves</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="design-check">
+                        <h5>Design System Check:</h5>
+                        <ul class="checkbox-list">
+                            <li>Map has proper border radius</li>
+                            <li>Map border uses design system color</li>
+                            <li>Typography in map UI uses Roboto font</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p1">P1</span> TC-FORM-013: Interactive Map - Use Current Location</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify "Use Current Location" GPS button</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Click "Use Current Location" button</li>
+                        <li>Allow browser location permission (if prompted)</li>
+                        <li>Verify pin moves to current GPS location</li>
+                        <li>Verify coordinates update</li>
+                        <li>Test with location permission denied</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Button triggers geolocation request</li>
+                            <li>Loading indicator shows while fetching (if implemented)</li>
+                            <li>Pin moves to GPS coordinates</li>
+                            <li>Map centers on new location</li>
+                            <li>Coordinates display current location</li>
+                            <li>Button is disabled if geolocation unavailable</li>
+                            <li>No console errors if permission denied</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Edge Cases:</strong>
+                        <ul class="checkbox-list">
+                            <li>Geolocation permission denied - button disables</li>
+                            <li>Geolocation unavailable - no errors thrown</li>
+                            <li>Timeout handling - graceful error</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-FORM-017: Interactive Map - Manual Entry REMOVED</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify manual coordinate entry is NOT displayed</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Scroll to map section</li>
+                        <li>Verify no manual latitude/longitude input fields exist</li>
+                        <li>Verify no "Set Location" button for manual entry</li>
+                        <li>Verify no "Or enter coordinates manually:" text</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Manual entry section is completely hidden</li>
+                            <li>Only interactive map and buttons are visible</li>
+                            <li>No console errors related to removed feature</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p1">P1</span> TC-FORM-021: Photo Upload</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify photo upload functionality</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Click "Upload Photos" button</li>
+                        <li>Select one or more image files (JPG, PNG, GIF)</li>
+                        <li>Verify photos appear in grid</li>
+                        <li>Hover over a photo</li>
+                        <li>Click "Remove" button</li>
+                        <li>Verify photo is removed</li>
+                        <li>Test uploading 10+ photos</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>File picker opens for image files only</li>
+                            <li>Multiple files can be selected</li>
+                            <li>Photos display in grid layout</li>
+                            <li>Photo thumbnails show correctly</li>
+                            <li>File name and size display under each photo</li>
+                            <li>Hover shows "Remove" button</li>
+                            <li>Remove button deletes photo</li>
+                            <li>Empty state shows when no photos uploaded</li>
+                            <li>Maximum file limit enforced (if applicable)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-FORM-023: Form Submission - Validation</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify form validation prevents invalid submission</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Click "Submit Report" without filling any fields</li>
+                        <li>Verify validation errors appear on required fields</li>
+                        <li>Fill only some required fields</li>
+                        <li>Submit again</li>
+                        <li>Verify remaining validation errors show</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Required fields are marked with asterisk (*)</li>
+                            <li>Validation errors appear on submit</li>
+                            <li>Error messages are clear and helpful</li>
+                            <li>Form does not submit with errors</li>
+                            <li>First error field is focused (if applicable)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Required Fields:</strong>
+                        <ul class="checkbox-list">
+                            <li>Student Name OR Driver (based on category)</li>
+                            <li>Incident Type</li>
+                            <li>Location</li>
+                            <li>Severity Level</li>
+                            <li>Incident Description</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-FORM-024: Form Submission - Success</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify successful form submission</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Fill all required fields</li>
+                        <li>Add optional data (photos, witnesses, etc.)</li>
+                        <li>Click "Submit Report"</li>
+                        <li>Verify success message appears</li>
+                        <li>Verify redirect to incidents list after delay</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Form submits without errors</li>
+                            <li>Success alert displays with green styling</li>
+                            <li>Success message: "Incident report submitted successfully! Supervisor has been notified."</li>
+                            <li>Alert auto-dismisses after ~3 seconds</li>
+                            <li>User is redirected to Incidents page</li>
+                            <li>New incident appears in incidents list</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Students Page Tests -->
+            <section id="students">
+                <h1>7. Students Page Tests</h1>
+                
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-STU-001: Students List Display</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify students list displays all students correctly</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Navigate to Students page</li>
+                        <li>Verify students table displays</li>
+                        <li>Verify all columns are present: Photo, Student Name, ID, Grade, School, Bus, Route, Actions</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Table displays all students</li>
+                            <li>Student photos display in rounded frames</li>
+                            <li>All data fields are populated</li>
+                            <li>Table is responsive</li>
+                            <li>No layout breaking</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="design-check">
+                        <h5>Design System Check:</h5>
+                        <ul class="checkbox-list">
+                            <li>Table headers use Roboto font with proper weight</li>
+                            <li>Row hover states use subtle background color</li>
+                            <li>Photos have proper border radius</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-STU-002: Student Search</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify student search functionality</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Locate search input</li>
+                        <li>Type student name</li>
+                        <li>Verify results filter in real-time</li>
+                        <li>Search by student ID</li>
+                        <li>Clear search</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Search filters as you type</li>
+                            <li>Search works on name and ID</li>
+                            <li>Case-insensitive search</li>
+                            <li>Clearing search shows all students</li>
+                            <li>"No results" message when no matches</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Drivers Page Tests -->
+            <section id="drivers">
+                <h1>8. Drivers Page Tests</h1>
+                
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-DRV-001: Drivers List Display</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify drivers list displays correctly</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Navigate to Drivers page</li>
+                        <li>Verify drivers table displays with columns: Photo, Name, Employee ID, Routes, Status, Actions</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>All drivers display in table</li>
+                            <li>Driver photos show correctly</li>
+                            <li>Employee IDs are formatted properly</li>
+                            <li>Routes list displays</li>
+                            <li>Status indicators show correctly</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Vehicles Page Tests -->
+            <section id="vehicles">
+                <h1>9. Vehicles Page Tests</h1>
+                
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-VEH-001: Vehicles Grid Display</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify vehicles display in grid or list format</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Navigate to Vehicles page</li>
+                        <li>Verify vehicles display</li>
+                        <li>Check vehicle information shows: Vehicle number, Type, Status, Route assignment, Actions</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>All vehicles display correctly</li>
+                            <li>Vehicle icons/images show</li>
+                            <li>Status badges display with correct colors</li>
+                            <li>Layout is responsive</li>
+                            <li>No visual bugs</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="design-check">
+                        <h5>Design System Check:</h5>
+                        <ul class="checkbox-list">
+                            <li>Vehicle cards use Forge spacing and radius</li>
+                            <li>Status badges use brand colors</li>
+                            <li>Typography uses Roboto font</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Communications Tests -->
+            <section id="communications">
+                <h1>10. Communications Tests</h1>
+                
+                <div class="test-case">
+                    <h4><span class="badge badge-p1">P1</span> TC-COM-001: Communications List</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify communications/messages display</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Navigate to Communications page</li>
+                        <li>Verify communication threads or messages display</li>
+                        <li>Check message list formatting</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Communications list loads</li>
+                            <li>Messages display with sender, date, subject</li>
+                            <li>Unread messages are highlighted (if applicable)</li>
+                            <li>List is sorted by date (newest first)</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Reports Tests -->
+            <section id="reports">
+                <h1>11. Reports Page Tests</h1>
+                
+                <div class="test-case">
+                    <h4><span class="badge badge-p1">P1</span> TC-REP-002: Generate Report</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify report generation functionality</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Select a report type</li>
+                        <li>Set date range or filters</li>
+                        <li>Click "Generate Report"</li>
+                        <li>Verify report displays or downloads</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Report type selection works</li>
+                            <li>Date range picker functions correctly</li>
+                            <li>Generate button triggers report creation</li>
+                            <li>Loading indicator shows during generation</li>
+                            <li>Report displays or downloads successfully</li>
+                            <li>Report data is accurate</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Workflows Tests -->
+            <section id="workflows">
+                <h1>12. Workflows Tests</h1>
+                
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-WF-005: Automatic Workflow Assignment</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify incidents are auto-assigned to workflows</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Create a workflow with specific triggers (e.g., High severity + Safety incident)</li>
+                        <li>Create a new incident matching those triggers</li>
+                        <li>Submit the incident</li>
+                        <li>View the incident detail</li>
+                        <li>Verify correct workflow is assigned</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Incident matches workflow triggers</li>
+                            <li>Workflow is automatically assigned</li>
+                            <li>Incident detail shows workflow progress</li>
+                            <li>Workflow steps are initialized</li>
+                            <li>No workflow assigned if no match</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Incident Detail Tests -->
+            <section id="incident-detail">
+                <h1>13. Incident Detail Tests</h1>
+                
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> TC-DET-001: Incident Detail Display</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify all incident information displays correctly</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Navigate to an incident detail page</li>
+                        <li>Verify the following sections display: Incident header, Student/Driver information, Incident details, Photos, Documents, Workflow progress, Additional information</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>All sections display without errors</li>
+                            <li>Data is accurate and formatted correctly</li>
+                            <li>Photos display in gallery format</li>
+                            <li>Documents are listed with download/view options</li>
+                            <li>Workflow progress shows correctly</li>
+                            <li>No layout breaking or overflow issues</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Design System Compliance -->
+            <section id="design-system">
+                <h1>14. Design System Compliance Testing</h1>
+                
+                <div class="test-case">
+                    <h4>DSC-001: Typography</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify all text uses Roboto font family</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Inspect various elements across all pages</li>
+                        <li>Use browser DevTools to check computed font-family</li>
+                        <li>Verify the following elements use Roboto: Headings (h1-h4), Body text, Button text, Form labels and inputs, Table text, Navigation items</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>All text elements use Roboto or Roboto, sans-serif</li>
+                            <li>No default system fonts are used</li>
+                            <li>Font weights are appropriate (regular, medium, semibold, bold)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4>DSC-002: Color Palette</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify brand colors are used throughout the application</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Inspect UI elements for color usage</li>
+                        <li>Verify brand colors are applied:
+                            <ul>
+                                <li>Deep blues: #4A6FA5, #5B8BB8, #6B9BC5</li>
+                                <li>Olives: #7B8458, #8B9264, #9FA870</li>
+                            </ul>
+                        </li>
+                        <li>Check hover states, active states, and accents</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Brand colors are used for primary actions and accents</li>
+                            <li>Hover states use brand color variants</li>
+                            <li>No hardcoded colors that bypass design system</li>
+                            <li>Colors are accessible (sufficient contrast)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4>DSC-003: Spacing</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify Forge spacing tokens are used</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Inspect padding and margin on components</li>
+                        <li>Check that spacing uses CSS variables: --forge-spacing-small, --forge-spacing-medium, --forge-spacing-large, etc.</li>
+                        <li>Verify consistent spacing across similar elements</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Spacing uses design system tokens</li>
+                            <li>Consistent spacing patterns throughout app</li>
+                            <li>No arbitrary pixel values for spacing</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4>DSC-006: Buttons</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify button styles match design system</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Test all button variants: Primary, Secondary, Outline, Ghost, Destructive</li>
+                        <li>Check button states: Default, Hover, Active, Disabled</li>
+                        <li>Verify button sizing (sm, default, lg)</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>All button variants render correctly</li>
+                            <li>Hover states use brand colors</li>
+                            <li>Disabled states are visually distinct</li>
+                            <li>Button text uses Roboto font</li>
+                            <li>Button padding uses Forge tokens</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Accessibility Testing -->
+            <section id="accessibility">
+                <h1>15. Accessibility Testing</h1>
+                
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> ACC-001: Keyboard Navigation</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify all functionality is accessible via keyboard</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Use TAB key to navigate through the application</li>
+                        <li>Test form inputs with TAB and arrow keys</li>
+                        <li>Test buttons with ENTER and SPACE</li>
+                        <li>Test dropdowns with arrow keys</li>
+                        <li>Test modal dialogs with ESC key</li>
+                        <li>Verify focus indicators are visible</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>All interactive elements are keyboard accessible</li>
+                            <li>TAB order is logical</li>
+                            <li>Focus indicators are clearly visible</li>
+                            <li>Dropdowns open/close with keyboard</li>
+                            <li>Modals close with ESC key</li>
+                            <li>No keyboard traps</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> ACC-003: Color Contrast</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify sufficient color contrast for readability</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Use browser extension or tool (e.g., axe DevTools, WAVE)</li>
+                        <li>Check contrast ratios on: Body text, Button text, Link text, Error messages, Disabled states</li>
+                        <li>Verify WCAG AA compliance (4.5:1 for normal text, 3:1 for large text)</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>All text meets WCAG AA contrast requirements</li>
+                            <li>Interactive elements have sufficient contrast</li>
+                            <li>Focus indicators are visible</li>
+                            <li>Error states are distinguishable</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> ACC-004: Form Accessibility</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Verify forms are fully accessible</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Test form field labels association</li>
+                        <li>Test error message announcement</li>
+                        <li>Test required field indication</li>
+                        <li>Test field help text</li>
+                        <li>Use keyboard only to complete a form</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>All fields have associated labels</li>
+                            <li>Required fields are marked (visually and for screen readers)</li>
+                            <li>Error messages are announced</li>
+                            <li>Help text is associated with fields</li>
+                            <li>Forms can be completed with keyboard only</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Cross-Browser & Responsive Testing -->
+            <section id="browser-responsive">
+                <h1>16. Cross-Browser & Responsive Testing</h1>
+                
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> BR-001: Chrome Desktop</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Test full functionality in Chrome desktop</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Test all features in Chrome (latest version)</li>
+                        <li>Verify UI renders correctly</li>
+                        <li>Test interactive features</li>
+                        <li>Check console for errors</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>All features work correctly</li>
+                            <li>No visual bugs</li>
+                            <li>No console errors</li>
+                            <li>Performance is acceptable</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p0">P0</span> RESP-001: Mobile Viewport (375px)</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Test responsive design on small mobile (iPhone SE size)</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Resize browser to 375px width or use device</li>
+                        <li>Test navigation (hamburger menu if applicable)</li>
+                        <li>Test form inputs and buttons (touch targets)</li>
+                        <li>Test tables (scrolling, stacking)</li>
+                        <li>Test maps on mobile</li>
+                        <li>Verify readability</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Layout adapts to small screen</li>
+                            <li>Navigation is accessible</li>
+                            <li>Forms are usable on mobile</li>
+                            <li>Touch targets are at least 44x44px</li>
+                            <li>Text is readable without zooming</li>
+                            <li>No horizontal scrolling</li>
+                            <li>Maps are functional on mobile</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p1">P1</span> RESP-002: Tablet Viewport (768px)</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Test responsive design on tablet</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Resize browser to 768px width or use device</li>
+                        <li>Test all pages</li>
+                        <li>Verify layout adapts appropriately</li>
+                        <li>Test portrait and landscape orientations</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Layout adapts to tablet screen</li>
+                            <li>Navigation works correctly</li>
+                            <li>Multi-column layouts stack appropriately</li>
+                            <li>Touch interactions work</li>
+                            <li>No layout breaking</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Performance Testing -->
+            <section id="performance">
+                <h1>17. Performance Testing</h1>
+                
+                <div class="test-case">
+                    <h4><span class="badge badge-p1">P1</span> PERF-001: Page Load Time</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Measure initial page load performance</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Clear browser cache</li>
+                        <li>Load Dashboard page</li>
+                        <li>Use browser DevTools Performance tab</li>
+                        <li>Measure Time to Interactive (TTI)</li>
+                        <li>Test on 3G connection (throttle network)</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Dashboard loads in < 3 seconds on normal connection</li>
+                            <li>Dashboard loads in < 5 seconds on 3G</li>
+                            <li>Largest Contentful Paint (LCP) < 2.5 seconds</li>
+                            <li>First Input Delay (FID) < 100ms</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4><span class="badge badge-p1">P1</span> PERF-004: Map Performance</h4>
+                    <div class="test-case-meta">
+                        <span><strong>Description:</strong> Test interactive map performance</span>
+                    </div>
+                    
+                    <h5>Test Steps:</h5>
+                    <ol>
+                        <li>Load incident form with map</li>
+                        <li>Test panning performance</li>
+                        <li>Test zoom performance</li>
+                        <li>Test pinning location</li>
+                        <li>Monitor CPU and memory usage</li>
+                    </ol>
+                    
+                    <div class="expected-results">
+                        <h5>Expected Results:</h5>
+                        <ul>
+                            <li>Map loads in < 2 seconds</li>
+                            <li>Panning is smooth (60fps)</li>
+                            <li>Zoom is smooth</li>
+                            <li>Pin placement is instant</li>
+                            <li>No memory leaks during extended use</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Bug Reporting Guidelines -->
+            <section id="bug-reporting">
+                <h1>18. Bug Reporting Guidelines</h1>
+                
+                <h3>Bug Report Template</h3>
+                <p>When reporting bugs, please include the following information:</p>
+                
+                <div class="alert alert-info">
+                    <strong>Bug ID:</strong> [Unique identifier]<br>
+                    <strong>Title:</strong> [Short, descriptive title]<br>
+                    <strong>Priority:</strong> P0 / P1 / P2 / P3<br>
+                    <strong>Severity:</strong> Critical / High / Medium / Low<br>
+                    <strong>Status:</strong> New / In Progress / Fixed / Closed
+                </div>
+                
+                <h4>Environment</h4>
+                <ul>
+                    <li><strong>Browser:</strong> [e.g., Chrome 120]</li>
+                    <li><strong>OS:</strong> [e.g., Windows 11, macOS 14]</li>
+                    <li><strong>Device:</strong> [Desktop / Mobile / Tablet]</li>
+                    <li><strong>Screen Size:</strong> [e.g., 1920x1080]</li>
+                </ul>
+                
+                <h4>Steps to Reproduce</h4>
+                <ol>
+                    <li>[Step 1]</li>
+                    <li>[Step 2]</li>
+                    <li>[Step 3]</li>
+                </ol>
+                
+                <h4>Expected Result</h4>
+                <p>[What should happen]</p>
+                
+                <h4>Actual Result</h4>
+                <p>[What actually happens]</p>
+                
+                <h3>Bug Priority Definitions</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Priority</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge badge-p0">P0 - Critical</span></td>
+                            <td>Application crashes or is unusable, data loss, security vulnerabilities, core functionality broken</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-p1">P1 - High</span></td>
+                            <td>Major feature not working, significant impact on workflow, affects multiple users</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-p2">P2 - Medium</span></td>
+                            <td>Minor feature not working, moderate impact, workaround available, cosmetic issues</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-p3">P3 - Low</span></td>
+                            <td>Minor cosmetic issues, edge cases, minimal impact, nice-to-have improvements</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <hr>
+
+            <!-- Test Sign-off Checklist -->
+            <section id="signoff">
+                <h1>Test Sign-off Checklist</h1>
+                <p>Before signing off on a release, ensure the following:</p>
+                
+                <h3>Functional Testing</h3>
+                <ul class="checkbox-list">
+                    <li>All P0 test cases pass</li>
+                    <li>All P1 test cases pass</li>
+                    <li>Critical bugs are fixed</li>
+                    <li>High priority bugs are fixed or deferred with approval</li>
+                </ul>
+                
+                <h3>Design System Compliance</h3>
+                <ul class="checkbox-list">
+                    <li>Typography uses Roboto font throughout</li>
+                    <li>Colors match brand palette</li>
+                    <li>Spacing uses Forge tokens</li>
+                    <li>Border radius uses Forge tokens</li>
+                    <li>Borders use Forge color tokens</li>
+                </ul>
+                
+                <h3>Accessibility</h3>
+                <ul class="checkbox-list">
+                    <li>Keyboard navigation works</li>
+                    <li>Screen reader compatible</li>
+                    <li>Color contrast meets WCAG AA</li>
+                    <li>Forms are accessible</li>
+                    <li>Focus management is correct</li>
+                </ul>
+                
+                <h3>Cross-Browser</h3>
+                <ul class="checkbox-list">
+                    <li>Chrome desktop tested and passes</li>
+                    <li>Firefox desktop tested and passes</li>
+                    <li>Safari desktop tested and passes</li>
+                    <li>Edge desktop tested and passes</li>
+                </ul>
+                
+                <h3>Responsive Design</h3>
+                <ul class="checkbox-list">
+                    <li>Mobile (375px) tested and passes</li>
+                    <li>Tablet (768px) tested and passes</li>
+                    <li>Desktop (1920px) tested and passes</li>
+                </ul>
+                
+                <h3>Performance</h3>
+                <ul class="checkbox-list">
+                    <li>Page load times are acceptable</li>
+                    <li>Large data sets perform well</li>
+                    <li>Images load efficiently</li>
+                    <li>Map performance is smooth</li>
+                </ul>
+                
+                <h3>Documentation</h3>
+                <ul class="checkbox-list">
+                    <li>All bugs are documented</li>
+                    <li>Known issues are listed</li>
+                    <li>User documentation is updated (if applicable)</li>
+                    <li>Release notes are prepared</li>
+                </ul>
+            </section>
+
+            <hr>
+
+            <!-- Appendix -->
+            <section id="appendix">
+                <h1>Appendix A: Test Data</h1>
+                
+                <h3>Sample Students</h3>
+                <ul>
+                    <li>Sarah Mitchell (STU-2891) - 9th Grade, Lincoln Middle School, Bus 12</li>
+                    <li>Marcus Johnson (STU-3421) - 10th Grade, Washington High School, Bus 15</li>
+                    <li>Emma Rodriguez (STU-1956) - 8th Grade, Jefferson Middle School, Bus 22</li>
+                    <li>James Thompson (STU-4782) - 9th Grade, Roosevelt High School, Bus 31</li>
+                    <li>Olivia Davis (STU-5623) - 11th Grade, Washington High School, Bus 8</li>
+                </ul>
+                
+                <h3>Sample Drivers</h3>
+                <ul>
+                    <li>Robert Martinez (DRV-101, EMP-4521) - lincoln-elem-am-green</li>
+                    <li>Jennifer Davis (DRV-102, EMP-4522) - washington-high-pm-wolf</li>
+                    <li>Michael Chen (DRV-103, EMP-4523) - jefferson-middle-am-blue</li>
+                    <li>Patricia Johnson (DRV-104, EMP-4524) - roosevelt-high-pm-red</li>
+                    <li>David Thompson (DRV-105, EMP-4525) - colonie-high-am-purple</li>
+                </ul>
+                
+                <h3>Sample Vehicles</h3>
+                <ul>
+                    <li>Bus 12 - Active - lincoln-elem-am-green</li>
+                    <li>Bus 15 - Active - washington-high-pm-wolf</li>
+                    <li>Bus 22 - Active - jefferson-middle-am-blue</li>
+                    <li>Bus 31 - Maintenance - roosevelt-high-pm-red</li>
+                    <li>Bus 8 - Active - washington-high-pm-wolf</li>
+                </ul>
+            </section>
+
+            <hr>
+
+            <section>
+                <h1>Appendix B: Useful Testing Tools</h1>
+                
+                <h3>Browser Extensions</h3>
+                <ul>
+                    <li><strong>axe DevTools:</strong> Accessibility testing</li>
+                    <li><strong>WAVE:</strong> Web accessibility evaluation</li>
+                    <li><strong>Lighthouse:</strong> Performance and accessibility auditing</li>
+                    <li><strong>ColorZilla:</strong> Color picker and contrast checker</li>
+                    <li><strong>WhatFont:</strong> Identify fonts on web pages</li>
+                </ul>
+                
+                <h3>Screen Readers</h3>
+                <ul>
+                    <li><strong>NVDA (Windows):</strong> Free, open-source screen reader</li>
+                    <li><strong>JAWS (Windows):</strong> Professional screen reader</li>
+                    <li><strong>VoiceOver (macOS/iOS):</strong> Built-in screen reader</li>
+                </ul>
+                
+                <h3>Performance Tools</h3>
+                <ul>
+                    <li><strong>Chrome DevTools:</strong> Network, Performance, Lighthouse tabs</li>
+                    <li><strong>WebPageTest:</strong> Detailed performance testing</li>
+                    <li><strong>GTmetrix:</strong> Page speed and performance analysis</li>
+                </ul>
+            </section>
+
+            <hr>
+
+            <section>
+                <h1>Document Revision History</h1>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Version</th>
+                            <th>Date</th>
+                            <th>Author</th>
+                            <th>Changes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1.0</td>
+                            <td>2026-01-28</td>
+                            <td>QA Team</td>
+                            <td>Initial document creation</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <div style="text-align: center; padding: var(--forge-spacing-xlarge); margin-top: var(--forge-spacing-xlarge); background: var(--muted); border-radius: var(--forge-radius-medium);">
+                <p style="margin: 0; color: var(--muted-foreground); font-size: var(--text-sm);">
+                    <strong>End of QA Testing Guide</strong><br>
+                    Student Transportation Incident Tracker v1.0
+                </p>
+            </div>
+        </main>
+    </div>
+    
+    <a href="#toc" class="back-to-top" title="Back to top">↑</a>
+</body>
+</html>

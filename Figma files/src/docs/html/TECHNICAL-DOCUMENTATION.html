@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Documentation - Student Transportation Incident Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; line-height: 1.6; color: #09090b; background: #fafafa; }
+        .nav { background: #4A6FA5; color: white; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .nav h1 { font-size: 1.25rem; font-weight: 600; }
+        .nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background 0.2s; }
+        .nav a:hover { background: rgba(255,255,255,0.1); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 250px 1fr; gap: 2rem; }
+        .sidebar { background: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); height: fit-content; position: sticky; top: 80px; }
+        .sidebar h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #4A6FA5; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin: 0.5rem 0; }
+        .sidebar a { color: #52525b; text-decoration: none; font-size: 0.875rem; transition: color 0.2s; }
+        .sidebar a:hover { color: #4A6FA5; }
+        .content { background: white; padding: 3rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .content h1 { font-size: 2.5rem; font-weight: 600; margin-bottom: 1rem; color: #4A6FA5; }
+        .content h2 { font-size: 2rem; font-weight: 600; margin: 2.5rem 0 1rem; color: #18181b; padding-bottom: 0.5rem; border-bottom: 2px solid #e4e4e7; }
+        .content h3 { font-size: 1.5rem; font-weight: 600; margin: 2rem 0 1rem; color: #18181b; }
+        .content p { margin: 1rem 0; color: #52525b; }
+        .content ul, .content ol { margin: 1rem 0 1rem 2rem; color: #52525b; }
+        .content li { margin: 0.5rem 0; }
+        .content code { background: #18181b; color: #fafafa; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+        .content pre { background: #18181b; color: #fafafa; padding: 1.5rem; border-radius: 0.5rem; overflow-x: auto; margin: 1rem 0; }
+        .content pre code { background: none; padding: 0; }
+        .content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        .content th, .content td { border: 1px solid #e4e4e7; padding: 0.75rem; text-align: left; }
+        .content th { background: #f4f4f5; font-weight: 600; }
+        .info-box { background: #f0f9ff; border-left: 4px solid #4A6FA5; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } .sidebar { position: static; } }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <h1>Technical Documentation - Incident Tracker</h1>
+            <a href="index.html">← Documentation Home</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#architecture">Architecture</a></li>
+                <li><a href="#technology-stack">Technology Stack</a></li>
+                <li><a href="#project-structure">Project Structure</a></li>
+                <li><a href="#components">Components</a></li>
+                <li><a href="#state-management">State Management</a></li>
+                <li><a href="#data-models">Data Models</a></li>
+                <li><a href="#styling">Styling System</a></li>
+                <li><a href="#development">Development Guide</a></li>
+                <li><a href="#deployment">Build & Deployment</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>Technical Documentation</h1>
+            <p><em>Developer reference for the Student Transportation Incident Tracker</em></p>
+
+            <section id="architecture">
+                <h2>Architecture Overview</h2>
+                <p>The Student Transportation Incident Tracker is a single-page application (SPA) built with React and TypeScript, implementing a component-based architecture.</p>
+
+                <pre><code>┌─────────────────────────────────────────┐
+│         Presentation Layer              │
+│  (React Components + Tyler Forge UI)   │
+├─────────────────────────────────────────┤
+│         State Management Layer          │
+│     (React Hooks - useState)            │
+├─────────────────────────────────────────┤
+│         Business Logic Layer            │
+│  (Filtering, Sorting, Validation)       │
+├─────────────────────────────────────────┤
+│         Data Layer (Mock Data)          │
+│   (Future: API Integration Layer)       │
+└─────────────────────────────────────────┘</code></pre>
+
+                <h3>Design Patterns</h3>
+                <ul>
+                    <li><strong>Component Composition:</strong> Small, reusable components composed into larger page components</li>
+                    <li><strong>Container/Presentational:</strong> Pages act as containers managing state, UI components handle presentation</li>
+                    <li><strong>Prop Drilling:</strong> Navigation callback passed through component tree</li>
+                    <li><strong>Render Props:</strong> Dialog components use render props pattern for trigger elements</li>
+                </ul>
+            </section>
+
+            <section id="technology-stack">
+                <h2>Technology Stack</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Technology</th>
+                            <th>Version</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>React</td>
+                            <td>18+</td>
+                            <td>UI framework</td>
+                        </tr>
+                        <tr>
+                            <td>TypeScript</td>
+                            <td>5+</td>
+                            <td>Type safety and developer experience</td>
+                        </tr>
+                        <tr>
+                            <td>Vite</td>
+                            <td>5+</td>
+                            <td>Build tool and dev server</td>
+                        </tr>
+                        <tr>
+                            <td>Tailwind CSS</td>
+                            <td>4.0</td>
+                            <td>Utility-first styling</td>
+                        </tr>
+                        <tr>
+                            <td>Lucide React</td>
+                            <td>Latest</td>
+                            <td>Icon system</td>
+                        </tr>
+                        <tr>
+                            <td>Recharts</td>
+                            <td>2+</td>
+                            <td>Data visualization</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="project-structure">
+                <h2>Project Structure</h2>
+
+                <pre><code>incident-tracker/
+│
+├── src/
+│   ├── App.tsx                      # Root component with navigation
+│   │
+│   ├── components/
+│   │   ├── dashboard/
+│   │   │   └── DashboardPage.tsx    # Dashboard with stats and charts
+│   │   │
+│   │   ├── incidents/
+│   │   │   └── IncidentsPage.tsx    # Incident management page
+│   │   │
+│   │   ├── students/
+│   │   │   └── StudentsPage.tsx     # Student management page
+│   │   │
+│   │   ├── vehicles/
+│   │   │   ├── VehiclesPage.tsx     # Fleet management page
+│   │   │   └── bus-icons.tsx        # SVG bus type icons
+│   │   │
+│   │   ├── drivers/
+│   │   │   └── DriversPage.tsx      # Driver management page
+│   │   │
+│   │   ├── new-incident/
+│   │   │   └── NewIncidentPage.tsx  # Multi-step incident form
+│   │   │
+│   │   ├── reports/
+│   │   │   └── ReportsPage.tsx      # Reporting and analytics
+│   │   │
+│   │   ├── driver-communications/
+│   │   │   └── DriverCommunicationsPage.tsx
+│   │   │
+│   │   └── ui/                      # Reusable UI components
+│   │       ├── avatar.tsx
+│   │       ├── badge.tsx
+│   │       ├── button.tsx
+│   │       ├── card.tsx
+│   │       └── ... (other components)
+│   │
+│   ├── imports/                     # Imported Figma assets
+│   │
+│   ├── styles/
+│   │   └── globals.css              # Design system tokens
+│   │
+│   └── main.tsx                     # Application entry point
+│
+├── docs/                            # Documentation
+│   ├── README.md
+│   ├── USER-GUIDE.md
+│   ├── TECHNICAL-DOCUMENTATION.md
+│   ├── DESIGN-SYSTEM.md
+│   └── FEATURES.md
+│
+└── package.json                     # Dependencies and scripts</code></pre>
+            </section>
+
+            <section id="components">
+                <h2>Component Documentation</h2>
+
+                <h3>App Component (/App.tsx)</h3>
+                <p><strong>Purpose:</strong> Root component managing navigation and page routing</p>
+
+                <pre><code>export default function App() {
+  const [currentPage, setCurrentPage] = useState('dashboard');
+
+  const handleNavigate = (page: string) => {
+    setCurrentPage(page);
+  };
+
+  return (
+    &lt;div className="min-h-screen bg-background"&gt;
+      {/* Omnibar */}
+      &lt;nav&gt;...&lt;/nav&gt;
+      
+      {/* Page Content */}
+      {currentPage === 'dashboard' && &lt;DashboardPage onNavigate={handleNavigate} /&gt;}
+      {/* ... other pages */}
+    &lt;/div&gt;
+  );
+}</code></pre>
+
+                <h3>Page Components</h3>
+                <p>All page components follow a consistent pattern:</p>
+                <ul>
+                    <li>Accept <code>onNavigate</code> prop for navigation</li>
+                    <li>Manage local state with useState hooks</li>
+                    <li>Implement filtering and sorting logic</li>
+                    <li>Use Tyler Forge UI components</li>
+                </ul>
+
+                <h3>Sortable Table Implementation</h3>
+                <pre><code>const [sortColumn, setSortColumn] = useState('date');
+const [sortDirection, setSortDirection] = useState('desc');
+
+const handleSort = (column) => {
+  if (sortColumn === column) {
+    setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+  } else {
+    setSortColumn(column);
+    setSortDirection('asc');
+  }
+};
+
+const SortIcon = ({ column }) => {
+  if (sortColumn !== column) {
+    return &lt;ChevronsUpDown className="h-4 w-4 ml-1 text-muted-foreground" /&gt;;
+  }
+  return sortDirection === 'asc' 
+    ? &lt;ChevronUp className="h-4 w-4 ml-1" /&gt; 
+    : &lt;ChevronDown className="h-4 w-4 ml-1" /&gt;;
+};</code></pre>
+            </section>
+
+            <section id="state-management">
+                <h2>State Management</h2>
+                <p>The application uses React's built-in <code>useState</code> hook for state management. Each page component manages its own local state.</p>
+
+                <pre><code>const [searchTerm, setSearchTerm] = useState('');
+const [statusFilter, setStatusFilter] = useState('all');
+const [sortColumn, setSortColumn] = useState('date');
+const [sortDirection, setSortDirection] = useState('desc');</code></pre>
+
+                <h3>State Flow</h3>
+                <pre><code>User Interaction
+      ↓
+Event Handler (onChange, onClick)
+      ↓
+State Update (useState setter)
+      ↓
+React Re-render
+      ↓
+Updated UI</code></pre>
+            </section>
+
+            <section id="data-models">
+                <h2>Data Models</h2>
+
+                <h3>Incident Model</h3>
+                <pre><code>interface Incident {
+  id: string;                    // Unique identifier
+  date: string;                  // ISO date string
+  time: string;                  // HH:MM format
+  studentName: string;
+  studentId: string;
+  driverName: string;
+  vehicle: string;
+  type: 'Student Behavior' | 'Safety Violation' | 'Mechanical' | 'Accident' | 'Other';
+  severity: 'Critical' | 'High' | 'Medium' | 'Low';
+  status: 'Open' | 'Under Review' | 'Resolved' | 'Closed';
+  description: string;
+  actionsTaken: string;
+  location: string;
+}</code></pre>
+
+                <h3>Student Model</h3>
+                <pre><code>interface Student {
+  id: string;
+  name: string;
+  photoUrl: string;
+  grade: string;
+  school: string;
+  contact: string;
+  route: string;
+  incidents: Incident[];
+  activeIncidents: boolean;
+}</code></pre>
+
+                <h3>Vehicle Model</h3>
+                <pre><code>interface Vehicle {
+  id: string;
+  name: string;
+  make: string;
+  model: string;
+  year: number;
+  status: 'Active' | 'Maintenance' | 'Inactive';
+  driver: string;
+  maintenanceStatus: 'Excellent' | 'Good' | 'Needs Attention' | 'In Repair';
+  incidentCount: number;
+  mileage: number;
+}</code></pre>
+
+                <h3>Driver Model</h3>
+                <pre><code>interface Driver {
+  id: string;
+  fullName: string;
+  photo: string;
+  phone: string;
+  status: 'Active' | 'On Leave' | 'Inactive';
+  assignedVehicle: string;
+  safetyRating: number;
+  incidentCount: number;
+}</code></pre>
+            </section>
+
+            <section id="styling">
+                <h2>Styling System</h2>
+
+                <h3>Design Tokens</h3>
+                <p>All design tokens are defined in <code>/styles/globals.css</code>:</p>
+
+                <pre><code>:root {
+  /* Brand Colors - Blues */
+  --brand-blue-dark: #4A6FA5;
+  --brand-blue-medium: #5B8BB8;
+  --brand-blue-light: #6B9BC5;
+  
+  /* Brand Colors - Olives */
+  --brand-olive-dark: #7B8458;
+  --brand-olive-medium: #8B9264;
+  --brand-olive-light: #9FA870;
+  
+  /* Typography */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  
+  /* Spacing */
+  --forge-spacing-small: 0.5rem;
+  --forge-spacing-medium: 1rem;
+  --forge-spacing-large: 1.5rem;
+  --forge-spacing-xlarge: 2rem;
+  
+  /* Elevation */
+  --forge-elevation-1: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --forge-elevation-2: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}</code></pre>
+
+                <h3>Using Design Tokens</h3>
+                <pre><code>&lt;div style={{ 
+  padding: 'var(--forge-spacing-large)',
+  boxShadow: 'var(--forge-elevation-1)',
+  fontSize: 'var(--text-lg)'
+}}&gt;
+  Content
+&lt;/div&gt;</code></pre>
+            </section>
+
+            <section id="development">
+                <h2>Development Guide</h2>
+
+                <h3>Setup Development Environment</h3>
+                <pre><code># Clone repository
+git clone &lt;repository-url&gt;
+cd incident-tracker
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Open browser
+# Navigate to http://localhost:5173</code></pre>
+
+                <h3>Adding a New Page</h3>
+                <ol>
+                    <li>Create component file: <code>src/components/your-page/YourPage.tsx</code></li>
+                    <li>Define component with <code>onNavigate</code> prop</li>
+                    <li>Add to <code>App.tsx</code> navigation and routing</li>
+                </ol>
+
+                <h3>Code Style Guidelines</h3>
+                <ul>
+                    <li>Use TypeScript for all new files</li>
+                    <li>Define interfaces for props and data models</li>
+                    <li>Use functional components with hooks</li>
+                    <li>Follow Tyler Forge design system guidelines</li>
+                    <li>Use CSS variables for styling</li>
+                </ul>
+            </section>
+
+            <section id="deployment">
+                <h2>Build and Deployment</h2>
+
+                <h3>Building for Production</h3>
+                <pre><code>npm run build</code></pre>
+
+                <p>This creates optimized production files in <code>/dist/</code> directory.</p>
+
+                <h3>Deployment Options</h3>
+                <ul>
+                    <li><strong>Vercel:</strong> <code>vercel deploy</code></li>
+                    <li><strong>Netlify:</strong> <code>netlify deploy --prod</code></li>
+                    <li><strong>Static Hosting:</strong> Copy dist folder to web server</li>
+                </ul>
+            </section>
+
+            <div class="info-box">
+                <p><strong>Document Version:</strong> 1.0.0<br>
+                <strong>Last Updated:</strong> January 27, 2026<br>
+                <strong>Maintained By:</strong> Development Team</p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

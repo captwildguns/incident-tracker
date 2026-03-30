@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>README - Student Transportation Incident Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: #09090b;
+            background: #fafafa;
+        }
+
+        .nav {
+            background: #4A6FA5;
+            color: white;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: background 0.2s;
+        }
+
+        .nav a:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+        }
+
+        .sidebar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: 80px;
+        }
+
+        .sidebar h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #4A6FA5;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin: 0.5rem 0;
+        }
+
+        .sidebar a {
+            color: #52525b;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s;
+        }
+
+        .sidebar a:hover {
+            color: #4A6FA5;
+        }
+
+        .content {
+            background: white;
+            padding: 3rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .content h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #4A6FA5;
+        }
+
+        .content h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 2.5rem 0 1rem;
+            color: #18181b;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e4e4e7;
+        }
+
+        .content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: #18181b;
+        }
+
+        .content p {
+            margin: 1rem 0;
+            color: #52525b;
+        }
+
+        .content ul, .content ol {
+            margin: 1rem 0 1rem 2rem;
+            color: #52525b;
+        }
+
+        .content li {
+            margin: 0.5rem 0;
+        }
+
+        .content code {
+            background: #f4f4f5;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            color: #dc2626;
+        }
+
+        .content pre {
+            background: #18181b;
+            color: #fafafa;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .content pre code {
+            background: none;
+            color: #fafafa;
+            padding: 0;
+        }
+
+        .content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+        }
+
+        .content th, .content td {
+            border: 1px solid #e4e4e7;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        .content th {
+            background: #f4f4f5;
+            font-weight: 600;
+        }
+
+        .content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            margin: 1.5rem 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin: 0.25rem;
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-green {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-orange {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            border-left: 4px solid #4A6FA5;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0.375rem;
+        }
+
+        .warning-box {
+            background: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0.375rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <h1>Student Transportation Incident Tracker</h1>
+            <a href="index.html">← Back to Documentation Home</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#key-features">Key Features</a></li>
+                <li><a href="#design-system">Design System</a></li>
+                <li><a href="#technology-stack">Technology Stack</a></li>
+                <li><a href="#project-structure">Project Structure</a></li>
+                <li><a href="#getting-started">Getting Started</a></li>
+                <li><a href="#key-ui-patterns">Key UI Patterns</a></li>
+                <li><a href="#browser-support">Browser Support</a></li>
+                <li><a href="#accessibility">Accessibility</a></li>
+                <li><a href="#future-enhancements">Future Enhancements</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>Student Transportation Incident Tracker</h1>
+
+            <section id="overview">
+                <h2>Overview</h2>
+                <p>The Student Transportation Incident Tracker is a comprehensive web application designed for school districts to capture, manage, and communicate student incidents during transportation. Built with React, TypeScript, and Tailwind CSS, it implements the Tyler Forge 3.x design system with custom district branding.</p>
+            </section>
+
+            <section id="key-features">
+                <h2>Key Features</h2>
+
+                <h3>📊 Dashboard</h3>
+                <ul>
+                    <li>Real-time incident statistics and trends</li>
+                    <li>Interactive charts showing incidents by severity, type, and school</li>
+                    <li>Quick action buttons for common tasks</li>
+                    <li>Recent incident timeline with filtering</li>
+                </ul>
+
+                <h3>📋 Incident Management</h3>
+                <ul>
+                    <li>Comprehensive incident listing with advanced filtering</li>
+                    <li>Sortable columns with visual indicators</li>
+                    <li>Status tracking (Open, Under Review, Resolved, Closed)</li>
+                    <li>Severity classification (Critical, High, Medium, Low)</li>
+                    <li>Detailed incident view with complete information</li>
+                </ul>
+
+                <h3>👥 Student Management</h3>
+                <ul>
+                    <li>Student profiles with photos</li>
+                    <li>Associated incident history</li>
+                    <li>Grade level and contact information</li>
+                    <li>Active incident indicators</li>
+                    <li>Sortable columns for all data fields</li>
+                </ul>
+
+                <h3>🚗 Fleet Management (Vehicles)</h3>
+                <ul>
+                    <li>Complete vehicle inventory with bus images</li>
+                    <li>Maintenance status tracking</li>
+                    <li>GPS/AVL integration details</li>
+                    <li>Mileage and hourmeter monitoring</li>
+                    <li>Incident count per vehicle</li>
+                    <li>Sortable columns with visual indicators</li>
+                </ul>
+
+                <h3>👨‍✈️ Driver Management</h3>
+                <ul>
+                    <li>Driver profiles with photos</li>
+                    <li>Contact information and employment details</li>
+                    <li>Vehicle and route assignments</li>
+                    <li>Safety rating tracking</li>
+                    <li>Certification status monitoring</li>
+                    <li>Sortable columns for all data fields</li>
+                </ul>
+
+                <h3>📝 New Incident Entry</h3>
+                <ul>
+                    <li>Step-by-step incident reporting wizard</li>
+                    <li>Validation and error handling</li>
+                    <li>Auto-save functionality</li>
+                    <li>Attachment support</li>
+                    <li>Witness information capture</li>
+                </ul>
+
+                <h3>📊 Reports & Analytics</h3>
+                <ul>
+                    <li>Quick report generation</li>
+                    <li>Custom report builder</li>
+                    <li>Export capabilities (CSV, PDF)</li>
+                    <li>Trend analysis</li>
+                    <li>Compliance reporting</li>
+                </ul>
+
+                <h3>💬 Driver Communications</h3>
+                <ul>
+                    <li>Centralized communication hub for safety coordinators</li>
+                    <li>Track all driver communications regarding incidents</li>
+                    <li>Message threading and history</li>
+                    <li>Communication status tracking</li>
+                    <li>Filter by driver, incident, or date range</li>
+                </ul>
+            </section>
+
+            <section id="design-system">
+                <h2>Design System</h2>
+
+                <h3>Brand Colors</h3>
+                <p>The application uses custom district branding colors extracted from the district logo:</p>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1.5rem 0;">
+                    <div style="text-align: center;">
+                        <div style="background: #4A6FA5; height: 80px; border-radius: 0.5rem; margin-bottom: 0.5rem;"></div>
+                        <p style="font-size: 0.875rem; font-weight: 500;">#4A6FA5</p>
+                        <p style="font-size: 0.75rem; color: #71717a;">Primary Blue</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="background: #5B8BB8; height: 80px; border-radius: 0.5rem; margin-bottom: 0.5rem;"></div>
+                        <p style="font-size: 0.875rem; font-weight: 500;">#5B8BB8</p>
+                        <p style="font-size: 0.75rem; color: #71717a;">Medium Blue</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="background: #6B9BC5; height: 80px; border-radius: 0.5rem; margin-bottom: 0.5rem;"></div>
+                        <p style="font-size: 0.875rem; font-weight: 500;">#6B9BC5</p>
+                        <p style="font-size: 0.75rem; color: #71717a;">Light Blue</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="background: #7B8458; height: 80px; border-radius: 0.5rem; margin-bottom: 0.5rem;"></div>
+                        <p style="font-size: 0.875rem; font-weight: 500;">#7B8458</p>
+                        <p style="font-size: 0.75rem; color: #71717a;">Dark Olive</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="background: #8B9264; height: 80px; border-radius: 0.5rem; margin-bottom: 0.5rem;"></div>
+                        <p style="font-size: 0.875rem; font-weight: 500;">#8B9264</p>
+                        <p style="font-size: 0.75rem; color: #71717a;">Medium Olive</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="background: #9FA870; height: 80px; border-radius: 0.5rem; margin-bottom: 0.5rem;"></div>
+                        <p style="font-size: 0.875rem; font-weight: 500;">#9FA870</p>
+                        <p style="font-size: 0.75rem; color: #71717a;">Light Olive</p>
+                    </div>
+                </div>
+
+                <h3>Typography</h3>
+                <ul>
+                    <li><strong>Font Family:</strong> Roboto (all text elements)</li>
+                    <li><strong>Scale:</strong> Follows Tyler Forge typography tokens</li>
+                    <li>Custom CSS variables for consistent sizing</li>
+                </ul>
+
+                <h3>Design Tokens</h3>
+                <p>The application implements 57 color tokens, elevation tokens, spacing tokens, and border radius tokens from the Tyler Forge 3.x design system, all defined in <code>/styles/globals.css</code>.</p>
+            </section>
+
+            <section id="technology-stack">
+                <h2>Technology Stack</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Technology</th>
+                            <th>Version</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Frontend</td>
+                            <td>React with TypeScript</td>
+                            <td>18+</td>
+                        </tr>
+                        <tr>
+                            <td>Styling</td>
+                            <td>Tailwind CSS</td>
+                            <td>4.0</td>
+                        </tr>
+                        <tr>
+                            <td>Icons</td>
+                            <td>Lucide React</td>
+                            <td>Latest</td>
+                        </tr>
+                        <tr>
+                            <td>Charts</td>
+                            <td>Recharts</td>
+                            <td>2+</td>
+                        </tr>
+                        <tr>
+                            <td>Build Tool</td>
+                            <td>Vite</td>
+                            <td>5+</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="project-structure">
+                <h2>Project Structure</h2>
+
+                <pre><code>/
+├── App.tsx                          # Main application entry point
+├── components/
+│   ├── dashboard/
+│   │   └── DashboardPage.tsx        # Dashboard with statistics and charts
+│   ├── incidents/
+│   │   └── IncidentsPage.tsx        # Incident management interface
+│   ├── students/
+│   │   └── StudentsPage.tsx         # Student management with photos
+│   ├── vehicles/
+│   │   ├── VehiclesPage.tsx         # Fleet management with bus images
+│   │   └── bus-icons.tsx            # SVG bus type icons
+│   ├── drivers/
+│   │   └── DriversPage.tsx          # Driver management with photos
+│   ├── new-incident/
+│   │   └── NewIncidentPage.tsx      # Incident entry form wizard
+│   ├── reports/
+│   │   └── ReportsPage.tsx          # Reporting and analytics
+│   ├── driver-communications/
+│   │   └── DriverCommunicationsPage.tsx # Communication hub
+│   ├── ui/                          # Reusable UI components
+│   │   ├── card.tsx
+│   │   ├── badge.tsx
+│   │   ├── button.tsx
+│   │   └── ... (other UI components)
+│   └── figma/
+│       └── ImageWithFallback.tsx    # Protected image component
+├── imports/                         # Bus images and imported assets
+├── styles/
+│   └── globals.css                  # Design system tokens and variables
+└── docs/                            # Documentation
+    ├── README.md
+    ├── USER-GUIDE.md
+    ├── TECHNICAL-DOCUMENTATION.md
+    ├── DESIGN-SYSTEM.md
+    └── FEATURES.md</code></pre>
+            </section>
+
+            <section id="getting-started">
+                <h2>Getting Started</h2>
+
+                <h3>Prerequisites</h3>
+                <ul>
+                    <li>Node.js 18+</li>
+                    <li>npm or yarn package manager</li>
+                </ul>
+
+                <h3>Installation</h3>
+
+                <p><strong>1. Clone the repository</strong></p>
+                <pre><code>git clone &lt;repository-url&gt;
+cd incident-tracker</code></pre>
+
+                <p><strong>2. Install dependencies</strong></p>
+                <pre><code>npm install</code></pre>
+
+                <p><strong>3. Start the development server</strong></p>
+                <pre><code>npm run dev</code></pre>
+
+                <p><strong>4. Open your browser to <code>http://localhost:5173</code></strong></p>
+            </section>
+
+            <section id="key-ui-patterns">
+                <h2>Key UI Patterns</h2>
+
+                <h3>Navigation</h3>
+                <ul>
+                    <li><strong>Omnibar:</strong> Indigo-branded header with Tyler logo and navigation menu</li>
+                    <li><strong>Page Layout:</strong> Consistent spacing using design tokens</li>
+                    <li><strong>Responsive Design:</strong> Mobile-first approach with breakpoints</li>
+                </ul>
+
+                <h3>Data Tables</h3>
+                <ul>
+                    <li><strong>Sortable Columns:</strong> Click headers to sort ascending/descending</li>
+                    <li><strong>Visual Indicators:</strong> Chevron icons show sort direction (↑↓)</li>
+                    <li><strong>Hover Effects:</strong> Interactive feedback on clickable elements</li>
+                    <li><strong>Filtering:</strong> Search and dropdown filters for data refinement</li>
+                </ul>
+
+                <h3>Cards</h3>
+                <ul>
+                    <li><strong>Elevation:</strong> Consistent shadow tokens for depth</li>
+                    <li><strong>Spacing:</strong> Uniform padding using spacing tokens</li>
+                    <li><strong>Content Hierarchy:</strong> Clear visual hierarchy with typography scale</li>
+                </ul>
+            </section>
+
+            <section id="browser-support">
+                <h2>Browser Support</h2>
+                <ul>
+                    <li>Chrome 90+</li>
+                    <li>Firefox 88+</li>
+                    <li>Safari 14+</li>
+                    <li>Edge 90+</li>
+                </ul>
+            </section>
+
+            <section id="accessibility">
+                <h2>Accessibility</h2>
+                <ul>
+                    <li><strong>ARIA Labels:</strong> Proper labeling for screen readers</li>
+                    <li><strong>Keyboard Navigation:</strong> Full keyboard support</li>
+                    <li><strong>Color Contrast:</strong> WCAG AA compliant color combinations</li>
+                    <li><strong>Focus Indicators:</strong> Visible focus states</li>
+                </ul>
+            </section>
+
+            <section id="future-enhancements">
+                <h2>Future Enhancements</h2>
+                <ul>
+                    <li>Real-time notifications</li>
+                    <li>Mobile application</li>
+                    <li>Advanced analytics dashboard</li>
+                    <li>Integration with student information systems</li>
+                    <li>GPS tracking integration</li>
+                    <li>Automated incident detection</li>
+                </ul>
+            </section>
+
+            <div class="info-box">
+                <p><strong>Version:</strong> 1.0.0<br>
+                <strong>Last Updated:</strong> January 27, 2026<br>
+                <strong>Maintained By:</strong> District Transportation Department</p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

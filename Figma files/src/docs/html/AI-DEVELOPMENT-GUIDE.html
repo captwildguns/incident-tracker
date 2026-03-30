@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Development Guide - Student Transportation Incident Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; line-height: 1.6; color: #09090b; background: #fafafa; }
+        .nav { background: #22c55e; color: white; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .nav h1 { font-size: 1.25rem; font-weight: 600; }
+        .nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background 0.2s; }
+        .nav a:hover { background: rgba(255,255,255,0.2); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 250px 1fr; gap: 2rem; }
+        .sidebar { background: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); height: fit-content; position: sticky; top: 80px; }
+        .sidebar h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #22c55e; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin: 0.5rem 0; }
+        .sidebar a { color: #52525b; text-decoration: none; font-size: 0.875rem; transition: color 0.2s; }
+        .sidebar a:hover { color: #22c55e; }
+        .content { background: white; padding: 3rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .content h1 { font-size: 2.5rem; font-weight: 600; margin-bottom: 1rem; color: #22c55e; }
+        .content h2 { font-size: 2rem; font-weight: 600; margin: 2.5rem 0 1rem; color: #18181b; padding-bottom: 0.5rem; border-bottom: 2px solid #e4e4e7; }
+        .content h3 { font-size: 1.5rem; font-weight: 600; margin: 2rem 0 1rem; color: #18181b; }
+        .content h4 { font-size: 1.25rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: #22c55e; }
+        .content p { margin: 1rem 0; color: #52525b; }
+        .content ul, .content ol { margin: 1rem 0 1rem 2rem; color: #52525b; }
+        .content li { margin: 0.5rem 0; }
+        .content code { background: #18181b; color: #22c55e; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: 'Courier New', monospace; font-size: 0.875rem; }
+        .content pre { background: #18181b; color: #fafafa; padding: 1.5rem; border-radius: 0.5rem; overflow-x: auto; margin: 1rem 0; border-left: 4px solid #22c55e; }
+        .content pre code { background: none; color: #fafafa; padding: 0; }
+        .content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        .content th, .content td { border: 1px solid #e4e4e7; padding: 0.75rem; text-align: left; }
+        .content th { background: #f4f4f5; font-weight: 600; }
+        .info-box { background: #dcfce7; border-left: 4px solid #22c55e; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .warning-box { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .error-box { background: #fee2e2; border-left: 4px solid #ef4444; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; margin: 0.25rem 0.25rem 0.25rem 0; }
+        .badge-success { background: #dcfce7; color: #166534; }
+        .badge-error { background: #fee2e2; color: #991b1b; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } .sidebar { position: static; } }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <h1>🤖 AI Development Guide</h1>
+            <a href="index.html">← Documentation Home</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Quick Navigation</h3>
+            <ul>
+                <li><a href="#purpose">Purpose</a></li>
+                <li><a href="#critical">Critical Requirements</a></li>
+                <li><a href="#typography">Typography System</a></li>
+                <li><a href="#colors">Color System</a></li>
+                <li><a href="#spacing">Spacing System</a></li>
+                <li><a href="#borders">Borders & Radius</a></li>
+                <li><a href="#elevation">Elevation (Shadows)</a></li>
+                <li><a href="#components">Component Patterns</a></li>
+                <li><a href="#tables">Sortable Tables</a></li>
+                <li><a href="#page-structure">Page Structure</a></li>
+                <li><a href="#mistakes">Common Mistakes</a></li>
+                <li><a href="#quick-ref">Quick Reference</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>AI Development Guide</h1>
+            <p><em>Optimized for AI assistants (like Claude) generating code for this application</em></p>
+
+            <section id="purpose">
+                <h2>Purpose</h2>
+                <p>This guide provides explicit instructions for AI assistants to maintain consistency with the design system, component patterns, and architectural decisions when generating or modifying code.</p>
+            </section>
+
+            <section id="critical">
+                <h2>Critical Requirements</h2>
+
+                <div class="warning-box">
+                    <h3 style="margin-top: 0;">⚠️ MANDATORY: Design System Adherence</h3>
+                    <p><strong>ALL UI generation MUST use CSS variables from <code>/styles/globals.css</code></strong></p>
+                    <ul style="margin-top: 0.5rem;">
+                        <li><strong>Typography:</strong> ONLY use Roboto font (imported in globals.css)</li>
+                        <li><strong>Colors:</strong> ONLY use CSS variables (never hardcode colors)</li>
+                        <li><strong>Spacing:</strong> ONLY use <code>--forge-spacing-*</code> tokens</li>
+                        <li><strong>Borders:</strong> ONLY use <code>--forge-radius-*</code> and <code>--forge-color-border-*</code> tokens</li>
+                        <li><strong>Shadows:</strong> ONLY use <code>--forge-elevation-*</code> tokens</li>
+                    </ul>
+                </div>
+
+                <p style="font-size: 1.125rem;"><strong>All design tokens are defined in <code>/styles/globals.css</code>. This is the SINGLE SOURCE OF TRUTH for all styling.</strong></p>
+            </section>
+
+            <section id="typography">
+                <h2>Typography System</h2>
+
+                <h3>Font Family</h3>
+                <div class="info-box">
+                    <p><strong>ALWAYS use this font stack:</strong></p>
+                    <pre><code>font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;</code></pre>
+                    <p><strong>NEVER</strong> use any other font family. Roboto is imported via Google Fonts in globals.css.</p>
+                </div>
+
+                <h3>Font Sizes (CSS Variables)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Value</th>
+                            <th>Usage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>--text-xs</code></td>
+                            <td>12px</td>
+                            <td>Captions, helper text</td>
+                        </tr>
+                        <tr>
+                            <td><code>--text-sm</code></td>
+                            <td>14px</td>
+                            <td>Small labels, secondary text</td>
+                        </tr>
+                        <tr>
+                            <td><code>--text-base</code></td>
+                            <td>14px</td>
+                            <td>Body text (DEFAULT)</td>
+                        </tr>
+                        <tr>
+                            <td><code>--text-lg</code></td>
+                            <td>16px</td>
+                            <td>Emphasized text</td>
+                        </tr>
+                        <tr>
+                            <td><code>--text-xl</code></td>
+                            <td>18px</td>
+                            <td>Subheadings</td>
+                        </tr>
+                        <tr>
+                            <td><code>--text-2xl</code></td>
+                            <td>20px</td>
+                            <td>Section headings</td>
+                        </tr>
+                        <tr>
+                            <td><code>--text-3xl</code></td>
+                            <td>24px</td>
+                            <td>Page titles</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Implementation Example</h3>
+                <div class="info-box">
+                    <p><span class="badge badge-success">✅ CORRECT</span> - Using CSS variables:</p>
+                    <pre><code>&lt;h1 style={{ 
+  fontSize: 'var(--text-3xl)', 
+  fontWeight: 'var(--forge-font-weight-medium)' 
+}}&gt;
+  Page Title
+&lt;/h1&gt;</code></pre>
+                </div>
+
+                <div class="error-box">
+                    <p><span class="badge badge-error">❌ WRONG</span> - Hardcoded values:</p>
+                    <pre><code>&lt;h1 style={{ fontSize: '24px', fontWeight: 600 }}&gt;Title&lt;/h1&gt;</code></pre>
+                </div>
+            </section>
+
+            <section id="colors">
+                <h2>Color System</h2>
+
+                <h3>Brand Colors (Custom District Branding)</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Value</th>
+                            <th>Usage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>--brand-blue-dark</code></td>
+                            <td>#4A6FA5</td>
+                            <td>Omnibar, primary buttons, headers</td>
+                        </tr>
+                        <tr>
+                            <td><code>--brand-blue-medium</code></td>
+                            <td>#5B8BB8</td>
+                            <td>Secondary actions, hover states</td>
+                        </tr>
+                        <tr>
+                            <td><code>--brand-blue-light</code></td>
+                            <td>#6B9BC5</td>
+                            <td>Backgrounds, subtle accents</td>
+                        </tr>
+                        <tr>
+                            <td><code>--brand-olive-dark</code></td>
+                            <td>#7B8458</td>
+                            <td>Secondary emphasis</td>
+                        </tr>
+                        <tr>
+                            <td><code>--brand-olive-medium</code></td>
+                            <td>#8B9264</td>
+                            <td>Accent elements, success states</td>
+                        </tr>
+                        <tr>
+                            <td><code>--brand-olive-light</code></td>
+                            <td>#9FA870</td>
+                            <td>Subtle backgrounds, info badges</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Implementation Example</h3>
+                <div class="info-box">
+                    <p><span class="badge badge-success">✅ CORRECT</span></p>
+                    <pre><code>&lt;nav style={{ 
+  background: 'var(--brand-blue-dark)',
+  color: 'white'
+}}&gt;
+  Navigation
+&lt;/nav&gt;</code></pre>
+                </div>
+
+                <div class="error-box">
+                    <p><span class="badge badge-error">❌ WRONG</span></p>
+                    <pre><code>&lt;nav style={{ background: '#4A6FA5' }}&gt;Navigation&lt;/nav&gt;</code></pre>
+                </div>
+            </section>
+
+            <section id="spacing">
+                <h2>Spacing System</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Value</th>
+                            <th>Usage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>--forge-spacing-xxsmall</code></td>
+                            <td>4px</td>
+                            <td>Tight spacing</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-spacing-xsmall</code></td>
+                            <td>8px</td>
+                            <td>Small gaps</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-spacing-small</code></td>
+                            <td>12px</td>
+                            <td>Default gaps</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-spacing-medium</code></td>
+                            <td>16px</td>
+                            <td>Standard spacing</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-spacing-large</code></td>
+                            <td>24px</td>
+                            <td>Section spacing</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-spacing-xlarge</code></td>
+                            <td>32px</td>
+                            <td>Page padding</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-spacing-xxlarge</code></td>
+                            <td>48px</td>
+                            <td>Large sections</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="borders">
+                <h2>Borders & Radius</h2>
+
+                <h3>Border Radius</h3>
+                <ul>
+                    <li><code>--forge-radius-small: 2px</code> - Minimal rounding</li>
+                    <li><code>--forge-radius-medium: 4px</code> - Standard rounding (DEFAULT)</li>
+                    <li><code>--forge-radius-large: 8px</code> - Pronounced rounding</li>
+                </ul>
+
+                <h3>Border Colors</h3>
+                <ul>
+                    <li><code>--forge-color-border-default: rgba(224, 224, 224, 1)</code></li>
+                    <li><code>--border: rgba(224, 224, 224, 1)</code></li>
+                </ul>
+            </section>
+
+            <section id="elevation">
+                <h2>Elevation System (Shadows)</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Usage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>--forge-elevation-1</code></td>
+                            <td>Cards (most common)</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-elevation-2</code></td>
+                            <td>Popovers/Dropdowns</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-elevation-4</code></td>
+                            <td>Modals/Dialogs</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-elevation-8</code></td>
+                            <td>Floating Elements</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-elevation-24</code></td>
+                            <td>Overlays</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="info-box">
+                    <p><span class="badge badge-success">✅ CORRECT</span></p>
+                    <pre><code>&lt;div style={{ 
+  boxShadow: 'var(--forge-elevation-1)',
+  borderRadius: 'var(--forge-radius-large)'
+}}&gt;
+  Card content
+&lt;/div&gt;</code></pre>
+                </div>
+            </section>
+
+            <section id="components">
+                <h2>Component Patterns</h2>
+
+                <h3>Standard Card Component</h3>
+                <pre><code>import { Card, CardHeader, CardTitle, CardContent } from "./components/ui/card";
+
+&lt;Card style={{ marginBottom: 'var(--forge-spacing-large)' }}&gt;
+  &lt;CardHeader&gt;
+    &lt;CardTitle style={{ fontSize: 'var(--text-xl)' }}&gt;
+      Card Title
+    &lt;/CardTitle&gt;
+  &lt;/CardHeader&gt;
+  &lt;CardContent&gt;
+    &lt;p style={{ fontSize: 'var(--text-base)' }}&gt;Content&lt;/p&gt;
+  &lt;/CardContent&gt;
+&lt;/Card&gt;</code></pre>
+
+                <h3>Button Variants</h3>
+                <pre><code>import { Button } from "./components/ui/button";
+
+&lt;Button variant="default"&gt;Primary Action&lt;/Button&gt;
+&lt;Button variant="secondary"&gt;Secondary Action&lt;/Button&gt;
+&lt;Button variant="destructive"&gt;Delete&lt;/Button&gt;
+&lt;Button variant="ghost"&gt;Cancel&lt;/Button&gt;</code></pre>
+            </section>
+
+            <section id="tables">
+                <h2>Sortable Table Pattern</h2>
+
+                <pre><code>const [sortColumn, setSortColumn] = useState('date');
+const [sortDirection, setSortDirection] = useState&lt;'asc' | 'desc'&gt;('desc');
+
+const handleSort = (column: string) => {
+  if (sortColumn === column) {
+    setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+  } else {
+    setSortColumn(column);
+    setSortDirection('asc');
+  }
+};
+
+const SortIcon = ({ column }: { column: string }) => {
+  if (sortColumn !== column) {
+    return &lt;ChevronsUpDown className="h-4 w-4 ml-1 text-muted-foreground" /&gt;;
+  }
+  return sortDirection === 'asc' 
+    ? &lt;ChevronUp className="h-4 w-4 ml-1" /&gt; 
+    : &lt;ChevronDown className="h-4 w-4 ml-1" /&gt;;
+};</code></pre>
+            </section>
+
+            <section id="page-structure">
+                <h2>Standard Page Layout</h2>
+
+                <pre><code>interface PageProps {
+  onNavigate: (page: string) =&gt; void;
+}
+
+export function YourPage({ onNavigate }: PageProps) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterValue, setFilterValue] = useState('all');
+  
+  return (
+    &lt;div style={{ padding: 'var(--forge-spacing-xlarge)' }}&gt;
+      {/* Page Header */}
+      &lt;div style={{ marginBottom: 'var(--forge-spacing-large)' }}&gt;
+        &lt;h1 style={{ 
+          fontSize: 'var(--text-3xl)',
+          fontWeight: 'var(--forge-font-weight-medium)',
+          marginBottom: 'var(--forge-spacing-small)'
+        }}&gt;
+          Page Title
+        &lt;/h1&gt;
+      &lt;/div&gt;
+
+      {/* Content */}
+      &lt;div&gt;
+        {/* Your content here */}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+            </section>
+
+            <section id="mistakes">
+                <h2>Common Mistakes to Avoid</h2>
+
+                <div class="error-box">
+                    <h3 style="margin-top: 0;">❌ DO NOT DO THIS:</h3>
+                    <pre><code>// Hardcoded colors
+&lt;div style={{ color: '#4A6FA5' }}&gt;
+
+// Hardcoded fonts
+&lt;h1 style={{ fontFamily: 'Arial' }}&gt;
+
+// Hardcoded sizes
+&lt;p style={{ fontSize: '14px' }}&gt;
+
+// Hardcoded spacing
+&lt;div style={{ padding: '32px' }}&gt;
+
+// Hardcoded shadows
+&lt;div style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}&gt;</code></pre>
+                </div>
+
+                <div class="info-box">
+                    <h3 style="margin-top: 0;">✅ ALWAYS DO THIS:</h3>
+                    <pre><code>// Use CSS variables
+&lt;div style={{ color: 'var(--brand-blue-dark)' }}&gt;
+
+// Font is inherited (Roboto)
+&lt;h1 style={{ fontSize: 'var(--text-3xl)' }}&gt;
+
+// Use typography tokens
+&lt;p style={{ fontSize: 'var(--text-base)' }}&gt;
+
+// Use spacing tokens
+&lt;div style={{ padding: 'var(--forge-spacing-xlarge)' }}&gt;
+
+// Use elevation tokens
+&lt;div style={{ boxShadow: 'var(--forge-elevation-1)' }}&gt;</code></pre>
+                </div>
+            </section>
+
+            <section id="quick-ref">
+                <h2>Quick Reference: Most Used Tokens</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Token</th>
+                            <th>Usage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Typography</td>
+                            <td><code>fontSize: 'var(--text-base)'</code></td>
+                            <td>Body text</td>
+                        </tr>
+                        <tr>
+                            <td>Typography</td>
+                            <td><code>fontSize: 'var(--text-2xl)'</code></td>
+                            <td>Headings</td>
+                        </tr>
+                        <tr>
+                            <td>Colors</td>
+                            <td><code>color: 'var(--foreground)'</code></td>
+                            <td>Primary text</td>
+                        </tr>
+                        <tr>
+                            <td>Colors</td>
+                            <td><code>background: 'var(--brand-blue-dark)'</code></td>
+                            <td>Brand primary</td>
+                        </tr>
+                        <tr>
+                            <td>Spacing</td>
+                            <td><code>padding: 'var(--forge-spacing-xlarge)'</code></td>
+                            <td>Page padding</td>
+                        </tr>
+                        <tr>
+                            <td>Spacing</td>
+                            <td><code>margin: 'var(--forge-spacing-large)'</code></td>
+                            <td>Section spacing</td>
+                        </tr>
+                        <tr>
+                            <td>Borders</td>
+                            <td><code>border: '1px solid var(--border)'</code></td>
+                            <td>Default borders</td>
+                        </tr>
+                        <tr>
+                            <td>Shadows</td>
+                            <td><code>boxShadow: 'var(--forge-elevation-1)'</code></td>
+                            <td>Cards</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <div class="warning-box">
+                <h3 style="margin-top: 0;">The Golden Rules</h3>
+                <ol style="margin-top: 0.5rem;">
+                    <li><strong>ALWAYS</strong> use CSS variables from <code>/styles/globals.css</code></li>
+                    <li><strong>NEVER</strong> hardcode colors, fonts, spacing, or shadows</li>
+                    <li><strong>ONLY</strong> use Roboto font (already imported)</li>
+                    <li><strong>FOLLOW</strong> existing component patterns</li>
+                    <li><strong>IMPORT</strong> from <code>/components/ui/</code> for UI elements</li>
+                    <li><strong>USE</strong> Lucide React for all icons</li>
+                    <li><strong>MAINTAIN</strong> consistent code structure</li>
+                </ol>
+            </div>
+
+            <div class="info-box" style="margin-top: 3rem;">
+                <p><strong>Document Version:</strong> 1.0.0<br>
+                <strong>Last Updated:</strong> January 27, 2026<br>
+                <strong>Purpose:</strong> AI-Assisted Development Guide</p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

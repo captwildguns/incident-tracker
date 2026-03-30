@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design System - Student Transportation Incident Tracker</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; line-height: 1.6; color: #09090b; background: #fafafa; }
+        .nav { background: #4A6FA5; color: white; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .nav-content { max-width: 1400px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .nav h1 { font-size: 1.25rem; font-weight: 600; }
+        .nav a { color: white; text-decoration: none; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background 0.2s; }
+        .nav a:hover { background: rgba(255,255,255,0.1); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 2rem; display: grid; grid-template-columns: 250px 1fr; gap: 2rem; }
+        .sidebar { background: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); height: fit-content; position: sticky; top: 80px; }
+        .sidebar h3 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #4A6FA5; }
+        .sidebar ul { list-style: none; }
+        .sidebar li { margin: 0.5rem 0; }
+        .sidebar a { color: #52525b; text-decoration: none; font-size: 0.875rem; transition: color 0.2s; }
+        .sidebar a:hover { color: #4A6FA5; }
+        .content { background: white; padding: 3rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .content h1 { font-size: 2.5rem; font-weight: 600; margin-bottom: 1rem; color: #4A6FA5; }
+        .content h2 { font-size: 2rem; font-weight: 600; margin: 2.5rem 0 1rem; color: #18181b; padding-bottom: 0.5rem; border-bottom: 2px solid #e4e4e7; }
+        .content h3 { font-size: 1.5rem; font-weight: 600; margin: 2rem 0 1rem; color: #18181b; }
+        .content p { margin: 1rem 0; color: #52525b; }
+        .content ul, .content ol { margin: 1rem 0 1rem 2rem; color: #52525b; }
+        .content li { margin: 0.5rem 0; }
+        .content code { background: #f4f4f5; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: 'Courier New', monospace; font-size: 0.875rem; color: #dc2626; }
+        .content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        .content th, .content td { border: 1px solid #e4e4e7; padding: 0.75rem; text-align: left; }
+        .content th { background: #f4f4f5; font-weight: 600; }
+        .color-swatch { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+        .swatch { text-align: center; }
+        .swatch-color { height: 100px; border-radius: 0.5rem; margin-bottom: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .swatch-code { font-size: 0.875rem; font-weight: 500; font-family: 'Courier New', monospace; }
+        .swatch-name { font-size: 0.75rem; color: #71717a; margin-top: 0.25rem; }
+        .info-box { background: #f0f9ff; border-left: 4px solid #4A6FA5; padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0.375rem; }
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; } .sidebar { position: static; } }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <div class="nav-content">
+            <h1>Design System - Incident Tracker</h1>
+            <a href="index.html">← Documentation Home</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Table of Contents</h3>
+            <ul>
+                <li><a href="#overview">Overview</a></li>
+                <li><a href="#brand-identity">Brand Identity</a></li>
+                <li><a href="#color-system">Color System</a></li>
+                <li><a href="#typography">Typography</a></li>
+                <li><a href="#spacing">Spacing</a></li>
+                <li><a href="#components">Components</a></li>
+                <li><a href="#icons">Icons</a></li>
+                <li><a href="#elevation">Elevation & Shadows</a></li>
+                <li><a href="#accessibility">Accessibility</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <h1>Design System Documentation</h1>
+            <p><em>Complete design system guide with Tyler Forge 3.x tokens and custom branding</em></p>
+
+            <section id="overview">
+                <h2>Overview</h2>
+                <p>The Student Transportation Incident Tracker implements the <strong>Tyler Forge 3.x Design System</strong> with custom district branding. This design system ensures consistency, accessibility, and maintainability across the entire application.</p>
+
+                <h3>Design Principles</h3>
+                <ul>
+                    <li><strong>Consistency:</strong> Uniform visual language throughout</li>
+                    <li><strong>Accessibility:</strong> WCAG AA compliant</li>
+                    <li><strong>Scalability:</strong> Design tokens allow easy updates</li>
+                    <li><strong>Brand Alignment:</strong> District colors integrated seamlessly</li>
+                    <li><strong>Tyler Forge Compliance:</strong> Follows Workforce application standards</li>
+                </ul>
+            </section>
+
+            <section id="brand-identity">
+                <h2>Brand Identity</h2>
+                <p>The application features custom district branding extracted from the transportation department logo, featuring a harmonious palette of deep blues and natural olives.</p>
+            </section>
+
+            <section id="color-system">
+                <h2>Color System</h2>
+
+                <h3>Primary Brand Colors</h3>
+                
+                <h4>Deep Blues</h4>
+                <div class="color-swatch">
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #4A6FA5;"></div>
+                        <div class="swatch-code">#4A6FA5</div>
+                        <div class="swatch-name">Primary Blue</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #5B8BB8;"></div>
+                        <div class="swatch-code">#5B8BB8</div>
+                        <div class="swatch-name">Medium Blue</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #6B9BC5;"></div>
+                        <div class="swatch-code">#6B9BC5</div>
+                        <div class="swatch-name">Light Blue</div>
+                    </div>
+                </div>
+
+                <p><strong>Usage:</strong></p>
+                <ul>
+                    <li><strong>Dark Blue (#4A6FA5):</strong> Omnibar background, primary buttons, headers, active states</li>
+                    <li><strong>Medium Blue (#5B8BB8):</strong> Secondary actions, hover states, links</li>
+                    <li><strong>Light Blue (#6B9BC5):</strong> Backgrounds, subtle accents, disabled states</li>
+                </ul>
+
+                <h4>Olives</h4>
+                <div class="color-swatch">
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #7B8458;"></div>
+                        <div class="swatch-code">#7B8458</div>
+                        <div class="swatch-name">Dark Olive</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #8B9264;"></div>
+                        <div class="swatch-code">#8B9264</div>
+                        <div class="swatch-name">Medium Olive</div>
+                    </div>
+                    <div class="swatch">
+                        <div class="swatch-color" style="background: #9FA870;"></div>
+                        <div class="swatch-code">#9FA870</div>
+                        <div class="swatch-name">Light Olive</div>
+                    </div>
+                </div>
+
+                <p><strong>Usage:</strong></p>
+                <ul>
+                    <li><strong>Dark Olive (#7B8458):</strong> Secondary emphasis, category indicators</li>
+                    <li><strong>Medium Olive (#8B9264):</strong> Accent elements, success states</li>
+                    <li><strong>Light Olive (#9FA870):</strong> Subtle backgrounds, informational badges</li>
+                </ul>
+
+                <h3>Color Accessibility</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Foreground</th>
+                            <th>Background</th>
+                            <th>Contrast Ratio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#4A6FA5</td>
+                            <td>#ffffff</td>
+                            <td>4.8:1 ✓</td>
+                        </tr>
+                        <tr>
+                            <td>#09090b</td>
+                            <td>#ffffff</td>
+                            <td>21:1 ✓</td>
+                        </tr>
+                        <tr>
+                            <td>#71717a</td>
+                            <td>#ffffff</td>
+                            <td>4.6:1 ✓</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="typography">
+                <h2>Typography</h2>
+
+                <h3>Font Family</h3>
+                <p><strong>Roboto</strong> is used exclusively throughout the application for all text elements.</p>
+
+                <h3>Type Scale</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Size</th>
+                            <th>Usage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>--text-xs</code></td>
+                            <td>0.75rem (12px)</td>
+                            <td>Smallest text, captions</td>
+                        </tr>
+                        <tr>
+                            <td><code>--text-sm</code></td>
+                            <td>0.875rem (14px)</td>
+                            <td>Small text, labels</td>
+                        </tr>
+                        <tr>
+                            <td><code>--text-base</code></td>
+                            <td>1rem (16px)</td>
+                            <td>Body text, default</td>
+                        </tr>
+                        <tr>
+                            <td><code>--text-lg</code></td>
+                            <td>1.125rem (18px)</td>
+                            <td>Emphasized text</td>
+                        </tr>
+                        <tr>
+                            <td><code>--text-xl</code></td>
+                            <td>1.25rem (20px)</td>
+                            <td>Subheadings</td>
+                        </tr>
+                        <tr>
+                            <td><code>--text-2xl</code></td>
+                            <td>1.5rem (24px)</td>
+                            <td>Section headings</td>
+                        </tr>
+                        <tr>
+                            <td><code>--text-3xl</code></td>
+                            <td>1.875rem (30px)</td>
+                            <td>Page titles</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Font Weights</h3>
+                <ul>
+                    <li><strong>400 (Regular):</strong> Body text</li>
+                    <li><strong>500 (Medium):</strong> Emphasis, labels</li>
+                    <li><strong>600 (Semibold):</strong> Headings, important text</li>
+                    <li><strong>700 (Bold):</strong> Statistics, highlights</li>
+                </ul>
+            </section>
+
+            <section id="spacing">
+                <h2>Spacing</h2>
+
+                <h3>Spacing Scale</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Value</th>
+                            <th>Pixels</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>--forge-spacing-xsmall</code></td>
+                            <td>0.25rem</td>
+                            <td>4px</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-spacing-small</code></td>
+                            <td>0.5rem</td>
+                            <td>8px</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-spacing-medium</code></td>
+                            <td>1rem</td>
+                            <td>16px</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-spacing-large</code></td>
+                            <td>1.5rem</td>
+                            <td>24px</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-spacing-xlarge</code></td>
+                            <td>2rem</td>
+                            <td>32px</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Spacing Guidelines</h3>
+                <ul>
+                    <li><strong>Page padding:</strong> xlarge (32px)</li>
+                    <li><strong>Section margins:</strong> large (24px)</li>
+                    <li><strong>Card padding:</strong> medium to large (16-24px)</li>
+                    <li><strong>Element gaps:</strong> small to medium (8-16px)</li>
+                </ul>
+            </section>
+
+            <section id="components">
+                <h2>Components</h2>
+
+                <h3>Button Component</h3>
+                <p>Button variants and their usage:</p>
+                <ul>
+                    <li><strong>Primary (default):</strong> Main actions, important operations</li>
+                    <li><strong>Secondary:</strong> Alternative actions</li>
+                    <li><strong>Outline:</strong> Tertiary actions</li>
+                    <li><strong>Destructive:</strong> Delete or dangerous actions</li>
+                    <li><strong>Ghost:</strong> Minimal emphasis</li>
+                </ul>
+
+                <h3>Badge Component</h3>
+                <p>Badge variants for status indication:</p>
+                <ul>
+                    <li><strong>Default:</strong> Standard information</li>
+                    <li><strong>Secondary:</strong> Less important status</li>
+                    <li><strong>Destructive:</strong> Critical or error states</li>
+                    <li><strong>Custom Colors:</strong> Success (green), Warning (orange), Info (blue)</li>
+                </ul>
+
+                <h3>Card Component</h3>
+                <p>Cards are the primary content container:</p>
+                <ul>
+                    <li>Rounded corners (0.75rem)</li>
+                    <li>Shadow (elevation-1)</li>
+                    <li>Padding (1.5rem)</li>
+                    <li>White background</li>
+                </ul>
+
+                <h3>Avatar Component</h3>
+                <p>Display user or item images:</p>
+                <ul>
+                    <li><strong>Sizes:</strong> Small (32px), Medium (40px), Large (48px)</li>
+                    <li><strong>Fallback:</strong> Initials on colored background</li>
+                    <li><strong>Shape:</strong> Circular for people/items</li>
+                </ul>
+            </section>
+
+            <section id="icons">
+                <h2>Icons</h2>
+
+                <h3>Icon Library</h3>
+                <p><strong>Lucide React</strong> is the standard icon library for all icons in the application.</p>
+
+                <h3>Icon Sizes</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Size</th>
+                            <th>Class</th>
+                            <th>Pixels</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Extra Small</td>
+                            <td><code>h-3 w-3</code></td>
+                            <td>12px</td>
+                        </tr>
+                        <tr>
+                            <td>Small (Default)</td>
+                            <td><code>h-4 w-4</code></td>
+                            <td>16px</td>
+                        </tr>
+                        <tr>
+                            <td>Medium</td>
+                            <td><code>h-5 w-5</code></td>
+                            <td>20px</td>
+                        </tr>
+                        <tr>
+                            <td>Large</td>
+                            <td><code>h-6 w-6</code></td>
+                            <td>24px</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Common Icons</h3>
+                <ul>
+                    <li><strong>Search:</strong> Search inputs</li>
+                    <li><strong>Download:</strong> Export actions</li>
+                    <li><strong>AlertTriangle:</strong> Warnings, alerts</li>
+                    <li><strong>CheckCircle:</strong> Success states</li>
+                    <li><strong>User:</strong> User profiles</li>
+                    <li><strong>Calendar:</strong> Dates</li>
+                    <li><strong>MapPin:</strong> Locations</li>
+                </ul>
+            </section>
+
+            <section id="elevation">
+                <h2>Elevation & Shadows</h2>
+
+                <h3>Shadow Scale</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Token</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>--forge-elevation-0</code></td>
+                            <td>none</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-elevation-1</code></td>
+                            <td>0 1px 2px 0 rgb(0 0 0 / 0.05)</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-elevation-2</code></td>
+                            <td>0 4px 6px -1px rgb(0 0 0 / 0.1)</td>
+                        </tr>
+                        <tr>
+                            <td><code>--forge-elevation-3</code></td>
+                            <td>0 10px 15px -3px rgb(0 0 0 / 0.1)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Usage</h3>
+                <ul>
+                    <li><strong>Elevation 1:</strong> Cards (most common)</li>
+                    <li><strong>Elevation 2:</strong> Popovers and dropdowns</li>
+                    <li><strong>Elevation 3:</strong> Dialogs and modals</li>
+                </ul>
+            </section>
+
+            <section id="accessibility">
+                <h2>Accessibility</h2>
+
+                <h3>Color Contrast</h3>
+                <p>All text meets WCAG AA standards (4.5:1 for normal text, 3:1 for large text)</p>
+
+                <h3>Keyboard Navigation</h3>
+                <ul>
+                    <li>All interactive elements are keyboard accessible</li>
+                    <li>Visible focus indicators on all focusable elements</li>
+                    <li>Logical tab order throughout the application</li>
+                </ul>
+
+                <h3>ARIA Labels</h3>
+                <ul>
+                    <li>Proper labeling for screen readers</li>
+                    <li>Descriptive button labels</li>
+                    <li>Form labels associated with inputs</li>
+                    <li>Icon-only buttons have aria-label attributes</li>
+                </ul>
+
+                <h3>Screen Reader Support</h3>
+                <ul>
+                    <li>Hidden text for additional context</li>
+                    <li>Decorative elements marked as <code>aria-hidden</code></li>
+                    <li>Live regions for dynamic content</li>
+                </ul>
+            </section>
+
+            <div class="info-box">
+                <p><strong>Document Version:</strong> 1.0.0<br>
+                <strong>Last Updated:</strong> January 27, 2026<br>
+                <strong>Maintained By:</strong> Design Team & Development Team</p>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
