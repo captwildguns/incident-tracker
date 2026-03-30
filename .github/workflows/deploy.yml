@@ -1,0 +1,49 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: Figma files/package-lock.json
+      - name: Install dependencies
+        working-directory: Figma files
+        run: npm ci
+      - name: Patch reactify-wc for React 18
+        working-directory: Figma files
+        run: |
+          REACTIFY_FILE="node_modules/@tylertech/forge-react/node_modules/reactify-wc/dist/index.js"
+          if [ -f "$REACTIFY_FILE" ]; then
+            sed -i 's/setProperty(e,t){this.ref.current\[e\]=t}/setProperty(e,t){if(this.ref.current)this.ref.current[e]=t}/g' "$REACTIFY_FILE"
+            sed -i 's/setAttribute(e,t){this.ref.current.setAttribute(e,t)}/setAttribute(e,t){if(this.ref.current)this.ref.current.setAttribute(e,t)}/g' "$REACTIFY_FILE"
+            sed -i 's/setEvent(e,t){this.ref.current.addEventListener/setEvent(e,t){if(this.ref.current)this.ref.current.addEventListener/g' "$REACTIFY_FILE"
+          fi
+      - name: Build
+        working-directory: Figma files
+        run: npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: Figma files/build
+      - id: deployment
+        uses: actions/deploy-pages@v4
