@@ -32,11 +32,42 @@ jobs:
       - name: Patch reactify-wc for React 18
         working-directory: Figma files
         run: |
-          REACTIFY_FILE="node_modules/@tylertech/forge-react/node_modules/reactify-wc/dist/index.js"
-          if [ -f "$REACTIFY_FILE" ]; then
-            sed -i 's/setProperty(e,t){this.ref.current\[e\]=t}/setProperty(e,t){if(this.ref.current)this.ref.current[e]=t}/g' "$REACTIFY_FILE"
-            sed -i 's/setAttribute(e,t){this.ref.current.setAttribute(e,t)}/setAttribute(e,t){if(this.ref.current)this.ref.current.setAttribute(e,t)}/g' "$REACTIFY_FILE"
-            sed -i 's/setEvent(e,t){this.ref.current.addEventListener/setEvent(e,t){if(this.ref.current)this.ref.current.addEventListener/g' "$REACTIFY_FILE"
+          FILE="node_modules/@tylertech/forge-react/node_modules/reactify-wc/dist/index.js"
+          if [ -f "$FILE" ]; then
+            node -e "
+              const fs = require('fs');
+              let code = fs.readFileSync('$FILE', 'utf8');
+              // Add null guard to setProperty
+              code = code.replace(
+                'setProperty(e,t){this.ref.current[e]=t}',
+                'setProperty(e,t){if(this.ref.current)this.ref.current[e]=t}'
+              );
+              // Add null guard to setAttribute
+              code = code.replace(
+                'setAttribute(e,t){this.ref.current.removeAttribute',
+                'setAttribute(e,t){if(!this.ref.current)return;if'
+              ).replace(
+                'setAttribute(e,t){if(!1===t)return this.ref.current.removeAttribute(e);this.ref.current.setAttribute',
+                'setAttribute(e,t){if(!this.ref.current)return;if(!1===t)return this.ref.current.removeAttribute(e);this.ref.current.setAttribute'
+              );
+              // Add null guard to setEvent
+              code = code.replace(
+                'setEvent(e,t){this.eventHandlers',
+                'setEvent(e,t){if(!this.ref.current)return;this.eventHandlers'
+              );
+              // Add null guard to clearEventHandlers
+              code = code.replace(
+                'this.eventHandlers.forEach(([e,t])=>{this.ref.current.removeEventListener',
+                'this.eventHandlers.forEach(([e,t])=>{if(this.ref.current)this.ref.current.removeEventListener'
+              );
+              // Add null guard to className setter
+              code = code.replace(
+                'return this.ref.current.className=t',
+                'return this.ref.current&&(this.ref.current.className=t)'
+              );
+              fs.writeFileSync('$FILE', code);
+              console.log('reactify-wc patched successfully');
+            "
           fi
       - name: Build
         working-directory: Figma files
