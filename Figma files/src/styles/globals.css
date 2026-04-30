@@ -259,6 +259,12 @@
   font-weight: bold;
   text-align: left;
   font-size: calc(var(--forge-typography-font-size, 1rem) * 0.75);
+  padding: var(--forge-spacing-small) var(--forge-spacing-medium);
+}
+
+.forge-table-cell {
+  padding: var(--forge-spacing-medium) var(--forge-spacing-medium);
+  vertical-align: middle;
 }
 
 @layer base {

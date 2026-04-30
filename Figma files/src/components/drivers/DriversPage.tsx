@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent } from '@tylertech/forge';
+import { defineCardComponent, defineDialogComponent, defineTextFieldComponent } from '@tylertech/forge';
 defineCardComponent();
+defineDialogComponent();
+defineTextFieldComponent();
 import { Badge } from '../ui/badge';
 import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Input } from '../ui/input';
 import { ForgeMultiSelect } from '../ui/forge-multiselect';
 import { Search, Download, User, Phone, Mail, Calendar, AlertCircle, CheckCircle, Clock, FileText, MapPin, Bus, UserCircle, ChevronUp, ChevronDown, ChevronsUpDown, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '../ui/command';
 import { ExportDropdown } from '../shared/ExportDropdown';
 import type { ExportFormat } from '../shared/ExportDropdown';
@@ -508,6 +508,8 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
   const [yearsOfServiceFilter, setYearsOfServiceFilter] = useState<string[]>([]);
   const [selectedDriver, setSelectedDriver] = useState<any>(null);
   const [driverLookupOpen, setDriverLookupOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const dialogRef = useRef<HTMLElement>(null);
   
   // Sorting state
   const [sortColumn, setSortColumn] = useState<'id' | 'name' | 'contact' | 'email' | 'yearsOfService' | 'status'>('name');
@@ -516,6 +518,20 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
   // Pagination state
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    const el = dialogRef.current as any;
+    if (!el) return;
+    el.open = dialogOpen;
+  }, [dialogOpen]);
+
+  useEffect(() => {
+    const el = dialogRef.current as any;
+    if (!el) return;
+    const handler = () => { setDialogOpen(false); setSelectedDriver(null); };
+    el.addEventListener('forge-dialog-close', handler);
+    return () => el.removeEventListener('forge-dialog-close', handler);
+  }, []);
 
   // Calculate summary statistics
   const totalDrivers = mockDrivers.length;
@@ -746,16 +762,20 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
             <div className="flex-1 min-w-0">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" style={{ zIndex: 1 }} />
-                <Input
-                  placeholder="Search drivers, vehicles, or routes..."
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setDriverLookupOpen(true);
-                  }}
-                  onFocus={() => setDriverLookupOpen(true)}
-                  className="pl-10"
-                />
+                {/* @ts-ignore */}
+                <forge-text-field>
+                  <input
+                    type="text"
+                    placeholder="Search drivers, vehicles, or routes..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setDriverLookupOpen(true);
+                    }}
+                    onFocus={() => setDriverLookupOpen(true)}
+                    style={{ paddingLeft: '2rem' }}
+                  />
+                </forge-text-field>
                 {driverLookupOpen && searchTerm && (
                   <div 
                     className="absolute z-50 w-full mt-1 border rounded-md shadow-lg max-h-[400px] overflow-auto"
@@ -933,154 +953,43 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
               </thead>
               <tbody>
                 {paginatedDrivers.map((driver) => (
-                  <Dialog key={driver.id}>
-                    <DialogTrigger asChild>
-                      <tr
-                        className="forge-table-row cursor-pointer"
-                        onClick={() => setSelectedDriver(driver)}
-                      >
-                        <td className="forge-table-cell">
-                          <span style={{ fontWeight: 500, fontFamily: 'var(--forge-font-family)', color: 'var(--foreground)' }}>
-                            {driver.employeeId}
-                          </span>
-                        </td>
-                        <td className="forge-table-cell">
-                          <div style={{ fontWeight: 500, fontFamily: 'var(--forge-font-family)' }}>{driver.fullName}</div>
-                        </td>
-                      <td className="forge-table-cell">
-                        <div style={{ fontSize: '0.875rem' }}>
-                          <div className="flex items-center gap-1">
-                            <Phone className="h-3 w-3 text-muted-foreground" />
-                            <span>{driver.phone}</span>
-                          </div>
+                  <tr
+                    key={driver.id}
+                    className="forge-table-row cursor-pointer"
+                    onClick={() => { setSelectedDriver(driver); setDialogOpen(true); }}
+                  >
+                    <td className="forge-table-cell">
+                      <span style={{ fontWeight: 500, fontFamily: 'var(--forge-font-family)', color: 'var(--foreground)' }}>
+                        {driver.employeeId}
+                      </span>
+                    </td>
+                    <td className="forge-table-cell">
+                      <div style={{ fontWeight: 500, fontFamily: 'var(--forge-font-family)' }}>{driver.fullName}</div>
+                    </td>
+                    <td className="forge-table-cell">
+                      <div style={{ fontSize: '0.875rem' }}>
+                        <div className="flex items-center gap-1">
+                          <Phone className="h-3 w-3 text-muted-foreground" />
+                          <span>{driver.phone}</span>
                         </div>
-                      </td>
-                      <td className="forge-table-cell">
-                        <span style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--foreground)' }}>
-                          {driver.email}
-                        </span>
-                      </td>
-                      <td className="forge-table-cell">
-                        <span style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--foreground)' }}>
-                          {driver.yearsOfService} {driver.yearsOfService === 1 ? 'year' : 'years'}
-                        </span>
-                      </td>
-                      <td className="forge-table-cell">
-                        <Badge variant={driver.status === 'Active' ? 'default' : 'secondary'}>
-                          {driver.status}
-                        </Badge>
-                      </td>
-                    </tr>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-lg max-h-[85vh] flex flex-col" aria-describedby={undefined}>
-                      <DialogHeader>
-                        <div className="flex items-center justify-between">
-                          <DialogTitle style={{ fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)' }}>Driver Profile - {driver.fullName}</DialogTitle>
-                          {selectedDriver && (
-                            <Badge
-                              variant={selectedDriver.status === 'Active' ? 'default' : 'secondary'}
-                              style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-xs)', marginRight: 'var(--forge-spacing-large)' }}
-                            >
-                              {selectedDriver.status}
-                            </Badge>
-                          )}
-                        </div>
-                      </DialogHeader>
-                      <div className="overflow-y-auto flex-1 pr-2" style={{ maxHeight: 'calc(85vh - 120px)' }}>
-                        {selectedDriver && (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-large)' }}>
-
-                            {/* Personal Information */}
-                            <div style={{ borderTop: '1px solid var(--forge-color-border-default)', paddingTop: 'var(--forge-spacing-medium)' }}>
-                              <h3 style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-lg)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-small)' }}>
-                                Personal Information
-                              </h3>
-                              <div className="grid grid-cols-2" style={{ gap: 'var(--forge-spacing-medium)' }}>
-                                <div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Employee ID</div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)' }}>{selectedDriver.employeeId}</div>
-                                </div>
-                                <div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Phone</div>
-                                  <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)' }}>
-                                    <Phone className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
-                                    <a href={`tel:${selectedDriver.phone}`} className="hover:underline" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--primary)' }}>
-                                      {selectedDriver.phone}
-                                    </a>
-                                  </div>
-                                </div>
-                                <div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Hire Date</div>
-                                  <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)', fontFamily: 'var(--forge-font-family)' }}>
-                                    <Calendar className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
-                                    <span>{selectedDriver.hireDate}</span>
-                                  </div>
-                                </div>
-                                <div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Email</div>
-                                  <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)' }}>
-                                    <Mail className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
-                                    <a href={`mailto:${selectedDriver.email}`} className="hover:underline" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--primary)' }}>
-                                      {selectedDriver.email}
-                                    </a>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* License & Certifications */}
-                            <div style={{ borderTop: '1px solid var(--forge-color-border-default)', paddingTop: 'var(--forge-spacing-medium)' }}>
-                              <h3 style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-lg)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-small)' }}>
-                                License & Certifications
-                              </h3>
-                              <div className="grid grid-cols-2" style={{ gap: 'var(--forge-spacing-medium)' }}>
-                                <div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>License Number</div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)' }}>{selectedDriver.licenseNumber}</div>
-                                </div>
-                                <div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>License Expiry</div>
-                                  <div className={isExpiringOrExpired(selectedDriver.licenseExpiry).color} style={{ fontFamily: 'var(--forge-font-family)' }}>
-                                    {selectedDriver.licenseExpiry}
-                                    {isExpiringOrExpired(selectedDriver.licenseExpiry).status === 'expired' && ' (EXPIRED)'}
-                                    {isExpiringOrExpired(selectedDriver.licenseExpiry).status === 'expiring' && ' (Expiring Soon)'}
-                                  </div>
-                                </div>
-                                <div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>License Class</div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)' }}>{selectedDriver.licenseClass}</div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Current Assignment */}
-                            <div style={{ borderTop: '1px solid var(--forge-color-border-default)', paddingTop: 'var(--forge-spacing-medium)' }}>
-                              <h3 style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-lg)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-small)' }}>
-                                Current Assignment
-                              </h3>
-                              <div className="grid grid-cols-2" style={{ gap: 'var(--forge-spacing-medium)' }}>
-                                <div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Assigned Vehicle</div>
-                                  <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)', fontFamily: 'var(--forge-font-family)' }}>
-                                    <Bus className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
-                                    <span>{selectedDriver.assignedVehicle}</span>
-                                  </div>
-                                </div>
-                                <div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Default Garage</div>
-                                  <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)', fontFamily: 'var(--forge-font-family)' }}>
-                                    <MapPin className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
-                                    <span>{selectedDriver.defaultGarage}</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                          </div>
-                        )}
                       </div>
-                    </DialogContent>
-                  </Dialog>
+                    </td>
+                    <td className="forge-table-cell">
+                      <span style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--foreground)' }}>
+                        {driver.email}
+                      </span>
+                    </td>
+                    <td className="forge-table-cell">
+                      <span style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--foreground)' }}>
+                        {driver.yearsOfService} {driver.yearsOfService === 1 ? 'year' : 'years'}
+                      </span>
+                    </td>
+                    <td className="forge-table-cell">
+                      <Badge variant={driver.status === 'Active' ? 'default' : 'secondary'}>
+                        {driver.status}
+                      </Badge>
+                    </td>
+                  </tr>
                 ))}
               </tbody>
             </table>
@@ -1150,6 +1059,118 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
           </div>
         </div>
       </ForgeCard>
+
+      {/* @ts-ignore */}
+      <forge-dialog ref={dialogRef} aria-label={`Driver Profile - ${selectedDriver?.fullName || ''}`}>
+        <div style={{ padding: 'var(--forge-spacing-large)', minWidth: '500px', maxWidth: '600px', maxHeight: '85vh', overflowY: 'auto' }}>
+          {/* Header with title and status badge */}
+          <div className="flex items-center justify-between" style={{ marginBottom: 'var(--forge-spacing-large)' }}>
+            <h2 style={{ margin: 0, fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)', fontSize: 'var(--forge-font-size-xl)' }}>
+              Driver Profile - {selectedDriver?.fullName}
+            </h2>
+            {selectedDriver && (
+              <Badge
+                variant={selectedDriver.status === 'Active' ? 'default' : 'secondary'}
+                style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-xs)' }}
+              >
+                {selectedDriver.status}
+              </Badge>
+            )}
+          </div>
+
+          {selectedDriver && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-large)' }}>
+
+              {/* Personal Information */}
+              <div style={{ borderTop: '1px solid var(--forge-color-border-default)', paddingTop: 'var(--forge-spacing-medium)' }}>
+                <h3 style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-lg)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-small)' }}>
+                  Personal Information
+                </h3>
+                <div className="grid grid-cols-2" style={{ gap: 'var(--forge-spacing-medium)' }}>
+                  <div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Employee ID</div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)' }}>{selectedDriver.employeeId}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Phone</div>
+                    <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)' }}>
+                      <Phone className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                      <a href={`tel:${selectedDriver.phone}`} className="hover:underline" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--primary)' }}>
+                        {selectedDriver.phone}
+                      </a>
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Hire Date</div>
+                    <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)', fontFamily: 'var(--forge-font-family)' }}>
+                      <Calendar className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                      <span>{selectedDriver.hireDate}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Email</div>
+                    <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)' }}>
+                      <Mail className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                      <a href={`mailto:${selectedDriver.email}`} className="hover:underline" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--primary)' }}>
+                        {selectedDriver.email}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* License & Certifications */}
+              <div style={{ borderTop: '1px solid var(--forge-color-border-default)', paddingTop: 'var(--forge-spacing-medium)' }}>
+                <h3 style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-lg)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-small)' }}>
+                  License & Certifications
+                </h3>
+                <div className="grid grid-cols-2" style={{ gap: 'var(--forge-spacing-medium)' }}>
+                  <div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>License Number</div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)' }}>{selectedDriver.licenseNumber}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>License Expiry</div>
+                    <div className={isExpiringOrExpired(selectedDriver.licenseExpiry).color} style={{ fontFamily: 'var(--forge-font-family)' }}>
+                      {selectedDriver.licenseExpiry}
+                      {isExpiringOrExpired(selectedDriver.licenseExpiry).status === 'expired' && ' (EXPIRED)'}
+                      {isExpiringOrExpired(selectedDriver.licenseExpiry).status === 'expiring' && ' (Expiring Soon)'}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>License Class</div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)' }}>{selectedDriver.licenseClass}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Current Assignment */}
+              <div style={{ borderTop: '1px solid var(--forge-color-border-default)', paddingTop: 'var(--forge-spacing-medium)' }}>
+                <h3 style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-lg)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-small)' }}>
+                  Current Assignment
+                </h3>
+                <div className="grid grid-cols-2" style={{ gap: 'var(--forge-spacing-medium)' }}>
+                  <div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Assigned Vehicle</div>
+                    <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)', fontFamily: 'var(--forge-font-family)' }}>
+                      <Bus className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                      <span>{selectedDriver.assignedVehicle}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Default Garage</div>
+                    <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)', fontFamily: 'var(--forge-font-family)' }}>
+                      <MapPin className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                      <span>{selectedDriver.defaultGarage}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          )}
+        </div>
+      </forge-dialog>
     </div>
   );
 }

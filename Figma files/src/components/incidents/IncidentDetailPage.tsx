@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent } from '@tylertech/forge';
+import { defineCardComponent, defineButtonComponent, defineDialogComponent } from '@tylertech/forge';
 defineCardComponent();
-import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
+defineDialogComponent();
 import { Badge } from '../ui/badge';
 import { Textarea } from '../ui/textarea';
 import { ArrowLeft, MessageSquare, Edit, Camera, FileText, GitBranch, Clock, CheckCircle2, AlertCircle, Users, ChevronRight, MessageCircle, Play, Pause, Send, FileDown, Paperclip, ChevronLeft } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+
 import { EditIncidentDialog } from './EditIncidentDialog';
 import { Workflow, WorkflowStep, isWorkflowActive } from '../../data/workflows';
 import { toast } from 'sonner';
@@ -38,7 +38,19 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
   const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
   const [approvalStepIndex, setApprovalStepIndex] = useState<number | null>(null);
   const [approvalComment, setApprovalComment] = useState('');
-  
+
+  // Forge dialog refs
+  const editDialogRef = useRef<HTMLElement>(null);
+  const approvalDialogRef = useRef<HTMLElement>(null);
+
+  // Sync edit dialog open state
+  useEffect(() => { const el = editDialogRef.current as any; if (!el) return; el.open = isEditDialogOpen; }, [isEditDialogOpen]);
+  useEffect(() => { const el = editDialogRef.current as any; if (!el) return; const handler = () => setIsEditDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
+
+  // Sync approval dialog open state
+  useEffect(() => { const el = approvalDialogRef.current as any; if (!el) return; el.open = approvalDialogOpen; }, [approvalDialogOpen]);
+  useEffect(() => { const el = approvalDialogRef.current as any; if (!el) return; const handler = () => setApprovalDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
+
   // Communications state - load existing conversations or create default
   const existingMessages = getCommunicationsByIncidentId(incident.id);
   const [messages, setMessages] = useState<Message[]>(
@@ -309,20 +321,17 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
               {incident.severity}
             </Badge>
             <Badge>{incident.status}</Badge>
-            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-              <DialogTrigger asChild>
-                <ForgeButton variant="outlined" size="sm">
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </ForgeButton>
-              </DialogTrigger>
-              <DialogContent className="max-w-3xl">
-                <DialogHeader>
-                  <DialogTitle>Edit Incident - {incident.id}</DialogTitle>
-                  <DialogDescription>
-                    Modify incident details and update status
-                  </DialogDescription>
-                </DialogHeader>
+            <ForgeButton variant="outlined" size="sm" onClick={() => setIsEditDialogOpen(true)}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </ForgeButton>
+            {/* @ts-ignore */}
+            <forge-dialog ref={editDialogRef}>
+              <div style={{ maxWidth: '48rem', padding: 'var(--forge-spacing-large)' }}>
+                <h2 style={{ margin: 0, fontSize: 'var(--text-lg)', fontWeight: 'var(--font-weight-semibold)', fontFamily: 'Roboto, sans-serif' }}>Edit Incident - {incident.id}</h2>
+                <p style={{ margin: '4px 0 0 0', fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif' }}>
+                  Modify incident details and update status
+                </p>
                 <EditIncidentDialog
                   incident={incident}
                   onClose={() => setIsEditDialogOpen(false)}
@@ -330,8 +339,8 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                     console.log('Incident updated:', updatedData);
                   }}
                 />
-              </DialogContent>
-            </Dialog>
+              </div>
+            </forge-dialog>
           </div>
           
           {/* Navigation Controls */}
@@ -1071,19 +1080,20 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                           </>
                         ) : (
                           <>
-                            <ForgeButton 
-                              className="bg-primary"
-                              size="lg"
+                            <button
                               style={{
-                                fontSize: 'var(--text-base)',
-                                fontWeight: 'var(--forge-font-weight-bold)',
-                                padding: 'var(--forge-spacing-small) var(--forge-spacing-large)',
+                                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                                padding: '0 24px', height: '40px',
+                                background: 'var(--brand-blue-dark)', color: '#ffffff',
+                                border: 'none', borderRadius: '4px',
+                                fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 700,
+                                cursor: 'pointer', letterSpacing: '0.0125em',
                               }}
                               onClick={() => completeStep(currentStepIndex)}
                             >
-                              <CheckCircle2 className="mr-2 h-5 w-5" />
+                              <CheckCircle2 className="h-5 w-5" />
                               Complete This Step
-                            </ForgeButton>
+                            </button>
                             <ForgeButton 
                               variant="outline"
                               size="lg"
@@ -1336,11 +1346,15 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                                   </Badge>
                                 </div>
                               </div>
-                              <ForgeButton 
-                                size="sm"
+                              <button
                                 style={{
+                                  display: 'inline-flex', alignItems: 'center', gap: '4px',
+                                  padding: '0 12px', height: '32px',
                                   background: step.status === 'Pending Approval' ? '#F57C00' : 'var(--brand-blue-medium)',
-                                  color: 'white',
+                                  color: '#ffffff',
+                                  border: 'none', borderRadius: '4px',
+                                  fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500,
+                                  cursor: 'pointer', letterSpacing: '0.0125em',
                                 }}
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -1353,16 +1367,16 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                               >
                                 {step.status === 'Pending Approval' ? (
                                   <>
-                                    <MessageCircle className="mr-1 h-4 w-4" />
+                                    <MessageCircle className="h-4 w-4" />
                                     Approve
                                   </>
                                 ) : (
                                   <>
-                                    <CheckCircle2 className="mr-1 h-4 w-4" />
+                                    <CheckCircle2 className="h-4 w-4" />
                                     Complete
                                   </>
                                 )}
-                              </ForgeButton>
+                              </button>
                             </div>
                           )}
 
@@ -1501,31 +1515,41 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                               {isActive && (
                                 <div style={{ marginTop: 'var(--forge-spacing-medium)' }} onClick={(e) => e.stopPropagation()}>
                                   {step.status === 'Pending Approval' ? (
-                                    <ForgeButton 
-                                      className="w-full" 
+                                    <button
                                       style={{
-                                        background: '#F57C00',
-                                        color: 'white',
+                                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                                        width: '100%', padding: '0 16px', height: '36px',
+                                        background: '#F57C00', color: '#ffffff',
+                                        border: 'none', borderRadius: '4px',
+                                        fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500,
+                                        cursor: 'pointer', letterSpacing: '0.0125em',
                                       }}
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         openApprovalDialog(index);
                                       }}
                                     >
-                                      <MessageCircle className="mr-2 h-4 w-4" />
+                                      <MessageCircle className="h-4 w-4" />
                                       Review & Approve Step
-                                    </ForgeButton>
+                                    </button>
                                   ) : (
-                                    <ForgeButton 
-                                      className="w-full bg-primary" 
+                                    <button
+                                      style={{
+                                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                                        width: '100%', padding: '0 16px', height: '36px',
+                                        background: 'var(--brand-blue-dark)', color: '#ffffff',
+                                        border: 'none', borderRadius: '4px',
+                                        fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500,
+                                        cursor: 'pointer', letterSpacing: '0.0125em',
+                                      }}
                                       onClick={(e) => {
                                         e.stopPropagation();
                                         completeStep(index);
                                       }}
                                     >
-                                      <CheckCircle2 className="mr-2 h-4 w-4" />
+                                      <CheckCircle2 className="h-4 w-4" />
                                       Complete This Step
-                                    </ForgeButton>
+                                    </button>
                                   )}
                                 </div>
                               )}
@@ -1958,17 +1982,23 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                   >
                     Clear
                   </ForgeButton>
-                  <ForgeButton
+                  <button
                     onClick={handleSendMessage}
                     disabled={!newMessage.trim()}
                     style={{
-                      background: 'var(--brand-blue-medium)',
-                      color: 'white',
+                      display: 'inline-flex', alignItems: 'center', gap: '8px',
+                      padding: '0 16px', height: '36px',
+                      background: 'var(--brand-blue-medium)', color: '#ffffff',
+                      border: 'none', borderRadius: '4px',
+                      fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500,
+                      cursor: !newMessage.trim() ? 'not-allowed' : 'pointer',
+                      opacity: !newMessage.trim() ? 0.5 : 1,
+                      letterSpacing: '0.0125em',
                     }}
                   >
-                    <Send className="h-4 w-4 mr-2" />
+                    <Send className="h-4 w-4" />
                     Send Message
-                  </ForgeButton>
+                  </button>
                 </div>
               </div>
             </div>
@@ -1977,11 +2007,12 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
       </div>
 
       {/* Approval Dialog */}
-      <Dialog open={approvalDialogOpen} onOpenChange={setApprovalDialogOpen}>
-        <DialogContent style={{ maxWidth: '600px' }}>
-          <DialogHeader>
-            <DialogTitle style={{ fontSize: 'var(--text-2xl)', display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)' }}>
-              <div 
+      {/* @ts-ignore */}
+      <forge-dialog ref={approvalDialogRef}>
+        <div style={{ maxWidth: '600px', padding: 'var(--forge-spacing-large)' }}>
+          <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
+            <h2 style={{ margin: 0, fontSize: 'var(--text-2xl)', display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', fontFamily: 'Roboto, sans-serif' }}>
+              <div
                 style={{
                   width: '40px',
                   height: '40px',
@@ -1996,16 +2027,16 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                 <AlertCircle className="h-5 w-5" style={{ color: '#F57C00' }} />
               </div>
               Approve Workflow Step
-            </DialogTitle>
-            <DialogDescription style={{ fontSize: 'var(--text-base)' }}>
+            </h2>
+            <p style={{ margin: '4px 0 0 0', fontSize: 'var(--text-base)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif' }}>
               {approvalStepIndex !== null && workflowSteps[approvalStepIndex]?.name}
-            </DialogDescription>
-          </DialogHeader>
+            </p>
+          </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-medium)', marginTop: 'var(--forge-spacing-medium)' }}>
             {/* Step Description */}
             {approvalStepIndex !== null && workflowSteps[approvalStepIndex]?.description && (
-              <div 
+              <div
                 style={{
                   padding: 'var(--forge-spacing-medium)',
                   background: 'var(--input-background)',
@@ -2030,8 +2061,8 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--forge-spacing-xsmall)' }}>
                   {workflowSteps[approvalStepIndex].approvers!.map((approver, i) => (
-                    <Badge 
-                      key={i} 
+                    <Badge
+                      key={i}
                       variant="outline"
                       style={{
                         background: 'rgba(123, 132, 88, 0.1)',
@@ -2048,13 +2079,13 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
 
             {/* Approval Comment */}
             <div>
-              <label 
+              <label
                 htmlFor="approval-comment"
-                style={{ 
+                style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: 'var(--forge-spacing-xsmall)',
-                  fontSize: 'var(--text-sm)', 
+                  fontSize: 'var(--text-sm)',
                   fontWeight: 'var(--forge-font-weight-medium)',
                   color: 'var(--foreground)',
                   marginBottom: 'var(--forge-spacing-xsmall)',
@@ -2074,8 +2105,8 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                   resize: 'vertical',
                 }}
               />
-              <p style={{ 
-                fontSize: 'var(--text-xs)', 
+              <p style={{
+                fontSize: 'var(--text-xs)',
                 color: 'var(--muted-foreground)',
                 marginTop: 'var(--forge-spacing-xsmall)',
               }}>
@@ -2084,7 +2115,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
             </div>
 
             {/* Info Box */}
-            <div 
+            <div
               style={{
                 padding: 'var(--forge-spacing-medium)',
                 background: 'rgba(255, 193, 7, 0.1)',
@@ -2099,8 +2130,8 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
 
             {/* Action Buttons */}
             <div style={{ display: 'flex', gap: 'var(--forge-spacing-medium)', marginTop: 'var(--forge-spacing-small)' }}>
-              <ForgeButton 
-                variant="outline" 
+              <ForgeButton
+                variant="outline"
                 onClick={() => {
                   setApprovalDialogOpen(false);
                   setApprovalComment('');
@@ -2109,21 +2140,25 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
               >
                 Cancel
               </ForgeButton>
-              <ForgeButton 
+              <button
                 onClick={handleApprovalSubmit}
-                style={{ 
+                style={{
                   flex: 1,
-                  background: '#F57C00',
-                  color: 'white',
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                  padding: '0 16px', height: '36px',
+                  background: '#F57C00', color: '#ffffff',
+                  border: 'none', borderRadius: '4px',
+                  fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500,
+                  cursor: 'pointer', letterSpacing: '0.0125em',
                 }}
               >
-                <CheckCircle2 className="mr-2 h-4 w-4" />
+                <CheckCircle2 className="h-4 w-4" />
                 Approve & Complete
-              </ForgeButton>
+              </button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </forge-dialog>
     </div>
   );
 }

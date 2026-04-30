@@ -1,18 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ForgeButton } from '@tylertech/forge-react';
-import { defineButtonComponent } from '@tylertech/forge';
+import { defineButtonComponent, defineDialogComponent, defineTextFieldComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Input } from '../ui/input';
+defineDialogComponent();
+defineTextFieldComponent();
 import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
 import { Textarea } from '../ui/textarea';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '../ui/dialog';
 import {
   Users,
   Mail,
@@ -39,6 +33,22 @@ import {
 import { EmailTemplate, INITIAL_EMAIL_TEMPLATES } from '../../data/email-templates';
 import { ForgeMultiSelect } from '../ui/forge-multiselect';
 import { workflows as SEED_WORKFLOWS, Workflow } from '../../data/workflows';
+
+// ─── Mock Student Transportation users (stand-in for real ST directory) ──────
+const ST_USERS = [
+  { id: 'ST-1001', firstName: 'Angela', lastName: 'Brooks', email: 'angela.brooks@district.edu', title: 'Transportation Director', department: 'Student Transportation' },
+  { id: 'ST-1002', firstName: 'Carlos', lastName: 'Medina', email: 'carlos.medina@district.edu', title: 'Safety Coordinator', department: 'Student Transportation' },
+  { id: 'ST-1003', firstName: 'Denise', lastName: 'Harmon', email: 'denise.harmon@district.edu', title: 'Fleet Manager', department: 'Student Transportation' },
+  { id: 'ST-1004', firstName: 'Frank', lastName: 'Okafor', email: 'frank.okafor@district.edu', title: 'Bus Driver', department: 'Student Transportation' },
+  { id: 'ST-1005', firstName: 'Gloria', lastName: 'Patel', email: 'gloria.patel@district.edu', title: 'Bus Driver', department: 'Student Transportation' },
+  { id: 'ST-1006', firstName: 'Henry', lastName: 'Lawson', email: 'henry.lawson@district.edu', title: 'Mechanic', department: 'Student Transportation' },
+  { id: 'ST-1007', firstName: 'Iris', lastName: 'Nguyen', email: 'iris.nguyen@district.edu', title: 'School Nurse', department: 'Health Services' },
+  { id: 'ST-1008', firstName: 'Jerome', lastName: 'Wallace', email: 'jerome.wallace@district.edu', title: 'School Principal', department: 'Lincoln Middle School' },
+  { id: 'ST-1009', firstName: 'Karen', lastName: 'Singh', email: 'karen.singh@district.edu', title: 'Administrator', department: 'District Office' },
+  { id: 'ST-1010', firstName: 'Luis', lastName: 'Torres', email: 'luis.torres@district.edu', title: 'Bus Driver', department: 'Student Transportation' },
+  { id: 'ST-1011', firstName: 'Megan', lastName: 'Ford', email: 'megan.ford@district.edu', title: 'Safety Coordinator', department: 'Student Transportation' },
+  { id: 'ST-1012', firstName: 'Nathan', lastName: 'Kim', email: 'nathan.kim@district.edu', title: 'Fleet Manager', department: 'Student Transportation' },
+];
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -202,6 +212,10 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   const [userRoleFilter, setUserRoleFilter] = useState<string[]>([]);
   const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserRecord | null>(null);
+  const [stUserSearch, setStUserSearch] = useState('');
+  const [stUserSearchOpen, setStUserSearchOpen] = useState(false);
+  const [selectedStUser, setSelectedStUser] = useState<typeof ST_USERS[0] | null>(null);
+  const stUserSearchRef = useRef<HTMLDivElement>(null);
   const [userForm, setUserForm] = useState<Omit<UserRecord, 'id' | 'lastLogin'>>({
     firstName: '',
     lastName: '',
@@ -226,8 +240,14 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
     category: 'Custom',
     variables: [],
   });
-  const [newVariable, setNewVariable] = useState('');
   const [expandedTemplateId, setExpandedTemplateId] = useState<string | null>(null);
+  const subjectInputRef = useRef<HTMLInputElement>(null);
+  const bodyTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const [lastFocusedField, setLastFocusedField] = useState<'subject' | 'body'>('body');
+  const savedCursorRef = useRef<{ start: number; end: number }>({ start: 0, end: 0 });
+  const [varPopoverOpen, setVarPopoverOpen] = useState(false);
+  const [varSearch, setVarSearch] = useState('');
+  const varPopoverRef = useRef<HTMLDivElement>(null);
 
   // ─── Incident Types State ───────────────────────────────────────────────────
   const [incidentTypes, setIncidentTypes] = useState<IncidentType[]>([...SEED_INCIDENT_TYPES]);
@@ -251,6 +271,49 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   const [newWorkflowName, setNewWorkflowName] = useState('');
   const [newWorkflowDesc, setNewWorkflowDesc] = useState('');
 
+  // ─── Dialog Refs & Effects ─────────────────────────────────────────────────
+  const userDialogRef = useRef<HTMLElement>(null);
+  const templateDialogRef = useRef<HTMLElement>(null);
+  const previewDialogRef = useRef<HTMLElement>(null);
+  const itDialogRef = useRef<HTMLElement>(null);
+
+  // User Dialog sync
+  useEffect(() => { const el = userDialogRef.current as any; if (!el) return; el.open = isUserDialogOpen; }, [isUserDialogOpen]);
+  useEffect(() => { const el = userDialogRef.current as any; if (!el) return; const handler = () => setIsUserDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
+
+  // Variable popover click-outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (varPopoverRef.current && !varPopoverRef.current.contains(e.target as Node)) {
+        setVarPopoverOpen(false);
+        setVarSearch('');
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  // ST user search click-outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (stUserSearchRef.current && !stUserSearchRef.current.contains(e.target as Node)) setStUserSearchOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  // Template Dialog sync
+  useEffect(() => { const el = templateDialogRef.current as any; if (!el) return; el.open = isTemplateDialogOpen; }, [isTemplateDialogOpen]);
+  useEffect(() => { const el = templateDialogRef.current as any; if (!el) return; const handler = () => setIsTemplateDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
+
+  // Preview Dialog sync
+  useEffect(() => { const el = previewDialogRef.current as any; if (!el) return; el.open = isPreviewOpen; }, [isPreviewOpen]);
+  useEffect(() => { const el = previewDialogRef.current as any; if (!el) return; const handler = () => setIsPreviewOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
+
+  // Incident Type Dialog sync
+  useEffect(() => { const el = itDialogRef.current as any; if (!el) return; el.open = isItDialogOpen; }, [isItDialogOpen]);
+  useEffect(() => { const el = itDialogRef.current as any; if (!el) return; const handler = () => setIsItDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
+
   // ─── User Helpers ────────────────────────────────────────────────────────────
 
   const filteredUsers = users.filter((u) => {
@@ -265,12 +328,18 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   const openAddUser = () => {
     setEditingUser(null);
     setUserForm({ firstName: '', lastName: '', email: '', roles: [], status: 'Active' });
+    setStUserSearch('');
+    setSelectedStUser(null);
+    setStUserSearchOpen(false);
     setIsUserDialogOpen(true);
   };
 
   const openEditUser = (user: UserRecord) => {
     setEditingUser(user);
     setUserForm({ firstName: user.firstName, lastName: user.lastName, email: user.email, roles: [...user.roles], status: user.status });
+    setStUserSearch(`${user.firstName} ${user.lastName}`);
+    setSelectedStUser(null);
+    setStUserSearchOpen(false);
     setIsUserDialogOpen(true);
   };
 
@@ -365,16 +434,26 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
     setTemplates(templates.filter((t) => t.id !== id));
   };
 
-  const addVariable = () => {
-    const v = newVariable.trim().replace(/\s+/g, '_').toLowerCase();
-    if (v && !templateForm.variables.includes(v)) {
-      setTemplateForm({ ...templateForm, variables: [...templateForm.variables, v] });
-      setNewVariable('');
-    }
+  const saveCursor = (el: HTMLInputElement | HTMLTextAreaElement) => {
+    savedCursorRef.current = { start: el.selectionStart ?? el.value.length, end: el.selectionEnd ?? el.value.length };
   };
 
-  const removeVariable = (v: string) => {
-    setTemplateForm({ ...templateForm, variables: templateForm.variables.filter((x) => x !== v) });
+  const insertVariable = (token: string) => {
+    const tag = `{{${token}}}`;
+    const { start, end } = savedCursorRef.current;
+    if (lastFocusedField === 'subject' && subjectInputRef.current) {
+      const el = subjectInputRef.current;
+      const cur = el.value.length > 0 ? start : 0;
+      const newValue = el.value.slice(0, cur) + tag + el.value.slice(end);
+      setTemplateForm(f => ({ ...f, subject: newValue }));
+      setTimeout(() => { el.focus(); el.setSelectionRange(cur + tag.length, cur + tag.length); }, 0);
+    } else if (bodyTextareaRef.current) {
+      const el = bodyTextareaRef.current;
+      const cur = el.value.length > 0 ? start : 0;
+      const newValue = el.value.slice(0, cur) + tag + el.value.slice(end);
+      setTemplateForm(f => ({ ...f, body: newValue }));
+      setTimeout(() => { el.focus(); el.setSelectionRange(cur + tag.length, cur + tag.length); }, 0);
+    }
   };
 
   // ─── Incident Type Helpers ──────────────────────────────────────────────────
@@ -566,7 +645,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
           }}
         >
           <Users size={18} />
-          User Roles
+          Incident Tracker Roles
         </button>
         <button
           onClick={() => setActiveSection('templates')}
@@ -622,13 +701,18 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
             <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', alignItems: 'center', flexWrap: 'wrap' }}>
               {/* Search */}
               <div style={{ position: 'relative' }}>
-                <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
-                <Input
-                  value={userSearch}
-                  onChange={(e) => setUserSearch(e.target.value)}
-                  placeholder="Search users..."
-                  style={{ paddingLeft: '34px', width: '260px', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}
-                />
+                <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', zIndex: 1 }} />
+                {/* @ts-ignore */}
+                <forge-text-field>
+                  <input
+                    type="text"
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                    placeholder="Search users..."
+                    style={{ paddingLeft: '2rem', width: '260px', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}
+                  />
+                {/* @ts-ignore */}
+                </forge-text-field>
               </div>
               {/* Role Filter */}
               <ForgeMultiSelect
@@ -730,13 +814,18 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--forge-spacing-medium)', flexWrap: 'wrap', gap: 'var(--forge-spacing-small)' }}>
             <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', alignItems: 'center', flexWrap: 'wrap' }}>
               <div style={{ position: 'relative' }}>
-                <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
-                <Input
-                  value={templateSearch}
-                  onChange={(e) => setTemplateSearch(e.target.value)}
-                  placeholder="Search templates..."
-                  style={{ paddingLeft: '34px', width: '260px', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}
-                />
+                <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', zIndex: 1 }} />
+                {/* @ts-ignore */}
+                <forge-text-field>
+                  <input
+                    type="text"
+                    value={templateSearch}
+                    onChange={(e) => setTemplateSearch(e.target.value)}
+                    placeholder="Search templates..."
+                    style={{ paddingLeft: '2rem', width: '260px', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}
+                  />
+                {/* @ts-ignore */}
+                </forge-text-field>
               </div>
               <ForgeMultiSelect
                 selected={templateCategoryFilter}
@@ -855,50 +944,114 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
       {/* ══════════════════════════════════════════════════════════════════════ */}
       {/* USER DIALOG                                                           */}
       {/* ══════════════════════════════════════════════════════════════════════ */}
-      <Dialog open={isUserDialogOpen} onOpenChange={() => setIsUserDialogOpen(false)}>
-        <DialogContent style={{ maxWidth: '560px', fontFamily: 'var(--forge-font-family)' }}>
-          <DialogHeader>
-            <DialogTitle style={{ fontSize: 'var(--text-2xl)', fontFamily: 'var(--forge-font-family)' }}>
+      {/* @ts-ignore */}
+      <forge-dialog ref={userDialogRef} style={{ '--forge-dialog-width': '560px' }}>
+        <div style={{ fontFamily: 'var(--forge-font-family)', padding: 'var(--forge-spacing-large)' }}>
+          <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
+            <h2 style={{ fontSize: 'var(--text-2xl)', fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)', margin: 0 }}>
               {editingUser ? 'Edit User' : 'Add User'}
-            </DialogTitle>
-            <DialogDescription style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}>
+            </h2>
+            <p style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)', margin: 'var(--forge-spacing-xxsmall) 0 0 0' }}>
               {editingUser ? 'Update user information and role assignments.' : 'Create a new user and assign roles.'}
-            </DialogDescription>
-          </DialogHeader>
+            </p>
+          </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-medium)' }}>
-            {/* Name Row */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--forge-spacing-medium)' }}>
-              <div>
-                <Label style={labelStyle}>First Name</Label>
-                <Input
-                  value={userForm.firstName}
-                  onChange={(e) => setUserForm({ ...userForm, firstName: e.target.value })}
-                  placeholder="First name"
-                  style={{ ...inputWrapperStyle, fontFamily: 'var(--forge-font-family)' }}
-                />
-              </div>
-              <div>
-                <Label style={labelStyle}>Last Name</Label>
-                <Input
-                  value={userForm.lastName}
-                  onChange={(e) => setUserForm({ ...userForm, lastName: e.target.value })}
-                  placeholder="Last name"
-                  style={{ ...inputWrapperStyle, fontFamily: 'var(--forge-font-family)' }}
-                />
-              </div>
-            </div>
-
-            {/* Email */}
+            {/* ST User Search */}
             <div>
-              <Label style={labelStyle}>Email</Label>
-              <Input
-                type="email"
-                value={userForm.email}
-                onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                placeholder="email@district.edu"
-                style={{ ...inputWrapperStyle, fontFamily: 'var(--forge-font-family)' }}
-              />
+              <Label style={labelStyle}>Student Transportation User *</Label>
+              <p style={{ fontSize: 'var(--text-xs)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)', margin: '2px 0 6px' }}>
+                Search and select an existing Student Transportation user to grant Incident Tracker access.
+              </p>
+              <div className="relative" ref={stUserSearchRef}>
+                {/* @ts-ignore */}
+                <forge-text-field style={inputWrapperStyle}>
+                  <input
+                    type="text"
+                    value={stUserSearch}
+                    onChange={(e) => {
+                      setStUserSearch(e.target.value);
+                      setStUserSearchOpen(true);
+                      if (!e.target.value) {
+                        setSelectedStUser(null);
+                        setUserForm(f => ({ ...f, firstName: '', lastName: '', email: '' }));
+                      }
+                    }}
+                    onFocus={() => setStUserSearchOpen(true)}
+                    placeholder="Search by name or email..."
+                    style={{ fontFamily: 'var(--forge-font-family)' }}
+                    readOnly={!!selectedStUser && !editingUser}
+                  />
+                {/* @ts-ignore */}
+                </forge-text-field>
+                {stUserSearchOpen && !selectedStUser && (
+                  <div style={{ position: 'absolute', zIndex: 50, width: '100%', marginTop: 4, background: '#fff', border: '1px solid var(--border)', borderRadius: 'var(--forge-radius-medium)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', maxHeight: 260, overflowY: 'auto' }}>
+                    {ST_USERS.filter(u =>
+                      !stUserSearch ||
+                      `${u.firstName} ${u.lastName}`.toLowerCase().includes(stUserSearch.toLowerCase()) ||
+                      u.email.toLowerCase().includes(stUserSearch.toLowerCase()) ||
+                      u.title.toLowerCase().includes(stUserSearch.toLowerCase())
+                    ).filter(u => !users.some(existing => existing.email === u.email))
+                    .map(u => (
+                      <button
+                        key={u.id}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedStUser(u);
+                          setStUserSearch(`${u.firstName} ${u.lastName}`);
+                          setUserForm(f => ({ ...f, firstName: u.firstName, lastName: u.lastName, email: u.email }));
+                          setStUserSearchOpen(false);
+                        }}
+                        style={{ display: 'flex', flexDirection: 'column', width: '100%', padding: '10px 14px', background: 'none', border: 'none', borderBottom: '1px solid var(--border)', cursor: 'pointer', textAlign: 'left' }}
+                        onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent)')}
+                        onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                      >
+                        <span style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', fontWeight: 500 }}>
+                          {u.firstName} {u.lastName}
+                        </span>
+                        <span style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
+                          {u.title} · {u.department}
+                        </span>
+                        <span style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
+                          {u.email}
+                        </span>
+                      </button>
+                    ))}
+                    {ST_USERS.filter(u =>
+                      !stUserSearch ||
+                      `${u.firstName} ${u.lastName}`.toLowerCase().includes(stUserSearch.toLowerCase()) ||
+                      u.email.toLowerCase().includes(stUserSearch.toLowerCase())
+                    ).filter(u => !users.some(existing => existing.email === u.email)).length === 0 && (
+                      <div style={{ padding: '12px 14px', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>
+                        No matching users found.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Selected user card */}
+              {selectedStUser && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8, padding: '10px 12px', background: '#EEF2F8', border: '1px solid #C5D2E8', borderRadius: 'var(--forge-radius-medium)' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', fontWeight: 500 }}>{selectedStUser.firstName} {selectedStUser.lastName}</div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>{selectedStUser.title} · {selectedStUser.department}</div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>{selectedStUser.email}</div>
+                  </div>
+                  <button type="button" onClick={() => { setSelectedStUser(null); setStUserSearch(''); setUserForm(f => ({ ...f, firstName: '', lastName: '', email: '' })); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)', padding: 0 }}>
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+
+              {/* Edit mode: show current user info read-only */}
+              {editingUser && !selectedStUser && (
+                <div style={{ marginTop: 8, padding: '10px 12px', background: 'var(--input-background)', border: '1px solid var(--border)', borderRadius: 'var(--forge-radius-medium)' }}>
+                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', fontWeight: 500 }}>{userForm.firstName} {userForm.lastName}</div>
+                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>{userForm.email}</div>
+                </div>
+              )}
             </div>
 
             {/* Status */}
@@ -959,42 +1112,56 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
             <ForgeButton variant="outlined" onClick={() => setIsUserDialogOpen(false)} style={{ flex: 1, fontFamily: 'var(--forge-font-family)' }}>
               Cancel
             </ForgeButton>
-            <ForgeButton
+            <button
+              type="button"
               onClick={saveUser}
               disabled={!userForm.firstName || !userForm.lastName || !userForm.email || userForm.roles.length === 0}
-              style={{ flex: 1, fontFamily: 'var(--forge-font-family)' }}
+              style={{
+                flex: 1, height: '36px', padding: '0 16px',
+                background: (!userForm.firstName || !userForm.lastName || !userForm.email || userForm.roles.length === 0) ? '#9BAEC8' : '#4A6FA5',
+                color: '#ffffff', border: 'none', borderRadius: '4px',
+                fontFamily: 'var(--forge-font-family)', fontSize: '14px', fontWeight: 500,
+                cursor: (!userForm.firstName || !userForm.lastName || !userForm.email || userForm.roles.length === 0) ? 'not-allowed' : 'pointer',
+              }}
             >
               {editingUser ? 'Save Changes' : 'Add User'}
-            </ForgeButton>
+            </button>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      {/* @ts-ignore */}
+      </forge-dialog>
 
       {/* ══════════════════════════════════════════════════════════════════════ */}
       {/* TEMPLATE DIALOG                                                       */}
       {/* ══════════════════════════════════════════════════════════════════════ */}
-      <Dialog open={isTemplateDialogOpen} onOpenChange={() => setIsTemplateDialogOpen(false)}>
-        <DialogContent style={{ maxWidth: '700px', maxHeight: '90vh', overflow: 'auto', fontFamily: 'var(--forge-font-family)' }}>
-          <DialogHeader>
-            <DialogTitle style={{ fontSize: 'var(--text-2xl)', fontFamily: 'var(--forge-font-family)' }}>
+      {/* @ts-ignore */}
+      <forge-dialog ref={templateDialogRef} style={{ '--forge-dialog-width': '700px' }}>
+        <div style={{ maxHeight: '90vh', overflow: 'auto', fontFamily: 'var(--forge-font-family)', padding: 'var(--forge-spacing-large)' }}>
+          <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
+            <h2 style={{ fontSize: 'var(--text-2xl)', fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)', margin: 0 }}>
               {editingTemplate ? 'Edit Email Template' : 'Create Email Template'}
-            </DialogTitle>
-            <DialogDescription style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}>
+            </h2>
+            <p style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)', margin: 'var(--forge-spacing-xxsmall) 0 0 0' }}>
               {editingTemplate ? 'Update the email template details and body.' : 'Define a new email template for workflow notifications.'}
-            </DialogDescription>
-          </DialogHeader>
+            </p>
+          </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-medium)' }}>
             {/* Name & Category */}
             <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'var(--forge-spacing-medium)' }}>
               <div>
                 <Label style={labelStyle}>Template Name</Label>
-                <Input
-                  value={templateForm.name}
-                  onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
-                  placeholder="e.g., Parent Notification"
-                  style={{ ...inputWrapperStyle, fontFamily: 'var(--forge-font-family)' }}
-                />
+                {/* @ts-ignore */}
+                <forge-text-field style={inputWrapperStyle}>
+                  <input
+                    type="text"
+                    value={templateForm.name}
+                    onChange={(e) => setTemplateForm({ ...templateForm, name: e.target.value })}
+                    placeholder="e.g., Parent Notification"
+                    style={{ fontFamily: 'var(--forge-font-family)' }}
+                  />
+                {/* @ts-ignore */}
+                </forge-text-field>
               </div>
               <div>
                 <Label style={labelStyle}>Category</Label>
@@ -1015,78 +1182,172 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
             {/* Description */}
             <div>
               <Label style={labelStyle}>Description</Label>
-              <Input
-                value={templateForm.description}
-                onChange={(e) => setTemplateForm({ ...templateForm, description: e.target.value })}
-                placeholder="Brief description of when this template is used"
-                style={{ ...inputWrapperStyle, fontFamily: 'var(--forge-font-family)' }}
-              />
+              {/* @ts-ignore */}
+              <forge-text-field style={inputWrapperStyle}>
+                <input
+                  type="text"
+                  value={templateForm.description}
+                  onChange={(e) => setTemplateForm({ ...templateForm, description: e.target.value })}
+                  placeholder="Brief description of when this template is used"
+                  style={{ fontFamily: 'var(--forge-font-family)' }}
+                />
+              {/* @ts-ignore */}
+              </forge-text-field>
             </div>
 
             {/* Subject */}
             <div>
               <Label style={labelStyle}>Email Subject</Label>
-              <Input
-                value={templateForm.subject}
-                onChange={(e) => setTemplateForm({ ...templateForm, subject: e.target.value })}
-                placeholder="e.g., [Incident Tracker] {{step_name}} - {{incident_id}}"
-                style={{ ...inputWrapperStyle, fontFamily: 'var(--forge-font-family)' }}
-              />
-              <p style={{ fontSize: 'var(--text-xs)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)', marginTop: 'var(--forge-spacing-xxsmall)' }}>
-                Use {'{{variable_name}}'} syntax for dynamic values.
-              </p>
-            </div>
-
-            {/* Body */}
-            <div>
-              <Label style={labelStyle}>Email Body</Label>
-              <Textarea
-                value={templateForm.body}
-                onChange={(e) => setTemplateForm({ ...templateForm, body: e.target.value })}
-                placeholder="Compose the email body here..."
-                rows={10}
-                style={{ ...inputWrapperStyle, fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}
-              />
-            </div>
-
-            {/* Variables */}
-            <div>
-              <Label style={labelStyle}>Template Variables</Label>
-              <p style={{ ...mutedTextStyle, marginBottom: 'var(--forge-spacing-small)' }}>
-                Define variables that will be replaced with actual values when the email is sent.
-              </p>
-              <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', marginBottom: 'var(--forge-spacing-small)' }}>
-                <Input
-                  value={newVariable}
-                  onChange={(e) => setNewVariable(e.target.value)}
-                  placeholder="e.g., recipient_name"
-                  onKeyDown={(e) => e.key === 'Enter' && addVariable()}
-                  style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}
+              {/* @ts-ignore */}
+              <forge-text-field style={inputWrapperStyle}>
+                <input
+                  ref={subjectInputRef}
+                  type="text"
+                  value={templateForm.subject}
+                  onChange={(e) => setTemplateForm({ ...templateForm, subject: e.target.value })}
+                  onFocus={(e) => { setLastFocusedField('subject'); saveCursor(e.target); }}
+                  onKeyUp={(e) => saveCursor(e.currentTarget)}
+                  onMouseUp={(e) => saveCursor(e.currentTarget)}
+                  onSelect={(e) => saveCursor(e.currentTarget)}
+                  placeholder="e.g., [Incident Tracker] Incident {{incident_id}} — Action Required"
+                  style={{ fontFamily: 'var(--forge-font-family)' }}
                 />
-                <ForgeButton onClick={addVariable} disabled={!newVariable.trim()} style={{ fontFamily: 'var(--forge-font-family)' }}>
-                  <Plus size={16} />
-                </ForgeButton>
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--forge-spacing-xxsmall)' }}>
-                {templateForm.variables.map((v) => (
-                  <Badge
-                    key={v}
-                    variant="outline"
-                    style={{
-                      fontFamily: 'var(--forge-font-family)',
-                      fontSize: 'var(--text-xs)',
-                      background: 'var(--input-background)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                    }}
-                  >
-                    {'{{' + v + '}}'}
-                    <X size={12} style={{ cursor: 'pointer' }} onClick={() => removeVariable(v)} />
-                  </Badge>
-                ))}
-              </div>
+              {/* @ts-ignore */}
+              </forge-text-field>
             </div>
+
+            {/* Body + variable popover */}
+            {(() => {
+              const ALL_VARS = [
+                { group: 'Incident', vars: [
+                  { token: 'incident_id', label: 'Incident ID' },
+                  { token: 'incident_type', label: 'Incident Type' },
+                  { token: 'incident_date', label: 'Date' },
+                  { token: 'incident_time', label: 'Time' },
+                  { token: 'incident_severity', label: 'Severity' },
+                  { token: 'incident_location', label: 'Location' },
+                  { token: 'incident_address', label: 'Address' },
+                  { token: 'incident_description', label: 'Description' },
+                  { token: 'incident_status', label: 'Status' },
+                ]},
+                { group: 'Student', vars: [
+                  { token: 'student_name', label: 'Student Name' },
+                  { token: 'student_id', label: 'Student ID' },
+                  { token: 'student_grade', label: 'Grade' },
+                  { token: 'student_school', label: 'School' },
+                  { token: 'student_role', label: 'Role in Incident' },
+                  { token: 'parent_name', label: 'Parent/Guardian Name' },
+                  { token: 'parent_email', label: 'Parent/Guardian Email' },
+                ]},
+                { group: 'Vehicle & Route', vars: [
+                  { token: 'vehicle_number', label: 'Vehicle Number' },
+                  { token: 'route_name', label: 'Route/Run Name' },
+                  { token: 'driver_name', label: 'Driver Name' },
+                ]},
+                { group: 'Workflow', vars: [
+                  { token: 'workflow_name', label: 'Workflow Name' },
+                  { token: 'step_name', label: 'Step Name' },
+                  { token: 'step_assignee', label: 'Step Assignee' },
+                  { token: 'due_date', label: 'Due Date' },
+                ]},
+                { group: 'Recipient', vars: [
+                  { token: 'recipient_name', label: 'Recipient Name' },
+                  { token: 'recipient_role', label: 'Recipient Role' },
+                  { token: 'district_name', label: 'District Name' },
+                  { token: 'reported_by', label: 'Reported By' },
+                ]},
+              ];
+              const q = varSearch.toLowerCase();
+              const filtered = q
+                ? ALL_VARS.map(g => ({ ...g, vars: g.vars.filter(v => v.label.toLowerCase().includes(q) || v.token.includes(q)) })).filter(g => g.vars.length > 0)
+                : ALL_VARS;
+              return (
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                    <Label style={labelStyle}>Email Body</Label>
+                    <div ref={varPopoverRef} style={{ position: 'relative' }}>
+                      <button
+                        type="button"
+                        onMouseDown={(e) => { e.preventDefault(); setVarPopoverOpen(o => !o); setVarSearch(''); }}
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 5,
+                          padding: '3px 10px', borderRadius: '4px',
+                          border: '1px solid #C5D2E8',
+                          background: varPopoverOpen ? '#EEF2F8' : '#fff',
+                          fontFamily: 'var(--forge-font-family)', fontSize: '12px',
+                          color: '#4A6FA5', cursor: 'pointer', fontWeight: 500,
+                        }}
+                      >
+                        <span style={{ fontSize: 13 }}>{'{ }'}</span> Insert Variable
+                      </button>
+                      {varPopoverOpen && (
+                        <div style={{
+                          position: 'absolute', right: 0, top: 'calc(100% + 4px)', zIndex: 100,
+                          width: 320, maxHeight: 380, overflowY: 'auto',
+                          background: '#fff', border: '1px solid #C5D2E8',
+                          borderRadius: '6px', boxShadow: '0 6px 20px rgba(0,0,0,0.12)',
+                        }}>
+                          {/* Search */}
+                          <div style={{ padding: '8px 10px', borderBottom: '1px solid #E2E8F0', position: 'sticky', top: 0, background: '#fff', zIndex: 1 }}>
+                            <input
+                              type="text"
+                              autoFocus
+                              value={varSearch}
+                              onChange={e => setVarSearch(e.target.value)}
+                              placeholder="Search variables..."
+                              style={{ width: '100%', padding: '4px 8px', border: '1px solid #C5D2E8', borderRadius: 4, fontFamily: 'var(--forge-font-family)', fontSize: '12px', outline: 'none' }}
+                            />
+                          </div>
+                          {/* Groups */}
+                          <div style={{ padding: '6px 0' }}>
+                            {filtered.map(({ group, vars }) => (
+                              <div key={group}>
+                                <div style={{ padding: '4px 10px 2px', fontFamily: 'var(--forge-font-family)', fontSize: '10px', fontWeight: 700, color: '#9BAEC8', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                                  {group}
+                                </div>
+                                {vars.map(({ token, label }) => (
+                                  <button
+                                    key={token}
+                                    type="button"
+                                    onMouseDown={(e) => {
+                                      e.preventDefault();
+                                      insertVariable(token);
+                                      setVarPopoverOpen(false);
+                                      setVarSearch('');
+                                    }}
+                                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '6px 10px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                                    onMouseEnter={e => (e.currentTarget.style.background = '#F4F7FB')}
+                                    onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                                  >
+                                    <span style={{ fontFamily: 'var(--forge-font-family)', fontSize: '13px', color: '#1a1a2e' }}>{label}</span>
+                                    <span style={{ fontFamily: 'monospace', fontSize: '11px', color: '#9BAEC8', marginLeft: 8 }}>{'{{' + token + '}}'}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            ))}
+                            {filtered.length === 0 && (
+                              <div style={{ padding: '10px', fontFamily: 'var(--forge-font-family)', fontSize: '12px', color: '#9BAEC8', textAlign: 'center' }}>No variables match</div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <Textarea
+                    ref={bodyTextareaRef}
+                    value={templateForm.body}
+                    onChange={(e) => setTemplateForm({ ...templateForm, body: e.target.value })}
+                    onFocus={(e) => { setLastFocusedField('body'); saveCursor(e.target); }}
+                    onKeyUp={(e) => saveCursor(e.currentTarget)}
+                    onMouseUp={(e) => saveCursor(e.currentTarget)}
+                    onSelect={(e) => saveCursor(e.currentTarget)}
+                    placeholder="Compose the email body here. Use the Insert Variable button to add dynamic values."
+                    rows={12}
+                    style={{ ...inputWrapperStyle, fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}
+                  />
+                </div>
+              );
+            })()}
           </div>
 
           {/* Footer */}
@@ -1102,23 +1363,25 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
               {editingTemplate ? 'Save Changes' : 'Create Template'}
             </ForgeButton>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      {/* @ts-ignore */}
+      </forge-dialog>
 
       {/* ══════════════════════════════════════════════════════════════════════ */}
       {/* TEMPLATE PREVIEW DIALOG                                               */}
       {/* ══════════════════════════════════════════════════════════════════════ */}
-      <Dialog open={isPreviewOpen} onOpenChange={() => setIsPreviewOpen(false)}>
-        <DialogContent style={{ maxWidth: '640px', maxHeight: '80vh', overflow: 'auto', fontFamily: 'var(--forge-font-family)' }}>
-          <DialogHeader>
-            <DialogTitle style={{ fontSize: 'var(--text-2xl)', fontFamily: 'var(--forge-font-family)' }}>
+      {/* @ts-ignore */}
+      <forge-dialog ref={previewDialogRef} style={{ '--forge-dialog-width': '640px' }}>
+        <div style={{ maxHeight: '80vh', overflow: 'auto', fontFamily: 'var(--forge-font-family)', padding: 'var(--forge-spacing-large)' }}>
+          <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
+            <h2 style={{ fontSize: 'var(--text-2xl)', fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)', margin: 0 }}>
               <Eye size={20} style={{ display: 'inline', marginRight: '8px', verticalAlign: 'text-bottom' }} />
               Email Preview
-            </DialogTitle>
-            <DialogDescription style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}>
+            </h2>
+            <p style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)', margin: 'var(--forge-spacing-xxsmall) 0 0 0' }}>
               Preview of "{previewTemplate?.name}" template with sample data.
-            </DialogDescription>
-          </DialogHeader>
+            </p>
+          </div>
           {previewTemplate && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-medium)' }}>
               {/* Simulated email chrome */}
@@ -1202,8 +1465,9 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
               </div>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </div>
+      {/* @ts-ignore */}
+      </forge-dialog>
 
       {/* ══════════════════════════════════════════════════════════════════════ */}
       {/* INCIDENT TYPES SECTION                                               */}
@@ -1214,13 +1478,18 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--forge-spacing-medium)', flexWrap: 'wrap', gap: 'var(--forge-spacing-small)' }}>
             <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', alignItems: 'center', flexWrap: 'wrap' }}>
               <div style={{ position: 'relative' }}>
-                <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)' }} />
-                <Input
-                  value={itSearch}
-                  onChange={(e) => setItSearch(e.target.value)}
-                  placeholder="Search incident types..."
-                  style={{ paddingLeft: '36px', width: '260px', fontFamily: 'var(--forge-font-family)' }}
-                />
+                <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', zIndex: 1 }} />
+                {/* @ts-ignore */}
+                <forge-text-field>
+                  <input
+                    type="text"
+                    value={itSearch}
+                    onChange={(e) => setItSearch(e.target.value)}
+                    placeholder="Search incident types..."
+                    style={{ paddingLeft: '2rem', width: '260px', fontFamily: 'var(--forge-font-family)' }}
+                  />
+                {/* @ts-ignore */}
+                </forge-text-field>
               </div>
               <ForgeMultiSelect
                 selected={itCategoryFilter}
@@ -1229,17 +1498,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                 placeholder="All Categories"
                 allLabel="All Categories"
                 width="200px"
-              />
-              <ForgeMultiSelect
-                selected={itAppliesFilter}
-                onChange={setItAppliesFilter}
-                options={[
-                  { value: 'student', label: 'Student' },
-                  { value: 'driver', label: 'Driver' },
-                ]}
-                placeholder="All (Student & Driver)"
-                allLabel="All (Student & Driver)"
-                width="210px"
               />
             </div>
             <ForgeButton onClick={openAddIt} style={{ fontFamily: 'var(--forge-font-family)' }}>
@@ -1362,27 +1620,33 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
       )}
 
       {/* Create / Edit Incident Type Dialog */}
-      <Dialog open={isItDialogOpen} onOpenChange={setIsItDialogOpen}>
-        <DialogContent style={{ maxWidth: '620px', maxHeight: '90vh', overflow: 'auto', fontFamily: 'var(--forge-font-family)' }}>
-          <DialogHeader>
-            <DialogTitle style={{ fontSize: 'var(--text-xl)', fontFamily: 'var(--forge-font-family)' }}>
+      {/* @ts-ignore */}
+      <forge-dialog ref={itDialogRef} style={{ '--forge-dialog-width': '620px' }}>
+        <div style={{ maxHeight: '90vh', overflow: 'auto', fontFamily: 'var(--forge-font-family)', padding: 'var(--forge-spacing-large)' }}>
+          <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
+            <h2 style={{ fontSize: 'var(--text-xl)', fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)', margin: 0 }}>
               {editingIt ? 'Edit Incident Type' : 'Add Incident Type'}
-            </DialogTitle>
-            <DialogDescription style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}>
+            </h2>
+            <p style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)', margin: 'var(--forge-spacing-xxsmall) 0 0 0' }}>
               {editingIt ? 'Update the details for this incident type.' : 'Define a new incident type for the system.'}
-            </DialogDescription>
-          </DialogHeader>
+            </p>
+          </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-medium)' }}>
             {/* Label */}
             <div>
               <div style={labelStyle}>Label <span style={{ color: 'var(--destructive)' }}>*</span></div>
-              <Input
-                value={itForm.label}
-                onChange={(e) => setItForm({ ...itForm, label: e.target.value })}
-                placeholder="e.g., Unauthorized Device Usage"
-                style={{ ...inputWrapperStyle, fontFamily: 'var(--forge-font-family)' }}
-              />
+              {/* @ts-ignore */}
+              <forge-text-field style={inputWrapperStyle}>
+                <input
+                  type="text"
+                  value={itForm.label}
+                  onChange={(e) => setItForm({ ...itForm, label: e.target.value })}
+                  placeholder="e.g., Unauthorized Device Usage"
+                  style={{ fontFamily: 'var(--forge-font-family)' }}
+                />
+              {/* @ts-ignore */}
+              </forge-text-field>
             </div>
 
             {/* Description */}
@@ -1412,15 +1676,10 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                 </select>
               </div>
               <div>
-                <div style={labelStyle}>Applies To <span style={{ color: 'var(--destructive)' }}>*</span></div>
-                <select
-                  value={itForm.applicableTo}
-                  onChange={(e) => setItForm({ ...itForm, applicableTo: e.target.value as 'student' | 'driver' | 'both' })}
-                  style={selectStyle}
-                >
-                  <option value="student">Student</option>
-                  <option value="driver">Driver</option>
-                </select>
+                <div style={labelStyle}>Applies To</div>
+                <div style={{ ...selectStyle, display: 'flex', alignItems: 'center', background: 'var(--muted)', color: 'var(--muted-foreground)', cursor: 'not-allowed' }}>
+                  Student
+                </div>
               </div>
             </div>
 
@@ -1571,12 +1830,17 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                   </div>
                   <div>
                     <div style={{ ...labelStyle, fontSize: 'var(--text-xs)' }}>Workflow Name <span style={{ color: 'var(--destructive)' }}>*</span></div>
-                    <Input
-                      value={newWorkflowName}
-                      onChange={(e) => setNewWorkflowName(e.target.value)}
-                      placeholder={itForm.label ? `${itForm.label} Response` : 'e.g., Unauthorized Device Response'}
-                      style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}
-                    />
+                    {/* @ts-ignore */}
+                    <forge-text-field>
+                      <input
+                        type="text"
+                        value={newWorkflowName}
+                        onChange={(e) => setNewWorkflowName(e.target.value)}
+                        placeholder={itForm.label ? `${itForm.label} Response` : 'e.g., Unauthorized Device Response'}
+                        style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}
+                      />
+                    {/* @ts-ignore */}
+                    </forge-text-field>
                   </div>
                   <div>
                     <div style={{ ...labelStyle, fontSize: 'var(--text-xs)' }}>Description</div>
@@ -1621,8 +1885,9 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
               </ForgeButton>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      {/* @ts-ignore */}
+      </forge-dialog>
     </div>
   );
 }

@@ -77,7 +77,7 @@ export function IncidentWorkflowProgress({ workflow }: IncidentWorkflowProgressP
           minWidth: '35px',
           fontFamily: 'Roboto, sans-serif',
         }}>
-          {totalSteps} Steps
+          Step {Math.min(completedSteps + 1, totalSteps)}/{totalSteps}
         </span>
       </div>
 

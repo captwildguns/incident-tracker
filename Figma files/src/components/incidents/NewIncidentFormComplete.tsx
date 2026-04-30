@@ -1,13 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent } from '@tylertech/forge';
+import { defineCardComponent, defineButtonComponent, defineTextFieldComponent } from '@tylertech/forge';
 defineCardComponent();
-import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Input } from '../ui/input';
+defineTextFieldComponent();
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Checkbox } from '../ui/checkbox';
 import { Badge } from '../ui/badge';
 import { AlertCircle, Send, Check, Circle, CheckCircle2, MapPin, Upload, X, Image as ImageIcon, FileText, UserCircle2, Users } from 'lucide-react';

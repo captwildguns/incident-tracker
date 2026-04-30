@@ -1,21 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent } from '@tylertech/forge';
+import { defineCardComponent, defineButtonComponent, defineTextFieldComponent, defineDialogComponent } from '@tylertech/forge';
 defineCardComponent();
-import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Input } from '../ui/input';
+defineTextFieldComponent();
+defineDialogComponent();
 import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
 import { Textarea } from '../ui/textarea';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '../ui/dialog';
 import {
   Plus,
   Edit,
@@ -114,14 +106,64 @@ export function StepTemplateManager({
     defaultDuration: '30 minutes',
     requiresApproval: false,
     emailNotifications: {
-      notifyOnStart: false,
-      notifyOnComplete: false,
+      sendEmail: true,
+      emailTiming: 'before' as 'before' | 'after',
       notifyAssignee: true,
     },
     tags: [] as string[],
   });
 
   const [tagInput, setTagInput] = useState('');
+  const [editTagInput, setEditTagInput] = useState('');
+  const [editForm, setEditForm] = useState({
+    name: '',
+    description: '',
+    category: 'Communication' as WorkflowStepTemplate['category'],
+    icon: 'Phone',
+    defaultRole: 'Safety Coordinator',
+    defaultDuration: '30 minutes',
+    requiresApproval: false,
+    emailNotifications: {
+      sendEmail: true,
+      emailTiming: 'before' as 'before' | 'after',
+      notifyAssignee: true,
+    },
+    tags: [] as string[],
+  });
+
+  const createDialogRef = useRef<HTMLElement>(null);
+  const editDialogRef = useRef<HTMLElement>(null);
+
+  // Sync create dialog open state
+  useEffect(() => { const el = createDialogRef.current as any; if (!el) return; el.open = isCreateDialogOpen; }, [isCreateDialogOpen]);
+  useEffect(() => { const el = createDialogRef.current as any; if (!el) return; const handler = () => setIsCreateDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
+
+  // Sync edit dialog open state
+  useEffect(() => { const el = editDialogRef.current as any; if (!el) return; el.open = isEditDialogOpen; }, [isEditDialogOpen]);
+  useEffect(() => { const el = editDialogRef.current as any; if (!el) return; const handler = () => setIsEditDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
+
+  // Populate edit form when a template is selected
+  useEffect(() => {
+    if (editingTemplate && isEditDialogOpen) {
+      const iconName = iconOptions.find(i => i.icon === editingTemplate.icon)?.name || 'Phone';
+      setEditForm({
+        name: editingTemplate.name,
+        description: editingTemplate.description,
+        category: editingTemplate.category,
+        icon: iconName,
+        defaultRole: editingTemplate.defaultRole,
+        defaultDuration: editingTemplate.defaultDuration,
+        requiresApproval: editingTemplate.requiresApproval || false,
+        emailNotifications: {
+          sendEmail: (editingTemplate.emailNotifications as any)?.sendEmail ?? true,
+          emailTiming: (editingTemplate.emailNotifications as any)?.emailTiming ?? 'before',
+          notifyAssignee: editingTemplate.emailNotifications?.notifyAssignee ?? true,
+        },
+        tags: [...editingTemplate.tags],
+      });
+      setEditTagInput('');
+    }
+  }, [editingTemplate, isEditDialogOpen]);
 
   // Combine built-in and custom templates
   const allTemplates = [...workflowStepTemplates, ...customTemplates];
@@ -202,8 +244,8 @@ export function StepTemplateManager({
       defaultDuration: '30 minutes',
       requiresApproval: false,
       emailNotifications: {
-        notifyOnStart: false,
-        notifyOnComplete: false,
+        sendEmail: true,
+        emailTiming: 'before' as 'before' | 'after',
         notifyAssignee: true,
       },
       tags: [],
@@ -227,6 +269,30 @@ export function StepTemplateManager({
       ...newTemplate,
       tags: newTemplate.tags.filter((tag) => tag !== tagToRemove),
     });
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingTemplate || !editForm.name || !editForm.description) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+    const selectedIcon = iconOptions.find(i => i.name === editForm.icon);
+    const updated: WorkflowStepTemplate = {
+      ...editingTemplate,
+      name: editForm.name,
+      description: editForm.description,
+      category: editForm.category,
+      icon: selectedIcon?.icon || editingTemplate.icon,
+      defaultRole: editForm.defaultRole,
+      defaultDuration: editForm.defaultDuration,
+      requiresApproval: editForm.requiresApproval,
+      emailNotifications: editForm.emailNotifications,
+      tags: editForm.tags,
+    };
+    if (onEditTemplate) onEditTemplate(updated);
+    toast.success('Template updated', { description: `"${updated.name}" has been saved` });
+    setIsEditDialogOpen(false);
+    setEditingTemplate(null);
   };
 
   const isBuiltIn = (templateId: string) => {
@@ -257,25 +323,27 @@ export function StepTemplateManager({
           </p>
         </div>
 
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <ForgeButton
-              style={{
-                background: 'var(--brand-blue-dark)',
-                color: 'white',
-              }}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Create Template
-            </ForgeButton>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle style={{ fontSize: 'var(--text-2xl)' }}>Create Step Template</DialogTitle>
-              <DialogDescription style={{ fontSize: 'var(--text-base)' }}>
-                Create a reusable step template that can be added to any workflow
-              </DialogDescription>
-            </DialogHeader>
+        <button
+          onClick={() => setIsCreateDialogOpen(true)}
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: '8px',
+            padding: '0 16px', height: '36px',
+            background: 'var(--brand-blue-dark)', color: '#ffffff',
+            border: 'none', borderRadius: '4px',
+            fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500,
+            cursor: 'pointer', letterSpacing: '0.0125em',
+          }}
+        >
+          <Plus className="h-4 w-4" />
+          Create Template
+        </button>
+        {/* @ts-ignore */}
+        <forge-dialog ref={createDialogRef}>
+          <div style={{ padding: 'var(--forge-spacing-large)', maxWidth: '42rem', maxHeight: '80vh', overflow: 'auto' }}>
+            <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-xsmall)' }}>Create Step Template</h2>
+            <p style={{ fontSize: 'var(--text-base)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-medium)' }}>
+              Create a reusable step template that can be added to any workflow
+            </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-medium)' }}>
               {/* Template Name */}
@@ -283,13 +351,17 @@ export function StepTemplateManager({
                 <Label htmlFor="template-name" style={{ fontSize: 'var(--text-sm)' }}>
                   Template Name *
                 </Label>
-                <Input
-                  id="template-name"
-                  value={newTemplate.name}
-                  onChange={(e) => setNewTemplate({ ...newTemplate, name: e.target.value })}
-                  placeholder="e.g., Emergency Parent Notification"
-                  style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
-                />
+                {/* @ts-ignore */}
+                <forge-text-field>
+                  <input
+                    type="text"
+                    id="template-name"
+                    value={newTemplate.name}
+                    onChange={(e) => setNewTemplate({ ...newTemplate, name: e.target.value })}
+                    placeholder="e.g., Emergency Parent Notification"
+                    style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
+                  />
+                </forge-text-field>
               </div>
 
               {/* Description */}
@@ -394,13 +466,17 @@ export function StepTemplateManager({
                   <Label htmlFor="template-duration" style={{ fontSize: 'var(--text-sm)' }}>
                     Default Duration
                   </Label>
-                  <Input
-                    id="template-duration"
-                    value={newTemplate.defaultDuration}
-                    onChange={(e) => setNewTemplate({ ...newTemplate, defaultDuration: e.target.value })}
-                    placeholder="e.g., 30 minutes, 1 hour"
-                    style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
-                  />
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <input
+                      type="text"
+                      id="template-duration"
+                      value={newTemplate.defaultDuration}
+                      onChange={(e) => setNewTemplate({ ...newTemplate, defaultDuration: e.target.value })}
+                      placeholder="e.g., 30 minutes, 1 hour"
+                      style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
+                    />
+                  </forge-text-field>
                 </div>
               </div>
 
@@ -410,18 +486,22 @@ export function StepTemplateManager({
                   Tags
                 </Label>
                 <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', marginTop: 'var(--forge-spacing-xsmall)' }}>
-                  <Input
-                    id="template-tags"
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        handleAddTag();
-                      }
-                    }}
-                    placeholder="Add a tag and press Enter"
-                  />
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <input
+                      type="text"
+                      id="template-tags"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddTag();
+                        }
+                      }}
+                      placeholder="Add a tag and press Enter"
+                    />
+                  </forge-text-field>
                   <ForgeButton type="button" variant="outlined" onClick={handleAddTag}>
                     Add
                   </ForgeButton>
@@ -459,36 +539,55 @@ export function StepTemplateManager({
                 <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', cursor: 'pointer' }}>
                   <input
                     type="checkbox"
-                    checked={newTemplate.emailNotifications.notifyOnStart}
+                    checked={newTemplate.emailNotifications.sendEmail}
                     onChange={(e) =>
                       setNewTemplate({
                         ...newTemplate,
                         emailNotifications: {
                           ...newTemplate.emailNotifications,
-                          notifyOnStart: e.target.checked,
+                          sendEmail: e.target.checked,
                         },
                       })
                     }
                   />
-                  <span style={{ fontSize: 'var(--text-sm)' }}>Send email notification on step start</span>
+                  <span style={{ fontSize: 'var(--text-sm)', fontWeight: 500 }}>Send email?</span>
                 </label>
 
-                <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={newTemplate.emailNotifications.notifyOnComplete}
-                    onChange={(e) =>
-                      setNewTemplate({
-                        ...newTemplate,
-                        emailNotifications: {
-                          ...newTemplate.emailNotifications,
-                          notifyOnComplete: e.target.checked,
-                        },
-                      })
-                    }
-                  />
-                  <span style={{ fontSize: 'var(--text-sm)' }}>Send email notification on step completion</span>
-                </label>
+                {newTemplate.emailNotifications.sendEmail && (
+                  <div style={{ paddingLeft: '24px', display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-small)' }}>
+                    <span style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>When should the email be sent?</span>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', cursor: 'pointer' }}>
+                      <input
+                        type="radio"
+                        name="template-email-timing"
+                        value="before"
+                        checked={newTemplate.emailNotifications.emailTiming === 'before'}
+                        onChange={() =>
+                          setNewTemplate({
+                            ...newTemplate,
+                            emailNotifications: { ...newTemplate.emailNotifications, emailTiming: 'before' },
+                          })
+                        }
+                      />
+                      <span style={{ fontSize: 'var(--text-sm)' }}>Before the step — notify that this step is starting</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', cursor: 'pointer' }}>
+                      <input
+                        type="radio"
+                        name="template-email-timing"
+                        value="after"
+                        checked={newTemplate.emailNotifications.emailTiming === 'after'}
+                        onChange={() =>
+                          setNewTemplate({
+                            ...newTemplate,
+                            emailNotifications: { ...newTemplate.emailNotifications, emailTiming: 'after' },
+                          })
+                        }
+                      />
+                      <span style={{ fontSize: 'var(--text-sm)' }}>After the step — notify once this step is complete</span>
+                    </label>
+                  </div>
+                )}
 
                 <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', cursor: 'pointer' }}>
                   <input
@@ -513,19 +612,162 @@ export function StepTemplateManager({
                 <ForgeButton variant="outlined" onClick={() => setIsCreateDialogOpen(false)}>
                   Cancel
                 </ForgeButton>
-                <ForgeButton
+                <button
                   onClick={handleCreateTemplate}
                   style={{
-                    background: 'var(--brand-blue-dark)',
-                    color: 'white',
+                    display: 'inline-flex', alignItems: 'center', gap: '8px',
+                    padding: '0 16px', height: '36px',
+                    background: 'var(--brand-blue-dark)', color: '#ffffff',
+                    border: 'none', borderRadius: '4px',
+                    fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500,
+                    cursor: 'pointer', letterSpacing: '0.0125em',
                   }}
                 >
                   Create Template
-                </ForgeButton>
+                </button>
               </div>
             </div>
-          </DialogContent>
-        </Dialog>
+          </div>
+        </forge-dialog>
+
+        {/* Edit Template Dialog */}
+        {/* @ts-ignore */}
+        <forge-dialog ref={editDialogRef}>
+          <div style={{ padding: 'var(--forge-spacing-large)', maxWidth: '42rem', maxHeight: '80vh', overflow: 'auto' }}>
+            <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-xsmall)' }}>Edit Step Template</h2>
+            <p style={{ fontSize: 'var(--text-base)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-medium)' }}>
+              Update the details of this step template
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-medium)' }}>
+              <div>
+                <Label style={{ fontSize: 'var(--text-sm)' }}>Template Name *</Label>
+                {/* @ts-ignore */}
+                <forge-text-field>
+                  <input type="text" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} placeholder="e.g., Emergency Parent Notification" style={{ marginTop: 'var(--forge-spacing-xsmall)' }} />
+                </forge-text-field>
+              </div>
+
+              <div>
+                <Label style={{ fontSize: 'var(--text-sm)' }}>Description *</Label>
+                <Textarea value={editForm.description} onChange={(e) => setEditForm({ ...editForm, description: e.target.value })} placeholder="Describe what this step does..." rows={3} style={{ marginTop: 'var(--forge-spacing-xsmall)' }} />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--forge-spacing-medium)' }}>
+                <div>
+                  <Label style={{ fontSize: 'var(--text-sm)' }}>Category</Label>
+                  <select value={editForm.category} onChange={(e) => setEditForm({ ...editForm, category: e.target.value as WorkflowStepTemplate['category'] })} style={{ width: '100%', marginTop: 'var(--forge-spacing-xsmall)', padding: 'var(--forge-spacing-small)', borderRadius: 'var(--forge-radius-medium)', border: '1px solid var(--border)', fontSize: 'var(--text-base)', background: 'var(--input-background)' }}>
+                    {categoryOptions.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <Label style={{ fontSize: 'var(--text-sm)' }}>Icon</Label>
+                  <select value={editForm.icon} onChange={(e) => setEditForm({ ...editForm, icon: e.target.value })} style={{ width: '100%', marginTop: 'var(--forge-spacing-xsmall)', padding: 'var(--forge-spacing-small)', borderRadius: 'var(--forge-radius-medium)', border: '1px solid var(--border)', fontSize: 'var(--text-base)', background: 'var(--input-background)' }}>
+                    {iconOptions.map(i => <option key={i.name} value={i.name}>{i.name}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--forge-spacing-medium)' }}>
+                <div>
+                  <Label style={{ fontSize: 'var(--text-sm)' }}>Default Assigned Role</Label>
+                  <select value={editForm.defaultRole} onChange={(e) => setEditForm({ ...editForm, defaultRole: e.target.value })} style={{ width: '100%', marginTop: 'var(--forge-spacing-xsmall)', padding: 'var(--forge-spacing-small)', borderRadius: 'var(--forge-radius-medium)', border: '1px solid var(--border)', fontSize: 'var(--text-base)', background: 'var(--input-background)' }}>
+                    {roleOptions.map(r => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <Label style={{ fontSize: 'var(--text-sm)' }}>Default Duration</Label>
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <input type="text" value={editForm.defaultDuration} onChange={(e) => setEditForm({ ...editForm, defaultDuration: e.target.value })} placeholder="e.g., 30 minutes" style={{ marginTop: 'var(--forge-spacing-xsmall)' }} />
+                  </forge-text-field>
+                </div>
+              </div>
+
+              {/* Tags */}
+              <div>
+                <Label style={{ fontSize: 'var(--text-sm)' }}>Tags</Label>
+                <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', marginTop: 'var(--forge-spacing-xsmall)' }}>
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <input
+                      type="text"
+                      value={editTagInput}
+                      onChange={(e) => setEditTagInput(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          if (editTagInput.trim() && !editForm.tags.includes(editTagInput.trim())) {
+                            setEditForm({ ...editForm, tags: [...editForm.tags, editTagInput.trim()] });
+                            setEditTagInput('');
+                          }
+                        }
+                      }}
+                      placeholder="Add a tag and press Enter"
+                    />
+                  </forge-text-field>
+                  <ForgeButton type="button" variant="outlined" onClick={() => {
+                    if (editTagInput.trim() && !editForm.tags.includes(editTagInput.trim())) {
+                      setEditForm({ ...editForm, tags: [...editForm.tags, editTagInput.trim()] });
+                      setEditTagInput('');
+                    }
+                  }}>Add</ForgeButton>
+                </div>
+                {editForm.tags.length > 0 && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--forge-spacing-small)', marginTop: 'var(--forge-spacing-small)' }}>
+                    {editForm.tags.map(tag => (
+                      <Badge key={tag} variant="outline" style={{ fontSize: '0.6875rem', cursor: 'pointer' }} onClick={() => setEditForm({ ...editForm, tags: editForm.tags.filter(t => t !== tag) })}>
+                        {tag} ×
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Checkboxes */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-small)' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={editForm.requiresApproval} onChange={(e) => setEditForm({ ...editForm, requiresApproval: e.target.checked })} />
+                  <span style={{ fontSize: 'var(--text-sm)' }}>Requires approval</span>
+                </label>
+
+                <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={editForm.emailNotifications.sendEmail} onChange={(e) => setEditForm({ ...editForm, emailNotifications: { ...editForm.emailNotifications, sendEmail: e.target.checked } })} />
+                  <span style={{ fontSize: 'var(--text-sm)', fontWeight: 500 }}>Send email?</span>
+                </label>
+
+                {editForm.emailNotifications.sendEmail && (
+                  <div style={{ paddingLeft: '24px', display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-small)' }}>
+                    <span style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>When should the email be sent?</span>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', cursor: 'pointer' }}>
+                      <input type="radio" name="edit-email-timing" value="before" checked={editForm.emailNotifications.emailTiming === 'before'} onChange={() => setEditForm({ ...editForm, emailNotifications: { ...editForm.emailNotifications, emailTiming: 'before' } })} />
+                      <span style={{ fontSize: 'var(--text-sm)' }}>Before the step — notify that this step is starting</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', cursor: 'pointer' }}>
+                      <input type="radio" name="edit-email-timing" value="after" checked={editForm.emailNotifications.emailTiming === 'after'} onChange={() => setEditForm({ ...editForm, emailNotifications: { ...editForm.emailNotifications, emailTiming: 'after' } })} />
+                      <span style={{ fontSize: 'var(--text-sm)' }}>After the step — notify once this step is complete</span>
+                    </label>
+                  </div>
+                )}
+
+                <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', cursor: 'pointer' }}>
+                  <input type="checkbox" checked={editForm.emailNotifications.notifyAssignee} onChange={(e) => setEditForm({ ...editForm, emailNotifications: { ...editForm.emailNotifications, notifyAssignee: e.target.checked } })} />
+                  <span style={{ fontSize: 'var(--text-sm)' }}>Notify assigned person</span>
+                </label>
+              </div>
+
+              <div style={{ display: 'flex', gap: 'var(--forge-spacing-medium)', justifyContent: 'flex-end', marginTop: 'var(--forge-spacing-medium)' }}>
+                <ForgeButton variant="outlined" onClick={() => { setIsEditDialogOpen(false); setEditingTemplate(null); }}>Cancel</ForgeButton>
+                <button
+                  onClick={handleSaveEdit}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '0 16px', height: '36px', background: 'var(--brand-blue-dark)', color: '#ffffff', border: 'none', borderRadius: '4px', fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500, cursor: 'pointer' }}
+                >
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </forge-dialog>
       </div>
 
       {/* Stats */}
@@ -599,45 +841,54 @@ export function StepTemplateManager({
       <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search step templates by name, description, or tags..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ paddingLeft: 'calc(var(--forge-spacing-large) + 8px)' }}
-          />
+          {/* @ts-ignore */}
+          <forge-text-field>
+            <input
+              type="text"
+              placeholder="Search step templates by name, description, or tags..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ paddingLeft: '2rem' }}
+            />
+          </forge-text-field>
         </div>
       </div>
 
       {/* Category Filter */}
       <div style={{ marginBottom: 'var(--forge-spacing-large)' }}>
         <div className="flex flex-wrap gap-2">
-          {categories.map((category) => (
-            <ForgeButton
-              key={category}
-              variant={filterCategory === category ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFilterCategory(category)}
-              style={{
-                background: filterCategory === category ? 'var(--brand-blue-dark)' : 'transparent',
-                color: filterCategory === category ? 'white' : 'var(--foreground)',
-                borderColor: filterCategory === category ? 'var(--brand-blue-dark)' : 'var(--border)',
-              }}
-            >
-              {category}
-              <Badge
-                variant="secondary"
-                className="ml-2"
+          {categories.map((category) => {
+            const active = filterCategory === category;
+            return (
+              <button
+                key={category}
+                type="button"
+                onClick={() => setFilterCategory(category)}
                 style={{
-                  fontSize: '0.6875rem',
-                  background: filterCategory === category ? 'rgba(255,255,255,0.2)' : 'var(--muted)',
-                  color: filterCategory === category ? 'white' : 'var(--muted-foreground)',
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  padding: '4px 12px', height: '32px',
+                  background: active ? 'var(--brand-blue-dark)' : 'transparent',
+                  color: active ? '#ffffff' : 'var(--foreground)',
+                  border: `1px solid ${active ? 'var(--brand-blue-dark)' : 'var(--border)'}`,
+                  borderRadius: '4px',
+                  fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: active ? 500 : 400,
+                  cursor: 'pointer',
                 }}
               >
-                {getCategoryCount(category)}
-              </Badge>
-            </ForgeButton>
-          ))}
+                {category}
+                <span style={{
+                  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                  minWidth: '20px', height: '18px', padding: '0 5px',
+                  borderRadius: '999px',
+                  background: active ? 'rgba(255,255,255,0.25)' : 'var(--muted)',
+                  color: active ? '#ffffff' : 'var(--muted-foreground)',
+                  fontSize: '0.6875rem', fontWeight: 500,
+                }}>
+                  {getCategoryCount(category)}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -657,7 +908,7 @@ export function StepTemplateManager({
                   <div style={{ display: 'flex', alignItems: 'start', gap: 'var(--forge-spacing-small)' }}>
                     <div
                       className="h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                      style={{ background: 'var(--accent)', color: 'var(--brand-blue-dark)' }}
+                      style={{ background: 'var(--brand-blue-dark)', color: '#ffffff' }}
                     >
                       <IconComponent className="h-5 w-5" />
                     </div>
@@ -669,23 +920,25 @@ export function StepTemplateManager({
                         >
                           {template.name}
                         </h3>
-                        {!isTemplateBuiltIn && (
-                          <div style={{ display: 'flex', gap: 'var(--forge-spacing-xsmall)' }}>
-                            <ForgeButton
-                              variant="flat"
-                              size="sm"
-                              style={{ padding: 'var(--forge-spacing-xsmall)' }}
-                              onClick={() => {
-                                setEditingTemplate(template);
-                                setIsEditDialogOpen(true);
-                              }}
-                            >
-                              <Edit className="h-3 w-3" />
-                            </ForgeButton>
+                        <div style={{ display: 'flex', gap: 'var(--forge-spacing-xsmall)' }}>
+                          <ForgeButton
+                            variant="flat"
+                            size="sm"
+                            style={{ padding: 'var(--forge-spacing-xsmall)' }}
+                            title="Edit template"
+                            onClick={() => {
+                              setEditingTemplate(template);
+                              setIsEditDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="h-3 w-3" />
+                          </ForgeButton>
+                          {!isTemplateBuiltIn && (
                             <ForgeButton
                               variant="flat"
                               size="sm"
                               style={{ padding: 'var(--forge-spacing-xsmall)', color: 'var(--destructive)' }}
+                              title="Delete template"
                               onClick={() => {
                                 if (onDeleteTemplate) {
                                   onDeleteTemplate(template.id);
@@ -695,8 +948,8 @@ export function StepTemplateManager({
                             >
                               <Trash2 className="h-3 w-3" />
                             </ForgeButton>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </div>
                       <p
                         className="text-muted-foreground"

@@ -1,13 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent } from '@tylertech/forge';
+import { defineCardComponent, defineButtonComponent, defineDialogComponent } from '@tylertech/forge';
 defineCardComponent();
-import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
+defineDialogComponent();
 import { Download, Calendar, BarChart3, TrendingUp, Users, AlertTriangle, Bus, Shield, FileText, School, Clock, Target, Eye, X, ArrowUp, ArrowDown } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import { toast } from 'sonner@2.0.3';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const quickReports = [
@@ -461,6 +460,23 @@ export function ReportsPage({ onNavigate }: ReportsPageProps) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewReport, setPreviewReport] = useState<typeof quickReports[0] | null>(null);
 
+  const previewDialogRef = useRef<HTMLElement>(null);
+
+  // Sync preview dialog open state to forge-dialog
+  useEffect(() => {
+    const el = previewDialogRef.current as any;
+    if (!el) return;
+    el.open = isPreviewOpen;
+  }, [isPreviewOpen]);
+
+  useEffect(() => {
+    const el = previewDialogRef.current as any;
+    if (!el) return;
+    const handler = () => setIsPreviewOpen(false);
+    el.addEventListener('forge-dialog-close', handler);
+    return () => el.removeEventListener('forge-dialog-close', handler);
+  }, []);
+
   const incidentTypes = [
     'Behavioral',
     'Safety Violation',
@@ -644,13 +660,14 @@ export function ReportsPage({ onNavigate }: ReportsPageProps) {
       </ForgeCard>
 
       {/* Report Preview Modal */}
-      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-h-[85vh] flex flex-col" style={{ maxWidth: '95vw', width: 'fit-content', minWidth: '900px' }} aria-describedby={undefined}>
-          <DialogHeader>
+      {/* @ts-ignore */}
+      <forge-dialog ref={previewDialogRef} aria-label={previewReport?.title || 'Report Preview'}>
+        <div className="max-h-[85vh] flex flex-col" style={{ maxWidth: '95vw', width: 'fit-content', minWidth: '900px', padding: 'var(--forge-spacing-large)' }}>
+          <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
             <div className="flex items-center justify-between" style={{ marginRight: 'var(--forge-spacing-large)' }}>
-              <DialogTitle style={{ fontSize: 'var(--forge-font-size-xl)', fontWeight: 'var(--forge-font-weight-medium)' }}>
+              <h2 style={{ margin: 0, fontSize: 'var(--forge-font-size-xl)', fontWeight: 'var(--forge-font-weight-medium)', fontFamily: 'var(--forge-font-family)' }}>
                 {previewReport?.title}
-              </DialogTitle>
+              </h2>
               <button
                 onClick={() => {
                   if (previewReport) {
@@ -670,7 +687,7 @@ export function ReportsPage({ onNavigate }: ReportsPageProps) {
                 Download Report
               </button>
             </div>
-          </DialogHeader>
+          </div>
 
           {previewReport && (
             <div className="flex-1 overflow-hidden flex flex-col" style={{ minHeight: 0 }}>
@@ -1026,8 +1043,8 @@ export function ReportsPage({ onNavigate }: ReportsPageProps) {
               )}
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </div>
+      </forge-dialog>
     </div>
   );
 }

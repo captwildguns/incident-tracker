@@ -1,16 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent } from '@tylertech/forge';
+import { defineCardComponent, defineButtonComponent, defineTextFieldComponent, defineDialogComponent } from '@tylertech/forge';
 defineCardComponent();
-import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Input } from '../ui/input';
+defineTextFieldComponent();
+defineDialogComponent();
 import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
 import { Textarea } from '../ui/textarea';
 import { StepConfigDialog } from './StepConfigDialog';
 import { WorkflowStepLibrary, WorkflowStepTemplate } from './WorkflowStepLibrary';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import {
   Plus,
   Trash2,
@@ -45,9 +44,14 @@ interface WorkflowStep {
   requiresApproval?: boolean;
   approvers?: string[];
   emailNotifications?: {
-    notifyOnStart: boolean;
-    notifyOnComplete: boolean;
+    sendEmail: boolean;
+    emailTiming: 'before' | 'after';
+    notifyOnStart?: boolean;
+    notifyOnComplete?: boolean;
     notifyAssignee: boolean;
+    notifyRoles?: string[];
+    additionalRecipients?: string[];
+    emailTemplate?: string;
   };
   templateId?: string; // Track which template this step was created from
 }
@@ -58,8 +62,12 @@ interface WorkflowBuilderPageProps {
 }
 
 export function WorkflowBuilderPage({ onNavigate, selectedWorkflow }: WorkflowBuilderPageProps) {
-  const [workflowName] = useState(selectedWorkflow?.name || 'Bus Accident Response');
-  const [workflowDescription] = useState(selectedWorkflow?.description || '');
+  const [workflowName, setWorkflowName] = useState(selectedWorkflow?.name || 'Bus Accident Response');
+  const [workflowDescription, setWorkflowDescription] = useState(selectedWorkflow?.description || '');
+  const [workflowCategory, setWorkflowCategory] = useState(selectedWorkflow?.category || 'Safety');
+  const [workflowSeverity, setWorkflowSeverity] = useState(selectedWorkflow?.severity || 'Medium');
+  const [workflowActive, setWorkflowActive] = useState(selectedWorkflow?.active ?? true);
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [steps, setSteps] = useState<WorkflowStep[]>(
     selectedWorkflow?.steps && selectedWorkflow.steps.length > 0
       ? selectedWorkflow.steps
@@ -96,6 +104,12 @@ export function WorkflowBuilderPage({ onNavigate, selectedWorkflow }: WorkflowBu
 
   const [configuringStep, setConfiguringStep] = useState<WorkflowStep | null>(null);
   const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false);
+  const [isLibraryDialogOpen, setIsLibraryDialogOpen] = useState(false);
+  const libraryDialogRef = useRef<HTMLElement>(null);
+
+  // Sync library dialog open state
+  useEffect(() => { const el = libraryDialogRef.current as any; if (!el) return; el.open = isLibraryDialogOpen; }, [isLibraryDialogOpen]);
+  useEffect(() => { const el = libraryDialogRef.current as any; if (!el) return; const handler = () => setIsLibraryDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
   const [newStep, setNewStep] = useState({
     name: '',
     description: '',
@@ -244,6 +258,112 @@ export function WorkflowBuilderPage({ onNavigate, selectedWorkflow }: WorkflowBu
         </p>
       </div>
 
+      {/* Workflow Details card */}
+      <ForgeCard style={{ marginBottom: 'var(--forge-spacing-large)' }}>
+        <button
+          type="button"
+          onClick={() => setDetailsExpanded(e => !e)}
+          style={{
+            width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            padding: 'var(--forge-spacing-medium)', background: 'none', border: 'none', cursor: 'pointer',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)' }}>
+            <Settings className="h-5 w-5" style={{ color: 'var(--brand-blue-dark)' }} />
+            <span style={{ fontSize: 'var(--text-base)', fontWeight: 'var(--forge-font-weight-medium)' }}>
+              Workflow Details
+            </span>
+            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)', marginLeft: 4 }}>
+              — {workflowName}{workflowCategory ? ` · ${workflowCategory}` : ''}{workflowSeverity ? ` · ${workflowSeverity}` : ''}
+            </span>
+          </div>
+          <ChevronDown
+            className="h-4 w-4"
+            style={{
+              color: 'var(--muted-foreground)',
+              transform: detailsExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.15s',
+            }}
+          />
+        </button>
+
+        {detailsExpanded && (
+          <div style={{ padding: '0 var(--forge-spacing-medium) var(--forge-spacing-medium)', display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--border)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--forge-spacing-medium)', marginTop: 'var(--forge-spacing-medium)' }}>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <Label style={{ fontSize: 'var(--text-sm)' }}>Workflow Name *</Label>
+                {/* @ts-ignore */}
+                <forge-text-field>
+                  <input
+                    type="text"
+                    value={workflowName}
+                    onChange={(e) => setWorkflowName(e.target.value)}
+                    placeholder="e.g., Bus Accident Response"
+                    style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
+                  />
+                </forge-text-field>
+              </div>
+
+              <div style={{ gridColumn: '1 / -1' }}>
+                <Label style={{ fontSize: 'var(--text-sm)' }}>Description</Label>
+                <Textarea
+                  value={workflowDescription}
+                  onChange={(e) => setWorkflowDescription(e.target.value)}
+                  placeholder="Describe when and how this workflow is used..."
+                  rows={3}
+                  style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
+                />
+              </div>
+
+              <div>
+                <Label style={{ fontSize: 'var(--text-sm)' }}>Category</Label>
+                <select
+                  value={workflowCategory}
+                  onChange={(e) => setWorkflowCategory(e.target.value)}
+                  style={{
+                    width: '100%', marginTop: 'var(--forge-spacing-xsmall)',
+                    padding: 'var(--forge-spacing-small)', borderRadius: 'var(--forge-radius-medium)',
+                    border: '1px solid var(--border)', fontSize: 'var(--text-base)', background: 'var(--input-background)',
+                  }}
+                >
+                  {['Safety', 'Behavioral', 'Medical', 'Administrative', 'Communication', 'Investigation', 'Follow-up'].map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <Label style={{ fontSize: 'var(--text-sm)' }}>Default Severity</Label>
+                <select
+                  value={workflowSeverity}
+                  onChange={(e) => setWorkflowSeverity(e.target.value)}
+                  style={{
+                    width: '100%', marginTop: 'var(--forge-spacing-xsmall)',
+                    padding: 'var(--forge-spacing-small)', borderRadius: 'var(--forge-radius-medium)',
+                    border: '1px solid var(--border)', fontSize: 'var(--text-base)', background: 'var(--input-background)',
+                  }}
+                >
+                  {['Low', 'Medium', 'High'].map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', cursor: 'pointer', marginTop: 'var(--forge-spacing-xsmall)' }}>
+                  <input
+                    type="checkbox"
+                    checked={workflowActive}
+                    onChange={(e) => setWorkflowActive(e.target.checked)}
+                  />
+                  <span style={{ fontSize: 'var(--text-sm)' }}>Active — available for assignment to new incidents</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
+      </ForgeCard>
+
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'var(--forge-spacing-large)' }}>
         {/* Steps List */}
         <div>
@@ -356,7 +476,7 @@ export function WorkflowBuilderPage({ onNavigate, selectedWorkflow }: WorkflowBu
                             <Badge variant="outline">Optional</Badge>
                           )}
 
-                          {step.emailNotifications && (step.emailNotifications.notifyOnStart || step.emailNotifications.notifyOnComplete) && (
+                          {step.emailNotifications && step.emailNotifications.sendEmail && (
                             <Badge
                               variant="outline"
                               style={{
@@ -418,58 +538,56 @@ export function WorkflowBuilderPage({ onNavigate, selectedWorkflow }: WorkflowBu
         {/* Add Step Form */}
         <div>
           {/* Browse Step Library */}
-          <Dialog>
-            <DialogTrigger asChild>
-              <button
-                style={{
-                  width: '100%',
-                  marginBottom: 'var(--forge-spacing-medium)',
-                  background: 'var(--card)',
-                  color: 'var(--card-foreground)',
-                  borderRadius: 'var(--forge-radius-medium)',
-                  border: '1px solid var(--border)',
-                  cursor: 'pointer',
-                  padding: 'var(--forge-spacing-large)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 'var(--forge-spacing-medium)',
-                  fontFamily: 'var(--forge-font-family)',
-                }}
-              >
-                <Library className="h-8 w-8" style={{ color: 'var(--brand-blue-dark)' }} />
-                <span style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--forge-font-weight-medium)', color: 'var(--brand-blue-dark)' }}>
-                  Add Step from Library
-                </span>
-                <span style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>
-                  Browse pre-built step templates to quickly build your workflow
-                </span>
-                <div
-                  style={{
-                    width: '100%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--forge-spacing-small)',
-                    background: 'var(--muted)',
-                    borderRadius: 'var(--forge-radius-medium)',
-                    padding: 'var(--forge-spacing-small) var(--forge-spacing-medium)',
-                    marginTop: 'var(--forge-spacing-xsmall)',
-                  }}
-                >
-                  <Search className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
-                  <span style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>
-                    Search steps...
-                  </span>
-                </div>
-              </button>
-            </DialogTrigger>
-            <DialogContent className="max-w-5xl max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle style={{ fontSize: 'var(--text-2xl)' }}>Add Step from Library</DialogTitle>
-                <DialogDescription style={{ fontSize: 'var(--text-base)' }}>
-                  Select a pre-built step template to add to your workflow. Click "Add to Workflow" on any step below.
-                </DialogDescription>
-              </DialogHeader>
+          <button
+            onClick={() => setIsLibraryDialogOpen(true)}
+            style={{
+              width: '100%',
+              marginBottom: 'var(--forge-spacing-medium)',
+              background: 'var(--card)',
+              color: 'var(--card-foreground)',
+              borderRadius: 'var(--forge-radius-medium)',
+              border: '1px solid var(--border)',
+              cursor: 'pointer',
+              padding: 'var(--forge-spacing-large)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 'var(--forge-spacing-medium)',
+              fontFamily: 'var(--forge-font-family)',
+            }}
+          >
+            <Library className="h-8 w-8" style={{ color: 'var(--brand-blue-dark)' }} />
+            <span style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--forge-font-weight-medium)', color: 'var(--brand-blue-dark)' }}>
+              Add Step from Library
+            </span>
+            <span style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>
+              Browse pre-built step templates to quickly build your workflow
+            </span>
+            <div
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 'var(--forge-spacing-small)',
+                background: 'var(--muted)',
+                borderRadius: 'var(--forge-radius-medium)',
+                padding: 'var(--forge-spacing-small) var(--forge-spacing-medium)',
+                marginTop: 'var(--forge-spacing-xsmall)',
+              }}
+            >
+              <Search className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+              <span style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>
+                Search steps...
+              </span>
+            </div>
+          </button>
+          {/* @ts-ignore */}
+          <forge-dialog ref={libraryDialogRef}>
+            <div style={{ padding: 'var(--forge-spacing-large)', maxWidth: '80vw', maxHeight: '80vh', overflow: 'auto' }}>
+              <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-xsmall)' }}>Add Step from Library</h2>
+              <p style={{ fontSize: 'var(--text-base)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-medium)' }}>
+                Select a pre-built step template to add to your workflow. Click "Add to Workflow" on any step below.
+              </p>
               <WorkflowStepLibrary
                 onAddStep={(template: WorkflowStepTemplate) => {
                   const step: WorkflowStep = {
@@ -492,8 +610,8 @@ export function WorkflowBuilderPage({ onNavigate, selectedWorkflow }: WorkflowBu
                 }}
                 addedTemplateIds={steps.filter(s => s.templateId).map(s => s.templateId!)}
               />
-            </DialogContent>
-          </Dialog>
+            </div>
+          </forge-dialog>
 
           <ForgeCard style={{ position: 'sticky', top: 'var(--forge-spacing-medium)' }}>
             <div style={{ padding: 'var(--forge-spacing-medium)' }}>
@@ -508,13 +626,17 @@ export function WorkflowBuilderPage({ onNavigate, selectedWorkflow }: WorkflowBu
                   <Label htmlFor="step-name" style={{ fontSize: 'var(--text-sm)' }}>
                     Step Name
                   </Label>
-                  <Input
-                    id="step-name"
-                    value={newStep.name}
-                    onChange={(e) => setNewStep({ ...newStep, name: e.target.value })}
-                    placeholder="e.g., Notify Parent"
-                    style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
-                  />
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <input
+                      type="text"
+                      id="step-name"
+                      value={newStep.name}
+                      onChange={(e) => setNewStep({ ...newStep, name: e.target.value })}
+                      placeholder="e.g., Notify Parent"
+                      style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
+                    />
+                  </forge-text-field>
                 </div>
 
                 <div>
@@ -561,13 +683,17 @@ export function WorkflowBuilderPage({ onNavigate, selectedWorkflow }: WorkflowBu
                   <Label htmlFor="step-duration" style={{ fontSize: 'var(--text-sm)' }}>
                     Estimated Duration
                   </Label>
-                  <Input
-                    id="step-duration"
-                    value={newStep.estimatedDuration}
-                    onChange={(e) => setNewStep({ ...newStep, estimatedDuration: e.target.value })}
-                    placeholder="e.g., 10 minutes, 1 hour"
-                    style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
-                  />
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <input
+                      type="text"
+                      id="step-duration"
+                      value={newStep.estimatedDuration}
+                      onChange={(e) => setNewStep({ ...newStep, estimatedDuration: e.target.value })}
+                      placeholder="e.g., 10 minutes, 1 hour"
+                      style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
+                    />
+                  </forge-text-field>
                 </div>
 
                 <div>

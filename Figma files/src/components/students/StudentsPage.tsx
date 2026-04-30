@@ -1,15 +1,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Badge } from '../ui/badge';
 import { ForgeButton } from '@tylertech/forge-react';
-import { defineButtonComponent } from '@tylertech/forge';
+import { defineButtonComponent, defineCardComponent, defineDialogComponent, defineTextFieldComponent } from '@tylertech/forge';
 defineButtonComponent();
 import { ForgeCard } from '@tylertech/forge-react';
-import { defineCardComponent } from '@tylertech/forge';
 defineCardComponent();
+defineDialogComponent();
+defineTextFieldComponent();
 import { Checkbox } from '../ui/checkbox';
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '../ui/command';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
-import { Input } from '../ui/input';
 import { ForgeMultiSelect } from '../ui/forge-multiselect';
 import { Search, AlertTriangle, AlertCircle, Calendar, GraduationCap, School, Check, Filter, X, Download, ChevronUp, ChevronDown, ChevronsUpDown, Users, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
@@ -1155,6 +1154,8 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
   const [incidentSearchTerm, setIncidentSearchTerm] = useState('');
   const [studentLookupOpen, setStudentLookupOpen] = useState(false);
   const studentLookupRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [gradeFilter, setGradeFilter] = useState<string[]>([]);
   const [schoolFilter, setSchoolFilter] = useState<string[]>([]);
   const [activeIncidentsFilter, setActiveIncidentsFilter] = useState<boolean>(initialActiveIncidentsFilter);
@@ -1186,6 +1187,25 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
       };
     }
   }, [studentLookupOpen]);
+
+  // Sync dialogOpen state to forge-dialog element
+  useEffect(() => {
+    if (dialogRef.current) {
+      (dialogRef.current as any).open = dialogOpen;
+    }
+  }, [dialogOpen]);
+
+  // Listen for forge-dialog-close event
+  useEffect(() => {
+    const el = dialogRef.current;
+    if (!el) return;
+    const handleClose = () => {
+      setDialogOpen(false);
+      setSelectedStudent(null);
+    };
+    el.addEventListener('forge-dialog-close', handleClose);
+    return () => el.removeEventListener('forge-dialog-close', handleClose);
+  }, []);
 
   const filteredStudents = mockStudents.filter((student) => {
     // Search filter
@@ -1379,16 +1399,20 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
             {/* Search */}
             <div className="relative flex-1 min-w-[300px]" ref={studentLookupRef}>
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-              <Input
-                placeholder="Search by student name, ID, or school..."
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setStudentLookupOpen(true);
-                }}
-                onFocus={() => setStudentLookupOpen(true)}
-                className="pl-10"
-              />
+              {/* @ts-ignore */}
+              <forge-text-field>
+                <input
+                  type="text"
+                  placeholder="Search by student name, ID, or school..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setStudentLookupOpen(true);
+                  }}
+                  onFocus={() => setStudentLookupOpen(true)}
+                  style={{ paddingLeft: '2rem' }}
+                />
+              </forge-text-field>
               {studentLookupOpen && searchTerm && (
                 <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-[400px] overflow-auto">
                   <Command className="bg-white">
@@ -1587,18 +1611,18 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
                     : null;
                   
                   return (
-                    <Dialog key={student.id}>
-                      <DialogTrigger asChild>
                         <tr
+                          key={student.id}
                           className="forge-table-row cursor-pointer"
-                          onClick={() => { setSelectedStudent(student); setIncidentSearchTerm(''); }}
+                          style={{ transition: 'background-color 0.15s' }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--forge-theme-primary-container-minimum)'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
+                          onClick={() => { setSelectedStudent(student); setIncidentSearchTerm(''); setDialogOpen(true); }}
                         >
                         <td className="forge-table-cell">
-                          <span
-                            style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)' }}
-                          >
+                          <div style={{ fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>
                             {student.id}
-                          </span>
+                          </div>
                         </td>
                         <td className="forge-table-cell">
                           <div>
@@ -1624,13 +1648,13 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
                         <td className="forge-table-cell">
                           <div className="flex items-center gap-2">
                             <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                            <span style={{ fontSize: '0.875rem' }}>{student.grade}</span>
+                            <span>{student.grade}</span>
                           </div>
                         </td>
                         <td className="forge-table-cell">
                           <div className="flex items-center gap-2">
                             <School className="h-4 w-4 text-muted-foreground" />
-                            <span style={{ fontSize: '0.875rem' }}>{student.school}</span>
+                            <span>{student.school}</span>
                           </div>
                         </td>
                         <td className="forge-table-cell">
@@ -1653,171 +1677,10 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
                         <td className="forge-table-cell">
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
-                            <span style={{ fontSize: '0.875rem' }}>{student.lastIncident}</span>
+                            <span>{student.lastIncident}</span>
                           </div>
                         </td>
                         </tr>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col" aria-describedby={undefined}>
-                        <DialogHeader>
-                          <DialogTitle style={{ fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)' }}>Student Profile - {selectedStudent?.name}</DialogTitle>
-                        </DialogHeader>
-                        <div className="overflow-y-auto flex-1 pr-2" style={{ maxHeight: 'calc(85vh - 120px)' }}>
-                          {selectedStudent && (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-large)' }}>
-                              {/* Student Quick Info - No Photo */}
-                              <div style={{ paddingBottom: 'var(--forge-spacing-medium)', borderBottom: '1px solid var(--forge-color-border-default)' }}>
-                                <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--foreground)' }}>
-                                  Student ID: {selectedStudent.id}
-                                  <span style={{ margin: '0 var(--forge-spacing-xsmall)', color: 'var(--muted-foreground)' }}>·</span>
-                                  {selectedStudent.grade}
-                                </div>
-                                <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)', marginTop: 'var(--forge-spacing-xxsmall)' }}>
-                                  {selectedStudent.school}
-                                </div>
-                              </div>
-
-                              {/* Incident Summary */}
-                              <div>
-                                <h3 style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-lg)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-small)' }}>
-                                  Incident Summary
-                                </h3>
-                                <div className="grid grid-cols-2" style={{ gap: 'var(--forge-spacing-medium)', marginBottom: 'var(--forge-spacing-medium)' }}>
-                                  <div>
-                                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Total Incidents</div>
-                                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-xl)', fontWeight: 'var(--forge-font-weight-medium)' }}>{selectedStudent.incidentCount}</div>
-                                  </div>
-                                  <div>
-                                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Last Incident</div>
-                                    <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)' }}>
-                                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                                      <span>{selectedStudent.lastIncident}</span>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Incident Search/Filter */}
-                                <div className="relative" style={{ marginBottom: 'var(--forge-spacing-xsmall)' }}>
-                                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                                  <input
-                                    type="text"
-                                    placeholder="Search incidents by ID, type, status, or description..."
-                                    value={incidentSearchTerm}
-                                    onChange={(e) => setIncidentSearchTerm(e.target.value)}
-                                    className="w-full border rounded pl-7 pr-7 py-1.5 bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                                    style={{
-                                      fontFamily: 'var(--forge-font-family)',
-                                      fontSize: 'var(--forge-font-size-xs)',
-                                      borderColor: 'var(--forge-color-border-default)',
-                                      borderRadius: 'var(--forge-radius-medium)',
-                                    }}
-                                  />
-                                  {incidentSearchTerm && (
-                                    <button
-                                      onClick={() => setIncidentSearchTerm('')}
-                                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground bg-transparent border-none p-0 cursor-pointer"
-                                    >
-                                      <X className="h-3.5 w-3.5" />
-                                    </button>
-                                  )}
-                                </div>
-
-                                {/* Incidents List */}
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-small)' }}>
-                                  {selectedStudent.incidents
-                                    .filter((incident: any) => {
-                                      if (!incidentSearchTerm.trim()) return true;
-                                      const term = incidentSearchTerm.toLowerCase();
-                                      return (
-                                        incident.id?.toLowerCase().includes(term) ||
-                                        incident.type?.toLowerCase().includes(term) ||
-                                        incident.status?.toLowerCase().includes(term) ||
-                                        incident.severity?.toLowerCase().includes(term) ||
-                                        incident.description?.toLowerCase().includes(term) ||
-                                        matchesDate(incident.date, incidentSearchTerm)
-                                      );
-                                    })
-                                    .map((incident: any) => (
-                                    <ForgeCard
-                                      key={incident.id}
-                                      className="hover:bg-accent/50 transition-colors cursor-pointer"
-                                      style={{ border: '1px solid var(--forge-color-border-subtle)', borderRadius: 'var(--forge-radius-large)' }}
-                                      onClick={() => {
-                                        if (onNavigateToIncidentDetail && selectedStudent) {
-                                          const fullIncident = {
-                                            ...incident,
-                                            student: selectedStudent.name,
-                                            studentId: selectedStudent.id,
-                                            bus: selectedStudent.bus,
-                                            route: selectedStudent.route,
-                                            driver: 'Assigned Driver',
-                                            assignedTo: 'Jane Doe',
-                                            createdBy: 'System',
-                                          };
-                                          onNavigateToIncidentDetail(fullIncident);
-                                        }
-                                      }}
-                                    >
-                                      <div style={{ padding: 'var(--forge-spacing-medium)' }}>
-                                        {/* Row 1: Incident ID + Date */}
-                                        <div className="flex items-center justify-between" style={{ marginBottom: 'var(--forge-spacing-xsmall)' }}>
-                                          <span
-                                            style={{ fontWeight: 'var(--forge-font-weight-medium)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--foreground)' }}
-                                          >
-                                            {incident.id}
-                                          </span>
-                                          <span style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)' }}>
-                                            {incident.date}
-                                          </span>
-                                        </div>
-                                        {/* Row 2: Type + Severity badges left, Status badge right */}
-                                        <div className="flex items-center justify-between" style={{ marginBottom: 'var(--forge-spacing-xsmall)' }}>
-                                          <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xxsmall)' }}>
-                                            <Badge variant="outline" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-xs)' }}>{incident.type}</Badge>
-                                            <Badge
-                                              variant={
-                                                incident.severity === 'High' ? 'destructive' :
-                                                incident.severity === 'Medium' ? 'secondary' :
-                                                'outline'
-                                              }
-                                              style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-xs)' }}
-                                            >
-                                              {incident.severity}
-                                            </Badge>
-                                          </div>
-                                          <Badge
-                                            variant={
-                                              incident.status === 'Open' ? 'default' :
-                                              incident.status === 'In Progress' ? 'secondary' :
-                                              'outline'
-                                            }
-                                            style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-xs)' }}
-                                          >
-                                            {incident.status}
-                                          </Badge>
-                                        </div>
-                                        {/* Row 3: Description */}
-                                        <p style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)', margin: 0 }}>
-                                          {incident.description}
-                                        </p>
-                                      </div>
-                                    </ForgeCard>
-                                  ))}
-                                  {incidentSearchTerm.trim() && selectedStudent.incidents.filter((inc: any) => {
-                                    const t = incidentSearchTerm.toLowerCase();
-                                    return inc.id?.toLowerCase().includes(t) || inc.type?.toLowerCase().includes(t) || inc.status?.toLowerCase().includes(t) || inc.severity?.toLowerCase().includes(t) || inc.description?.toLowerCase().includes(t) || matchesDate(inc.date, incidentSearchTerm);
-                                  }).length === 0 && (
-                                    <div className="text-center" style={{ padding: 'var(--forge-spacing-medium)', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)' }}>
-                                      No incidents match &ldquo;{incidentSearchTerm}&rdquo;
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
                   );
                 })}
               </tbody>
@@ -1888,6 +1751,167 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
           </div>
         </div>
       </ForgeCard>
+
+      {/* @ts-ignore */}
+      <forge-dialog ref={dialogRef} aria-label={`Student Profile - ${selectedStudent?.name || ''}`}>
+        <div style={{ padding: 'var(--forge-spacing-large)', minWidth: '500px', maxWidth: '700px', maxHeight: '85vh', overflowY: 'auto' }}>
+          <h2 style={{ margin: 0, marginBottom: 'var(--forge-spacing-large)', fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)', fontSize: 'var(--forge-font-size-xl)' }}>
+            Student Profile - {selectedStudent?.name}
+          </h2>
+          {selectedStudent && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-large)' }}>
+              {/* Student Quick Info - No Photo */}
+              <div style={{ paddingBottom: 'var(--forge-spacing-medium)', borderBottom: '1px solid var(--forge-color-border-default)' }}>
+                <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--foreground)' }}>
+                  Student ID: {selectedStudent.id}
+                  <span style={{ margin: '0 var(--forge-spacing-xsmall)', color: 'var(--muted-foreground)' }}>·</span>
+                  {selectedStudent.grade}
+                </div>
+                <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)', marginTop: 'var(--forge-spacing-xxsmall)' }}>
+                  {selectedStudent.school}
+                </div>
+              </div>
+
+              {/* Incident Summary */}
+              <div>
+                <h3 style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-lg)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-small)' }}>
+                  Incident Summary
+                </h3>
+                <div className="grid grid-cols-2" style={{ gap: 'var(--forge-spacing-medium)', marginBottom: 'var(--forge-spacing-medium)' }}>
+                  <div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Total Incidents</div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-xl)', fontWeight: 'var(--forge-font-weight-medium)' }}>{selectedStudent.incidentCount}</div>
+                  </div>
+                  <div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Last Incident</div>
+                    <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)' }}>
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span>{selectedStudent.lastIncident}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Incident Search/Filter */}
+                <div className="relative" style={{ marginBottom: 'var(--forge-spacing-xsmall)' }}>
+                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Search incidents by ID, type, status, or description..."
+                    value={incidentSearchTerm}
+                    onChange={(e) => setIncidentSearchTerm(e.target.value)}
+                    className="w-full border rounded pl-7 pr-7 py-1.5 bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                    style={{
+                      fontFamily: 'var(--forge-font-family)',
+                      fontSize: 'var(--forge-font-size-xs)',
+                      borderColor: 'var(--forge-color-border-default)',
+                      borderRadius: 'var(--forge-radius-medium)',
+                    }}
+                  />
+                  {incidentSearchTerm && (
+                    <button
+                      onClick={() => setIncidentSearchTerm('')}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground bg-transparent border-none p-0 cursor-pointer"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Incidents List */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-small)' }}>
+                  {selectedStudent.incidents
+                    .filter((incident: any) => {
+                      if (!incidentSearchTerm.trim()) return true;
+                      const term = incidentSearchTerm.toLowerCase();
+                      return (
+                        incident.id?.toLowerCase().includes(term) ||
+                        incident.type?.toLowerCase().includes(term) ||
+                        incident.status?.toLowerCase().includes(term) ||
+                        incident.severity?.toLowerCase().includes(term) ||
+                        incident.description?.toLowerCase().includes(term) ||
+                        matchesDate(incident.date, incidentSearchTerm)
+                      );
+                    })
+                    .map((incident: any) => (
+                    <ForgeCard
+                      key={incident.id}
+                      className="hover:bg-accent/50 transition-colors cursor-pointer"
+                      style={{ border: '1px solid var(--forge-color-border-subtle)', borderRadius: 'var(--forge-radius-large)' }}
+                      onClick={() => {
+                        if (onNavigateToIncidentDetail && selectedStudent) {
+                          const fullIncident = {
+                            ...incident,
+                            student: selectedStudent.name,
+                            studentId: selectedStudent.id,
+                            bus: selectedStudent.bus,
+                            route: selectedStudent.route,
+                            driver: 'Assigned Driver',
+                            assignedTo: 'Jane Doe',
+                            createdBy: 'System',
+                          };
+                          onNavigateToIncidentDetail(fullIncident);
+                        }
+                      }}
+                    >
+                      <div style={{ padding: 'var(--forge-spacing-medium)' }}>
+                        {/* Row 1: Incident ID + Date */}
+                        <div className="flex items-center justify-between" style={{ marginBottom: 'var(--forge-spacing-xsmall)' }}>
+                          <span
+                            style={{ fontWeight: 'var(--forge-font-weight-medium)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--foreground)' }}
+                          >
+                            {incident.id}
+                          </span>
+                          <span style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)' }}>
+                            {incident.date}
+                          </span>
+                        </div>
+                        {/* Row 2: Type + Severity badges left, Status badge right */}
+                        <div className="flex items-center justify-between" style={{ marginBottom: 'var(--forge-spacing-xsmall)' }}>
+                          <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xxsmall)' }}>
+                            <Badge variant="outline" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-xs)' }}>{incident.type}</Badge>
+                            <Badge
+                              variant={
+                                incident.severity === 'High' ? 'destructive' :
+                                incident.severity === 'Medium' ? 'secondary' :
+                                'outline'
+                              }
+                              style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-xs)' }}
+                            >
+                              {incident.severity}
+                            </Badge>
+                          </div>
+                          <Badge
+                            variant={
+                              incident.status === 'Open' ? 'default' :
+                              incident.status === 'In Progress' ? 'secondary' :
+                              'outline'
+                            }
+                            style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-xs)' }}
+                          >
+                            {incident.status}
+                          </Badge>
+                        </div>
+                        {/* Row 3: Description */}
+                        <p style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)', margin: 0 }}>
+                          {incident.description}
+                        </p>
+                      </div>
+                    </ForgeCard>
+                  ))}
+                  {incidentSearchTerm.trim() && selectedStudent.incidents.filter((inc: any) => {
+                    const t = incidentSearchTerm.toLowerCase();
+                    return inc.id?.toLowerCase().includes(t) || inc.type?.toLowerCase().includes(t) || inc.status?.toLowerCase().includes(t) || inc.severity?.toLowerCase().includes(t) || inc.description?.toLowerCase().includes(t) || matchesDate(inc.date, incidentSearchTerm);
+                  }).length === 0 && (
+                    <div className="text-center" style={{ padding: 'var(--forge-spacing-medium)', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)' }}>
+                      No incidents match &ldquo;{incidentSearchTerm}&rdquo;
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </forge-dialog>
     </div>
   );
 }

@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { ForgeCard } from '@tylertech/forge-react';
-import { defineCardComponent } from '@tylertech/forge';
+import { defineCardComponent, defineDialogComponent, defineTextFieldComponent } from '@tylertech/forge';
 defineCardComponent();
+defineDialogComponent();
+defineTextFieldComponent();
 import { ForgeButton } from '@tylertech/forge-react';
 import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Input } from '../ui/input';
 import { Badge } from '../ui/badge';
 import { ForgeMultiSelect } from '../ui/forge-multiselect';
-import { Search, Download, Plus, MessageSquare, ArrowUpDown, ArrowUp, ArrowDown, Check, Camera, X, ZoomIn, GitBranch, AlertCircle, AlertTriangle, Clock, TrendingUp } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
+import { Search, Download, Plus, MessageSquare, ArrowUpDown, ArrowUp, ArrowDown, Check, Camera, X, ZoomIn, GitBranch, AlertCircle, AlertTriangle, Clock, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { EditIncidentDialog } from './EditIncidentDialog';
 import { NewIncidentForm } from './NewIncidentForm';
 import { hasActiveCommunication } from '../communications/communicationsData';
@@ -981,11 +981,12 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [studentLookupOpen, setStudentLookupOpen] = useState(false);
-  const [showAllIncidents, setShowAllIncidents] = useState(
-    !!(initialSeverityFilter || initialDateAfterFilter || initialStatusFilter)
-  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
   const studentLookupRef = useRef<HTMLDivElement>(null);
+  const newIncidentDialogRef = useRef<HTMLElement>(null);
+  const photoDialogRef = useRef<HTMLElement>(null);
 
   // Enrich incidents with workflow data
   const incidentsWithWorkflows = mockIncidents.map((incident) => {
@@ -1052,6 +1053,36 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
       };
     }
   }, [studentLookupOpen]);
+
+  // Sync New Incident Dialog open state to forge-dialog
+  useEffect(() => {
+    const el = newIncidentDialogRef.current as any;
+    if (!el) return;
+    el.open = isNewIncidentDialogOpen;
+  }, [isNewIncidentDialogOpen]);
+
+  useEffect(() => {
+    const el = newIncidentDialogRef.current as any;
+    if (!el) return;
+    const handler = () => setIsNewIncidentDialogOpen(false);
+    el.addEventListener('forge-dialog-close', handler);
+    return () => el.removeEventListener('forge-dialog-close', handler);
+  }, []);
+
+  // Sync Photo Lightbox open state to forge-dialog
+  useEffect(() => {
+    const el = photoDialogRef.current as any;
+    if (!el) return;
+    el.open = !!selectedPhoto;
+  }, [selectedPhoto]);
+
+  useEffect(() => {
+    const el = photoDialogRef.current as any;
+    if (!el) return;
+    const handler = () => setSelectedPhoto(null);
+    el.addEventListener('forge-dialog-close', handler);
+    return () => el.removeEventListener('forge-dialog-close', handler);
+  }, []);
 
   // Apply pending filters to active filters
   const handleSearch = () => {
@@ -1194,8 +1225,15 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
     return sortDirection === 'asc' ? comparison : -comparison;
   }), [filteredIncidents, sortField, sortDirection]);
 
-  // Display only first 5 incidents if not expanded
-  const displayedIncidents = showAllIncidents ? sortedIncidents : sortedIncidents.slice(0, 5);
+  // Reset to first page when filters or sort changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, typeFilter, assignedToFilter, severityFilter, dateAfterFilter, sortField, sortDirection, rowsPerPage]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(sortedIncidents.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const displayedIncidents = sortedIncidents.slice(startIndex, startIndex + rowsPerPage);
 
   // Notify parent component of sorted and filtered incidents using ref-based ID comparison
   const prevSortedIdsRef = useRef<string>('');
@@ -1324,22 +1362,25 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
             <div className="flex-1 min-w-0">
               <div className="relative" ref={studentLookupRef}>
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-                <Input
-                  placeholder="Search incidents, students, vehicles, routes..."
-                  value={pendingSearchTerm}
-                  onChange={(e) => {
-                    setPendingSearchTerm(e.target.value);
-                    setStudentLookupOpen(true);
-                  }}
-                  onFocus={() => setStudentLookupOpen(true)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      handleSearch();
-                    }
-                  }}
-                  className="pl-10"
-                  style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--forge-font-size-base)', borderRadius: 'var(--forge-radius-medium)', borderColor: 'var(--forge-color-border-default)' }}
-                />
+                {/* @ts-ignore */}
+                <forge-text-field>
+                  <input
+                    type="text"
+                    placeholder="Search incidents, students, vehicles, routes..."
+                    value={pendingSearchTerm}
+                    onChange={(e) => {
+                      setPendingSearchTerm(e.target.value);
+                      setStudentLookupOpen(true);
+                    }}
+                    onFocus={() => setStudentLookupOpen(true)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSearch();
+                      }
+                    }}
+                    style={{ paddingLeft: '2rem', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--forge-font-size-base)' }}
+                  />
+                </forge-text-field>
                 {studentLookupOpen && pendingSearchTerm && (
                   <div className="absolute z-50 w-full mt-1 border overflow-auto" style={{ backgroundColor: 'var(--background)', borderColor: 'var(--forge-color-border-default)', borderRadius: 'var(--forge-radius-medium)', boxShadow: 'var(--forge-elevation-2)', maxHeight: '400px' }}>
                     <Command>
@@ -1519,7 +1560,7 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
         </div>
         <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
           <div className="overflow-x-auto">
-            <table className="forge-table">
+            <table className="forge-table" style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'calc(var(--forge-font-size-base) + 4px)' }}>
               <thead>
                 <tr>
                   <th className="forge-table-cell forge-table-cell--header">
@@ -1616,23 +1657,21 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
                   >
                       <td className="forge-table-cell">
-                        <div style={{ fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>
-                          {incident.id}
-                        </div>
+                        {incident.id}
                       </td>
-                      <td className="forge-table-cell">{incident.date}</td>
+                      <td className="forge-table-cell">{incident.date.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$2-$3-$1')}</td>
                       <td className="forge-table-cell">
                         <div>{incident.student}</div>
-                        <div style={{ fontSize: '0.875rem', color: 'var(--forge-theme-text-low)' }}>
+                        <div style={{ fontSize: 'calc(var(--forge-font-size-sm) - 2px)', color: 'var(--forge-theme-text-low)' }}>
                           {incident.studentId}
                         </div>
                       </td>
                       <td className="forge-table-cell">
-                        <Badge variant="outline">{incident.type}</Badge>
+                        <Badge variant="outline" style={{ fontSize: '0.9em', padding: '2px 8px' }}>{incident.type}</Badge>
                       </td>
                       <td className="forge-table-cell">
                         <div>{incident.bus}</div>
-                        <div style={{ fontSize: '0.875rem', color: 'var(--forge-theme-text-low)' }}>
+                        <div style={{ fontSize: 'calc(var(--forge-font-size-sm) - 2px)', color: 'var(--forge-theme-text-low)' }}>
                           {incident.route}
                         </div>
                       </td>
@@ -1643,6 +1682,7 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
                             incident.severity === 'Medium' ? 'secondary' :
                             'outline'
                           }
+                          style={{ fontSize: '0.9em', padding: '2px 8px' }}
                         >
                           {incident.severity}
                         </Badge>
@@ -1654,6 +1694,7 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
                             incident.status === 'In Progress' ? 'secondary' :
                             'outline'
                           }
+                          style={{ fontSize: '0.9em', padding: '2px 8px' }}
                         >
                           {incident.status}
                         </Badge>
@@ -1662,9 +1703,7 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
                         <IncidentWorkflowProgress workflow={incident.workflow} />
                       </td>
                       <td className="forge-table-cell">
-                        <div style={{ fontSize: '0.875rem', color: 'var(--forge-theme-text-low)' }}>
-                          {incident.assignedTo}
-                        </div>
+                        {incident.assignedTo}
                       </td>
                       <td className="forge-table-cell">
                         {hasActiveCommunication(incident.id) && (
@@ -1676,7 +1715,7 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
                               onNavigateToCommunication(incident.id);
                             }}
                           >
-                            <MessageSquare className="h-4 w-4" />
+                            <MessageSquare style={{ width: '1.07em', height: '1.07em' }} />
                           </ForgeButton>
                         )}
                       </td>
@@ -1685,56 +1724,106 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
               </tbody>
             </table>
           </div>
-          {sortedIncidents.length > 5 && (
-            <div className="flex justify-start pt-4 border-t mt-4">
-              <ForgeButton
-                variant="outlined"
-                onClick={() => setShowAllIncidents(!showAllIncidents)}
-              >
-                {showAllIncidents 
-                  ? 'Show Less' 
-                  : `Show All Incidents (${sortedIncidents.length})`
-                }
-              </ForgeButton>
+          {/* Pagination Controls */}
+          <div className="flex items-center justify-between" style={{ paddingTop: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--forge-color-border-subtle)', marginTop: 'var(--forge-spacing-medium)' }}>
+            <div className="flex items-center" style={{ gap: 'var(--forge-spacing-small)' }}>
+              <span style={{ fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>
+                Showing {sortedIncidents.length === 0 ? 0 : startIndex + 1}–{Math.min(startIndex + rowsPerPage, sortedIncidents.length)} of {sortedIncidents.length} incidents
+              </span>
+              {rowsPerPage === 10 && sortedIncidents.length > 10 && (
+                <ForgeButton
+                  variant="outlined"
+                  size="sm"
+                  onClick={() => { setRowsPerPage(25); setCurrentPage(1); }}
+                  style={{ fontSize: 'var(--forge-font-size-sm)' }}
+                >
+                  Show 25
+                </ForgeButton>
+              )}
+              {rowsPerPage === 25 && (
+                <ForgeButton
+                  variant="outlined"
+                  size="sm"
+                  onClick={() => { setRowsPerPage(10); setCurrentPage(1); }}
+                  style={{ fontSize: 'var(--forge-font-size-sm)' }}
+                >
+                  Show 10
+                </ForgeButton>
+              )}
             </div>
-          )}
+
+            {totalPages > 1 && (
+              <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)' }}>
+                <ForgeButton
+                  variant="outlined"
+                  size="sm"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  style={{ padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)' }}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </ForgeButton>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <ForgeButton
+                    key={page}
+                    variant={page === currentPage ? 'raised' : 'outlined'}
+                    size="sm"
+                    onClick={() => setCurrentPage(page)}
+                    style={{ minWidth: '32px', padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)', fontSize: 'var(--forge-font-size-sm)' }}
+                  >
+                    {page}
+                  </ForgeButton>
+                ))}
+                <ForgeButton
+                  variant="outlined"
+                  size="sm"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  style={{ padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)' }}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </ForgeButton>
+              </div>
+            )}
+          </div>
         </div>
       </ForgeCard>
 
       {/* New Incident Dialog */}
-      <Dialog open={isNewIncidentDialogOpen} onOpenChange={setIsNewIncidentDialogOpen}>
-        <DialogContent className="max-w-[95vw] max-h-[95vh] overflow-y-auto p-0">
+      {/* @ts-ignore */}
+      <forge-dialog ref={newIncidentDialogRef} aria-label="Report New Incident">
+        <div style={{ width: '95vw', maxWidth: '95vw', maxHeight: '95vh', overflowY: 'auto' }} onClick={(e) => e.stopPropagation()}>
           <div className="sticky top-0 bg-white z-10 border-b px-6 py-4">
-            <DialogHeader>
-              <DialogTitle>Report New Incident</DialogTitle>
-              <DialogDescription>
-                Fill out the form below to report a new student incident
-              </DialogDescription>
-            </DialogHeader>
+            <h2 style={{ margin: 0, fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)', fontSize: 'var(--forge-font-size-xl)' }}>
+              Report New Incident
+            </h2>
+            <p style={{ margin: 0, marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>
+              Fill out the form below to report a new student incident
+            </p>
           </div>
           <div className="px-6 pb-6">
             <NewIncidentForm onNavigate={(page) => {
               setIsNewIncidentDialogOpen(false);
               if (page === 'incidents') {
-                // Optionally refresh the page or show success message
                 toast.success('Incident reported successfully!');
               }
             }} />
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </forge-dialog>
 
       {/* Photo Lightbox */}
-      <Dialog open={!!selectedPhoto} onOpenChange={() => setSelectedPhoto(null)}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>{selectedPhoto?.caption}</DialogTitle>
-            <DialogDescription>
-              Submitted by {selectedPhoto?.uploadedBy} on {selectedPhoto?.uploadedAt}
-            </DialogDescription>
-          </DialogHeader>
+      {/* @ts-ignore */}
+      <forge-dialog ref={photoDialogRef} aria-label={selectedPhoto?.caption || 'Photo'}>
+        <div style={{ padding: 'var(--forge-spacing-large)', maxWidth: '900px' }}>
+          <h2 style={{ margin: 0, fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)', fontSize: 'var(--forge-font-size-xl)' }}>
+            {selectedPhoto?.caption}
+          </h2>
+          <p style={{ margin: 0, marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>
+            Submitted by {selectedPhoto?.uploadedBy} on {selectedPhoto?.uploadedAt}
+          </p>
           {selectedPhoto && (
-            <div className="relative">
+            <div className="relative" style={{ marginTop: 'var(--forge-spacing-medium)' }}>
               <img
                 src={selectedPhoto.url}
                 alt={selectedPhoto.caption}
@@ -1743,8 +1832,8 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
               />
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </div>
+      </forge-dialog>
     </div>
   );
 }

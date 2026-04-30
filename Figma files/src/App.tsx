@@ -16,7 +16,46 @@ import { AdminPage } from './components/admin/AdminPage';
 import { Toaster } from './components/ui/sonner';
 import { assignWorkflowToIncident, workflows } from './data/workflows';
 
+const SITE_PASSWORD = 'My-Drop-Site';
+
+function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === SITE_PASSWORD) {
+      sessionStorage.setItem('site-auth', 'true');
+      onUnlock();
+    } else {
+      setError(true);
+    }
+  };
+
+  return (
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f1f5f9' }}>
+      <form onSubmit={handleSubmit} style={{ background: '#fff', padding: '2rem', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', width: '320px', textAlign: 'center' }}>
+        <h2 style={{ margin: '0 0 0.5rem', fontSize: '1.25rem', color: '#1e293b' }}>Incident Tracker</h2>
+        <p style={{ margin: '0 0 1.5rem', fontSize: '0.875rem', color: '#64748b' }}>Enter password to continue</p>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => { setPassword(e.target.value); setError(false); }}
+          placeholder="Password"
+          autoFocus
+          style={{ width: '100%', padding: '0.5rem 0.75rem', border: `1px solid ${error ? '#ef4444' : '#d1d5db'}`, borderRadius: '6px', fontSize: '0.875rem', boxSizing: 'border-box' }}
+        />
+        {error && <p style={{ color: '#ef4444', fontSize: '0.75rem', margin: '0.5rem 0 0' }}>Incorrect password</p>}
+        <button type="submit" style={{ marginTop: '1rem', width: '100%', padding: '0.5rem', background: '#4A6FA5', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '0.875rem', cursor: 'pointer' }}>
+          Enter
+        </button>
+      </form>
+    </div>
+  );
+}
+
 export default function App() {
+  const [authenticated, setAuthenticated] = useState(() => sessionStorage.getItem('site-auth') === 'true');
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [selectedCommIncidentId, setSelectedCommIncidentId] = useState<string | null>(null);
   const [newCommIncidentData, setNewCommIncidentData] = useState<any | null>(null);
@@ -199,10 +238,14 @@ export default function App() {
     }
   };
 
+  if (!authenticated) {
+    return <PasswordGate onUnlock={() => setAuthenticated(true)} />;
+  }
+
   return (
     <>
-      <AppLayout 
-        currentPage={currentPage} 
+      <AppLayout
+        currentPage={currentPage}
         onNavigate={navigateToPage}
         onNavigateToCommunication={navigateToCommunication}
       >

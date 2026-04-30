@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import { ForgeCard } from '@tylertech/forge-react';
-import { defineCardComponent } from '@tylertech/forge';
+import { defineCardComponent, defineButtonComponent, defineTextFieldComponent } from '@tylertech/forge';
 defineCardComponent();
 import { ForgeButton } from '@tylertech/forge-react';
-import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
+defineTextFieldComponent();
 import { Badge } from '../ui/badge';
-import { Input } from '../ui/input';
 import { 
   Search, 
   Plus, 
@@ -468,13 +467,16 @@ export function WorkflowStepLibrary({ onAddStep, selectedCategory, addedTemplate
       <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Search workflow steps by name, description, or tags..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{ paddingLeft: 'calc(var(--forge-spacing-large) + 8px)' }}
-          />
+          {/* @ts-ignore */}
+          <forge-text-field>
+            <input
+              type="text"
+              placeholder="Search workflow steps by name, description, or tags..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ paddingLeft: '2rem' }}
+            />
+          </forge-text-field>
         </div>
       </div>
 

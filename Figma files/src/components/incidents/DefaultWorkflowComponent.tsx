@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
-import { ForgeCard } from '@tylertech/forge-react';
-import { defineCardComponent } from '@tylertech/forge';
+import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
+import { defineCardComponent, defineButtonComponent, defineTextFieldComponent } from '@tylertech/forge';
 defineCardComponent();
-import { ForgeButton } from '@tylertech/forge-react';
-import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
+defineTextFieldComponent();
 import { Badge } from '../ui/badge';
 import { Textarea } from '../ui/textarea';
 import { Label } from '../ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { CheckCircle, Circle, Clock, AlertCircle, ChevronRight } from 'lucide-react';
 import { Workflow, WorkflowStep } from '../../data/workflows';
 
@@ -192,18 +190,21 @@ export function DefaultWorkflowComponent({ workflow, incidentId, onUpdateStep }:
                       </ForgeButton>
                     )}
                     {step.status === 'In Progress' && !isExpanded && (
-                      <ForgeButton
-                        size="sm"
-                        style={{ 
-                          background: 'var(--brand-blue-medium)', 
-                          color: 'white',
-                          fontFamily: 'Roboto, sans-serif'
+                      <button
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: '4px',
+                          padding: '0 12px', height: '32px',
+                          background: 'var(--brand-blue-medium)',
+                          color: '#ffffff',
+                          border: 'none', borderRadius: '4px',
+                          fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500,
+                          cursor: 'pointer', letterSpacing: '0.0125em',
                         }}
                         onClick={() => setExpandedStep(step.id)}
                       >
-                        Complete Step
-                        <ChevronRight className="ml-1 h-4 w-4" />
-                      </ForgeButton>
+                        Complete
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
                     )}
                   </div>
                 </div>
@@ -222,26 +223,27 @@ export function DefaultWorkflowComponent({ workflow, incidentId, onUpdateStep }:
                           <Label htmlFor={`follow-up-${step.id}`} style={{ fontFamily: 'Roboto, sans-serif' }}>
                             Determine Follow-up Action *
                           </Label>
-                          <Select
-                            value={followUpAction[step.id] || ''}
-                            onValueChange={(value) => setFollowUpAction({ ...followUpAction, [step.id]: value })}
-                          >
-                            <SelectTrigger id={`follow-up-${step.id}`} style={{ fontFamily: 'Roboto, sans-serif' }}>
-                              <SelectValue placeholder="Select follow-up action..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="parent-contact" style={{ fontFamily: 'Roboto, sans-serif' }}>Contact Parent/Guardian</SelectItem>
-                              <SelectItem value="counselor-referral" style={{ fontFamily: 'Roboto, sans-serif' }}>Refer to School Counselor</SelectItem>
-                              <SelectItem value="principal-meeting" style={{ fontFamily: 'Roboto, sans-serif' }}>Schedule Principal Meeting</SelectItem>
-                              <SelectItem value="behavior-plan" style={{ fontFamily: 'Roboto, sans-serif' }}>Create Behavior Intervention Plan</SelectItem>
-                              <SelectItem value="seating-change" style={{ fontFamily: 'Roboto, sans-serif' }}>Implement Seating Change</SelectItem>
-                              <SelectItem value="verbal-warning" style={{ fontFamily: 'Roboto, sans-serif' }}>Verbal Warning Only</SelectItem>
-                              <SelectItem value="suspension" style={{ fontFamily: 'Roboto, sans-serif' }}>Bus Suspension (1-3 days)</SelectItem>
-                              <SelectItem value="long-suspension" style={{ fontFamily: 'Roboto, sans-serif' }}>Bus Suspension (4+ days)</SelectItem>
-                              <SelectItem value="no-action" style={{ fontFamily: 'Roboto, sans-serif' }}>No Further Action Needed</SelectItem>
-                              <SelectItem value="escalate" style={{ fontFamily: 'Roboto, sans-serif' }}>Escalate to Administration</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          {/* @ts-ignore */}
+                          <forge-text-field>
+                            <select
+                              id={`follow-up-${step.id}`}
+                              value={followUpAction[step.id] || ''}
+                              onChange={(e) => setFollowUpAction({ ...followUpAction, [step.id]: e.target.value })}
+                              style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
+                            >
+                              <option value="">Select follow-up action...</option>
+                              <option value="parent-contact">Contact Parent/Guardian</option>
+                              <option value="counselor-referral">Refer to School Counselor</option>
+                              <option value="principal-meeting">Schedule Principal Meeting</option>
+                              <option value="behavior-plan">Create Behavior Intervention Plan</option>
+                              <option value="seating-change">Implement Seating Change</option>
+                              <option value="verbal-warning">Verbal Warning Only</option>
+                              <option value="suspension">Bus Suspension (1-3 days)</option>
+                              <option value="long-suspension">Bus Suspension (4+ days)</option>
+                              <option value="no-action">No Further Action Needed</option>
+                              <option value="escalate">Escalate to Administration</option>
+                            </select>
+                          </forge-text-field>
                         </div>
                       )}
 
@@ -269,18 +271,24 @@ export function DefaultWorkflowComponent({ workflow, incidentId, onUpdateStep }:
                         >
                           Cancel
                         </ForgeButton>
-                        <ForgeButton
-                          style={{ 
-                            background: 'var(--brand-olive-dark)', 
-                            color: 'white',
-                            fontFamily: 'Roboto, sans-serif'
+                        <button
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '8px',
+                            padding: '0 16px', height: '36px',
+                            background: 'var(--brand-olive-dark)',
+                            color: '#ffffff',
+                            border: 'none', borderRadius: '4px',
+                            fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500,
+                            cursor: (step.order === 2 && !followUpAction[step.id]) ? 'not-allowed' : 'pointer',
+                            opacity: (step.order === 2 && !followUpAction[step.id]) ? 0.5 : 1,
+                            letterSpacing: '0.0125em',
                           }}
                           onClick={() => handleCompleteStep(step)}
                           disabled={step.order === 2 && !followUpAction[step.id]}
                         >
-                          <CheckCircle className="mr-2 h-4 w-4" />
+                          <CheckCircle className="h-4 w-4" />
                           Complete Step
-                        </ForgeButton>
+                        </button>
                       </div>
                     </div>
                   </div>

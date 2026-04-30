@@ -1,15 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ForgeCard } from '@tylertech/forge-react';
-import { defineCardComponent } from '@tylertech/forge';
+import { defineCardComponent, defineDialogComponent, defineTextFieldComponent } from '@tylertech/forge';
 defineCardComponent();
+defineDialogComponent();
+defineTextFieldComponent();
 import { Badge } from '../ui/badge';
 import { ForgeButton } from '@tylertech/forge-react';
 import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Input } from '../ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Search, Download, AlertTriangle, CheckCircle, Clock, Wrench, MapPin, User, Calendar, AlertCircle, TrendingUp, TrendingDown, ChevronUp, ChevronDown, ChevronsUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '../ui/command';
 import { ExportDropdown } from '../shared/ExportDropdown';
@@ -445,7 +444,9 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
   const [maintenanceFilter, setMaintenanceFilter] = useState('all');
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   const [vehicleLookupOpen, setVehicleLookupOpen] = useState(false);
-  
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const dialogRef = useRef<HTMLElement>(null);
+
   // Sorting state - default sort by vehicle name
   const [sortColumn, setSortColumn] = useState<'id' | 'details' | 'driver' | 'route' | 'status' | 'maintenance' | 'incidents' | 'mileage'>('details');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
@@ -554,6 +555,20 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, statusFilter, maintenanceFilter, rowsPerPage]);
+
+  useEffect(() => {
+    const el = dialogRef.current as any;
+    if (!el) return;
+    el.open = dialogOpen;
+  }, [dialogOpen]);
+
+  useEffect(() => {
+    const el = dialogRef.current as any;
+    if (!el) return;
+    const handler = () => { setDialogOpen(false); setSelectedVehicle(null); };
+    el.addEventListener('forge-dialog-close', handler);
+    return () => el.removeEventListener('forge-dialog-close', handler);
+  }, []);
 
   // Render sort icon for column header
   const SortIcon = ({ column }: { column: typeof sortColumn }) => {
@@ -713,16 +728,20 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
             <div className="md:col-span-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" style={{ zIndex: 1 }} />
-                <Input
-                  placeholder="Search vehicles, drivers, or routes..."
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setVehicleLookupOpen(true);
-                  }}
-                  onFocus={() => setVehicleLookupOpen(true)}
-                  className="pl-10"
-                />
+                {/* @ts-ignore */}
+                <forge-text-field>
+                  <input
+                    type="text"
+                    placeholder="Search vehicles, drivers, or routes..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setVehicleLookupOpen(true);
+                    }}
+                    onFocus={() => setVehicleLookupOpen(true)}
+                    style={{ paddingLeft: '2rem' }}
+                  />
+                </forge-text-field>
                 {vehicleLookupOpen && searchTerm && (
                   <div 
                     className="absolute z-50 w-full mt-1 border rounded-md shadow-lg max-h-[400px] overflow-auto"
@@ -795,33 +814,37 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
 
             {/* Status Filter */}
             <div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Statuses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="Active">Active</SelectItem>
-                  <SelectItem value="Maintenance">Maintenance</SelectItem>
-                  <SelectItem value="Inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
+              {/* @ts-ignore */}
+              <forge-text-field>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%', minWidth: '160px' }}
+                >
+                  <option value="all">All Statuses</option>
+                  <option value="Active">Active</option>
+                  <option value="Maintenance">Maintenance</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </forge-text-field>
             </div>
 
             {/* Maintenance Filter */}
             <div>
-              <Select value={maintenanceFilter} onValueChange={setMaintenanceFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="All Maintenance" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Maintenance</SelectItem>
-                  <SelectItem value="Excellent">Excellent</SelectItem>
-                  <SelectItem value="Good">Good</SelectItem>
-                  <SelectItem value="Needs Attention">Needs Attention</SelectItem>
-                  <SelectItem value="In Repair">In Repair</SelectItem>
-                </SelectContent>
-              </Select>
+              {/* @ts-ignore */}
+              <forge-text-field>
+                <select
+                  value={maintenanceFilter}
+                  onChange={(e) => setMaintenanceFilter(e.target.value)}
+                  style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%', minWidth: '180px' }}
+                >
+                  <option value="all">All Maintenance</option>
+                  <option value="Excellent">Excellent</option>
+                  <option value="Good">Good</option>
+                  <option value="Needs Attention">Needs Attention</option>
+                  <option value="In Repair">In Repair</option>
+                </select>
+              </forge-text-field>
             </div>
           </div>
         </div>
@@ -909,165 +932,56 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
               </thead>
               <tbody>
                 {paginatedVehicles.map((vehicle) => (
-                  <Dialog key={vehicle.id}>
-                    <DialogTrigger asChild>
-                      <tr
-                        className="forge-table-row cursor-pointer"
-                        onClick={() => setSelectedVehicle(vehicle)}
-                      >
-                        <td className="forge-table-cell">
-                          <span style={{ fontWeight: 500, fontFamily: 'var(--forge-font-family)' }}>
-                            {vehicle.id}
-                          </span>
-                        </td>
-                        <td className="forge-table-cell">
-                          <div>
-                            <div style={{ fontWeight: 500, fontFamily: 'var(--forge-font-family)' }}>{vehicle.name}</div>
-                          </div>
-                        </td>
-                        <td className="forge-table-cell">
-                          <div className="flex items-center gap-2">
-                            <User className="h-4 w-4 text-muted-foreground" />
-                            <span>{vehicle.driver}</span>
-                          </div>
-                        </td>
-                        <td className="forge-table-cell">
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-muted-foreground" />
-                            <span style={{ fontSize: '0.875rem' }}>{vehicle.primaryRoute || 'Unassigned'}</span>
-                          </div>
-                        </td>
-                        <td className="forge-table-cell">
-                          <span style={{ fontSize: '0.875rem', color: 'var(--forge-theme-text-low)' }}>
-                            {vehicle.mileage.toLocaleString()} mi
-                          </span>
-                        </td>
-                        <td className="forge-table-cell">
-                          <div className="flex items-center gap-2">
-                            {vehicle.incidentCount > 8 ? (
-                              <TrendingUp className="h-4 w-4 text-destructive" />
-                            ) : vehicle.incidentCount < 4 ? (
-                              <TrendingDown className="h-4 w-4 text-green-600" />
-                            ) : null}
-                            <span style={{ fontWeight: vehicle.incidentCount > 8 ? 600 : 'normal' }}>
-                              {vehicle.incidentCount}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="forge-table-cell">
-                          <Badge variant={vehicle.status === 'Active' ? 'default' : 'secondary'}>
-                            {vehicle.status}
-                          </Badge>
-                        </td>
-                      </tr>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
-                      <DialogHeader>
-                        <div className="flex items-center justify-between pr-6">
-                          <DialogTitle style={{ fontFamily: 'var(--forge-font-family)' }}>Vehicle Details - {vehicle.id}</DialogTitle>
-                          <Badge variant={vehicle.status === 'Active' ? 'default' : 'secondary'}>
-                            {vehicle.status}
-                          </Badge>
-                        </div>
-                        <DialogDescription style={{ fontFamily: 'var(--forge-font-family)' }}>
-                          Complete information for {vehicle.name}
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="overflow-y-auto flex-1 pr-2" style={{ maxHeight: 'calc(85vh - 120px)' }}>
-                        {selectedVehicle && (
-                          <div className="space-y-6">
-                            {/* VIN, Capacity, Current Mileage, Vehicle Incident Count */}
-                            <div>
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>VIN</div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.vin}</div>
-                                </div>
-                                <div>
-                                  <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Capacity</div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.capacity} passengers</div>
-                                </div>
-                                <div>
-                                  <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Current Mileage</div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.mileage.toLocaleString()} miles</div>
-                                </div>
-                                <div>
-                                  <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Vehicle Incident Count</div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.incidentCount} incidents this year</div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* GPS & AVL Configuration */}
-                            <div className="border-t pt-4">
-                              <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 600, marginBottom: 'var(--forge-spacing-small)', fontFamily: 'var(--forge-font-family)' }}>
-                                GPS & AVL Configuration
-                              </h3>
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>GPS Hardware ID</div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.gpsHardwareId}</div>
-                                </div>
-                                <div>
-                                  <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>TYD AVL Integration</div>
-                                  <div className="flex items-center gap-2" style={{ marginTop: 'var(--forge-spacing-xxsmall)' }}>
-                                    <div 
-                                      className={`w-3 h-3 rounded-full ${selectedVehicle.useTydAvl ? 'bg-green-500' : 'bg-gray-300'}`}
-                                    />
-                                    <span style={{ fontFamily: 'var(--forge-font-family)' }}>{selectedVehicle.useTydAvl ? 'Enabled' : 'Disabled'}</span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Garage Assignments */}
-                            <div className="border-t pt-4">
-                              <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 600, marginBottom: 'var(--forge-spacing-small)', fontFamily: 'var(--forge-font-family)' }}>
-                                Garage Assignments
-                              </h3>
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Default Garage</div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.defaultGarage}</div>
-                                </div>
-                                <div>
-                                  <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Mid-Day Garage</div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.midDayGarage}</div>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Assignment Information */}
-                            <div className="border-t pt-4">
-                              <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 600, marginBottom: 'var(--forge-spacing-small)', fontFamily: 'var(--forge-font-family)' }}>
-                                Assignment Information
-                              </h3>
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Assigned Driver</div>
-                                  <div className="flex items-center gap-2" style={{ marginTop: 'var(--forge-spacing-xxsmall)' }}>
-                                    <User className="h-4 w-4 text-muted-foreground" />
-                                    <span style={{ fontWeight: 500, fontFamily: 'var(--forge-font-family)' }}>{selectedVehicle.driver}</span>
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Primary Route</div>
-                                  <div className="flex items-center gap-2" style={{ marginTop: 'var(--forge-spacing-xxsmall)' }}>
-                                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                                    <span style={{ fontFamily: 'var(--forge-font-family)' }}>{selectedVehicle.primaryRoute || 'None'}</span>
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Secondary Route</div>
-                                  <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.secondaryRoute || 'None'}</div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                  <tr
+                    key={vehicle.id}
+                    className="forge-table-row cursor-pointer"
+                    onClick={() => { setSelectedVehicle(vehicle); setDialogOpen(true); }}
+                  >
+                    <td className="forge-table-cell">
+                      <span style={{ fontWeight: 500, fontFamily: 'var(--forge-font-family)' }}>
+                        {vehicle.id}
+                      </span>
+                    </td>
+                    <td className="forge-table-cell">
+                      <div>
+                        <div style={{ fontWeight: 500, fontFamily: 'var(--forge-font-family)' }}>{vehicle.name}</div>
                       </div>
-                    </DialogContent>
-                  </Dialog>
+                    </td>
+                    <td className="forge-table-cell">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-muted-foreground" />
+                        <span>{vehicle.driver}</span>
+                      </div>
+                    </td>
+                    <td className="forge-table-cell">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <span style={{ fontSize: '0.875rem' }}>{vehicle.primaryRoute || 'Unassigned'}</span>
+                      </div>
+                    </td>
+                    <td className="forge-table-cell">
+                      <span style={{ fontSize: '0.875rem', color: 'var(--forge-theme-text-low)' }}>
+                        {vehicle.mileage.toLocaleString()} mi
+                      </span>
+                    </td>
+                    <td className="forge-table-cell">
+                      <div className="flex items-center gap-2">
+                        {vehicle.incidentCount > 8 ? (
+                          <TrendingUp className="h-4 w-4 text-destructive" />
+                        ) : vehicle.incidentCount < 4 ? (
+                          <TrendingDown className="h-4 w-4 text-green-600" />
+                        ) : null}
+                        <span style={{ fontWeight: vehicle.incidentCount > 8 ? 600 : 'normal' }}>
+                          {vehicle.incidentCount}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="forge-table-cell">
+                      <Badge variant={vehicle.status === 'Active' ? 'default' : 'secondary'}>
+                        {vehicle.status}
+                      </Badge>
+                    </td>
+                  </tr>
                 ))}
               </tbody>
             </table>
@@ -1137,6 +1051,118 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
           </div>
         </div>
       </ForgeCard>
+
+      {/* @ts-ignore */}
+      <forge-dialog ref={dialogRef} aria-label={`Vehicle Details - ${selectedVehicle?.id || ''}`}>
+        <div style={{ padding: 'var(--forge-spacing-large)', minWidth: '600px', maxWidth: '800px', maxHeight: '85vh', overflowY: 'auto' }}>
+          <div className="flex items-center justify-between" style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
+            <div>
+              <h2 style={{ margin: 0, fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)', fontSize: 'var(--forge-font-size-xl)' }}>
+                Vehicle Details - {selectedVehicle?.id}
+              </h2>
+              <p style={{ margin: 0, marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>
+                Complete information for {selectedVehicle?.name}
+              </p>
+            </div>
+            {selectedVehicle && (
+              <Badge variant={selectedVehicle.status === 'Active' ? 'default' : 'secondary'}>
+                {selectedVehicle.status}
+              </Badge>
+            )}
+          </div>
+          {selectedVehicle && (
+            <div className="space-y-6">
+              {/* VIN, Capacity, Current Mileage, Vehicle Incident Count */}
+              <div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>VIN</div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.vin}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Capacity</div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.capacity} passengers</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Current Mileage</div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.mileage.toLocaleString()} miles</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Vehicle Incident Count</div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.incidentCount} incidents this year</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* GPS & AVL Configuration */}
+              <div className="border-t pt-4">
+                <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 600, marginBottom: 'var(--forge-spacing-small)', fontFamily: 'var(--forge-font-family)' }}>
+                  GPS & AVL Configuration
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>GPS Hardware ID</div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.gpsHardwareId}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>TYD AVL Integration</div>
+                    <div className="flex items-center gap-2" style={{ marginTop: 'var(--forge-spacing-xxsmall)' }}>
+                      <div
+                        className={`w-3 h-3 rounded-full ${selectedVehicle.useTydAvl ? 'bg-green-500' : 'bg-gray-300'}`}
+                      />
+                      <span style={{ fontFamily: 'var(--forge-font-family)' }}>{selectedVehicle.useTydAvl ? 'Enabled' : 'Disabled'}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Garage Assignments */}
+              <div className="border-t pt-4">
+                <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 600, marginBottom: 'var(--forge-spacing-small)', fontFamily: 'var(--forge-font-family)' }}>
+                  Garage Assignments
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Default Garage</div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.defaultGarage}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Mid-Day Garage</div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.midDayGarage}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Assignment Information */}
+              <div className="border-t pt-4">
+                <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 600, marginBottom: 'var(--forge-spacing-small)', fontFamily: 'var(--forge-font-family)' }}>
+                  Assignment Information
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Assigned Driver</div>
+                    <div className="flex items-center gap-2" style={{ marginTop: 'var(--forge-spacing-xxsmall)' }}>
+                      <User className="h-4 w-4 text-muted-foreground" />
+                      <span style={{ fontWeight: 500, fontFamily: 'var(--forge-font-family)' }}>{selectedVehicle.driver}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Primary Route</div>
+                    <div className="flex items-center gap-2" style={{ marginTop: 'var(--forge-spacing-xxsmall)' }}>
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <span style={{ fontFamily: 'var(--forge-font-family)' }}>{selectedVehicle.primaryRoute || 'None'}</span>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Secondary Route</div>
+                    <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.secondaryRoute || 'None'}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </forge-dialog>
     </div>
   );
 }

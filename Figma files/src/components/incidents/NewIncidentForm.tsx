@@ -1,238 +1,265 @@
-import { INCIDENT_TYPES, getAllCategories } from './IncidentTypes';
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '../ui/command';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent } from '@tylertech/forge';
+import { defineCardComponent, defineButtonComponent, defineTextFieldComponent } from '@tylertech/forge';
 defineCardComponent();
-import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Input } from '../ui/input';
+defineTextFieldComponent();
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Checkbox } from '../ui/checkbox';
 import { Badge } from '../ui/badge';
-import { AlertCircle, Save, Send, Check, Circle, CheckCircle2, MapPin, Upload, X, Image as ImageIcon, FileText, File, UserCircle2, Users } from 'lucide-react';
+import {
+  AlertCircle, Send, Check, Circle, CheckCircle2, Upload, X,
+  Image as ImageIcon, FileText, Users, ChevronRight, ChevronDown, ChevronUp, Plus,
+} from 'lucide-react';
 import { Alert, AlertDescription } from '../ui/alert';
+import { INCIDENT_TYPES, getAllCategories } from './IncidentTypes';
 import { IncidentLocationMap } from './IncidentLocationMap';
 
 const mockStudents = [
-  { id: 'STU-2891', name: 'Sarah Mitchell', grade: '9th Grade', school: 'Lincoln Middle School', bus: 'bus-12', route: 'lincoln-elem-am-green' },
-  { id: 'STU-3421', name: 'Marcus Johnson', grade: '10th Grade', school: 'Washington High School', bus: 'bus-15', route: 'washington-high-pm-wolf' },
-  { id: 'STU-1956', name: 'Emma Rodriguez', grade: '8th Grade', school: 'Jefferson Middle School', bus: 'bus-22', route: 'jefferson-middle-am-blue' },
-  { id: 'STU-4782', name: 'James Thompson', grade: '9th Grade', school: 'Roosevelt High School', bus: 'bus-31', route: 'roosevelt-high-pm-red' },
-  { id: 'STU-5623', name: 'Olivia Davis', grade: '11th Grade', school: 'Washington High School', bus: 'bus-8', route: 'washington-high-pm-wolf' },
-  { id: 'STU-6891', name: 'Noah Wilson', grade: '7th Grade', school: 'Lincoln Middle School', bus: 'bus-12', route: 'lincoln-elem-am-green' },
-  { id: 'STU-7234', name: 'Ava Martinez', grade: '10th Grade', school: 'Jefferson Middle School', bus: 'bus-22', route: 'jefferson-middle-am-blue' },
-  { id: 'STU-8156', name: 'Ethan Anderson', grade: '12th Grade', school: 'Washington High School', bus: 'bus-15', route: 'washington-high-pm-wolf' },
+  { id: 'STU-2891', name: 'Sarah Mitchell', grade: '9th Grade', school: 'Lincoln Middle School', photoUrl: 'https://images.unsplash.com/photo-1729283098418-e2c849b4e2cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWVuYWdlJTIwZ2lybCUyMHBhc3Nwb3J0JTIwcGhvdG8lMjAxNCUyMHllYXIlMjBvbGR8ZW58MXx8fHwxNzY5NTI3Mjc4fDA&ixlib=rb-4.1.0&q=80&w=1080', bus: 'bus-12', route: 'lincoln-elem-am-green' },
+  { id: 'STU-3421', name: 'Marcus Johnson', grade: '10th Grade', school: 'Washington High School', photoUrl: 'https://images.unsplash.com/photo-1696219448339-ce614b610462?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWVuYWdlJTIwYm95JTIwcGFzc3BvcnQlMjBwaG90byUyMDE1JTIweWVhciUyMG9sZHxlbnwxfHx8fDE3Njk1MjcyNzl8MA&ixlib=rb-4.1.0&q=80&w=1080', bus: 'bus-15', route: 'washington-high-pm-wolf' },
+  { id: 'STU-1956', name: 'Emma Rodriguez', grade: '8th Grade', school: 'Jefferson Middle School', photoUrl: 'https://images.unsplash.com/photo-1663550910672-6cf9177ef89d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWVuYWdlJTIwZ2lybCUyMHBhc3Nwb3J0JTIwcGhvdG8lMjAxMyUyMHllYXIlMjBvbGQlMjBoaXNwYW5pY3xlbnwxfHx8fDE3Njk1MjcyNzl8MA&ixlib=rb-4.1.0&q=80&w=1080', bus: 'bus-22', route: 'jefferson-middle-am-blue' },
+  { id: 'STU-4782', name: 'James Thompson', grade: '9th Grade', school: 'Roosevelt High School', photoUrl: 'https://images.unsplash.com/photo-1696219448339-ce614b610462?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWVuYWdlJTIwYm95JTIwcGFzc3BvcnQlMjBwaG90byUyMDE1JTIweWVhciUyMG9sZHxlbnwxfHx8fDE3Njk1MjcyNzl8MA&ixlib=rb-4.1.0&q=80&w=1080', bus: 'bus-31', route: 'roosevelt-high-pm-red' },
+  { id: 'STU-5623', name: 'Olivia Davis', grade: '11th Grade', school: 'Washington High School', photoUrl: 'https://images.unsplash.com/photo-1630003941615-db6a06990434?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWVuYWdlJTIwZ2lybCUyMHBhc3Nwb3J0JTIwcGhvdG8lMjAxNyUyMHllYXIlMjBvbGR8ZW58MXx8fHwxNzY5NTI3Mjc5fDA&ixlib=rb-4.1.0&q=80&w=1080', bus: 'bus-8', route: 'washington-high-pm-wolf' },
+  { id: 'STU-6891', name: 'Noah Wilson', grade: '7th Grade', school: 'Lincoln Middle School', photoUrl: 'https://images.unsplash.com/photo-1619362405573-7aeaf09ac89f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWVuYWdlJTIwYm95JTIwcGFzc3BvcnQlMjBwaG90byUyMDEzJTIweWVhciUyMG9sZHxlbnwxfHx8fDE3Njk1MjcyODB8MA&ixlib=rb-4.1.0&q=80&w=1080', bus: 'bus-12', route: 'lincoln-elem-am-green' },
+  { id: 'STU-7234', name: 'Sophia Garcia', grade: '5th Grade', school: 'Lincoln Elementary', photoUrl: 'https://images.unsplash.com/photo-1729283098418-e2c849b4e2cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaGlsZCUyMGdpcmwlMjBwYXNzcG9ydCUyMHBob3RvJTIwMTAlMjB5ZWFyJTIwb2xkfGVufDF8fHx8MTc2OTUyNzI4MHww&ixlib=rb-4.1.0&q=80&w=1080', bus: 'bus-9', route: 'lincoln-elem-am-green' },
+  { id: 'STU-8512', name: 'Liam Brown', grade: '7th Grade', school: 'Lincoln Middle School', photoUrl: 'https://images.unsplash.com/photo-1619362405573-7aeaf09ac89f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWVuYWdlJTIwYm95JTIwcGFzc3BvcnQlMjBwaG90byUyMDEyJTIweWVhciUyMG9sZHxlbnwxfHx8fDE3Njk1MjcyODF8MA&ixlib=rb-4.1.0&q=80&w=1080', bus: 'bus-12', route: 'lincoln-elem-am-green' },
+  { id: 'STU-9123', name: 'Ava Martinez', grade: '6th Grade', school: 'Jefferson Middle School', photoUrl: 'https://images.unsplash.com/photo-1630005500468-3dbe2aeb0b03?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWVuYWdlJTIwZ2lybCUyMHBhc3Nwb3J0JTIwcGhvdG8lMjAxMSUyMHllYXIlMjBvbGQlMjBoaXNwYW5pY3xlbnwxfHx8fDE3Njk1MjcyODF8MA&ixlib=rb-4.1.0&q=80&w=1080', bus: 'bus-22', route: 'jefferson-middle-am-blue' },
+  { id: 'STU-1045', name: 'Ethan Lee', grade: '9th Grade', school: 'Washington High School', photoUrl: 'https://images.unsplash.com/photo-1655487420177-54b4d969c5a7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWVuYWdlJTIwYm95JTIwcGFzc3BvcnQlMjBwaG90byUyMDE0JTIweWVhciUyMG9sZCUyMGFzaWFufGVufDF8fHx8MTc2OTUyNzI4MXww&ixlib=rb-4.1.0&q=80&w=1080', bus: 'bus-8', route: 'washington-high-pm-wolf' },
 ];
 
-// Mock driver data
 const mockDrivers = [
-  { id: 'DRV-101', name: 'Robert Martinez', employeeId: 'EMP-4521', routes: ['lincoln-elem-am-green'] },
-  { id: 'DRV-102', name: 'Jennifer Davis', employeeId: 'EMP-4522', routes: ['washington-high-pm-wolf'] },
-  { id: 'DRV-103', name: 'Michael Chen', employeeId: 'EMP-4523', routes: ['jefferson-middle-am-blue'] },
-  { id: 'DRV-104', name: 'Patricia Johnson', employeeId: 'EMP-4524', routes: ['roosevelt-high-pm-red'] },
-  { id: 'DRV-105', name: 'David Thompson', employeeId: 'EMP-4525', routes: ['colonie-high-am-purple'] },
-  { id: 'DRV-106', name: 'Lisa Anderson', employeeId: 'EMP-4526', routes: ['meyers-middle-am-yellow'] },
+  { id: 'DRV-101', name: 'Robert Martinez', employeeId: 'EMP-4521', photoUrl: 'https://images.unsplash.com/photo-1633665503034-78f3628a86e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxidXMlMjBkcml2ZXIlMjBwb3J0cmFpdCUyMHByb2Zlc3Npb25hbHxlbnwxfHx8fDE3Njc3MTg2Njh8MA&ixlib=rb-4.1.0&q=80&w=1080', routes: ['lincoln-elem-am-green'] },
+  { id: 'DRV-102', name: 'Jennifer Davis', employeeId: 'EMP-4522', photoUrl: 'https://images.unsplash.com/photo-1758691737610-1f18e008f5f2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjB3b3JrZXIlMjBoZWFkc2hvdCUyMHdvbWFufGVufDF8fHx8MTc2NzcxODY2OXww&ixlib=rb-4.1.0&q=80&w=1080', routes: ['washington-high-pm-wolf'] },
+  { id: 'DRV-103', name: 'Michael Chen', employeeId: 'EMP-4523', photoUrl: 'https://images.unsplash.com/photo-1568585105565-e372998a195d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjB3b3JrZXIlMjBoZWFkc2hvdCUyMG1hbnxlbnwxfHx8fDE3Njc3MTg2Njl8MA&ixlib=rb-4.1.0&q=80&w=1080', routes: ['jefferson-middle-am-blue'] },
+  { id: 'DRV-104', name: 'Patricia Johnson', employeeId: 'EMP-4524', photoUrl: 'https://images.unsplash.com/photo-1599768431736-c78b881ae983?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBkcml2ZXIlMjBoZWFkc2hvdHxlbnwxfHx8fDE3Njc3MTg2Njh8MA&ixlib=rb-4.1.0&q=80&w=1080', routes: ['roosevelt-high-pm-red'] },
+  { id: 'DRV-105', name: 'David Thompson', employeeId: 'EMP-4525', photoUrl: 'https://images.unsplash.com/photo-1485540031485-a278dfc63d2e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmFuc2l0JTIwZHJpdmVyJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzY3NzE4NjY5fDA&ixlib=rb-4.1.0&q=80&w=1080', routes: ['colonie-high-am-purple'] },
+  { id: 'DRV-106', name: 'Lisa Anderson', employeeId: 'EMP-4526', photoUrl: 'https://images.unsplash.com/photo-1695395860911-2be98a6cba4a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzY2hvb2wlMjBidXMlMjBkcml2ZXIlMjB1bmlmb3JtfGVufDF8fHx8MTc2NzcxODY2OHww&ixlib=rb-4.1.0&q=80&w=1080', routes: ['meyers-middle-am-yellow'] },
 ];
 
-// Mock verified addresses (simulating Google Places API)
-const mockAddresses = [
-  { id: '1', fullAddress: '1234 Main Street, Meridian, ID 83642, USA', street: '1234 Main Street', city: 'Meridian', state: 'ID', zip: '83642' },
-  { id: '2', fullAddress: '5678 Elm Avenue, Meridian, ID 83646, USA', street: '5678 Elm Avenue', city: 'Meridian', state: 'ID', zip: '83646' },
-  { id: '3', fullAddress: '910 Oak Drive, Boise, ID 83704, USA', street: '910 Oak Drive', city: 'Boise', state: 'ID', zip: '83704' },
-  { id: '4', fullAddress: '2345 Maple Lane, Eagle, ID 83616, USA', street: '2345 Maple Lane', city: 'Eagle', state: 'ID', zip: '83616' },
-  { id: '5', fullAddress: '3456 Pine Road, Nampa, ID 83651, USA', street: '3456 Pine Road', city: 'Nampa', state: 'ID', zip: '83651' },
-  { id: '6', fullAddress: '4567 Cedar Court, Kuna, ID 83634, USA', street: '4567 Cedar Court', city: 'Kuna', state: 'ID', zip: '83634' },
-  { id: '7', fullAddress: '7890 Birch Boulevard, Star, ID 83669, USA', street: '7890 Birch Boulevard', city: 'Star', state: 'ID', zip: '83669' },
-  { id: '8', fullAddress: '6789 Willow Way, Caldwell, ID 83605, USA', street: '6789 Willow Way', city: 'Caldwell', state: 'ID', zip: '83605' },
-  { id: '9', fullAddress: '8901 Aspen Street, Garden City, ID 83714, USA', street: '8901 Aspen Street', city: 'Garden City', state: 'ID', zip: '83714' },
-  { id: '10', fullAddress: '1230 Spruce Avenue, Meridian, ID 83642, USA', street: '1230 Spruce Avenue', city: 'Meridian', state: 'ID', zip: '83642' },
-  { id: '11', fullAddress: '456 Cherry Lane, Boise, ID 83702, USA', street: '456 Cherry Lane', city: 'Boise', state: 'ID', zip: '83702' },
-  { id: '12', fullAddress: '789 Walnut Drive, Eagle, ID 83616, USA', street: '789 Walnut Drive', city: 'Eagle', state: 'ID', zip: '83616' },
-];
+
+type Student = typeof mockStudents[0];
+interface PerStudentData {
+  role: 'instigator' | 'participant' | 'victim' | 'bystander' | '';
+  severityOverride: 'shared' | 'low' | 'medium' | 'high';
+  incidentTypeOverride: string;
+  parentNotified: boolean;
+  actionTaken: string;
+  notes: string;
+}
+
+interface SharedFormData {
+  incidentType: string;
+  severity: string;
+  description: string;
+  location: string;
+  bus: string;
+  route: string;
+  witnessPresent: boolean;
+  witnessNames: string[];
+}
+
 
 interface NewIncidentFormProps {
   onNavigate: (page: string) => void;
 }
 
+const STEPS = [
+  { number: 1, label: 'Involved Students' },
+  { number: 2, label: 'Incident Details' },
+  { number: 3, label: 'Per-Student Details' },
+  { number: 4, label: 'Review & Submit' },
+];
+
+const LOCATION_OPTIONS = [
+  { category: 'ON ROUTE', items: [
+    { value: 'on-bus', label: 'On Vehicle' },
+    { value: 'bus-stop', label: 'At Vehicle Stop' },
+    { value: 'loading', label: 'Loading/Unloading' },
+  ]},
+  { category: 'SCHOOL/LOCATION', items: [
+    { value: 'school-campus', label: 'School Campus' },
+    { value: 'parking-lot', label: 'Parking Lot' },
+    { value: 'layover-location', label: 'Layover Location' },
+  ]},
+  { category: 'OTHER', items: [{ value: 'other', label: 'Other' }] },
+];
+
+const DRIVER_LOCATION_OPTIONS = [
+  ...LOCATION_OPTIONS.slice(0, 1),
+  { category: 'FACILITY', items: [
+    { value: 'garage', label: 'Garage' },
+    { value: 'yard', label: 'Yard' },
+    { value: 'maintenance-bay', label: 'Maintenance Bay' },
+    { value: 'fuel-station', label: 'Fuel Station' },
+    { value: 'wash-bay', label: 'Wash Bay' },
+  ]},
+  ...LOCATION_OPTIONS.slice(1),
+];
+
+function WitnessFields({ names, onChange }: { names: string[]; onChange: (names: string[]) => void }) {
+  const [focusedIdx, setFocusedIdx] = useState<number | null>(null);
+  return (
+    <div>
+      {names.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '12px' }}>
+          {names.map((name, idx) => (
+            <div key={idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '6px', width: '20%', minWidth: '160px' }}>
+              <div style={{
+                flex: 1,
+                border: `1px solid ${focusedIdx === idx ? '#4A6FA5' : '#C5D2E8'}`,
+                borderRadius: '6px', padding: '8px 12px', background: '#fff',
+              }}>
+                <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: '12px', color: 'var(--forge-theme-text-medium)', marginBottom: '2px' }}>
+                  Witness Name
+                </div>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => {
+                    const updated = [...names];
+                    updated[idx] = e.target.value;
+                    onChange(updated);
+                  }}
+                  onFocus={() => setFocusedIdx(idx)}
+                  onBlur={() => setFocusedIdx(null)}
+                  style={{ width: '100%', border: 'none', outline: 'none', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', background: 'transparent' }}
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => onChange(names.filter((_, i) => i !== idx))}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'var(--forge-theme-text-medium)', marginTop: '10px', flexShrink: 0 }}
+                aria-label="Remove witness"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      <button
+        type="button"
+        onClick={() => onChange([...names, ''])}
+        style={{
+          display: 'inline-flex', alignItems: 'center', gap: '8px',
+          padding: '8px 20px', borderRadius: '6px',
+          border: '1px solid #4A6FA5', background: '#fff',
+          fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)',
+          color: '#4A6FA5', fontWeight: 500, cursor: 'pointer',
+        }}
+      >
+        <Plus className="h-4 w-4" /> Add Witness
+      </button>
+    </div>
+  );
+}
+
 export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
-  const [incidentCategory, setIncidentCategory] = useState<'student' | 'driver' | null>(null);
-  const [formData, setFormData] = useState({
-    student: '',
-    studentId: '',
-    incidentType: '',
-    severity: '',
-    description: '',
-    location: '',
-    address: '',
-    bus: '',
-    route: '',
-    driver: '',
-    witnessPresent: false,
-    witnessName: '',
-    parentNotified: false,
-    actionTaken: '',
+  const [incidentCategory] = useState<'student'>('student');
+  const [currentStep, setCurrentStep] = useState(1);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  // Step 1: involved students
+  const [involvedStudents, setInvolvedStudents] = useState<Student[]>([]);
+  const [studentSearch, setStudentSearch] = useState('');
+  const [studentSearchOpen, setStudentSearchOpen] = useState(false);
+  const studentSearchRef = useRef<HTMLDivElement>(null);
+  const studentInputRef = useRef<HTMLInputElement>(null);
+
+  // Step 2: shared incident data
+  const [sharedData, setSharedData] = useState<SharedFormData>({
+    incidentType: '', severity: '', description: '', location: '',
+    bus: '', route: '', witnessPresent: false, witnessNames: [],
   });
   const [locationCoordinates, setLocationCoordinates] = useState<{ lat: number; lng: number } | null>(null);
-
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [studentLookupOpen, setStudentLookupOpen] = useState(false);
-  const [addressLookupOpen, setAddressLookupOpen] = useState(false);
+  const [locationAddress, setLocationAddress] = useState('');
   const [uploadedPhotos, setUploadedPhotos] = useState<Array<{ id: string; name: string; url: string; size: string }>>([]);
   const [uploadedDocuments, setUploadedDocuments] = useState<Array<{ id: string; name: string; size: string; type: string }>>([]);
-  const [selectedStudent, setSelectedStudent] = useState<typeof mockStudents[0] | null>(null);
-  const [selectedDriver, setSelectedDriver] = useState<typeof mockDrivers[0] | null>(null);
-  const studentLookupRef = useRef<HTMLDivElement>(null);
-  const addressLookupRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const documentInputRef = useRef<HTMLInputElement>(null);
 
-  // Close dropdown when clicking outside
+  // Step 3: per-student data
+  const [perStudentData, setPerStudentData] = useState<Record<string, PerStudentData>>({});
+  const [expandedStudents, setExpandedStudents] = useState<Set<string>>(new Set());
+
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (studentLookupRef.current && !studentLookupRef.current.contains(event.target as Node)) {
-        setStudentLookupOpen(false);
-      }
-      if (addressLookupRef.current && !addressLookupRef.current.contains(event.target as Node)) {
-        setAddressLookupOpen(false);
-      }
+    const handleClickOutside = (e: MouseEvent) => {
+      if (studentSearchRef.current && !studentSearchRef.current.contains(e.target as Node)) setStudentSearchOpen(false);
     };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
-    if (studentLookupOpen || addressLookupOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
+  const addStudent = (student: Student) => {
+    if (!involvedStudents.find(s => s.id === student.id)) {
+      setInvolvedStudents(prev => [...prev, student]);
+      setPerStudentData(prev => ({
+        ...prev,
+        [student.id]: { role: 'participant', severityOverride: 'shared', incidentTypeOverride: '', parentNotified: false, actionTaken: '', notes: '' },
+      }));
+      setExpandedStudents(prev => new Set([...prev, student.id]));
     }
-  }, [studentLookupOpen, addressLookupOpen]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setShowSuccess(true);
-    setTimeout(() => {
-      setShowSuccess(false);
-      onNavigate('incidents');
-    }, 3000);
+    setStudentSearch('');
+    setStudentSearchOpen(false);
+    studentInputRef.current?.blur();
   };
 
-  // Auto-set severity based on incident type
-  const handleIncidentTypeChange = (value: string) => {
-    const selectedType = INCIDENT_TYPES.find(t => t.id === value);
-    setFormData({ 
-      ...formData, 
-      incidentType: value,
-      severity: selectedType?.defaultSeverity.toLowerCase() || ''
-    });
+  const removeStudent = (studentId: string) => {
+    setInvolvedStudents(prev => prev.filter(s => s.id !== studentId));
+    setPerStudentData(prev => { const n = { ...prev }; delete n[studentId]; return n; });
+    setExpandedStudents(prev => { const n = new Set(prev); n.delete(studentId); return n; });
   };
 
-  // Handle photo uploads
+  const updatePerStudent = (studentId: string, field: keyof PerStudentData, value: string | boolean) => {
+    setPerStudentData(prev => ({ ...prev, [studentId]: { ...prev[studentId], [field]: value } }));
+  };
+
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
-
-    const newPhotos = Array.from(files).map((file, index) => {
-      const url = URL.createObjectURL(file);
-      const sizeInKB = (file.size / 1024).toFixed(1);
-      const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
-      const displaySize = file.size > 1024 * 1024 ? `${sizeInMB} MB` : `${sizeInKB} KB`;
-      
-      return {
-        id: `${Date.now()}-${index}`,
-        name: file.name,
-        url: url,
-        size: displaySize,
-      };
-    });
-
-    setUploadedPhotos([...uploadedPhotos, ...newPhotos]);
-    
-    // Reset input so same file can be uploaded again if removed
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    const newPhotos = Array.from(files).map((f, i) => ({
+      id: `${Date.now()}-${i}`, name: f.name, url: URL.createObjectURL(f),
+      size: f.size > 1048576 ? `${(f.size / 1048576).toFixed(2)} MB` : `${(f.size / 1024).toFixed(1)} KB`,
+    }));
+    setUploadedPhotos(p => [...p, ...newPhotos]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  // Remove photo
-  const handleRemovePhoto = (photoId: string) => {
-    setUploadedPhotos(uploadedPhotos.filter(photo => photo.id !== photoId));
-  };
-
-  // Handle document uploads
   const handleDocumentUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files) return;
+    const newDocs = Array.from(files).map((f, i) => ({
+      id: `${Date.now()}-${i}`, name: f.name, type: f.type,
+      size: f.size > 1048576 ? `${(f.size / 1048576).toFixed(2)} MB` : `${(f.size / 1024).toFixed(1)} KB`,
+    }));
+    setUploadedDocuments(d => [...d, ...newDocs]);
+    if (documentInputRef.current) documentInputRef.current.value = '';
+  };
 
-    const newDocuments = Array.from(files).map((file, index) => {
-      const sizeInKB = (file.size / 1024).toFixed(1);
-      const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
-      const displaySize = file.size > 1024 * 1024 ? `${sizeInMB} MB` : `${sizeInKB} KB`;
-      
-      return {
-        id: `${Date.now()}-${index}`,
-        name: file.name,
-        size: displaySize,
-        type: file.type,
-      };
-    });
+  const handleStudentSubmit = () => {
+    setShowSuccess(true);
+    setTimeout(() => { setShowSuccess(false); onNavigate('incidents'); }, 3000);
+  };
 
-    setUploadedDocuments([...uploadedDocuments, ...newDocuments]);
-    
-    // Reset input so same file can be uploaded again if removed
-    if (documentInputRef.current) {
-      documentInputRef.current.value = '';
+
+  const filteredStudents = mockStudents.filter(
+    s => (studentSearch === '' || s.name.toLowerCase().includes(studentSearch.toLowerCase()) || s.id.toLowerCase().includes(studentSearch.toLowerCase()))
+      && !involvedStudents.find(added => added.id === s.id)
+  );
+
+  const getLocationLabel = (value: string) => {
+    for (const group of LOCATION_OPTIONS) {
+      const item = group.items.find(i => i.value === value);
+      if (item) return item.label;
     }
+    return value;
   };
 
-  // Remove document
-  const handleRemoveDocument = (documentId: string) => {
-    setUploadedDocuments(uploadedDocuments.filter(doc => doc.id !== documentId));
-  };
+  const getIncidentTypeLabel = (id: string) => INCIDENT_TYPES.find(t => t.id === id)?.label || id;
 
-  // Get filtered locations based on incident category
-  const getLocationOptions = () => {
-    const studentLocations = [
-      { category: 'ON ROUTE', items: [
-        { value: 'on-bus', label: 'On Vehicle' },
-        { value: 'bus-stop', label: 'At Vehicle Stop' },
-        { value: 'loading', label: 'Loading/Unloading' },
-      ]},
-      { category: 'SCHOOL/LOCATION', items: [
-        { value: 'school-campus', label: 'School Campus' },
-        { value: 'parking-lot', label: 'Parking Lot' },
-        { value: 'layover-location', label: 'Layover Location' },
-      ]},
-      { category: 'OTHER', items: [
-        { value: 'other', label: 'Other' },
-      ]},
-    ];
-
-    const driverLocations = [
-      { category: 'ON ROUTE', items: [
-        { value: 'on-bus', label: 'On Vehicle' },
-        { value: 'bus-stop', label: 'At Vehicle Stop' },
-        { value: 'loading', label: 'Loading/Unloading' },
-      ]},
-      { category: 'FACILITY', items: [
-        { value: 'garage', label: 'Garage' },
-        { value: 'yard', label: 'Yard' },
-        { value: 'maintenance-bay', label: 'Maintenance Bay' },
-        { value: 'fuel-station', label: 'Fuel Station' },
-        { value: 'wash-bay', label: 'Wash Bay' },
-      ]},
-      { category: 'SCHOOL/LOCATION', items: [
-        { value: 'school-campus', label: 'School Campus' },
-        { value: 'parking-lot', label: 'Parking Lot' },
-        { value: 'layover-location', label: 'Layover Location' },
-      ]},
-      { category: 'OTHER', items: [
-        { value: 'other', label: 'Other' },
-      ]},
-    ];
-
-    return incidentCategory === 'student' ? studentLocations : driverLocations;
-  };
+  // ── Student incident 4-step wizard ──────────────────────────────────────────
 
   return (
     <div>
@@ -240,486 +267,692 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
         <Alert className="mb-6 bg-green-50 border-green-200">
           <AlertCircle className="h-4 w-4 text-green-600" />
           <AlertDescription className="text-green-800" style={{ fontFamily: 'Roboto, sans-serif' }}>
-            Incident report submitted successfully! Supervisor has been notified.
+            {involvedStudents.length} incident record{involvedStudents.length !== 1 ? 's' : ''} created and linked successfully! Supervisor has been notified.
           </AlertDescription>
         </Alert>
       )}
 
-      {/* Incident Category Selection */}
-      {!incidentCategory && (
+      {/* Step indicator */}
+      <div className="flex items-center justify-between mb-2">
+        <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)', color: 'var(--forge-theme-text-medium)' }}>
+          Step {currentStep} of 4
+        </span>
+      </div>
+
+      {/* Step progress indicator */}
+      <div className="flex mb-6" style={{ borderBottom: '1px solid var(--forge-color-border-subtle)' }}>
+        {STEPS.map((step) => {
+          const isActive = currentStep === step.number;
+          const isDone = currentStep > step.number;
+          return (
+            <div
+              key={step.number}
+              className="flex-1 text-center pb-3 relative"
+              style={{
+                borderBottom: isActive ? '2px solid #4A6FA5' : isDone ? '2px solid #5A8F5A' : '2px solid transparent',
+                marginBottom: '-1px',
+              }}
+            >
+              <span style={{
+                fontFamily: 'Roboto, sans-serif',
+                fontSize: 'var(--text-xs)',
+                fontWeight: isActive ? 500 : 400,
+                color: isActive ? '#4A6FA5' : isDone ? '#5A8F5A' : 'var(--forge-theme-text-medium)',
+              }}>
+                {isDone && <Check style={{ display: 'inline', width: 12, height: 12, marginRight: 4, verticalAlign: 'middle' }} />}
+                {step.label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ── Step 1: Involved Students ── */}
+      {currentStep === 1 && (
         <ForgeCard style={{ border: 'none', boxShadow: 'none' }}>
           <div style={{ padding: 'var(--forge-spacing-medium)' }}>
-            <h3 className="forge-typography--heading4" style={{ fontFamily: 'Roboto, sans-serif' }}>Select Incident Type</h3>
-            <p className="forge-typography--body2" style={{ color: 'var(--forge-theme-text-medium)', fontFamily: 'Roboto, sans-serif' }}>
-              Choose whether this incident involves a student or a driver
-            </p>
-            <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <button
-                type="button"
-                onClick={() => setIncidentCategory('student')}
-                className="group relative p-8 border-2 rounded-lg hover:border-primary transition-all bg-white hover:bg-primary/5"
-                style={{ 
-                  borderColor: 'var(--forge-color-border-default)',
-                  borderRadius: 'var(--forge-radius-large)'
-                }}
-              >
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <div 
-                    className="w-20 h-20 rounded-full flex items-center justify-center bg-blue-100 group-hover:bg-blue-200 transition-colors"
-                  >
-                    <Users className="w-10 h-10 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 
-                      className="font-semibold mb-2"
-                      style={{ 
-                        fontFamily: 'Roboto, sans-serif',
-                        fontSize: 'var(--text-lg)',
-                        fontWeight: 'var(--font-weight-semibold)'
-                      }}
-                    >
-                      Student Incident
-                    </h3>
-                    <p 
-                      className="text-sm text-muted-foreground"
-                      style={{ 
-                        fontFamily: 'Roboto, sans-serif',
-                        fontSize: 'var(--text-sm)'
-                      }}
-                    >
-                      Report behavioral, safety, or other incidents involving students on routes or at school locations
-                    </p>
-                  </div>
-                </div>
-              </button>
+            <div className="flex items-start gap-3 mb-1">
+              <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#EEF2F8' }}>
+                <Users className="w-5 h-5" style={{ color: '#4A6FA5' }} />
+              </div>
+              <div>
+                <h3 className="forge-typography--heading4" style={{ fontFamily: 'Roboto, sans-serif', marginBottom: 2 }}>Involved Students</h3>
+                <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)', color: 'var(--forge-theme-text-medium)' }}>
+                  Add all students involved in this incident. A separate incident record will be created for each student, linked together as a group.
+                </p>
+              </div>
+            </div>
 
-              <button
-                type="button"
-                onClick={() => setIncidentCategory('driver')}
-                className="group relative p-8 border-2 rounded-lg hover:border-primary transition-all bg-white hover:bg-primary/5"
-                style={{ 
-                  borderColor: 'var(--forge-color-border-default)',
-                  borderRadius: 'var(--forge-radius-large)'
-                }}
-              >
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <div 
-                    className="w-20 h-20 rounded-full flex items-center justify-center bg-green-100 group-hover:bg-green-200 transition-colors"
-                  >
-                    <UserCircle2 className="w-10 h-10 text-green-600" />
+            {/* Search */}
+            <div className="relative mt-4" ref={studentSearchRef}>
+              {/* @ts-ignore */}
+              <forge-text-field>
+                <input
+                  ref={studentInputRef}
+                  type="text"
+                  placeholder="+ Search students by name or ID to add..."
+                  value={studentSearch}
+                  onChange={(e) => { setStudentSearch(e.target.value); setStudentSearchOpen(true); }}
+                  onFocus={() => setStudentSearchOpen(true)}
+                  style={{ fontFamily: 'Roboto, sans-serif' }}
+                />
+              </forge-text-field>
+              {studentSearchOpen && (
+                <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-[280px] overflow-auto" style={{ borderColor: 'var(--forge-color-border-default)' }}>
+                  {filteredStudents.length === 0 ? (
+                    <div style={{ padding: '12px 16px', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)', color: 'var(--forge-theme-text-medium)' }}>
+                      No students found.
+                    </div>
+                  ) : (
+                    filteredStudents.map(student => (
+                      <button
+                        key={student.id}
+                        type="button"
+                        onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); addStudent(student); }}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', padding: '10px 16px', background: 'none', border: 'none', borderBottom: '1px solid var(--forge-color-border-subtle)', cursor: 'pointer', textAlign: 'left' }}
+                        onMouseEnter={e => (e.currentTarget.style.background = '#F4F7FB')}
+                        onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                      >
+                        <div className="flex flex-col">
+                          <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', fontWeight: 500 }}>{student.name}</span>
+                          <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)' }}>
+                            {student.id} · {student.grade} · {student.school}
+                          </span>
+                        </div>
+                        <Plus className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Student list or empty state */}
+            <div className="mt-4">
+              {involvedStudents.length === 0 ? (
+                <div
+                  className="border-2 border-dashed rounded-lg py-12 text-center"
+                  style={{ borderColor: 'var(--forge-color-border-subtle)', borderRadius: 'var(--forge-radius-medium)' }}
+                >
+                  <Users className="mx-auto mb-3" style={{ width: 40, height: 40, color: 'var(--forge-theme-text-medium)', opacity: 0.5 }} />
+                  <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)', color: 'var(--forge-theme-text-medium)' }}>
+                    No students added yet. Search above to add involved students.
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)', fontWeight: 600 }}>
+                      {involvedStudents.length} student{involvedStudents.length !== 1 ? 's' : ''} selected
+                    </span>
+                    <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)' }}>
+                      {involvedStudents.length} individual incident{involvedStudents.length !== 1 ? 's' : ''} will be created
+                    </span>
                   </div>
-                  <div>
-                    <h3 
-                      className="font-semibold mb-2"
-                      style={{ 
-                        fontFamily: 'Roboto, sans-serif',
-                        fontSize: 'var(--text-lg)',
-                        fontWeight: 'var(--font-weight-semibold)'
-                      }}
-                    >
-                      Driver Incident
-                    </h3>
-                    <p 
-                      className="text-sm text-muted-foreground"
-                      style={{ 
-                        fontFamily: 'Roboto, sans-serif',
-                        fontSize: 'var(--text-sm)'
-                      }}
-                    >
-                      Report safety, operational, or facility incidents involving drivers at any location
-                    </p>
+                  <div className="space-y-2">
+                    {involvedStudents.map((student) => (
+                      <div
+                        key={student.id}
+                        className="flex items-center gap-3 p-3 rounded-lg border"
+                        style={{ borderColor: 'var(--forge-color-border-default)', borderRadius: 'var(--forge-radius-medium)', background: '#F8F9FA' }}
+                      >
+                        <div className="flex flex-col flex-1 min-w-0">
+                          <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', fontWeight: 500 }}>{student.name}</span>
+                          <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)' }}>
+                            {student.id} · {student.grade}
+                          </span>
+                          <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)' }}>
+                            {student.school}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeStudent(student.id)}
+                          className="flex-shrink-0 w-6 h-6 flex items-center justify-center hover:text-red-500 transition-colors"
+                          style={{ color: 'var(--forge-theme-text-medium)', background: 'none', border: 'none', cursor: 'pointer' }}
+                          aria-label={`Remove ${student.name}`}
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </button>
+              )}
             </div>
-            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="flex justify-end p-4 border-t" style={{ borderColor: 'var(--forge-color-border-subtle)' }}>
+            <button
+              type="button"
+              disabled={involvedStudents.length === 0}
+              onClick={() => setCurrentStep(2)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                padding: '0 20px', height: '38px',
+                background: involvedStudents.length === 0 ? '#9BAEC8' : '#4A6FA5',
+                color: '#fff', border: 'none', borderRadius: '4px',
+                fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500,
+                cursor: involvedStudents.length === 0 ? 'not-allowed' : 'pointer',
+              }}
+            >
+              Next: Incident Details <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
         </ForgeCard>
       )}
 
-      {/* Main Form - Only show after category is selected */}
-      {incidentCategory && (
-        <div>
-          {/* Back button */}
-          <div className="mb-6">
-            <ForgeButton
-              type="button"
-              variant="outlined"
-              onClick={() => {
-                setIncidentCategory(null);
-                setFormData({
-                  student: '',
-                  studentId: '',
-                  incidentType: '',
-                  severity: '',
-                  description: '',
-                  location: '',
-                  address: '',
-                  bus: '',
-                  route: '',
-                  driver: '',
-                  witnessPresent: false,
-                  witnessName: '',
-                  parentNotified: false,
-                  actionTaken: '',
-                });
-                setSelectedStudent(null);
-                setSelectedDriver(null);
-              }}
-              style={{ fontFamily: 'Roboto, sans-serif' }}
-            >
-              ← Change Incident Type
-            </ForgeButton>
-          </div>
+      {/* ── Step 2: Incident Details ── */}
+      {currentStep === 2 && (
+        <ForgeCard style={{ border: 'none', boxShadow: 'none' }}>
+          <div style={{ padding: 'var(--forge-spacing-medium)' }}>
+            <h3 className="forge-typography--heading4" style={{ fontFamily: 'Roboto, sans-serif', marginBottom: 4 }}>Incident Details</h3>
+            <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)', color: 'var(--forge-theme-text-medium)', marginBottom: 'var(--forge-spacing-medium)' }}>
+              These details apply to all {involvedStudents.length} student{involvedStudents.length !== 1 ? 's' : ''}. You can customize per-student details in the next step.
+            </p>
 
-          <form onSubmit={handleSubmit}>
-            {/* Student Information - Only show for student incidents */}
-            {incidentCategory === 'student' && (
-              <ForgeCard style={{ border: 'none', boxShadow: 'none', marginBottom: 'var(--forge-spacing-large)' }}>
-                <div style={{ padding: 'var(--forge-spacing-medium)' }}>
-                  <h3 className="forge-typography--heading4" style={{ fontFamily: 'Roboto, sans-serif' }}>Student Information</h3>
-                  <p className="forge-typography--body2" style={{ color: 'var(--forge-theme-text-medium)', fontFamily: 'Roboto, sans-serif' }}>Identify the student involved in the incident</p>
-                  <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Left: Student Input Fields */}
-                    <div className="space-y-4">
-                      <div className="relative" ref={studentLookupRef}>
-                        <Label htmlFor="student" style={{ fontFamily: 'Roboto, sans-serif' }}>Student Name *</Label>
-                        <Input
-                          id="student"
-                          value={formData.student}
-                          onChange={(e) => {
-                            setFormData({ ...formData, student: e.target.value });
-                            setStudentLookupOpen(true);
-                          }}
-                          placeholder="Type to search students..."
-                          required
-                          style={{ fontFamily: 'Roboto, sans-serif' }}
-                        />
-                        {studentLookupOpen && (
-                          <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-[300px] overflow-hidden">
-                            <Command>
-                              <CommandList>
-                                <CommandEmpty style={{ fontFamily: 'Roboto, sans-serif' }}>No student found.</CommandEmpty>
-                                <CommandGroup>
-                                  {mockStudents
-                                    .filter((student) =>
-                                      student.name.toLowerCase().includes(formData.student.toLowerCase()) ||
-                                      student.id.toLowerCase().includes(formData.student.toLowerCase())
-                                    )
-                                    .map((student) => (
-                                      <CommandItem
-                                        key={student.id}
-                                        value={student.name}
-                                        onSelect={() => {
-                                          setFormData({
-                                            ...formData,
-                                            student: student.name,
-                                            studentId: student.id,
-                                            bus: student.bus,
-                                            route: student.route,
-                                          });
-                                          setSelectedStudent(student);
-                                          setStudentLookupOpen(false);
-                                        }}
-                                        style={{ fontFamily: 'Roboto, sans-serif' }}
-                                      >
-                                        <Check
-                                          className={
-                                            formData.student === student.name
-                                              ? "mr-2 h-4 w-4 opacity-100"
-                                              : "mr-2 h-4 w-4 opacity-0"
-                                          }
-                                        />
-                                        <div className="flex flex-col" style={{ fontFamily: 'Roboto, sans-serif' }}>
-                                          <div style={{ fontSize: 'var(--text-base)' }}>{student.name}</div>
-                                          <div className="text-sm text-muted-foreground" style={{ fontSize: 'var(--text-xs)' }}>
-                                            {student.id} • {student.grade} • {student.school}
-                                          </div>
-                                        </div>
-                                      </CommandItem>
-                                    ))}
-                                </CommandGroup>
-                              </CommandList>
-                            </Command>
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="studentId" style={{ fontFamily: 'Roboto, sans-serif' }}>Student ID</Label>
-                        <Input
-                          id="studentId"
-                          value={formData.studentId}
-                          disabled
-                          className="bg-muted cursor-not-allowed"
-                          style={{ fontFamily: 'Roboto, sans-serif' }}
-                        />
-                      </div>
-                    </div>
-
-                  </div>
-                  </div>
-                </div>
-              </ForgeCard>
-            )}
-
-            {/* Driver Information - Only show for driver incidents */}
-
-            {incidentCategory === 'driver' && (
-              <ForgeCard style={{ border: 'none', boxShadow: 'none', marginBottom: 'var(--forge-spacing-large)' }}>
-                <div style={{ padding: 'var(--forge-spacing-medium)' }}>
-                  <h3 className="forge-typography--heading4" style={{ fontFamily: 'Roboto, sans-serif' }}>Driver Information</h3>
-                  <p className="forge-typography--body2" style={{ color: 'var(--forge-theme-text-medium)', fontFamily: 'Roboto, sans-serif' }}>Identify the driver involved in the incident</p>
-                  <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-                  <div>
-                    <Label htmlFor="driverSelect" style={{ fontFamily: 'Roboto, sans-serif' }}>Driver *</Label>
-                    <Select
-                      value={formData.driver}
-                      onValueChange={(value) => {
-                        setFormData({ ...formData, driver: value });
-                        const driver = mockDrivers.find(d => d.id === value);
-                        setSelectedDriver(driver || null);
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label style={{ fontFamily: 'Roboto, sans-serif' }}>Incident Type *</Label>
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <select
+                      value={sharedData.incidentType}
+                      onChange={(e) => {
+                        const t = INCIDENT_TYPES.find(t => t.id === e.target.value);
+                        setSharedData(s => ({ ...s, incidentType: e.target.value, severity: t?.defaultSeverity.toLowerCase() || '' }));
                       }}
                       required
+                      style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
                     >
-                      <SelectTrigger id="driverSelect" style={{ fontFamily: 'Roboto, sans-serif' }}>
-                        <SelectValue placeholder="Select driver..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {mockDrivers.map((driver) => (
-                          <SelectItem key={driver.id} value={driver.id} style={{ fontFamily: 'Roboto, sans-serif' }}>
-                            {driver.name} ({driver.employeeId})
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  </div>
+                      <option value="">Select type...</option>
+                      {getAllCategories().map(cat => {
+                        const types = INCIDENT_TYPES.filter(t => t.category === cat && (t.applicableTo === 'student' || t.applicableTo === 'both')).sort((a, b) => a.label.localeCompare(b.label));
+                        if (!types.length) return null;
+                        return <optgroup key={cat} label={cat}>{types.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}</optgroup>;
+                      })}
+                    </select>
+                  </forge-text-field>
+                  {sharedData.incidentType && (
+                    <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)', marginTop: 4 }}>
+                      {INCIDENT_TYPES.find(t => t.id === sharedData.incidentType)?.description}
+                    </p>
+                  )}
                 </div>
-              </ForgeCard>
-            )}
 
-            {/* Incident Details */}
-            <ForgeCard style={{ border: 'none', boxShadow: 'none', marginBottom: 'var(--forge-spacing-large)' }}>
-              <div style={{ padding: 'var(--forge-spacing-medium)' }}>
-                <h3 className="forge-typography--heading4" style={{ fontFamily: 'Roboto, sans-serif' }}>Incident Details</h3>
-                <p className="forge-typography--body2" style={{ color: 'var(--forge-theme-text-medium)', fontFamily: 'Roboto, sans-serif' }}>Provide specific information about the incident</p>
+                <div>
+                  <Label style={{ fontFamily: 'Roboto, sans-serif' }}>Location *</Label>
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <select
+                      value={sharedData.location}
+                      onChange={(e) => setSharedData(s => ({ ...s, location: e.target.value }))}
+                      required
+                      style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
+                    >
+                      <option value="">Select location...</option>
+                      {LOCATION_OPTIONS.map(g => (
+                        <optgroup key={g.category} label={g.category}>
+                          {g.items.map(i => <option key={i.value} value={i.value}>{i.label}</option>)}
+                        </optgroup>
+                      ))}
+                    </select>
+                  </forge-text-field>
+                </div>
+
+                <div>
+                  <Label style={{ fontFamily: 'Roboto, sans-serif' }}>Vehicle Number</Label>
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <select value={sharedData.bus} onChange={(e) => setSharedData(s => ({ ...s, bus: e.target.value }))} style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}>
+                      <option value="">Select vehicle (optional)...</option>
+                      {['bus-12', 'bus-15', 'bus-22', 'bus-31', 'bus-8'].map(b => <option key={b} value={b}>Vehicle {b.replace('bus-', '')}</option>)}
+                    </select>
+                  </forge-text-field>
+                </div>
+
+                <div>
+                  <Label style={{ fontFamily: 'Roboto, sans-serif' }}>Run</Label>
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <select value={sharedData.route} onChange={(e) => setSharedData(s => ({ ...s, route: e.target.value }))} style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}>
+                      <option value="">Select run (optional)...</option>
+                      <option value="colonie-high-am-purple">Colonie High AM - Purple</option>
+                      <option value="jefferson-middle-am-blue">Jefferson Middle AM - Blue</option>
+                      <option value="lincoln-elem-am-green">Lincoln Elementary AM - Green</option>
+                      <option value="meyers-middle-am-yellow">Meyers Middle AM - Yellow</option>
+                      <option value="roosevelt-high-pm-red">Roosevelt High PM - Red</option>
+                      <option value="washington-high-pm-wolf">Washington High PM - Wolf Rd</option>
+                    </select>
+                  </forge-text-field>
+                  <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)', marginTop: 4 }}>Leave blank if incident occurred outside of a run</p>
+                </div>
               </div>
-              <div className="space-y-4" style={{ marginTop: 'var(--forge-spacing-small)' }}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="incidentType" style={{ fontFamily: 'Roboto, sans-serif' }}>Incident Type *</Label>
-                    <Select value={formData.incidentType} onValueChange={handleIncidentTypeChange} required>
-                      <SelectTrigger id="incidentType" style={{ fontFamily: 'Roboto, sans-serif' }}><SelectValue placeholder="Select type..." /></SelectTrigger>
-                      <SelectContent className="max-h-[400px]">
-                        {getAllCategories().map((category) => {
-                          const typesInCategory = INCIDENT_TYPES.filter(type => 
-                            type.category === category && 
-                            (type.applicableTo === incidentCategory || type.applicableTo === 'both')
-                          ).sort((a, b) => a.label.localeCompare(b.label));
-                          if (typesInCategory.length === 0) return null;
-                          return (<div key={category}><div className="px-2 py-1.5 mt-2 first:mt-0" style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', fontWeight: 'var(--font-weight-medium)', color: 'var(--muted-foreground)', backgroundColor: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{category}</div>{typesInCategory.map((type) => (<SelectItem key={type.id} value={type.id} style={{ fontFamily: 'Roboto, sans-serif' }}>{type.label}</SelectItem>))}</div>);
-                        })}
-                      </SelectContent>
-                    </Select>
-                    {formData.incidentType && (<p className="text-muted-foreground mt-1" style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif' }}>{INCIDENT_TYPES.find(t => t.id === formData.incidentType)?.description}</p>)}
-                  </div>
 
-                  <div>
-                    <Label htmlFor="location" style={{ fontFamily: 'Roboto, sans-serif' }}>Location *</Label>
-                    <Select value={formData.location} onValueChange={(value) => setFormData({ ...formData, location: value })} required>
-                      <SelectTrigger id="location" style={{ fontFamily: 'Roboto, sans-serif' }}><SelectValue placeholder="Select location..." /></SelectTrigger>
-                      <SelectContent>
-                        {getLocationOptions().map((locationGroup) => (<div key={locationGroup.category}><div className="px-2 py-1.5 mt-2 first:mt-0" style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', fontWeight: 'var(--font-weight-medium)', color: 'var(--muted-foreground)', backgroundColor: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{locationGroup.category}</div>{locationGroup.items.map((item) => (<SelectItem key={item.value} value={item.value} style={{ fontFamily: 'Roboto, sans-serif' }}>{item.label}</SelectItem>))}</div>))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+              <div>
+                <Label style={{ fontFamily: 'Roboto, sans-serif' }}>Severity Level *</Label>
+                <div className="flex gap-3 mt-2">
+                  {(['low', 'medium', 'high'] as const).map(level => (
+                    <button key={level} type="button" onClick={() => setSharedData(s => ({ ...s, severity: level }))}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-md border-2 transition-all ${sharedData.severity === level ? 'border-primary bg-primary/5' : 'border-transparent bg-muted/50 hover:bg-muted'}`}>
+                      {sharedData.severity === level ? <CheckCircle2 className="h-4 w-4 text-primary" /> : <Circle className="h-4 w-4 text-muted-foreground" />}
+                      <Badge variant={level === 'high' ? 'destructive' : level === 'medium' ? 'secondary' : 'outline'} className="pointer-events-none">{level.charAt(0).toUpperCase() + level.slice(1)}</Badge>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-                  <div className="relative" ref={addressLookupRef}>
-                    <Label htmlFor="address" style={{ fontFamily: 'Roboto, sans-serif' }}>Address</Label>
-                    <div className="relative">
-                      <MapPin size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                      <Input id="address" value={formData.address} onChange={(e) => { setFormData({ ...formData, address: e.target.value }); setAddressLookupOpen(true); }} placeholder="Type to search addresses..." style={{ paddingLeft: '36px', fontFamily: 'Roboto, sans-serif' }} />
-                    </div>
-                    {addressLookupOpen && formData.address && (
-                      <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-[300px] overflow-hidden">
-                        <Command><CommandList><CommandEmpty style={{ fontFamily: 'Roboto, sans-serif' }}>No address found.</CommandEmpty><CommandGroup>{mockAddresses.filter((address) => address.fullAddress.toLowerCase().includes(formData.address.toLowerCase())).map((address) => (<CommandItem key={address.id} value={address.fullAddress} onSelect={() => { setFormData({ ...formData, address: address.fullAddress }); setAddressLookupOpen(false); }} style={{ fontFamily: 'Roboto, sans-serif' }}><MapPin className={formData.address === address.fullAddress ? "mr-2 h-4 w-4 opacity-100 text-primary" : "mr-2 h-4 w-4 opacity-60 text-muted-foreground"} /><div className="flex flex-col" style={{ fontFamily: 'Roboto, sans-serif' }}><div style={{ fontSize: 'var(--text-base)', fontWeight: 'var(--font-weight-normal)' }}>{address.fullAddress}</div><div className="text-sm text-muted-foreground" style={{ fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif' }}>Verified Address</div></div></CommandItem>))}</CommandGroup></CommandList></Command>
+              <div>
+                <Label style={{ fontFamily: 'Roboto, sans-serif' }}>Incident Description *</Label>
+                <Textarea
+                  placeholder="Provide a detailed description of what occurred. Include time, specific behaviors, and any relevant context..."
+                  rows={5}
+                  value={sharedData.description}
+                  onChange={(e) => setSharedData(s => ({ ...s, description: e.target.value }))}
+                  style={{ fontFamily: 'Roboto, sans-serif' }}
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox id="witnessPresent" checked={sharedData.witnessPresent} onCheckedChange={(v) => setSharedData(s => ({ ...s, witnessPresent: v as boolean }))} />
+                <Label htmlFor="witnessPresent" className="cursor-pointer" style={{ fontFamily: 'Roboto, sans-serif' }}>Witness(es) present</Label>
+              </div>
+              {sharedData.witnessPresent && (
+                <WitnessFields
+                  names={sharedData.witnessNames}
+                  onChange={(names) => setSharedData(s => ({ ...s, witnessNames: names }))}
+                />
+              )}
+
+              {/* Location map */}
+              <IncidentLocationMap
+                location={locationCoordinates}
+                onLocationChange={setLocationCoordinates}
+                address={locationAddress}
+                onAddressChange={setLocationAddress}
+              />
+
+              {/* Photo evidence */}
+              <div>
+                <h4 style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', fontWeight: 500, marginBottom: 8 }}>Photo Evidence <span style={{ fontWeight: 400, color: 'var(--forge-theme-text-medium)', fontSize: 'var(--text-sm)' }}>(optional, shared across all records)</span></h4>
+                <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handlePhotoUpload} className="hidden" />
+                <ForgeButton type="button" variant="outlined" onClick={() => fileInputRef.current?.click()} style={{ fontFamily: 'Roboto, sans-serif' }}>
+                  <Upload className="mr-2 h-4 w-4" /> Upload Photos
+                </ForgeButton>
+                {uploadedPhotos.length > 0 && (
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mt-3">
+                    {uploadedPhotos.map(p => (
+                      <div key={p.id} className="relative group border rounded-lg overflow-hidden" style={{ borderColor: 'var(--forge-color-border-default)' }}>
+                        <div className="aspect-square"><img src={p.url} alt={p.name} className="w-full h-full object-cover" /></div>
+                        <button type="button" onClick={() => setUploadedPhotos(photos => photos.filter(x => x.id !== p.id))} className="absolute top-1 right-1 w-5 h-5 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <X className="h-3 w-3 text-white" />
+                        </button>
+                        <div className="p-1"><p className="text-xs truncate" style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)' }} title={p.name}>{p.name}</p></div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Document evidence */}
+              <div>
+                <h4 style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', fontWeight: 500, marginBottom: 8 }}>Document Evidence <span style={{ fontWeight: 400, color: 'var(--forge-theme-text-medium)', fontSize: 'var(--text-sm)' }}>(optional)</span></h4>
+                <input ref={documentInputRef} type="file" accept=".pdf,.doc,.docx" multiple onChange={handleDocumentUpload} className="hidden" />
+                <ForgeButton type="button" variant="outlined" onClick={() => documentInputRef.current?.click()} style={{ fontFamily: 'Roboto, sans-serif' }}>
+                  <Upload className="mr-2 h-4 w-4" /> Upload Documents
+                </ForgeButton>
+                {uploadedDocuments.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {uploadedDocuments.map(d => (
+                      <div key={d.id} className="flex items-center gap-2 px-3 py-2 border rounded-md" style={{ borderColor: 'var(--forge-color-border-default)' }}>
+                        <FileText className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                        <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)' }}>{d.name}</span>
+                        <button type="button" onClick={() => setUploadedDocuments(docs => docs.filter(x => x.id !== d.id))}><X className="h-3 w-3 text-muted-foreground" /></button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-between p-4 border-t" style={{ borderColor: 'var(--forge-color-border-subtle)' }}>
+            <ForgeButton type="button" variant="outlined" onClick={() => setCurrentStep(1)} style={{ fontFamily: 'Roboto, sans-serif' }}>
+              ← Back
+            </ForgeButton>
+            <button
+              type="button"
+              disabled={!sharedData.incidentType || !sharedData.severity || !sharedData.description || !sharedData.location}
+              onClick={() => setCurrentStep(3)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                padding: '0 20px', height: '38px',
+                background: (!sharedData.incidentType || !sharedData.severity || !sharedData.description || !sharedData.location) ? '#9BAEC8' : '#4A6FA5',
+                color: '#fff', border: 'none', borderRadius: '4px',
+                fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500,
+                cursor: (!sharedData.incidentType || !sharedData.severity || !sharedData.description || !sharedData.location) ? 'not-allowed' : 'pointer',
+              }}
+            >
+              Next: Per-Student Details <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </ForgeCard>
+      )}
+
+      {/* ── Step 3: Per-Student Details ── */}
+      {currentStep === 3 && (
+        <ForgeCard style={{ border: 'none', boxShadow: 'none' }}>
+          <div style={{ padding: 'var(--forge-spacing-medium)' }}>
+            <h3 className="forge-typography--heading4" style={{ fontFamily: 'Roboto, sans-serif', marginBottom: 4 }}>Per-Student Details</h3>
+            <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)', color: 'var(--forge-theme-text-medium)', marginBottom: 'var(--forge-spacing-medium)' }}>
+              Customize details for each individual student. Parent notification and specific actions can differ per student.
+            </p>
+
+            <div className="space-y-3">
+              {involvedStudents.map((student, idx) => {
+                const data = perStudentData[student.id] || { parentNotified: false, actionTaken: '', notes: '' };
+                const isExpanded = expandedStudents.has(student.id);
+                return (
+                  <div key={student.id} className="border rounded-lg overflow-hidden" style={{ borderColor: 'var(--forge-color-border-default)', borderRadius: 'var(--forge-radius-medium)' }}>
+                    <button
+                      type="button"
+                      className="w-full flex items-center gap-3 p-4 text-left hover:bg-muted/30 transition-colors"
+                      onClick={() => {
+                        setExpandedStudents(prev => {
+                          const n = new Set(prev);
+                          if (n.has(student.id)) n.delete(student.id); else n.add(student.id);
+                          return n;
+                        });
+                      }}
+                    >
+                      <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)', minWidth: 20, textAlign: 'center' }}>{idx + 1}</span>
+                      <img src={student.photoUrl} alt={student.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', fontWeight: 500 }}>{student.name}</p>
+                        <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)' }}>
+                          {student.grade} · {student.school}
+                          {data.parentNotified && <span className="ml-2 text-green-600">· Parent notified</span>}
+                        </p>
+                      </div>
+                      {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground flex-shrink-0" /> : <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />}
+                    </button>
+
+                    {isExpanded && (
+                      <div className="px-4 pb-4 space-y-4 border-t" style={{ borderColor: 'var(--forge-color-border-subtle)' }}>
+                        <div className="pt-4">
+
+                          {/* Role in Incident */}
+                          <div className="mb-4">
+                            <Label style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500 }}>
+                              Role in Incident <span style={{ color: '#c0392b' }}>*</span>
+                            </Label>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {([
+                                { value: 'instigator', label: 'Instigator' },
+                                { value: 'participant', label: 'Participant' },
+                                { value: 'victim', label: 'Victim' },
+                                { value: 'bystander', label: 'Bystander/Witness' },
+                              ] as const).map(option => (
+                                <button
+                                  key={option.value}
+                                  type="button"
+                                  onClick={() => updatePerStudent(student.id, 'role', option.value)}
+                                  style={{
+                                    padding: '6px 16px',
+                                    minWidth: 72,
+                                    borderRadius: '4px',
+                                    border: data.role === option.value ? '2px solid #4A6FA5' : '1px solid var(--forge-color-border-default)',
+                                    background: data.role === option.value ? '#EEF2F8' : '#fff',
+                                    color: data.role === option.value ? '#4A6FA5' : 'inherit',
+                                    fontFamily: 'Roboto, sans-serif',
+                                    fontSize: 'var(--text-sm)',
+                                    fontWeight: data.role === option.value ? 500 : 400,
+                                    cursor: 'pointer',
+                                    textAlign: 'center',
+                                  }}
+                                >
+                                  {option.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Severity Override */}
+                          <div className="mb-4">
+                            <Label style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500 }}>Severity Override</Label>
+                            <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)', margin: '2px 0 8px' }}>
+                              Leave as "Use Shared" to use the default severity ({sharedData.severity || 'not set'}). Override only if this student's involvement warrants a different level.
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {([
+                                { value: 'shared', label: `Use Shared\n(${sharedData.severity || 'not set'})` },
+                                { value: 'low', label: 'Low' },
+                                { value: 'medium', label: 'Medium' },
+                                { value: 'high', label: 'High' },
+                              ] as const).map(option => (
+                                <button
+                                  key={option.value}
+                                  type="button"
+                                  onClick={() => updatePerStudent(student.id, 'severityOverride', option.value)}
+                                  style={{
+                                    padding: '6px 16px',
+                                    minWidth: 72,
+                                    borderRadius: '4px',
+                                    border: data.severityOverride === option.value ? '2px solid #4A6FA5' : '1px solid var(--forge-color-border-default)',
+                                    background: data.severityOverride === option.value ? '#EEF2F8' : '#fff',
+                                    color: data.severityOverride === option.value ? '#4A6FA5' : 'inherit',
+                                    fontFamily: 'Roboto, sans-serif',
+                                    fontSize: 'var(--text-sm)',
+                                    fontWeight: data.severityOverride === option.value ? 500 : 400,
+                                    cursor: 'pointer',
+                                    whiteSpace: 'pre-line',
+                                    lineHeight: 1.3,
+                                    textAlign: 'center',
+                                  }}
+                                >
+                                  {option.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Incident Type Override */}
+                          <div className="mb-4">
+                            <Label style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500 }}>Incident Type Override</Label>
+                            <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)', margin: '2px 0 8px' }}>
+                              Leave as "Use Shared" to assign the default incident type and workflow ({sharedData.incidentType ? getIncidentTypeLabel(sharedData.incidentType) : 'not set'}). Override to assign a different workflow for this student — e.g. a bystander may need a recap workflow instead of a disciplinary one.
+                            </p>
+                            {/* @ts-ignore */}
+                            <forge-text-field>
+                              <select
+                                value={data.incidentTypeOverride}
+                                onChange={(e) => updatePerStudent(student.id, 'incidentTypeOverride', e.target.value)}
+                                style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
+                              >
+                                <option value="">Use Shared ({sharedData.incidentType ? getIncidentTypeLabel(sharedData.incidentType) : 'not set'})</option>
+                                {getAllCategories().map(cat => {
+                                  const types = INCIDENT_TYPES.filter(t => t.category === cat && (t.applicableTo === 'student' || t.applicableTo === 'both')).sort((a, b) => a.label.localeCompare(b.label));
+                                  if (!types.length) return null;
+                                  return (
+                                    <optgroup key={cat} label={cat}>
+                                      {types.map(t => (
+                                        <option key={t.id} value={t.id}>
+                                          {t.label}{t.id === sharedData.incidentType ? ' (shared)' : ''}
+                                        </option>
+                                      ))}
+                                    </optgroup>
+                                  );
+                                })}
+                              </select>
+                            </forge-text-field>
+                            {data.incidentTypeOverride && (
+                              <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: '#4A6FA5', marginTop: 4 }}>
+                                {INCIDENT_TYPES.find(t => t.id === data.incidentTypeOverride)?.description}
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex items-center space-x-2 mb-4">
+                            <Checkbox
+                              id={`parent-${student.id}`}
+                              checked={data.parentNotified}
+                              onCheckedChange={(v) => updatePerStudent(student.id, 'parentNotified', v as boolean)}
+                            />
+                            <Label htmlFor={`parent-${student.id}`} className="cursor-pointer" style={{ fontFamily: 'Roboto, sans-serif' }}>
+                              Parent/Guardian has been notified
+                            </Label>
+                          </div>
+                          <div className="mb-4">
+                            <Label htmlFor={`action-${student.id}`} style={{ fontFamily: 'Roboto, sans-serif' }}>Immediate Action Taken</Label>
+                            <Textarea
+                              id={`action-${student.id}`}
+                              placeholder="Describe any immediate actions taken for this student (e.g., student moved seats, verbal warning given)..."
+                              rows={3}
+                              value={data.actionTaken}
+                              onChange={(e) => updatePerStudent(student.id, 'actionTaken', e.target.value)}
+                              style={{ fontFamily: 'Roboto, sans-serif', marginTop: 6 }}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor={`notes-${student.id}`} style={{ fontFamily: 'Roboto, sans-serif' }}>Additional Notes</Label>
+                            <Textarea
+                              id={`notes-${student.id}`}
+                              placeholder="Any additional notes specific to this student's involvement..."
+                              rows={2}
+                              value={data.notes}
+                              onChange={(e) => updatePerStudent(student.id, 'notes', e.target.value)}
+                              style={{ fontFamily: 'Roboto, sans-serif', marginTop: 6 }}
+                            />
+                          </div>
+                        </div>
                       </div>
                     )}
                   </div>
-
-                  <div>
-                    <Label htmlFor="bus" style={{ fontFamily: 'Roboto, sans-serif' }}>Vehicle Number</Label>
-                    <Select value={formData.bus} onValueChange={(value) => setFormData({ ...formData, bus: value })}>
-                      <SelectTrigger id="bus" style={{ fontFamily: 'Roboto, sans-serif' }}><SelectValue placeholder="Select vehicle (optional)..." /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="bus-12" style={{ fontFamily: 'Roboto, sans-serif' }}>Vehicle 12</SelectItem>
-                        <SelectItem value="bus-15" style={{ fontFamily: 'Roboto, sans-serif' }}>Vehicle 15</SelectItem>
-                        <SelectItem value="bus-22" style={{ fontFamily: 'Roboto, sans-serif' }}>Vehicle 22</SelectItem>
-                        <SelectItem value="bus-31" style={{ fontFamily: 'Roboto, sans-serif' }}>Vehicle 31</SelectItem>
-                        <SelectItem value="bus-8" style={{ fontFamily: 'Roboto, sans-serif' }}>Vehicle 8</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="route" style={{ fontFamily: 'Roboto, sans-serif' }}>Run</Label>
-                    <Select value={formData.route} onValueChange={(value) => { const assignedDriver = mockDrivers.find(driver => driver.routes.includes(value)); setFormData({ ...formData, route: value, driver: assignedDriver ? assignedDriver.id : formData.driver }); if (assignedDriver && incidentCategory === 'driver') { setSelectedDriver(assignedDriver); } }}>
-                      <SelectTrigger id="route" style={{ fontFamily: 'Roboto, sans-serif' }}><SelectValue placeholder="Select run (optional)..." /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="colonie-high-am-purple" style={{ fontFamily: 'Roboto, sans-serif' }}>Colonie High AM - Purple</SelectItem>
-                        <SelectItem value="jefferson-middle-am-blue" style={{ fontFamily: 'Roboto, sans-serif' }}>Jefferson Middle AM - Blue</SelectItem>
-                        <SelectItem value="lincoln-elem-am-green" style={{ fontFamily: 'Roboto, sans-serif' }}>Lincoln Elementary AM - Green</SelectItem>
-                        <SelectItem value="meyers-middle-am-yellow" style={{ fontFamily: 'Roboto, sans-serif' }}>Meyers Middle AM - Yellow</SelectItem>
-                        <SelectItem value="roosevelt-high-pm-red" style={{ fontFamily: 'Roboto, sans-serif' }}>Roosevelt High PM - Red</SelectItem>
-                        <SelectItem value="washington-high-pm-wolf" style={{ fontFamily: 'Roboto, sans-serif' }}>Washington High PM - Wolf Rd</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-muted-foreground mt-1" style={{ fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif' }}>Leave blank if incident occurred outside of a run</p>
-                  </div>
-                </div>
-
-                <div>
-                  <Label style={{ fontFamily: 'Roboto, sans-serif' }}>Severity Level *</Label>
-                  <div className="flex gap-3 mt-2">
-                    {['low', 'medium', 'high'].map(level => (
-                      <button key={level} type="button" onClick={() => setFormData({ ...formData, severity: level })} className={`flex items-center gap-2 px-4 py-2 rounded-md border-2 transition-all ${formData.severity === level ? 'border-primary bg-primary/5' : 'border-transparent bg-muted/50 hover:bg-muted'}`}>
-                        {formData.severity === level ? <CheckCircle2 className="h-4 w-4 text-primary" /> : <Circle className="h-4 w-4 text-muted-foreground" />}
-                        <Badge variant={level === 'high' ? 'destructive' : level === 'medium' ? 'secondary' : 'outline'} className="pointer-events-none">{level.charAt(0).toUpperCase() + level.slice(1)}</Badge>
-                      </button>
-                    ))}
-                  </div>
-                  {formData.incidentType && (<p className="text-muted-foreground mt-1" style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif' }}>Recommended severity based on incident type. Adjust if needed.</p>)}
-                </div>
-
-                <div>
-                  <Label htmlFor="description" style={{ fontFamily: 'Roboto, sans-serif' }}>Incident Description *</Label>
-                  <Textarea id="description" placeholder="Provide a detailed description of what occurred..." rows={5} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} required style={{ fontFamily: 'Roboto, sans-serif' }} />
-                  <p className="text-muted-foreground mt-1" style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif' }}>Include time, specific behaviors, and any relevant context</p>
-                </div>
-              </div>
-            </ForgeCard>
-
-            {/* Location Pin Map */}
-            <IncidentLocationMap 
-              location={locationCoordinates} 
-              onLocationChange={setLocationCoordinates}
-              showManualEntry={false}
-            />
-
-            {/* Additional Information */}
-            <ForgeCard style={{ border: 'none', boxShadow: 'none', marginBottom: 'var(--forge-spacing-large)' }}>
-              <div style={{ padding: 'var(--forge-spacing-medium)' }}><h3 className="forge-typography--heading4" style={{ fontFamily: 'Roboto, sans-serif' }}>Additional Information</h3></div>
-              <div className="space-y-4" style={{ marginTop: 'var(--forge-spacing-small)' }}>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="witnessPresent" checked={formData.witnessPresent} onCheckedChange={(checked) => setFormData({ ...formData, witnessPresent: checked as boolean })} />
-                  <Label htmlFor="witnessPresent" className="cursor-pointer" style={{ fontFamily: 'Roboto, sans-serif' }}>Witness(es) present</Label>
-                </div>
-                {formData.witnessPresent && (<div><Label htmlFor="witnessName" style={{ fontFamily: 'Roboto, sans-serif' }}>Witness Name(s)</Label><Input id="witnessName" placeholder="Enter witness names..." value={formData.witnessName} onChange={(e) => setFormData({ ...formData, witnessName: e.target.value })} style={{ fontFamily: 'Roboto, sans-serif' }} /></div>)}
-                {incidentCategory === 'student' && (<div className="flex items-center space-x-2"><Checkbox id="parentNotified" checked={formData.parentNotified} onCheckedChange={(checked) => setFormData({ ...formData, parentNotified: checked as boolean })} /><Label htmlFor="parentNotified" className="cursor-pointer" style={{ fontFamily: 'Roboto, sans-serif' }}>Parent/Guardian has been notified</Label></div>)}
-                <div><Label htmlFor="actionTaken" style={{ fontFamily: 'Roboto, sans-serif' }}>Immediate Action Taken</Label><Textarea id="actionTaken" placeholder={incidentCategory === 'student' ? "Describe any immediate actions taken (e.g., student moved seats, verbal warning given)..." : "Describe any immediate actions taken (e.g., vehicle taken out of service, safety protocol followed)..."} rows={3} value={formData.actionTaken} onChange={(e) => setFormData({ ...formData, actionTaken: e.target.value })} style={{ fontFamily: 'Roboto, sans-serif' }} /></div>
-              </div>
-            </ForgeCard>
-
-            {/* Photo Evidence */}
-            <ForgeCard style={{ border: 'none', boxShadow: 'none', marginBottom: 'var(--forge-spacing-large)' }}>
-              <div style={{ padding: 'var(--forge-spacing-medium)' }}><h3 className="forge-typography--heading4" style={{ fontFamily: 'Roboto, sans-serif' }}>Photo Evidence</h3><p className="forge-typography--body2" style={{ color: 'var(--forge-theme-text-medium)', fontFamily: 'Roboto, sans-serif' }}>Upload photos documenting the incident (optional)</p></div>
-              <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-                <div className="space-y-4">
-                  <div>
-                    <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handlePhotoUpload} className="hidden" id="photo-upload" />
-                    <ForgeButton type="button" variant="outlined" onClick={() => fileInputRef.current?.click()} className="w-full sm:w-auto" style={{ fontFamily: 'Roboto, sans-serif' }}><Upload className="mr-2 h-4 w-4" />Upload Photos</ForgeButton>
-                    <p className="text-muted-foreground mt-2" style={{ fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif' }}>Supported formats: JPG, PNG, GIF. Maximum 10 photos.</p>
-                  </div>
-                  {uploadedPhotos.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                      {uploadedPhotos.map((photo) => (
-                        <div key={photo.id} className="relative group border rounded-lg overflow-hidden bg-muted/30" style={{ borderColor: 'var(--forge-color-border-default)', borderRadius: 'var(--forge-radius-medium)' }}>
-                          <div className="aspect-square relative">
-                            <img src={photo.url} alt={photo.name} className="w-full h-full object-cover" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <ForgeButton type="button" variant="raised" size="sm" onClick={() => handleRemovePhoto(photo.id)} className="gap-1" style={{ fontFamily: 'Roboto, sans-serif' }}><X className="h-4 w-4" />Remove</ForgeButton>
-                            </div>
-                          </div>
-                          <div className="p-2 bg-background border-t" style={{ borderColor: 'var(--forge-color-border-default)' }}>
-                            <p className="text-xs truncate" style={{ fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif', fontWeight: 'var(--font-weight-medium)' }} title={photo.name}>{photo.name}</p>
-                            <p className="text-xs text-muted-foreground" style={{ fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif' }}>{photo.size}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="border-2 border-dashed rounded-lg p-8 text-center" style={{ borderColor: 'var(--forge-color-border-subtle)', borderRadius: 'var(--forge-radius-medium)' }}>
-                      <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground mb-3" />
-                      <p className="text-sm text-muted-foreground" style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif' }}>No photos uploaded yet</p>
-                      <p className="text-xs text-muted-foreground mt-1" style={{ fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif' }}>Click "Upload Photos" to add visual evidence</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </ForgeCard>
-
-            {/* Document Evidence */}
-            <ForgeCard style={{ border: 'none', boxShadow: 'none', marginBottom: 'var(--forge-spacing-large)' }}>
-              <div style={{ padding: 'var(--forge-spacing-medium)' }}><h3 className="forge-typography--heading4" style={{ fontFamily: 'Roboto, sans-serif' }}>Document Evidence</h3><p className="forge-typography--body2" style={{ color: 'var(--forge-theme-text-medium)', fontFamily: 'Roboto, sans-serif' }}>Upload documents related to the incident (optional)</p></div>
-              <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-                <div className="space-y-4">
-                  <div>
-                    <input ref={documentInputRef} type="file" accept="application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document" multiple onChange={handleDocumentUpload} className="hidden" id="document-upload" />
-                    <ForgeButton type="button" variant="outlined" onClick={() => documentInputRef.current?.click()} className="w-full sm:w-auto" style={{ fontFamily: 'Roboto, sans-serif' }}><Upload className="mr-2 h-4 w-4" />Upload Documents</ForgeButton>
-                    <p className="text-muted-foreground mt-2" style={{ fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif' }}>Supported formats: PDF, DOC, DOCX. Maximum 10 documents.</p>
-                  </div>
-                  {uploadedDocuments.length > 0 ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                      {uploadedDocuments.map((doc) => (
-                        <div key={doc.id} className="relative group border rounded-lg overflow-hidden bg-muted/30" style={{ borderColor: 'var(--forge-color-border-default)', borderRadius: 'var(--forge-radius-medium)' }}>
-                          <div className="aspect-square relative flex items-center justify-center bg-muted/50">
-                            <FileText size={48} className="text-muted-foreground" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <ForgeButton type="button" variant="raised" size="sm" onClick={() => handleRemoveDocument(doc.id)} className="gap-1" style={{ fontFamily: 'Roboto, sans-serif' }}><X className="h-4 w-4" />Remove</ForgeButton>
-                            </div>
-                          </div>
-                          <div className="p-2 bg-background border-t" style={{ borderColor: 'var(--forge-color-border-default)' }}>
-                            <p className="text-xs truncate" style={{ fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif', fontWeight: 'var(--font-weight-medium)' }} title={doc.name}>{doc.name}</p>
-                            <p className="text-xs text-muted-foreground" style={{ fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif' }}>{doc.size}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="border-2 border-dashed rounded-lg p-8 text-center" style={{ borderColor: 'var(--forge-color-border-subtle)', borderRadius: 'var(--forge-radius-medium)' }}>
-                      <FileText className="mx-auto h-12 w-12 text-muted-foreground mb-3" />
-                      <p className="text-sm text-muted-foreground" style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif' }}>No documents uploaded yet</p>
-                      <p className="text-xs text-muted-foreground mt-1" style={{ fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif' }}>Click "Upload Documents" to add related files</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </ForgeCard>
-
-            {/* Form Actions */}
-            <div className="flex gap-3">
-              <ForgeButton
-                type="submit"
-                className="bg-primary hover:bg-primary/90"
-                style={{ fontFamily: 'Roboto, sans-serif' }}
-              >
-                <Send className="mr-2 h-4 w-4" />
-                Submit Report
-              </ForgeButton>
-              <ForgeButton
-                type="button"
-                variant="outlined"
-                onClick={() => onNavigate('incidents')}
-                style={{ fontFamily: 'Roboto, sans-serif' }}
-              >
-                Cancel
-              </ForgeButton>
+                );
+              })}
             </div>
-          </form>
-        </div>
+          </div>
+
+          <div className="flex justify-between p-4 border-t" style={{ borderColor: 'var(--forge-color-border-subtle)' }}>
+            <ForgeButton type="button" variant="outlined" onClick={() => setCurrentStep(2)} style={{ fontFamily: 'Roboto, sans-serif' }}>
+              ← Back
+            </ForgeButton>
+            <button
+              type="button"
+              onClick={() => setCurrentStep(4)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                padding: '0 20px', height: '38px',
+                background: '#4A6FA5', color: '#fff', border: 'none', borderRadius: '4px',
+                fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500, cursor: 'pointer',
+              }}
+            >
+              Next: Review & Submit <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </ForgeCard>
+      )}
+
+      {/* ── Step 4: Review & Submit ── */}
+      {currentStep === 4 && (
+        <ForgeCard style={{ border: 'none', boxShadow: 'none' }}>
+          <div style={{ padding: 'var(--forge-spacing-medium)' }}>
+            <h3 className="forge-typography--heading4" style={{ fontFamily: 'Roboto, sans-serif', marginBottom: 4 }}>Review & Submit</h3>
+            <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)', color: 'var(--forge-theme-text-medium)', marginBottom: 'var(--forge-spacing-medium)' }}>
+              Submitting will create <strong>{involvedStudents.length} linked incident record{involvedStudents.length !== 1 ? 's' : ''}</strong> — one for each student below.
+            </p>
+
+            {/* Shared summary */}
+            <div className="rounded-lg p-4 mb-4" style={{ background: '#F4F7FB', border: '1px solid #D4DFF0', borderRadius: 'var(--forge-radius-medium)' }}>
+              <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--forge-theme-text-medium)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>Shared Incident Details</p>
+              <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                {[
+                  { label: 'Type', value: getIncidentTypeLabel(sharedData.incidentType) },
+                  { label: 'Severity', value: sharedData.severity.charAt(0).toUpperCase() + sharedData.severity.slice(1) },
+                  { label: 'Location', value: getLocationLabel(sharedData.location) },
+                  ...(sharedData.bus ? [{ label: 'Vehicle', value: `Vehicle ${sharedData.bus.replace('bus-', '')}` }] : []),
+                  ...(sharedData.route ? [{ label: 'Run', value: sharedData.route }] : []),
+                  ...(uploadedPhotos.length ? [{ label: 'Photos', value: `${uploadedPhotos.length} attached` }] : []),
+                  ...(uploadedDocuments.length ? [{ label: 'Documents', value: `${uploadedDocuments.length} attached` }] : []),
+                ].map(item => (
+                  <div key={item.label}>
+                    <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)' }}>{item.label}: </span>
+                    <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', fontWeight: 500 }}>{item.value}</span>
+                  </div>
+                ))}
+              </div>
+              {sharedData.description && (
+                <div className="mt-3 pt-3 border-t" style={{ borderColor: '#D4DFF0' }}>
+                  <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)', marginBottom: 4 }}>Description:</p>
+                  <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)', lineHeight: 1.5 }}>{sharedData.description}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Per-student summary */}
+            <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--forge-theme-text-medium)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>
+              Students ({involvedStudents.length})
+            </p>
+            <div className="space-y-2 mb-4">
+              {involvedStudents.map((student, idx) => {
+                const data = perStudentData[student.id];
+                return (
+                  <div key={student.id} className="flex items-start gap-3 p-3 rounded-lg border" style={{ borderColor: 'var(--forge-color-border-default)', borderRadius: 'var(--forge-radius-medium)' }}>
+                    <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)', minWidth: 20, textAlign: 'center', paddingTop: 2 }}>{idx + 1}</span>
+                    <img src={student.photoUrl} alt={student.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', fontWeight: 500 }}>{student.name}</p>
+                      <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)' }}>
+                        {student.id} · {student.grade} · {student.school}
+                      </p>
+                      {data && (
+                        <div className="flex flex-wrap gap-2 mt-1">
+                          {data.role && <Badge variant="outline" style={{ fontSize: 'var(--text-xs)', textTransform: 'capitalize' }}>{data.role}</Badge>}
+                          {data.incidentTypeOverride && <Badge variant="outline" className="text-blue-700 border-blue-300 bg-blue-50" style={{ fontSize: 'var(--text-xs)' }}>Type: {getIncidentTypeLabel(data.incidentTypeOverride)}</Badge>}
+                          {data.severityOverride !== 'shared' && <Badge variant="outline" style={{ fontSize: 'var(--text-xs)', textTransform: 'capitalize' }}>Severity: {data.severityOverride}</Badge>}
+                          {data.parentNotified && <Badge variant="outline" className="text-green-700 border-green-300 bg-green-50" style={{ fontSize: 'var(--text-xs)' }}>Parent notified</Badge>}
+                          {data.actionTaken && <Badge variant="outline" style={{ fontSize: 'var(--text-xs)' }}>Action documented</Badge>}
+                          {data.notes && <Badge variant="outline" style={{ fontSize: 'var(--text-xs)' }}>Notes added</Badge>}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCurrentStep(3)}
+                      style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: '#4A6FA5', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0', flexShrink: 0 }}
+                    >
+                      Edit
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex justify-between p-4 border-t" style={{ borderColor: 'var(--forge-color-border-subtle)' }}>
+            <ForgeButton type="button" variant="outlined" onClick={() => setCurrentStep(3)} style={{ fontFamily: 'Roboto, sans-serif' }}>
+              ← Back
+            </ForgeButton>
+            <div className="flex gap-3">
+              <ForgeButton type="button" variant="outlined" onClick={() => onNavigate('incidents')} style={{ fontFamily: 'Roboto, sans-serif' }}>Cancel</ForgeButton>
+              <button
+                type="button"
+                onClick={handleStudentSubmit}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '8px',
+                  padding: '0 20px', height: '38px',
+                  background: '#4A6FA5', color: '#fff', border: 'none', borderRadius: '4px',
+                  fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500, cursor: 'pointer',
+                }}
+              >
+                <Send className="h-4 w-4" />
+                Submit {involvedStudents.length} Incident{involvedStudents.length !== 1 ? 's' : ''}
+              </button>
+            </div>
+          </div>
+        </ForgeCard>
       )}
     </div>
   );

@@ -1,17 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ForgeButton } from '@tylertech/forge-react';
-import { defineButtonComponent } from '@tylertech/forge';
+import { defineButtonComponent, defineTextFieldComponent, defineDialogComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Input } from '../ui/input';
+defineTextFieldComponent();
+defineDialogComponent();
 import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '../ui/dialog';
 import {
   Clock,
   GitBranch,
@@ -71,7 +65,12 @@ interface StepTriggerConfigProps {
 }
 
 export function StepTriggerConfig({ isOpen, onClose, step, onSave, allSteps }: StepTriggerConfigProps) {
+  const dialogRef = useRef<HTMLElement>(null);
   const [config, setConfig] = useState<WorkflowStep | null>(null);
+
+  // Sync dialog open state
+  useEffect(() => { const el = dialogRef.current as any; if (!el) return; el.open = isOpen; }, [isOpen]);
+  useEffect(() => { const el = dialogRef.current as any; if (!el) return; const handler = () => onClose(); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
 
   useEffect(() => {
     if (step) {
@@ -153,17 +152,17 @@ export function StepTriggerConfig({ isOpen, onClose, step, onSave, allSteps }: S
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle style={{ fontSize: 'var(--text-2xl)' }}>
+    <>
+      {/* @ts-ignore */}
+      <forge-dialog ref={dialogRef}>
+        <div style={{ padding: 'var(--forge-spacing-large)', maxWidth: '48rem', maxHeight: '85vh', overflow: 'auto' }}>
+          <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-xsmall)' }}>
             <Settings className="h-6 w-6 inline mr-2" style={{ color: 'var(--brand-blue-dark)' }} />
             Configure Triggers: {config.name}
-          </DialogTitle>
-          <DialogDescription style={{ fontSize: 'var(--text-base)' }}>
+          </h2>
+          <p style={{ fontSize: 'var(--text-base)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-medium)' }}>
             Define when and how this step should be triggered in the workflow
-          </DialogDescription>
-        </DialogHeader>
+          </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-large)' }}>
           {/* Auto-Start Configuration */}
@@ -268,14 +267,17 @@ export function StepTriggerConfig({ isOpen, onClose, step, onSave, allSteps }: S
                   <Label htmlFor="delay-amount" style={{ fontSize: 'var(--text-sm)' }}>
                     Delay Amount
                   </Label>
-                  <Input
-                    id="delay-amount"
-                    type="number"
-                    min="0"
-                    value={config.triggers?.delayStart?.amount ?? 0}
-                    onChange={(e) => updateDelayStart('amount', parseInt(e.target.value) || 0)}
-                    style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
-                  />
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <input
+                      type="number"
+                      id="delay-amount"
+                      min="0"
+                      value={config.triggers?.delayStart?.amount ?? 0}
+                      onChange={(e) => updateDelayStart('amount', parseInt(e.target.value) || 0)}
+                      style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
+                    />
+                  </forge-text-field>
                 </div>
 
                 <div>
@@ -618,20 +620,24 @@ export function StepTriggerConfig({ isOpen, onClose, step, onSave, allSteps }: S
             <ForgeButton variant="outlined" onClick={onClose} style={{ flex: 1 }}>
               Cancel
             </ForgeButton>
-            <ForgeButton
+            <button
               onClick={handleSave}
               style={{
-                flex: 1,
-                background: 'var(--brand-blue-dark)',
-                color: 'white',
+                flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                padding: '0 16px', height: '36px',
+                background: 'var(--brand-blue-dark)', color: '#ffffff',
+                border: 'none', borderRadius: '4px',
+                fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500,
+                cursor: 'pointer', letterSpacing: '0.0125em',
               }}
             >
-              <Settings className="h-4 w-4 mr-2" />
+              <Settings className="h-4 w-4" />
               Save Trigger Configuration
-            </ForgeButton>
+            </button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </forge-dialog>
+    </>
   );
 }

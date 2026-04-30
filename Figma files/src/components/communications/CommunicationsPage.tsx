@@ -1,22 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent } from '@tylertech/forge';
+import { defineCardComponent, defineButtonComponent, defineTextFieldComponent } from '@tylertech/forge';
 defineCardComponent();
-import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Input } from '../ui/input';
+defineTextFieldComponent();
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
 import { ScrollArea } from '../ui/scroll-area';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../ui/select';
 import {
   MessageSquare,
   Send,
@@ -1325,27 +1317,33 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
               <div className="px-4 pb-4 space-y-3">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search incidents, drivers, students..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9"
-                  />
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <input
+                      type="text"
+                      placeholder="Search incidents, drivers, students..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      style={{ paddingLeft: '2rem' }}
+                    />
+                  </forge-text-field>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <Filter className="h-4 w-4 text-muted-foreground" />
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="All Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="unread">Unread</SelectItem>
-                      <SelectItem value="in-progress">In Progress</SelectItem>
-                      <SelectItem value="resolved">Resolved</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
+                    >
+                      <option value="all">All Status</option>
+                      <option value="unread">Unread</option>
+                      <option value="in-progress">In Progress</option>
+                      <option value="resolved">Resolved</option>
+                    </select>
+                  </forge-text-field>
                 </div>
               </div>
 
@@ -1519,14 +1517,23 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
                       className="resize-none"
                     />
                     <div className="flex gap-2">
-                      <ForgeButton
+                      <button
                         onClick={handleSendMessage}
                         disabled={!messageText.trim()}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                        style={{
+                          flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                          padding: '0 16px', height: '36px',
+                          background: '#4A6FA5', color: '#ffffff',
+                          border: 'none', borderRadius: '4px',
+                          fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500,
+                          cursor: !messageText.trim() ? 'not-allowed' : 'pointer',
+                          opacity: !messageText.trim() ? 0.5 : 1,
+                          letterSpacing: '0.0125em',
+                        }}
                       >
-                        <Send className="h-4 w-4 mr-2" />
+                        <Send className="h-4 w-4" />
                         Send Message
-                      </ForgeButton>
+                      </button>
                     </div>
                   </div>
                 </div>

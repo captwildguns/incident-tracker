@@ -429,23 +429,23 @@ export function CurrentStepActionCard({ step, stepNumber, totalSteps, onComplete
 
         {/* Action Buttons */}
         <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', flexWrap: 'wrap' }}>
-          <ForgeButton
+          <button
             onClick={handleComplete}
             style={{
-              background: step.status === 'Pending Approval' 
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              padding: '0 24px', height: '36px',
+              background: step.status === 'Pending Approval'
                 ? 'linear-gradient(135deg, #F57C00 0%, #FFA726 100%)'
                 : 'linear-gradient(135deg, var(--brand-blue-dark) 0%, var(--brand-blue-medium) 100%)',
-              color: 'white',
-              border: 'none',
-              fontFamily: 'Roboto, sans-serif',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 'var(--font-weight-medium)',
-              padding: 'var(--forge-spacing-small) var(--forge-spacing-large)',
+              color: '#ffffff',
+              border: 'none', borderRadius: '4px',
+              fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500,
+              cursor: 'pointer', letterSpacing: '0.0125em',
             }}
           >
-            <CheckCircle2 className="mr-2 h-4 w-4" />
+            <CheckCircle2 className="h-4 w-4" />
             {step.status === 'Pending Approval' ? 'Approve & Complete' : 'Complete This Step'}
-          </ForgeButton>
+          </button>
           <ForgeButton
             variant="outlined"
             onClick={onViewDetails}

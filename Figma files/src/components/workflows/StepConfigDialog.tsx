@@ -1,18 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ForgeButton } from '@tylertech/forge-react';
-import { defineButtonComponent } from '@tylertech/forge';
+import { defineButtonComponent, defineTextFieldComponent, defineDialogComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Input } from '../ui/input';
+defineTextFieldComponent();
+defineDialogComponent();
 import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
 import { Textarea } from '../ui/textarea';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '../ui/dialog';
 import { Mail, UserCheck, Settings, X, Plus } from 'lucide-react';
 import { INITIAL_EMAIL_TEMPLATES } from '../../data/email-templates';
 import { ForgeMultiSelect } from '../ui/forge-multiselect';
@@ -28,12 +22,12 @@ interface WorkflowStep {
   requiresApproval?: boolean;
   approvers?: string[];
   emailNotifications?: {
-    notifyOnStart: boolean;
-    notifyOnComplete: boolean;
+    sendEmail: boolean;
+    emailTiming: 'before' | 'after';
     notifyAssignee: boolean;
     notifyApprovers: boolean;
-    notifyRoles?: string[]; // Roles to notify
-    additionalRecipients: string[]; // Email addresses for custom recipients
+    notifyRoles?: string[];
+    additionalRecipients: string[];
     emailTemplate?: string;
   };
 }
@@ -46,6 +40,12 @@ interface StepConfigDialogProps {
 }
 
 export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDialogProps) {
+  const dialogRef = useRef<HTMLElement>(null);
+
+  // Sync dialog open state
+  useEffect(() => { const el = dialogRef.current as any; if (!el) return; el.open = isOpen; }, [isOpen]);
+  useEffect(() => { const el = dialogRef.current as any; if (!el) return; const handler = () => onClose(); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
+
   const [activeTab, setActiveTab] = useState<'general' | 'notifications' | 'approvals'>('general');
   
   const defaultConfig: WorkflowStep = {
@@ -59,8 +59,8 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
     requiresApproval: false,
     approvers: [],
     emailNotifications: {
-      notifyOnStart: true,
-      notifyOnComplete: true,
+      sendEmail: true,
+      emailTiming: 'before',
       notifyAssignee: true,
       notifyApprovers: false,
       additionalRecipients: [],
@@ -153,17 +153,17 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
   if (!step && !isOpen) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent style={{ maxWidth: '700px', maxHeight: '90vh', overflow: 'auto' }}>
-        <DialogHeader>
-          <DialogTitle style={{ fontSize: 'var(--text-2xl)' }}>
+    <>
+      {/* @ts-ignore */}
+      <forge-dialog ref={dialogRef}>
+        <div style={{ padding: 'var(--forge-spacing-large)', maxWidth: '700px', maxHeight: '90vh', overflow: 'auto' }}>
+          <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-xsmall)' }}>
             <Settings className="h-6 w-6 inline mr-2" />
             Configure Step
-          </DialogTitle>
-          <DialogDescription style={{ fontSize: 'var(--text-base)' }}>
+          </h2>
+          <p style={{ fontSize: 'var(--text-base)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-medium)' }}>
             Configure notifications and approvals for this step
-          </DialogDescription>
-        </DialogHeader>
+          </p>
 
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 'var(--forge-spacing-xsmall)', borderBottom: '1px solid var(--border)', marginBottom: 'var(--forge-spacing-medium)' }}>
@@ -223,13 +223,17 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
               <Label htmlFor="step-name" style={{ fontSize: 'var(--text-sm)' }}>
                 Step Name
               </Label>
-              <Input
-                id="step-name"
-                value={config.name}
-                onChange={(e) => setConfig({ ...config, name: e.target.value })}
-                placeholder="e.g., Review and Approve"
-                style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
-              />
+              {/* @ts-ignore */}
+              <forge-text-field>
+                <input
+                  type="text"
+                  id="step-name"
+                  value={config.name}
+                  onChange={(e) => setConfig({ ...config, name: e.target.value })}
+                  placeholder="e.g., Review and Approve"
+                  style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
+                />
+              </forge-text-field>
             </div>
 
             <div>
@@ -277,13 +281,17 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
                 <Label htmlFor="step-duration" style={{ fontSize: 'var(--text-sm)' }}>
                   Estimated Duration
                 </Label>
-                <Input
-                  id="step-duration"
-                  value={config.estimatedDuration}
-                  onChange={(e) => setConfig({ ...config, estimatedDuration: e.target.value })}
-                  placeholder="e.g., 30 minutes"
-                  style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
-                />
+                {/* @ts-ignore */}
+                <forge-text-field>
+                  <input
+                    type="text"
+                    id="step-duration"
+                    value={config.estimatedDuration}
+                    onChange={(e) => setConfig({ ...config, estimatedDuration: e.target.value })}
+                    placeholder="e.g., 30 minutes"
+                    style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
+                  />
+                </forge-text-field>
               </div>
             </div>
 
@@ -318,40 +326,75 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
                 Configure when and who receives email notifications for this step
               </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-small)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-medium)' }}>
+                {/* Send email toggle */}
                 <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', cursor: 'pointer' }}>
                   <input
                     type="checkbox"
-                    checked={config.emailNotifications?.notifyOnStart}
+                    checked={config.emailNotifications?.sendEmail ?? true}
                     onChange={(e) =>
                       setConfig({
                         ...config,
                         emailNotifications: {
                           ...config.emailNotifications!,
-                          notifyOnStart: e.target.checked,
+                          sendEmail: e.target.checked,
                         },
                       })
                     }
                   />
-                  <span style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}>Send notification when step starts</span>
+                  <span style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)' }}>
+                    Send email?
+                  </span>
                 </label>
 
-                <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    checked={config.emailNotifications?.notifyOnComplete}
-                    onChange={(e) =>
-                      setConfig({
-                        ...config,
-                        emailNotifications: {
-                          ...config.emailNotifications!,
-                          notifyOnComplete: e.target.checked,
-                        },
-                      })
-                    }
-                  />
-                  <span style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}>Send notification when step completes</span>
-                </label>
+                {/* Timing radio group — only visible when sendEmail is true */}
+                {(config.emailNotifications?.sendEmail ?? true) && (
+                  <div style={{ paddingLeft: 'var(--forge-spacing-large)', display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-small)' }}>
+                    <span style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)' }}>
+                      When should the email be sent?
+                    </span>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', cursor: 'pointer' }}>
+                      <input
+                        type="radio"
+                        name={`email-timing-${config.id}`}
+                        value="before"
+                        checked={(config.emailNotifications?.emailTiming ?? 'before') === 'before'}
+                        onChange={() =>
+                          setConfig({
+                            ...config,
+                            emailNotifications: {
+                              ...config.emailNotifications!,
+                              emailTiming: 'before',
+                            },
+                          })
+                        }
+                      />
+                      <span style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}>
+                        Before the step — notify recipients that this step is starting
+                      </span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', cursor: 'pointer' }}>
+                      <input
+                        type="radio"
+                        name={`email-timing-${config.id}`}
+                        value="after"
+                        checked={(config.emailNotifications?.emailTiming ?? 'before') === 'after'}
+                        onChange={() =>
+                          setConfig({
+                            ...config,
+                            emailNotifications: {
+                              ...config.emailNotifications!,
+                              emailTiming: 'after',
+                            },
+                          })
+                        }
+                      />
+                      <span style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}>
+                        After the step — notify recipients once this step is complete
+                      </span>
+                    </label>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -433,13 +476,17 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
                 Additional Email Recipients
               </Label>
               <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', marginBottom: 'var(--forge-spacing-small)' }}>
-                <Input
-                  value={newRecipient}
-                  onChange={(e) => setNewRecipient(e.target.value)}
-                  placeholder="email@example.com"
-                  style={{ fontFamily: 'var(--forge-font-family)' }}
-                  onKeyPress={(e) => e.key === 'Enter' && addRecipient()}
-                />
+                {/* @ts-ignore */}
+                <forge-text-field>
+                  <input
+                    type="text"
+                    value={newRecipient}
+                    onChange={(e) => setNewRecipient(e.target.value)}
+                    placeholder="email@example.com"
+                    style={{ fontFamily: 'var(--forge-font-family)' }}
+                    onKeyPress={(e) => e.key === 'Enter' && addRecipient()}
+                  />
+                </forge-text-field>
                 <ForgeButton onClick={addRecipient} disabled={!newRecipient}>
                   <Plus className="h-4 w-4" />
                 </ForgeButton>
@@ -577,7 +624,8 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
             Save Configuration
           </ForgeButton>
         </div>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </forge-dialog>
+    </>
   );
 }

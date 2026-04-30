@@ -1,14 +1,14 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ForgeCard } from '@tylertech/forge-react';
 import { defineCardComponent } from '@tylertech/forge';
 defineCardComponent();
 import { ForgeButton } from '@tylertech/forge-react';
 import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Input } from '../ui/input';
 import { Camera, Upload, X, ZoomIn } from 'lucide-react';
 import { toast } from 'sonner';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
+import { defineDialogComponent } from '@tylertech/forge';
+defineDialogComponent();
 
 interface Photo {
   id: string;
@@ -27,8 +27,27 @@ interface PhotosViewerProps {
 
 export function PhotosViewer({ photos, incidentId, driverName }: PhotosViewerProps) {
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = dialogRef.current as any;
+    if (!el) return;
+    el.open = dialogOpen;
+  }, [dialogOpen]);
+
+  useEffect(() => {
+    const el = dialogRef.current as any;
+    if (!el) return;
+    const handler = () => {
+      setDialogOpen(false);
+      setSelectedPhoto(null);
+    };
+    el.addEventListener('forge-dialog-close', handler);
+    return () => el.removeEventListener('forge-dialog-close', handler);
+  }, []);
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -83,7 +102,7 @@ export function PhotosViewer({ photos, incidentId, driverName }: PhotosViewerPro
                   transition: 'all 0.2s',
                 }}
                 className="hover:shadow-lg"
-                onClick={() => setSelectedPhoto(photo)}
+                onClick={() => { setSelectedPhoto(photo); setDialogOpen(true); }}
               >
                 <div style={{ aspectRatio: '16/9', overflow: 'hidden', position: 'relative' }}>
                   <img
@@ -181,16 +200,17 @@ export function PhotosViewer({ photos, incidentId, driverName }: PhotosViewerPro
       </ForgeCard>
 
       {/* Photo Lightbox */}
-      <Dialog open={!!selectedPhoto} onOpenChange={() => setSelectedPhoto(null)}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Roboto, sans-serif' }}>
+      {/* @ts-ignore */}
+      <forge-dialog ref={dialogRef} style={{ '--forge-dialog-width': '56rem' }}>
+        <div style={{ padding: 'var(--forge-spacing-medium)' }}>
+          <div style={{ marginBottom: 'var(--forge-spacing-small)' }}>
+            <h2 className="forge-typography--heading5" style={{ fontFamily: 'Roboto, sans-serif', margin: 0 }}>
               {selectedPhoto?.caption}
-            </DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Roboto, sans-serif' }}>
+            </h2>
+            <p className="forge-typography--body2" style={{ fontFamily: 'Roboto, sans-serif', color: 'var(--forge-theme-text-medium)', margin: 0 }}>
               Submitted by {selectedPhoto?.uploadedBy} on {selectedPhoto?.uploadedAt}
-            </DialogDescription>
-          </DialogHeader>
+            </p>
+          </div>
           {selectedPhoto && (
             <div className="relative">
               <img
@@ -201,8 +221,9 @@ export function PhotosViewer({ photos, incidentId, driverName }: PhotosViewerPro
               />
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </div>
+      {/* @ts-ignore */}
+      </forge-dialog>
     </>
   );
 }

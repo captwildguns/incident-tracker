@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent } from '@tylertech/forge';
+import { defineCardComponent, defineDialogComponent } from '@tylertech/forge';
 defineCardComponent();
+defineDialogComponent();
+import { EditIncidentDialog } from '../incidents/EditIncidentDialog';
 import { Badge } from '../ui/badge';
 import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { AlertCircle, CheckCircle, XCircle, TrendingUp, Clock, MessageSquare, Bell, AlertTriangle, ArrowRight, Mail, Users, TrendingDown, UserCheck, MoreVertical, Eye, Edit, CheckCheck, Send, UserPlus } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { toast } from 'sonner';
 
@@ -527,10 +528,28 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
   const [triageDetailsOpen, setTriageDetailsOpen] = useState(false);
   const [selectedTriageItem, setSelectedTriageItem] = useState<any>(null);
   const [editingIncident, setEditingIncident] = useState<any>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [reassignDialogOpen, setReassignDialogOpen] = useState(false);
   const [reassigningIncident, setReassigningIncident] = useState<any>(null);
   const [selectedAssignee, setSelectedAssignee] = useState<string>('');
   const [inProgressItems, setInProgressItems] = useState<Set<string>>(new Set());
+
+  // Forge dialog refs
+  const triageDialogRef = useRef<HTMLElement>(null);
+  const editDialogRef = useRef<HTMLElement>(null);
+  const reassignDialogRef = useRef<HTMLElement>(null);
+
+  // Sync triageDetailsOpen state with forge-dialog
+  useEffect(() => { const el = triageDialogRef.current as any; if (!el) return; el.open = triageDetailsOpen; }, [triageDetailsOpen]);
+  useEffect(() => { const el = triageDialogRef.current as any; if (!el) return; const handler = () => setTriageDetailsOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
+
+  // Sync editDialogOpen state with forge-dialog
+  useEffect(() => { const el = editDialogRef.current as any; if (!el) return; el.open = editDialogOpen; }, [editDialogOpen]);
+  useEffect(() => { const el = editDialogRef.current as any; if (!el) return; const handler = () => setEditDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
+
+  // Sync reassignDialogOpen state with forge-dialog
+  useEffect(() => { const el = reassignDialogRef.current as any; if (!el) return; el.open = reassignDialogOpen; }, [reassignDialogOpen]);
+  useEffect(() => { const el = reassignDialogRef.current as any; if (!el) return; const handler = () => setReassignDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
 
   // List of available assignees
   const availableAssignees = [
@@ -673,19 +692,20 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
                         </Badge>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                            <ForgeButton 
-                              variant="ghost" 
-                              size="sm" 
-                              className="h-8 w-8 p-0"
+                            <button
+                              className="h-8 w-8 p-0 inline-flex items-center justify-center rounded hover:bg-black/5"
                               style={{
                                 backgroundColor: 'transparent',
                                 color: 'var(--forge-text-secondary, #6b7280)',
+                                border: 'none',
+                                cursor: 'pointer',
+                                flexShrink: 0,
                               }}
                               onClick={(e) => e.stopPropagation()}
                             >
                               <MoreVertical className="h-4 w-4" />
                               <span className="sr-only">Quick actions</span>
-                            </ForgeButton>
+                            </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-56">
                             <DropdownMenuItem
@@ -726,7 +746,7 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setEditingIncident(item);
-                                setTriageDetailsOpen(true);
+                                setEditDialogOpen(true);
                               }}
                             >
                               <Edit className="mr-2 h-4 w-4" />
@@ -1103,14 +1123,13 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
       </ForgeCard>
 
       {/* Triage Item Details Dialog */}
-      <Dialog open={triageDetailsOpen} onOpenChange={setTriageDetailsOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Incident Details - {selectedTriageItem?.id}</DialogTitle>
-            <DialogDescription>
-              Review incident triage information and take action
-            </DialogDescription>
-          </DialogHeader>
+      {/* @ts-ignore */}
+      <forge-dialog ref={triageDialogRef}>
+        <div style={{ padding: '24px', maxWidth: '672px', minWidth: '400px' }}>
+          <h2 style={{ margin: '0 0 4px 0', fontSize: '1.125rem', fontWeight: 600 }}>Incident Details - {selectedTriageItem?.id}</h2>
+          <p className="text-muted-foreground" style={{ margin: '0 0 16px 0', fontSize: '0.875rem' }}>
+            Review incident triage information and take action
+          </p>
           {selectedTriageItem && (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -1137,7 +1156,7 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
                   <div>{selectedTriageItem.time}</div>
                 </div>
               </div>
-              
+
               <div>
                 <div className="text-muted-foreground" style={{ fontSize: '0.875rem', marginBottom: '8px' }}>
                   Why This Needs Attention
@@ -1160,8 +1179,9 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
               </div>
 
               <div className="flex gap-2 pt-4">
-                <ForgeButton 
+                <ForgeButton
                   className="bg-blue-600 hover:bg-blue-700 text-white"
+                  style={{ color: '#ffffff' }}
                   onClick={() => {
                     setTriageDetailsOpen(false);
                     onNavigate('incidents');
@@ -1170,7 +1190,7 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
                   Take Action on Incident
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </ForgeButton>
-                <ForgeButton 
+                <ForgeButton
                   variant="outline"
                   onClick={() => {
                     setTriageDetailsOpen(false);
@@ -1183,18 +1203,49 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
               </div>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </div>
+      {/* @ts-ignore */}
+      </forge-dialog>
+
+      {/* Edit Incident Dialog */}
+      {/* @ts-ignore */}
+      <forge-dialog ref={editDialogRef}>
+        <div style={{ padding: '24px', maxWidth: '720px', minWidth: '480px' }}>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 style={{ margin: '0 0 4px 0', fontSize: '1.125rem', fontWeight: 600 }}>
+                Edit Incident — {editingIncident?.id}
+              </h2>
+              <p className="text-muted-foreground" style={{ margin: 0, fontSize: '0.875rem' }}>
+                Update incident details and information
+              </p>
+            </div>
+            <button
+              onClick={() => setEditDialogOpen(false)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: 'var(--forge-text-secondary, #6b7280)' }}
+            >
+              <span style={{ fontSize: '1.25rem', lineHeight: 1 }}>×</span>
+            </button>
+          </div>
+          {editingIncident && (
+            <EditIncidentDialog
+              incident={editingIncident}
+              onClose={() => setEditDialogOpen(false)}
+              onSave={() => setEditDialogOpen(false)}
+            />
+          )}
+        </div>
+      {/* @ts-ignore */}
+      </forge-dialog>
 
       {/* Reassign Dialog */}
-      <Dialog open={reassignDialogOpen} onOpenChange={setReassignDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Reassign Incident - {reassigningIncident?.id}</DialogTitle>
-            <DialogDescription>
-              Select a new assignee for this incident
-            </DialogDescription>
-          </DialogHeader>
+      {/* @ts-ignore */}
+      <forge-dialog ref={reassignDialogRef}>
+        <div style={{ padding: '24px', maxWidth: '448px', minWidth: '350px' }}>
+          <h2 style={{ margin: '0 0 4px 0', fontSize: '1.125rem', fontWeight: 600 }}>Reassign Incident - {reassigningIncident?.id}</h2>
+          <p className="text-muted-foreground" style={{ margin: '0 0 16px 0', fontSize: '0.875rem' }}>
+            Select a new assignee for this incident
+          </p>
           {reassigningIncident && (
             <div className="space-y-4">
               <div>
@@ -1248,8 +1299,9 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
               </div>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </div>
+      {/* @ts-ignore */}
+      </forge-dialog>
     </div>
   );
 }

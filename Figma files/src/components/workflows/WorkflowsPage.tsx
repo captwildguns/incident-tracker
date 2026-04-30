@@ -1,19 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent } from '@tylertech/forge';
+import { defineCardComponent, defineButtonComponent, defineTextFieldComponent, defineDialogComponent } from '@tylertech/forge';
 defineCardComponent();
-import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Input } from '../ui/input';
+defineTextFieldComponent();
+defineDialogComponent();
 import { Label } from '../ui/label';
 import { Badge } from '../ui/badge';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '../ui/dialog';
 import { Textarea } from '../ui/textarea';
 import {
   Tooltip,
@@ -83,6 +76,17 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
   const [isBuilderOpen, setIsBuilderOpen] = useState(false);
   const [selectedWorkflow, setSelectedWorkflow] = useState<Workflow | null>(null);
   const [expandedWorkflowId, setExpandedWorkflowId] = useState<string | null>(null);
+
+  const createDialogRef = useRef<HTMLElement>(null);
+  const builderDialogRef = useRef<HTMLElement>(null);
+
+  // Sync create dialog open state
+  useEffect(() => { const el = createDialogRef.current as any; if (!el) return; el.open = isCreateDialogOpen; }, [isCreateDialogOpen]);
+  useEffect(() => { const el = createDialogRef.current as any; if (!el) return; const handler = () => setIsCreateDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
+
+  // Sync builder dialog open state
+  useEffect(() => { const el = builderDialogRef.current as any; if (!el) return; el.open = isBuilderOpen; }, [isBuilderOpen]);
+  useEffect(() => { const el = builderDialogRef.current as any; if (!el) return; const handler = () => setIsBuilderOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
 
   const [newWorkflow, setNewWorkflow] = useState({
     name: '',
@@ -346,11 +350,15 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                 }}
               >
                 <div style={{ flex: '1', minWidth: '200px' }}>
-                  <Input
-                    placeholder="Search workflows..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <input
+                      type="text"
+                      placeholder="Search workflows..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </forge-text-field>
                 </div>
 
                 <ForgeMultiSelect
@@ -472,13 +480,12 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <ForgeButton
-                                      variant="flat"
-                                      size="sm"
+                                    <button
                                       onClick={() => handleOpenBuilder(workflow)}
+                                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px', color: 'var(--forge-text-secondary, #6b7280)', display: 'inline-flex', alignItems: 'center' }}
                                     >
                                       <Settings className="h-4 w-4" />
-                                    </ForgeButton>
+                                    </button>
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     <p>Edit workflow</p>
@@ -488,13 +495,12 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <ForgeButton
-                                      variant="flat"
-                                      size="sm"
+                                    <button
                                       onClick={() => handleDuplicateWorkflow(workflow)}
+                                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px', color: 'var(--forge-text-secondary, #6b7280)', display: 'inline-flex', alignItems: 'center' }}
                                     >
                                       <Copy className="h-4 w-4" />
-                                    </ForgeButton>
+                                    </button>
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     <p>Duplicate workflow</p>
@@ -504,17 +510,16 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <ForgeButton
-                                      variant="flat"
-                                      size="sm"
+                                    <button
                                       onClick={() => handleToggleActive(workflow.id)}
+                                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px', color: 'var(--forge-text-secondary, #6b7280)', display: 'inline-flex', alignItems: 'center' }}
                                     >
                                       {workflow.active ? (
                                         <Circle className="h-4 w-4" />
                                       ) : (
                                         <CheckCircle className="h-4 w-4" />
                                       )}
-                                    </ForgeButton>
+                                    </button>
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     <p>{workflow.active ? 'Set to Inactive' : 'Set to Active'}</p>
@@ -524,14 +529,12 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                               <TooltipProvider>
                                 <Tooltip>
                                   <TooltipTrigger asChild>
-                                    <ForgeButton
-                                      variant="flat"
-                                      size="sm"
+                                    <button
                                       onClick={() => handleDeleteWorkflow(workflow.id)}
-                                      style={{ color: 'var(--destructive)' }}
+                                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px', color: 'var(--destructive)', display: 'inline-flex', alignItems: 'center' }}
                                     >
                                       <Trash2 className="h-4 w-4" />
-                                    </ForgeButton>
+                                    </button>
                                   </TooltipTrigger>
                                   <TooltipContent>
                                     <p>Delete workflow</p>
@@ -615,27 +618,30 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
           </ForgeCard>
 
           {/* Create Workflow Dialog */}
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle style={{ fontSize: 'var(--text-2xl)' }}>Create New Workflow</DialogTitle>
-                <DialogDescription style={{ fontSize: 'var(--text-base)' }}>
-                  Define a new workflow for handling specific incident types
-                </DialogDescription>
-              </DialogHeader>
+          {/* @ts-ignore */}
+          <forge-dialog ref={createDialogRef}>
+            <div style={{ padding: 'var(--forge-spacing-large)' }}>
+              <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-xsmall)' }}>Create New Workflow</h2>
+              <p style={{ fontSize: 'var(--text-base)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-medium)' }}>
+                Define a new workflow for handling specific incident types
+              </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-medium)' }}>
                 <div>
                   <Label htmlFor="workflow-name" style={{ fontSize: 'var(--text-sm)' }}>
                     Workflow Name
                   </Label>
-                  <Input
-                    id="workflow-name"
-                    value={newWorkflow.name}
-                    onChange={(e) => setNewWorkflow({ ...newWorkflow, name: e.target.value })}
-                    placeholder="e.g., Bus Accident Response"
-                    style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
-                  />
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <input
+                      type="text"
+                      id="workflow-name"
+                      value={newWorkflow.name}
+                      onChange={(e) => setNewWorkflow({ ...newWorkflow, name: e.target.value })}
+                      placeholder="e.g., Bus Accident Response"
+                      style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
+                    />
+                  </forge-text-field>
                 </div>
 
                 <div>
@@ -813,40 +819,41 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                   </ForgeButton>
                 </div>
               </div>
-            </DialogContent>
-          </Dialog>
+            </div>
+          </forge-dialog>
 
           {/* Workflow Builder Dialog */}
           {selectedWorkflow && (
-            <Dialog open={isBuilderOpen} onOpenChange={setIsBuilderOpen}>
-              <DialogContent style={{ maxWidth: '800px' }}>
-                <DialogHeader>
-                  <DialogTitle style={{ fontSize: 'var(--text-2xl)' }}>
+            <>
+              {/* @ts-ignore */}
+              <forge-dialog ref={builderDialogRef}>
+                <div style={{ padding: 'var(--forge-spacing-large)', maxWidth: '800px' }}>
+                  <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-xsmall)' }}>
                     Workflow Builder: {selectedWorkflow.name}
-                  </DialogTitle>
-                  <DialogDescription style={{ fontSize: 'var(--text-base)' }}>
+                  </h2>
+                  <p style={{ fontSize: 'var(--text-base)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-medium)' }}>
                     Define the steps for this workflow
-                  </DialogDescription>
-                </DialogHeader>
-
-                <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
-                  <p style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>
-                    {selectedWorkflow.description}
                   </p>
-                </div>
 
-                <ForgeButton
-                  onClick={() => {
-                    setIsBuilderOpen(false);
-                    onNavigateToWorkflowBuilder(selectedWorkflow);
-                  }}
-                  style={{ width: '100%' }}
-                >
-                  <Settings className="h-4 w-4 mr-2" />
-                  Open Advanced Workflow Builder
-                </ForgeButton>
-              </DialogContent>
-            </Dialog>
+                  <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
+                    <p style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>
+                      {selectedWorkflow.description}
+                    </p>
+                  </div>
+
+                  <ForgeButton
+                    onClick={() => {
+                      setIsBuilderOpen(false);
+                      onNavigateToWorkflowBuilder(selectedWorkflow);
+                    }}
+                    style={{ width: '100%' }}
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    Open Advanced Workflow Builder
+                  </ForgeButton>
+                </div>
+              </forge-dialog>
+            </>
           )}
         </>
       )}

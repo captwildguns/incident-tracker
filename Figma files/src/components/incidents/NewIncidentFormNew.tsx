@@ -1,13 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent } from '@tylertech/forge';
+import { defineCardComponent, defineButtonComponent, defineTextFieldComponent } from '@tylertech/forge';
 defineCardComponent();
-import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Input } from '../ui/input';
+defineTextFieldComponent();
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Checkbox } from '../ui/checkbox';
 import { Badge } from '../ui/badge';
 import { AlertCircle, Save, Send, Check, Circle, CheckCircle2, MapPin, Upload, X, Image as ImageIcon, FileText, File, UserCircle2, Users } from 'lucide-react';
@@ -485,17 +483,21 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
                     <div className="space-y-4">
                       <div className="relative" ref={studentLookupRef}>
                         <Label htmlFor="student" style={{ fontFamily: 'Roboto, sans-serif' }}>Student Name *</Label>
-                        <Input
-                          id="student"
-                          value={formData.student}
-                          onChange={(e) => {
-                            setFormData({ ...formData, student: e.target.value });
-                            setStudentLookupOpen(true);
-                          }}
-                          placeholder="Type to search students..."
-                          required
-                          style={{ fontFamily: 'Roboto, sans-serif' }}
-                        />
+                        {/* @ts-ignore */}
+                        <forge-text-field>
+                          <input
+                            type="text"
+                            id="student"
+                            value={formData.student}
+                            onChange={(e) => {
+                              setFormData({ ...formData, student: e.target.value });
+                              setStudentLookupOpen(true);
+                            }}
+                            placeholder="Type to search students..."
+                            required
+                            style={{ fontFamily: 'Roboto, sans-serif' }}
+                          />
+                        </forge-text-field>
                         {studentLookupOpen && (
                           <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-[300px] overflow-hidden">
                             <Command>
@@ -548,13 +550,17 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
                       
                       <div>
                         <Label htmlFor="studentId" style={{ fontFamily: 'Roboto, sans-serif' }}>Student ID</Label>
-                        <Input
-                          id="studentId"
-                          value={formData.studentId}
-                          disabled
-                          className="bg-muted cursor-not-allowed"
-                          style={{ fontFamily: 'Roboto, sans-serif' }}
-                        />
+                        {/* @ts-ignore */}
+                        <forge-text-field>
+                          <input
+                            type="text"
+                            id="studentId"
+                            value={formData.studentId}
+                            disabled
+                            className="bg-muted cursor-not-allowed"
+                            style={{ fontFamily: 'Roboto, sans-serif' }}
+                          />
+                        </forge-text-field>
                       </div>
                     </div>
 
@@ -620,26 +626,28 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
                     {/* Left: Driver Selection */}
                     <div>
                       <Label htmlFor="driverSelect" style={{ fontFamily: 'Roboto, sans-serif' }}>Driver *</Label>
-                      <Select
-                        value={formData.driver}
-                        onValueChange={(value) => {
-                          setFormData({ ...formData, driver: value });
-                          const driver = mockDrivers.find(d => d.id === value);
-                          setSelectedDriver(driver || null);
-                        }}
-                        required
-                      >
-                        <SelectTrigger id="driverSelect" style={{ fontFamily: 'Roboto, sans-serif' }}>
-                          <SelectValue placeholder="Select driver..." />
-                        </SelectTrigger>
-                        <SelectContent>
+                      {/* @ts-ignore */}
+                      <forge-text-field>
+                        <select
+                          id="driverSelect"
+                          value={formData.driver}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setFormData({ ...formData, driver: value });
+                            const driver = mockDrivers.find(d => d.id === value);
+                            setSelectedDriver(driver || null);
+                          }}
+                          required
+                          style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
+                        >
+                          <option value="">Select driver...</option>
                           {mockDrivers.map((driver) => (
-                            <SelectItem key={driver.id} value={driver.id} style={{ fontFamily: 'Roboto, sans-serif' }}>
+                            <option key={driver.id} value={driver.id}>
                               {driver.name} ({driver.employeeId})
-                            </SelectItem>
+                            </option>
                           ))}
-                        </SelectContent>
-                      </Select>
+                        </select>
+                      </forge-text-field>
                     </div>
 
                     {/* Right: Driver Photo */}
@@ -693,43 +701,31 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="incidentType" style={{ fontFamily: 'Roboto, sans-serif' }}>Incident Type *</Label>
-                    <Select
-                      value={formData.incidentType}
-                      onValueChange={handleIncidentTypeChange}
-                      required
-                    >
-                      <SelectTrigger id="incidentType" style={{ fontFamily: 'Roboto, sans-serif' }}>
-                        <SelectValue placeholder="Select type..." />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-[400px]">
+                    {/* @ts-ignore */}
+                    <forge-text-field>
+                      <select
+                        id="incidentType"
+                        value={formData.incidentType}
+                        onChange={(e) => handleIncidentTypeChange(e.target.value)}
+                        required
+                        style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
+                      >
+                        <option value="">Select type...</option>
                         {getAllCategories().map((category) => {
                           const typesInCategory = INCIDENT_TYPES.filter(type => type.category === category)
                             .sort((a, b) => a.label.localeCompare(b.label));
                           return (
-                            <div key={category}>
-                              <div 
-                                className="px-2 py-1.5" 
-                                style={{ 
-                                  fontFamily: 'Roboto, sans-serif',
-                                  fontSize: 'var(--text-xs)',
-                                  fontWeight: 'var(--font-weight-medium)',
-                                  color: 'rgba(255, 255, 255, 0.5)',
-                                  textTransform: 'uppercase',
-                                  letterSpacing: '0.5px'
-                                }}
-                              >
-                                {category}
-                              </div>
+                            <optgroup key={category} label={category}>
                               {typesInCategory.map((type) => (
-                                <SelectItem key={type.id} value={type.id} style={{ fontFamily: 'Roboto, sans-serif' }}>
+                                <option key={type.id} value={type.id}>
                                   {type.label}
-                                </SelectItem>
+                                </option>
                               ))}
-                            </div>
+                            </optgroup>
                           );
                         })}
-                      </SelectContent>
-                    </Select>
+                      </select>
+                    </forge-text-field>
                     {formData.incidentType && (
                       <p className="text-muted-foreground mt-1" style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif' }}>
                         {INCIDENT_TYPES.find(t => t.id === formData.incidentType)?.description}
@@ -739,39 +735,27 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
 
                   <div>
                     <Label htmlFor="location" style={{ fontFamily: 'Roboto, sans-serif' }}>Location *</Label>
-                    <Select
-                      value={formData.location}
-                      onValueChange={(value) => setFormData({ ...formData, location: value })}
-                      required
-                    >
-                      <SelectTrigger id="location" style={{ fontFamily: 'Roboto, sans-serif' }}>
-                        <SelectValue placeholder="Select location..." />
-                      </SelectTrigger>
-                      <SelectContent>
+                    {/* @ts-ignore */}
+                    <forge-text-field>
+                      <select
+                        id="location"
+                        value={formData.location}
+                        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                        required
+                        style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
+                      >
+                        <option value="">Select location...</option>
                         {getLocationOptions().map((locationGroup) => (
-                          <div key={locationGroup.category}>
-                            <div 
-                              className="px-2 py-1.5 mt-2 first:mt-0" 
-                              style={{ 
-                                fontFamily: 'Roboto, sans-serif',
-                                fontSize: 'var(--text-xs)',
-                                fontWeight: 'var(--font-weight-medium)',
-                                color: 'rgba(255, 255, 255, 0.5)',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.5px'
-                              }}
-                            >
-                              {locationGroup.category}
-                            </div>
+                          <optgroup key={locationGroup.category} label={locationGroup.category}>
                             {locationGroup.items.map((item) => (
-                              <SelectItem key={item.value} value={item.value} style={{ fontFamily: 'Roboto, sans-serif' }}>
+                              <option key={item.value} value={item.value}>
                                 {item.label}
-                              </SelectItem>
+                              </option>
                             ))}
-                          </div>
+                          </optgroup>
                         ))}
-                      </SelectContent>
-                    </Select>
+                      </select>
+                    </forge-text-field>
                   </div>
 
                   <div className="relative" ref={addressLookupRef}>
@@ -781,16 +765,20 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
                         size={16} 
                         className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" 
                       />
-                      <Input
-                        id="address"
-                        value={formData.address}
-                        onChange={(e) => {
-                          setFormData({ ...formData, address: e.target.value });
-                          setAddressLookupOpen(true);
-                        }}
-                        placeholder="Type to search addresses..."
-                        style={{ paddingLeft: '36px', fontFamily: 'Roboto, sans-serif' }}
-                      />
+                      {/* @ts-ignore */}
+                      <forge-text-field>
+                        <input
+                          type="text"
+                          id="address"
+                          value={formData.address}
+                          onChange={(e) => {
+                            setFormData({ ...formData, address: e.target.value });
+                            setAddressLookupOpen(true);
+                          }}
+                          placeholder="Type to search addresses..."
+                          style={{ paddingLeft: '2rem', fontFamily: 'Roboto, sans-serif' }}
+                        />
+                      </forge-text-field>
                     </div>
                     {addressLookupOpen && formData.address && (
                       <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-[300px] overflow-hidden">
@@ -839,57 +827,60 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
 
                   <div>
                     <Label htmlFor="bus" style={{ fontFamily: 'Roboto, sans-serif' }}>Vehicle Number</Label>
-                    <Select
-                      value={formData.bus}
-                      onValueChange={(value) => setFormData({ ...formData, bus: value })}
-                    >
-                      <SelectTrigger id="bus" style={{ fontFamily: 'Roboto, sans-serif' }}>
-                        <SelectValue placeholder="Select vehicle (optional)..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="bus-12" style={{ fontFamily: 'Roboto, sans-serif' }}>Vehicle 12</SelectItem>
-                        <SelectItem value="bus-15" style={{ fontFamily: 'Roboto, sans-serif' }}>Vehicle 15</SelectItem>
-                        <SelectItem value="bus-22" style={{ fontFamily: 'Roboto, sans-serif' }}>Vehicle 22</SelectItem>
-                        <SelectItem value="bus-31" style={{ fontFamily: 'Roboto, sans-serif' }}>Vehicle 31</SelectItem>
-                        <SelectItem value="bus-8" style={{ fontFamily: 'Roboto, sans-serif' }}>Vehicle 8</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    {/* @ts-ignore */}
+                    <forge-text-field>
+                      <select
+                        id="bus"
+                        value={formData.bus}
+                        onChange={(e) => setFormData({ ...formData, bus: e.target.value })}
+                        style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
+                      >
+                        <option value="">Select vehicle (optional)...</option>
+                        <option value="bus-12">Vehicle 12</option>
+                        <option value="bus-15">Vehicle 15</option>
+                        <option value="bus-22">Vehicle 22</option>
+                        <option value="bus-31">Vehicle 31</option>
+                        <option value="bus-8">Vehicle 8</option>
+                      </select>
+                    </forge-text-field>
                   </div>
 
                   <div>
                     <Label htmlFor="route" style={{ fontFamily: 'Roboto, sans-serif' }}>Run</Label>
-                    <Select
-                      value={formData.route}
-                      onValueChange={(value) => {
-                        // Find the driver assigned to this route
-                        const assignedDriver = mockDrivers.find(driver => 
-                          driver.routes.includes(value)
-                        );
-                        
-                        setFormData({ 
-                          ...formData, 
-                          route: value,
-                          driver: assignedDriver ? assignedDriver.id : formData.driver
-                        });
-                        
-                        // Update selected driver if found and we're in driver mode
-                        if (assignedDriver && incidentCategory === 'driver') {
-                          setSelectedDriver(assignedDriver);
-                        }
-                      }}
-                    >
-                      <SelectTrigger id="route" style={{ fontFamily: 'Roboto, sans-serif' }}>
-                        <SelectValue placeholder="Select run (optional)..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="colonie-high-am-purple" style={{ fontFamily: 'Roboto, sans-serif' }}>Colonie High AM - Purple</SelectItem>
-                        <SelectItem value="jefferson-middle-am-blue" style={{ fontFamily: 'Roboto, sans-serif' }}>Jefferson Middle AM - Blue</SelectItem>
-                        <SelectItem value="lincoln-elem-am-green" style={{ fontFamily: 'Roboto, sans-serif' }}>Lincoln Elementary AM - Green</SelectItem>
-                        <SelectItem value="meyers-middle-am-yellow" style={{ fontFamily: 'Roboto, sans-serif' }}>Meyers Middle AM - Yellow</SelectItem>
-                        <SelectItem value="roosevelt-high-pm-red" style={{ fontFamily: 'Roboto, sans-serif' }}>Roosevelt High PM - Red</SelectItem>
-                        <SelectItem value="washington-high-pm-wolf" style={{ fontFamily: 'Roboto, sans-serif' }}>Washington High PM - Wolf Rd</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    {/* @ts-ignore */}
+                    <forge-text-field>
+                      <select
+                        id="route"
+                        value={formData.route}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          // Find the driver assigned to this route
+                          const assignedDriver = mockDrivers.find(driver =>
+                            driver.routes.includes(value)
+                          );
+
+                          setFormData({
+                            ...formData,
+                            route: value,
+                            driver: assignedDriver ? assignedDriver.id : formData.driver
+                          });
+
+                          // Update selected driver if found and we're in driver mode
+                          if (assignedDriver && incidentCategory === 'driver') {
+                            setSelectedDriver(assignedDriver);
+                          }
+                        }}
+                        style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
+                      >
+                        <option value="">Select run (optional)...</option>
+                        <option value="colonie-high-am-purple">Colonie High AM - Purple</option>
+                        <option value="jefferson-middle-am-blue">Jefferson Middle AM - Blue</option>
+                        <option value="lincoln-elem-am-green">Lincoln Elementary AM - Green</option>
+                        <option value="meyers-middle-am-yellow">Meyers Middle AM - Yellow</option>
+                        <option value="roosevelt-high-pm-red">Roosevelt High PM - Red</option>
+                        <option value="washington-high-pm-wolf">Washington High PM - Wolf Rd</option>
+                      </select>
+                    </forge-text-field>
                     <p className="text-muted-foreground mt-1" style={{ fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif' }}>
                       Leave blank if incident occurred outside of a run
                     </p>
@@ -995,13 +986,17 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
                 {formData.witnessPresent && (
                   <div>
                     <Label htmlFor="witnessName" style={{ fontFamily: 'Roboto, sans-serif' }}>Witness Name(s)</Label>
-                    <Input
-                      id="witnessName"
-                      placeholder="Enter witness names..."
-                      value={formData.witnessName}
-                      onChange={(e) => setFormData({ ...formData, witnessName: e.target.value })}
-                      style={{ fontFamily: 'Roboto, sans-serif' }}
-                    />
+                    {/* @ts-ignore */}
+                    <forge-text-field>
+                      <input
+                        type="text"
+                        id="witnessName"
+                        placeholder="Enter witness names..."
+                        value={formData.witnessName}
+                        onChange={(e) => setFormData({ ...formData, witnessName: e.target.value })}
+                        style={{ fontFamily: 'Roboto, sans-serif' }}
+                      />
+                    </forge-text-field>
                   </div>
                 )}
 
@@ -1295,14 +1290,20 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
 
             {/* Form Actions */}
             <div className="flex gap-3">
-              <ForgeButton
+              <button
                 type="submit"
-                className="bg-primary hover:bg-primary/90"
-                style={{ fontFamily: 'Roboto, sans-serif' }}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '8px',
+                  padding: '0 16px', height: '36px',
+                  background: '#4A6FA5', color: '#ffffff',
+                  border: 'none', borderRadius: '4px',
+                  fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500,
+                  cursor: 'pointer', letterSpacing: '0.0125em',
+                }}
               >
-                <Send className="mr-2 h-4 w-4" />
+                <Send className="h-4 w-4" />
                 Submit Report
-              </ForgeButton>
+              </button>
               <ForgeButton
                 type="button"
                 variant="outlined"

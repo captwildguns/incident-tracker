@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { ForgeButton } from '@tylertech/forge-react';
-import { defineButtonComponent } from '@tylertech/forge';
+import { defineButtonComponent, defineTextFieldComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Input } from '../ui/input';
+defineTextFieldComponent();
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Checkbox } from '../ui/checkbox';
-import { Save, X, ChevronsUpDown, Check, Upload, Image as ImageIcon, FileText } from 'lucide-react';
+import { Save, X, Check, Upload, Image as ImageIcon, FileText } from 'lucide-react';
 import { Alert, AlertDescription } from '../ui/alert';
 import { INCIDENT_TYPES, getAllCategories } from './IncidentTypes';
 import { toast } from 'sonner';
@@ -194,16 +193,20 @@ export function EditIncidentDialog({ incident, onClose, onSave }: EditIncidentDi
             <div className="grid grid-cols-2 gap-4">
               <div className="relative" ref={studentLookupRef}>
                 <Label htmlFor="edit-student">Student Name</Label>
-                <Input
-                  id="edit-student"
-                  value={formData.student}
-                  onChange={(e) => {
-                    setFormData({ ...formData, student: e.target.value });
-                    setStudentLookupOpen(true);
-                  }}
-                  placeholder="Type to search students..."
-                  required
-                />
+                {/* @ts-ignore */}
+                <forge-text-field>
+                  <input
+                    type="text"
+                    id="edit-student"
+                    value={formData.student}
+                    onChange={(e) => {
+                      setFormData({ ...formData, student: e.target.value });
+                      setStudentLookupOpen(true);
+                    }}
+                    placeholder="Type to search students..."
+                    required
+                  />
+                </forge-text-field>
                 {studentLookupOpen && (
                   <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-[300px] overflow-hidden">
                     <Command>
@@ -252,12 +255,16 @@ export function EditIncidentDialog({ incident, onClose, onSave }: EditIncidentDi
               
               <div>
                 <Label htmlFor="edit-studentId">Student ID</Label>
-                <Input
-                  id="edit-studentId"
-                  value={formData.studentId}
-                  disabled
-                  className="bg-muted cursor-not-allowed"
-                />
+                {/* @ts-ignore */}
+                <forge-text-field>
+                  <input
+                    type="text"
+                    id="edit-studentId"
+                    value={formData.studentId}
+                    disabled
+                    style={{ backgroundColor: 'var(--forge-color-surface-subtle)', cursor: 'not-allowed' }}
+                  />
+                </forge-text-field>
               </div>
             </div>
           </div>
@@ -270,98 +277,103 @@ export function EditIncidentDialog({ incident, onClose, onSave }: EditIncidentDi
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="edit-incidentType">Incident Type *</Label>
-              <Select
-                value={formData.incidentType}
-                onValueChange={handleIncidentTypeChange}
-                required
-              >
-                <SelectTrigger id="edit-incidentType">
-                  <SelectValue placeholder="Select type..." />
-                </SelectTrigger>
-                <SelectContent className="max-h-[300px]">
+              {/* @ts-ignore */}
+              <forge-text-field>
+                <select
+                  id="edit-incidentType"
+                  value={formData.incidentType}
+                  onChange={(e) => handleIncidentTypeChange(e.target.value)}
+                  required
+                  style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
+                >
+                  <option value="" disabled>Select type...</option>
                   {getAllCategories().map((category) => (
-                    <div key={category}>
-                      <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
-                        {category}
-                      </div>
+                    <optgroup key={category} label={category}>
                       {INCIDENT_TYPES.filter(type => type.category === category).map((type) => (
-                        <SelectItem key={type.id} value={type.id}>
+                        <option key={type.id} value={type.id}>
                           {type.label}
-                        </SelectItem>
+                        </option>
                       ))}
-                    </div>
+                    </optgroup>
                   ))}
-                </SelectContent>
-              </Select>
+                </select>
+              </forge-text-field>
             </div>
 
             <div>
               <Label htmlFor="edit-status">Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => setFormData({ ...formData, status: value })}
-                required
-              >
-                <SelectTrigger id="edit-status">
-                  <SelectValue placeholder="Select status..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Open">Open</SelectItem>
-                  <SelectItem value="In Progress">In Progress</SelectItem>
-                  <SelectItem value="Closed">Closed</SelectItem>
-                  <SelectItem value="Cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
+              {/* @ts-ignore */}
+              <forge-text-field>
+                <select
+                  id="edit-status"
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  required
+                  style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
+                >
+                  <option value="" disabled>Select status...</option>
+                  <option value="Open">Open</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Closed">Closed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </forge-text-field>
             </div>
 
             <div>
               <Label htmlFor="edit-bus">Vehicle Number</Label>
-              <Select
-                value={formData.bus}
-                onValueChange={(value) => setFormData({ ...formData, bus: value })}
-                required
-              >
-                <SelectTrigger id="edit-bus">
-                  <SelectValue placeholder="Select vehicle..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Bus 5">Vehicle 5</SelectItem>
-                  <SelectItem value="Bus 8">Vehicle 8</SelectItem>
-                  <SelectItem value="Bus 12">Vehicle 12</SelectItem>
-                  <SelectItem value="Bus 15">Vehicle 15</SelectItem>
-                  <SelectItem value="Bus 22">Vehicle 22</SelectItem>
-                </SelectContent>
-              </Select>
+              {/* @ts-ignore */}
+              <forge-text-field>
+                <select
+                  id="edit-bus"
+                  value={formData.bus}
+                  onChange={(e) => setFormData({ ...formData, bus: e.target.value })}
+                  required
+                  style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
+                >
+                  <option value="" disabled>Select vehicle...</option>
+                  <option value="Bus 5">Vehicle 5</option>
+                  <option value="Bus 8">Vehicle 8</option>
+                  <option value="Bus 12">Vehicle 12</option>
+                  <option value="Bus 15">Vehicle 15</option>
+                  <option value="Bus 22">Vehicle 22</option>
+                </select>
+              </forge-text-field>
             </div>
 
             <div>
               <Label htmlFor="edit-route">Run</Label>
-              <Select
-                value={formData.route}
-                onValueChange={(value) => setFormData({ ...formData, route: value })}
-                required
-              >
-                <SelectTrigger id="edit-route">
-                  <SelectValue placeholder="Select run..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Meyers Middle AM - Yellow">Meyers Middle AM - Yellow</SelectItem>
-                  <SelectItem value="Washington High PM - Wolf Rd">Washington High PM - Wolf Rd</SelectItem>
-                  <SelectItem value="Jefferson Middle AM - Blue">Jefferson Middle AM - Blue</SelectItem>
-                  <SelectItem value="Roosevelt High PM - Red">Roosevelt High PM - Red</SelectItem>
-                  <SelectItem value="Lincoln Elementary AM - Green">Lincoln Elementary AM - Green</SelectItem>
-                  <SelectItem value="Colonie High AM - Purple">Colonie High AM - Purple</SelectItem>
-                </SelectContent>
-              </Select>
+              {/* @ts-ignore */}
+              <forge-text-field>
+                <select
+                  id="edit-route"
+                  value={formData.route}
+                  onChange={(e) => setFormData({ ...formData, route: e.target.value })}
+                  required
+                  style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
+                >
+                  <option value="" disabled>Select run...</option>
+                  <option value="Meyers Middle AM - Yellow">Meyers Middle AM - Yellow</option>
+                  <option value="Washington High PM - Wolf Rd">Washington High PM - Wolf Rd</option>
+                  <option value="Jefferson Middle AM - Blue">Jefferson Middle AM - Blue</option>
+                  <option value="Roosevelt High PM - Red">Roosevelt High PM - Red</option>
+                  <option value="Lincoln Elementary AM - Green">Lincoln Elementary AM - Green</option>
+                  <option value="Colonie High AM - Purple">Colonie High AM - Purple</option>
+                </select>
+              </forge-text-field>
             </div>
 
             <div>
               <Label htmlFor="edit-driver">Driver</Label>
-              <Input
-                id="edit-driver"
-                value={formData.driver}
-                onChange={(e) => setFormData({ ...formData, driver: e.target.value })}
-              />
+              {/* @ts-ignore */}
+              <forge-text-field>
+                <input
+                  type="text"
+                  id="edit-driver"
+                  value={formData.driver}
+                  onChange={(e) => setFormData({ ...formData, driver: e.target.value })}
+                />
+              </forge-text-field>
             </div>
           </div>
 
@@ -420,12 +432,16 @@ export function EditIncidentDialog({ incident, onClose, onSave }: EditIncidentDi
           {formData.witnessPresent && (
             <div>
               <Label htmlFor="edit-witnessName">Witness Name(s)</Label>
-              <Input
-                id="edit-witnessName"
-                placeholder="Enter witness names..."
-                value={formData.witnessName}
-                onChange={(e) => setFormData({ ...formData, witnessName: e.target.value })}
-              />
+              {/* @ts-ignore */}
+              <forge-text-field>
+                <input
+                  type="text"
+                  id="edit-witnessName"
+                  placeholder="Enter witness names..."
+                  value={formData.witnessName}
+                  onChange={(e) => setFormData({ ...formData, witnessName: e.target.value })}
+                />
+              </forge-text-field>
             </div>
           )}
 
@@ -622,13 +638,22 @@ export function EditIncidentDialog({ incident, onClose, onSave }: EditIncidentDi
 
         {/* Form Actions */}
         <div className="flex gap-3 pt-4 border-t">
-          <ForgeButton
+          <button
             type="submit"
-            className="bg-primary hover:bg-primary/90"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              padding: '0 16px', height: '36px',
+              background: '#4A6FA5', color: '#ffffff',
+              border: 'none', borderRadius: '4px',
+              fontFamily: 'Roboto, sans-serif', fontSize: '14px', fontWeight: 500,
+              cursor: 'pointer', letterSpacing: '0.0125em',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.background = '#3d5d8a')}
+            onMouseLeave={e => (e.currentTarget.style.background = '#4A6FA5')}
           >
-            <Save className="mr-2 h-4 w-4" />
+            <Save className="h-4 w-4" />
             Update Incident
-          </ForgeButton>
+          </button>
           <ForgeButton
             type="button"
             variant="outlined"
