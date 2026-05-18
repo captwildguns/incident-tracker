@@ -233,7 +233,7 @@ export function AppLayout({ children, currentPage, onNavigate, onNavigateToCommu
 
           <div slot="end" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{ position: 'relative' }}>
-              <NotificationsDropdown onNavigateToCommunication={onNavigateToCommunication} />
+              <NotificationsDropdown onNavigate={onNavigate} onNavigateToCommunication={onNavigateToCommunication} />
             </div>
             <forge-icon-button aria-label="Help"
               onClick={() => onNavigate('help')}
