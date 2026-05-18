@@ -95,6 +95,7 @@ IconRegistry.define([
 ]);
 
 import { GlobalSearch } from './GlobalSearch';
+import { NotificationsDropdown } from './NotificationsDropdown';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -231,6 +232,9 @@ export function AppLayout({ children, currentPage, onNavigate, onNavigateToCommu
           </div>
 
           <div slot="end" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ position: 'relative' }}>
+              <NotificationsDropdown onNavigateToCommunication={onNavigateToCommunication} />
+            </div>
             <forge-icon-button aria-label="Help"
               onClick={() => onNavigate('help')}
               style={{ color: 'white' }}
