@@ -45,7 +45,7 @@
 | Student | string + avatar | Yes |
 | Driver | string | Yes |
 | Vehicle | string | Yes |
-| Route | string | Yes |
+| Run | string | Yes |
 | Type | string + badge | Yes |
 | Severity | enum + badge | Yes |
 | Status | enum + badge | Yes |

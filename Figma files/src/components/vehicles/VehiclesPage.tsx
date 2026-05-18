@@ -1,19 +1,24 @@
 import { useState, useEffect, useRef } from 'react';
-import { ForgeCard } from '@tylertech/forge-react';
-import { defineCardComponent, defineDialogComponent, defineTextFieldComponent } from '@tylertech/forge';
+import { ForgeCard, ForgeButton, useForgeToast } from '@tylertech/forge-react';
+import {
+  defineCardComponent,
+  defineDialogComponent,
+  defineTextFieldComponent,
+  defineButtonComponent,
+  defineBadgeComponent,
+  defineAutocompleteComponent,
+  defineIconComponent,
+} from '@tylertech/forge';
 defineCardComponent();
 defineDialogComponent();
 defineTextFieldComponent();
-import { Badge } from '../ui/badge';
-import { ForgeButton } from '@tylertech/forge-react';
-import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Search, Download, AlertTriangle, CheckCircle, Clock, Wrench, MapPin, User, Calendar, AlertCircle, TrendingUp, TrendingDown, ChevronUp, ChevronDown, ChevronsUpDown, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '../ui/command';
+defineBadgeComponent();
+defineAutocompleteComponent();
+defineIconComponent();
 import { ExportDropdown } from '../shared/ExportDropdown';
 import type { ExportFormat } from '../shared/ExportDropdown';
-import { toast } from 'sonner@2.0.3';
+import { ForgeMultiSelect } from '../ui/forge-multiselect';
 import { 
   BlueBirdVisionIcon, 
   ICBusCESeriesIcon, 
@@ -41,7 +46,7 @@ const getBusImage = (make: string, model: string) => {
 };
 
 // Mock vehicle data
-const mockVehicles = [
+export const mockVehicles = [
   {
     id: 'VEH-015',
     name: 'Bus 15',
@@ -104,7 +109,7 @@ const mockVehicles = [
     licensePlate: 'SCH-1012',
     capacity: 72,
     status: 'Active',
-    driver: 'Michael Chen',
+    driver: 'John Chen',
     primaryRoute: 'Meyers Middle AM - Yellow',
     secondaryRoute: 'Meyers Middle PM - Yellow',
     defaultGarage: 'North District Garage',
@@ -440,19 +445,19 @@ interface VehiclesPageProps {
 
 export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [maintenanceFilter, setMaintenanceFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [mileageRangeFilter, setMileageRangeFilter] = useState<string[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
-  const [vehicleLookupOpen, setVehicleLookupOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const dialogRef = useRef<HTMLElement>(null);
+  const toastHelper = useForgeToast();
 
   // Sorting state - default sort by vehicle name
   const [sortColumn, setSortColumn] = useState<'id' | 'details' | 'driver' | 'route' | 'status' | 'maintenance' | 'incidents' | 'mileage'>('details');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   // Pagination state
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Function to get bus icon based on make and model
@@ -480,6 +485,7 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
   const activeVehicles = mockVehicles.filter(v => v.status === 'Active').length;
   const inMaintenance = mockVehicles.filter(v => v.status === 'Maintenance').length;
   const needsAttention = mockVehicles.filter(v => v.maintenanceStatus === 'Needs Attention' || v.maintenanceStatus === 'In Repair').length;
+  const inactiveVehicles = mockVehicles.filter(v => v.status !== 'Active').length;
   const avgIncidents = (mockVehicles.reduce((sum, v) => sum + v.incidentCount, 0) / totalVehicles).toFixed(1);
   const avgMileage = Math.round(mockVehicles.reduce((sum, v) => sum + v.mileage, 0) / totalVehicles);
 
@@ -491,8 +497,12 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
       vehicle.driver.toLowerCase().includes(searchTerm.toLowerCase()) ||
       vehicle.primaryRoute.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = statusFilter === 'all' || vehicle.status === statusFilter;
-    const matchesMaintenance = maintenanceFilter === 'all' || vehicle.maintenanceStatus === maintenanceFilter;
+    const matchesStatus = statusFilter.length === 0 || statusFilter.includes(vehicle.status);
+    const bucketForMileage = (m: number): string => {
+      const bucket = Math.floor(m / 10000) * 10;
+      return `${bucket}k-${bucket + 10}k`;
+    };
+    const matchesMaintenance = mileageRangeFilter.length === 0 || mileageRangeFilter.includes(bucketForMileage(vehicle.mileage));
 
     return matchesSearch && matchesStatus && matchesMaintenance;
   });
@@ -525,7 +535,7 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
         compareResult = a.driver.localeCompare(b.driver);
         break;
       case 'route':
-        compareResult = a.primaryRoute.localeCompare(b.primaryRoute);
+        compareResult = (a.defaultGarage || '').localeCompare(b.defaultGarage || '');
         break;
       case 'status':
         compareResult = a.status.localeCompare(b.status);
@@ -554,7 +564,7 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, statusFilter, maintenanceFilter, rowsPerPage]);
+  }, [searchTerm, statusFilter, mileageRangeFilter, rowsPerPage]);
 
   useEffect(() => {
     const el = dialogRef.current as any;
@@ -573,11 +583,11 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
   // Render sort icon for column header
   const SortIcon = ({ column }: { column: typeof sortColumn }) => {
     if (sortColumn !== column) {
-      return <ChevronsUpDown className="h-4 w-4 ml-1 text-muted-foreground" />;
+      return <forge-icon name="unfold_more" style={{ fontSize: '14px', marginLeft: '4px', opacity: 0.5 }}></forge-icon>;
     }
     return sortDirection === 'asc' 
-      ? <ChevronUp className="h-4 w-4 ml-1" /> 
-      : <ChevronDown className="h-4 w-4 ml-1" />;
+      ? <forge-icon name="arrow_upward" style={{ fontSize: '14px', marginLeft: '4px' }}></forge-icon>
+      : <forge-icon name="arrow_downward" style={{ fontSize: '14px', marginLeft: '4px' }}></forge-icon>;
   };
 
   const getMaintenanceColor = (status: string) => {
@@ -599,39 +609,39 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
     switch (status) {
       case 'Excellent':
       case 'Good':
-        return <CheckCircle className="h-4 w-4" />;
+        return <forge-icon name="check_circle" style={{ fontSize: '16px' }}></forge-icon>;
       case 'Needs Attention':
-        return <AlertTriangle className="h-4 w-4" />;
+        return <forge-icon name="warning" style={{ fontSize: '16px' }}></forge-icon>;
       case 'In Repair':
-        return <Wrench className="h-4 w-4" />;
+        return <forge-icon name="build" style={{ fontSize: '16px' }}></forge-icon>;
       default:
-        return <Clock className="h-4 w-4" />;
+        return <forge-icon name="access_time" style={{ fontSize: '16px' }}></forge-icon>;
     }
   };
 
   const handleExport = (format: ExportFormat) => {
     const formatLabels: Record<ExportFormat, string> = {
-      excel: 'Excel Spreadsheet', word: 'Word Document', csv: 'CSV', 'csv-no-header': 'CSV (no header)',
+      excel: 'Excel Spreadsheet', csv: 'CSV',
     };
     const formatExtensions: Record<ExportFormat, string> = {
-      excel: 'xlsx', word: 'docx', csv: 'csv', 'csv-no-header': 'csv',
+      excel: 'xlsx', csv: 'csv',
     };
 
-    toast.success('Export started', {
-      description: `Preparing ${formatLabels[format]} export for vehicles data.`,
-    });
+    toastHelper[0]({
+      message: `Export started — preparing ${formatLabels[format]} for vehicles data.`,
+      theme: 'success',
+      duration: 3000,
+    } as any);
 
     setTimeout(() => {
-      const headers = ['Vehicle ID', 'Name', 'Make', 'Model', 'Year', 'Driver', 'Primary Route', 'Status', 'Maintenance', 'Incidents', 'Mileage', 'Last Inspection'];
+      const headers = ['Vehicle ID', 'Name', 'Make', 'Model', 'Year', 'Driver', 'Primary Run', 'Status', 'Maintenance', 'Incidents', 'Mileage', 'Last Inspection'];
       const rows = filteredVehicles.map(v => [
         v.id, v.name, v.make, v.model, v.year, `"${v.driver}"`,
         `"${v.primaryRoute}"`, v.status, v.maintenanceStatus,
         v.incidentCount, v.mileage, v.lastInspection
       ].join(','));
 
-      const csvContent = format === 'csv-no-header'
-        ? rows.join('\n')
-        : [headers.join(','), ...rows].join('\n');
+      const csvContent = [headers.join(','), ...rows].join('\n');
 
       const blob = new Blob([csvContent], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
@@ -643,9 +653,11 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
-      toast.success('Export complete', {
-        description: `Your ${formatLabels[format]} has been downloaded.`,
-      });
+      toastHelper[0]({
+        message: `Export complete — your ${formatLabels[format]} has been downloaded.`,
+        theme: 'success',
+        duration: 3000,
+      } as any);
     }, 1500);
   };
 
@@ -654,7 +666,7 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
       {/* Page Header */}
       <div className="flex items-center justify-between" style={{ marginBottom: 'var(--forge-spacing-large)' }}>
         <div>
-          <h1 style={{ margin: 0, marginBottom: '8px' }}>Fleet Management</h1>
+          <h1 style={{ margin: 0, marginBottom: '8px' }}>Vehicles</h1>
           <p className="text-muted-foreground" style={{ margin: 0 }}>
             Monitor and manage all district vehicles
           </p>
@@ -664,58 +676,30 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
       {/* Summary Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" style={{ marginBottom: 'var(--forge-spacing-large)' }}>
         <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500 }}>Total Vehicles</h3>
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: 'var(--brand-blue-dark)' }}>
-              {totalVehicles}
-            </div>
-            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: '4px' }}>
-              Active fleet size
-            </p>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--brand-blue-dark)', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>{totalVehicles}</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Total Vehicles</h3>
           </div>
         </ForgeCard>
 
         <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500 }}>Active Vehicles</h3>
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: 'var(--brand-olive-medium)' }}>
-              {activeVehicles}
-            </div>
-            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: '4px' }}>
-              {inMaintenance > 0 ? `${inMaintenance} in maintenance` : 'All operational'}
-            </p>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--brand-olive-medium)', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>{activeVehicles}</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Active Vehicles</h3>
           </div>
         </ForgeCard>
 
         <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500 }}>Maintenance Alerts</h3>
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: needsAttention > 0 ? '#dc2626' : 'var(--brand-blue-dark)' }}>
-              {needsAttention}
-            </div>
-            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: '4px' }}>
-              {needsAttention > 0 ? 'Vehicles need attention' : 'All vehicles good'}
-            </p>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: inactiveVehicles > 0 ? '#dc2626' : 'var(--brand-blue-dark)', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>{inactiveVehicles}</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Inactive Vehicles</h3>
           </div>
         </ForgeCard>
 
         <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500 }}>Avg. Incidents</h3>
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: 'var(--brand-blue-dark)' }}>
-              {avgIncidents}
-            </div>
-            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: '4px' }}>
-              Per vehicle this year
-            </p>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--brand-blue-dark)', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>{avgIncidents}</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Avg. Incidents</h3>
           </div>
         </ForgeCard>
       </div>
@@ -726,125 +710,54 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {/* Search */}
             <div className="md:col-span-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" style={{ zIndex: 1 }} />
-                {/* @ts-ignore */}
-                <forge-text-field>
-                  <input
-                    type="text"
-                    placeholder="Search vehicles, drivers, or routes..."
-                    value={searchTerm}
-                    onChange={(e) => {
-                      setSearchTerm(e.target.value);
-                      setVehicleLookupOpen(true);
-                    }}
-                    onFocus={() => setVehicleLookupOpen(true)}
-                    style={{ paddingLeft: '2rem' }}
-                  />
-                </forge-text-field>
-                {vehicleLookupOpen && searchTerm && (
-                  <div 
-                    className="absolute z-50 w-full mt-1 border rounded-md shadow-lg max-h-[400px] overflow-auto"
-                    style={{ 
-                      backgroundColor: 'var(--popover)', 
-                      borderColor: 'var(--border)',
-                      boxShadow: 'var(--forge-elevation-4)'
-                    }}
-                  >
-                    <Command>
-                      <CommandList>
-                        <CommandEmpty>No vehicle found.</CommandEmpty>
-                        <CommandGroup>
-                          {mockVehicles
-                            .filter((vehicle) =>
-                              vehicle.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              vehicle.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              vehicle.driver.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              vehicle.primaryRoute.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              vehicle.make.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              vehicle.model.toLowerCase().includes(searchTerm.toLowerCase())
-                            )
-                            .slice(0, 8)
-                            .map((vehicle) => (
-                              <CommandItem
-                                key={vehicle.id}
-                                value={vehicle.name}
-                                onSelect={() => {
-                                  setSearchTerm(vehicle.name);
-                                  setVehicleLookupOpen(false);
-                                }}
-                                style={{
-                                  cursor: 'pointer',
-                                  padding: 'var(--forge-spacing-small)',
-                                }}
-                              >
-                                <div className="flex flex-col w-full">
-                                  <div className="flex items-center justify-between">
-                                    <span style={{ fontWeight: 500 }}>{vehicle.name} - {vehicle.year} {vehicle.make} {vehicle.model}</span>
-                                    <Badge variant={vehicle.status === 'Active' ? 'default' : 'secondary'} style={{ fontSize: '0.75rem' }}>
-                                      {vehicle.status}
-                                    </Badge>
-                                  </div>
-                                  <div className="text-sm text-muted-foreground mt-1">
-                                    {vehicle.id} • Driver: {vehicle.driver}
-                                  </div>
-                                  <div className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
-                                    {vehicle.primaryRoute && (
-                                      <span className="flex items-center gap-1">
-                                        <MapPin className="h-3 w-3" />
-                                        {vehicle.primaryRoute}
-                                      </span>
-                                    )}
-                                    <span className="flex items-center gap-1">
-                                      <Badge variant={getMaintenanceColor(vehicle.maintenanceStatus)} style={{ fontSize: '0.65rem', padding: '2px 6px' }}>
-                                        {vehicle.maintenanceStatus}
-                                      </Badge>
-                                    </span>
-                                  </div>
-                                </div>
-                              </CommandItem>
-                            ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </div>
-                )}
-              </div>
+              <forge-text-field>
+                <forge-icon slot="start" name="search"></forge-icon>
+                <input
+                  type="text"
+                  placeholder="Search vehicles, drivers, or default garage..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </forge-text-field>
             </div>
 
             {/* Status Filter */}
-            <div>
-              {/* @ts-ignore */}
-              <forge-text-field>
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%', minWidth: '160px' }}
-                >
-                  <option value="all">All Statuses</option>
-                  <option value="Active">Active</option>
-                  <option value="Maintenance">Maintenance</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              </forge-text-field>
+            <div className="shrink-0">
+              <ForgeMultiSelect
+                options={[
+                  { value: 'Active', label: 'Active' },
+                  { value: 'Maintenance', label: 'Maintenance' },
+                  { value: 'Inactive', label: 'Inactive' },
+                ]}
+                selected={statusFilter}
+                onChange={setStatusFilter}
+                placeholder="Status"
+                allLabel="All Statuses"
+                width="180px"
+              />
             </div>
 
-            {/* Maintenance Filter */}
-            <div>
-              {/* @ts-ignore */}
-              <forge-text-field>
-                <select
-                  value={maintenanceFilter}
-                  onChange={(e) => setMaintenanceFilter(e.target.value)}
-                  style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%', minWidth: '180px' }}
-                >
-                  <option value="all">All Maintenance</option>
-                  <option value="Excellent">Excellent</option>
-                  <option value="Good">Good</option>
-                  <option value="Needs Attention">Needs Attention</option>
-                  <option value="In Repair">In Repair</option>
-                </select>
-              </forge-text-field>
+            {/* Mileage Range Filter */}
+            <div className="shrink-0">
+              <ForgeMultiSelect
+                options={[
+                  { value: '0k-10k', label: '0 – 10,000 mi' },
+                  { value: '10k-20k', label: '10,000 – 20,000 mi' },
+                  { value: '20k-30k', label: '20,000 – 30,000 mi' },
+                  { value: '30k-40k', label: '30,000 – 40,000 mi' },
+                  { value: '40k-50k', label: '40,000 – 50,000 mi' },
+                  { value: '50k-60k', label: '50,000 – 60,000 mi' },
+                  { value: '60k-70k', label: '60,000 – 70,000 mi' },
+                  { value: '70k-80k', label: '70,000 – 80,000 mi' },
+                  { value: '80k-90k', label: '80,000 – 90,000 mi' },
+                  { value: '90k-100k', label: '90,000 – 100,000 mi' },
+                ]}
+                selected={mileageRangeFilter}
+                onChange={setMileageRangeFilter}
+                placeholder="Mileage Range"
+                allLabel="All Ranges"
+                width="220px"
+              />
             </div>
           </div>
         </div>
@@ -897,7 +810,7 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
                       onClick={() => handleSort('route')}
                       className="flex items-center hover:text-primary transition-colors cursor-pointer"
                     >
-                      Primary Route
+                      Default Garage
                       <SortIcon column="route" />
                     </button>
                   </th>
@@ -936,6 +849,9 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
                     key={vehicle.id}
                     className="forge-table-row cursor-pointer"
                     onClick={() => { setSelectedVehicle(vehicle); setDialogOpen(true); }}
+                    style={{ transition: 'background-color 0.15s' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--forge-theme-primary-container-minimum)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
                   >
                     <td className="forge-table-cell">
                       <span style={{ fontWeight: 500, fontFamily: 'var(--forge-font-family)' }}>
@@ -949,14 +865,14 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
                     </td>
                     <td className="forge-table-cell">
                       <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-muted-foreground" />
+                        <forge-icon name="person" style={{ fontSize: '16px', color: 'var(--forge-theme-text-medium)' }}></forge-icon>
                         <span>{vehicle.driver}</span>
                       </div>
                     </td>
                     <td className="forge-table-cell">
                       <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span style={{ fontSize: '0.875rem' }}>{vehicle.primaryRoute || 'Unassigned'}</span>
+                        <forge-icon name="location_on" style={{ fontSize: '16px', color: 'var(--forge-theme-text-medium)' }}></forge-icon>
+                        <span style={{ fontSize: '0.875rem' }}>{vehicle.defaultGarage || 'Unassigned'}</span>
                       </div>
                     </td>
                     <td className="forge-table-cell">
@@ -965,21 +881,14 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
                       </span>
                     </td>
                     <td className="forge-table-cell">
-                      <div className="flex items-center gap-2">
-                        {vehicle.incidentCount > 8 ? (
-                          <TrendingUp className="h-4 w-4 text-destructive" />
-                        ) : vehicle.incidentCount < 4 ? (
-                          <TrendingDown className="h-4 w-4 text-green-600" />
-                        ) : null}
-                        <span style={{ fontWeight: vehicle.incidentCount > 8 ? 600 : 'normal' }}>
-                          {vehicle.incidentCount}
-                        </span>
-                      </div>
+                      <span style={{ fontWeight: vehicle.incidentCount > 8 ? 600 : 'normal' }}>
+                        {vehicle.incidentCount}
+                      </span>
                     </td>
                     <td className="forge-table-cell">
-                      <Badge variant={vehicle.status === 'Active' ? 'default' : 'secondary'}>
+                      <forge-badge theme={vehicle.status === 'Active' ? 'success' : 'default'}>
                         {vehicle.status}
-                      </Badge>
+                      </forge-badge>
                     </td>
                   </tr>
                 ))}
@@ -990,15 +899,15 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
           {/* Pagination Controls */}
           <div className="flex items-center justify-between" style={{ paddingTop: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--forge-color-border-subtle)', marginTop: 'var(--forge-spacing-medium)' }}>
             <div className="flex items-center" style={{ gap: 'var(--forge-spacing-small)' }}>
-              <span style={{ fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)', whiteSpace: 'nowrap' }}>
                 Showing {startIndex + 1}–{Math.min(startIndex + rowsPerPage, sortedVehicles.length)} of {sortedVehicles.length} vehicles
               </span>
-              {rowsPerPage === 10 && sortedVehicles.length > 10 && (
+              {rowsPerPage === 5 && sortedVehicles.length > 5 && (
                 <ForgeButton
                   variant="outlined"
-                  size="sm"
+                  dense
                   onClick={() => { setRowsPerPage(25); setCurrentPage(1); }}
-                  style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}
+                  style={{ fontSize: '0.75rem', fontFamily: 'var(--forge-font-family)' }}
                 >
                   Show 25
                 </ForgeButton>
@@ -1006,11 +915,11 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
               {rowsPerPage === 25 && (
                 <ForgeButton
                   variant="outlined"
-                  size="sm"
-                  onClick={() => { setRowsPerPage(10); setCurrentPage(1); }}
-                  style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}
+                  dense
+                  onClick={() => { setRowsPerPage(5); setCurrentPage(1); }}
+                  style={{ fontSize: '0.75rem', fontFamily: 'var(--forge-font-family)' }}
                 >
-                  Show 10
+                  Show 5
                 </ForgeButton>
               )}
             </div>
@@ -1024,7 +933,7 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   style={{ padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)' }}
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <forge-icon name="chevron_left" style={{ fontSize: '18px' }}></forge-icon>
                 </ForgeButton>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                   <ForgeButton
@@ -1032,7 +941,12 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
                     variant={page === currentPage ? 'raised' : 'outlined'}
                     size="sm"
                     onClick={() => setCurrentPage(page)}
-                    style={{ minWidth: '32px', padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)', fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}
+                    style={{
+                      ['--forge-button-min-width' as any]: '24px',
+                      ['--forge-button-padding-inline' as any]: '6px',
+                      fontSize: '0.75rem',
+                      fontFamily: 'var(--forge-font-family)',
+                    }}
                   >
                     {page}
                   </ForgeButton>
@@ -1044,7 +958,7 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   style={{ padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)' }}
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <forge-icon name="chevron_right" style={{ fontSize: '18px' }}></forge-icon>
                 </ForgeButton>
               </div>
             )}
@@ -1057,7 +971,7 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
         <div style={{ padding: 'var(--forge-spacing-large)', minWidth: '600px', maxWidth: '800px', maxHeight: '85vh', overflowY: 'auto' }}>
           <div className="flex items-center justify-between" style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
             <div>
-              <h2 style={{ margin: 0, fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)', fontSize: 'var(--forge-font-size-xl)' }}>
+              <h2 style={{ margin: 0, fontFamily: 'var(--forge-font-family)', fontWeight: 700, fontSize: 'var(--forge-font-size-xl)' }}>
                 Vehicle Details - {selectedVehicle?.id}
               </h2>
               <p style={{ margin: 0, marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>
@@ -1065,9 +979,9 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
               </p>
             </div>
             {selectedVehicle && (
-              <Badge variant={selectedVehicle.status === 'Active' ? 'default' : 'secondary'}>
+              <forge-badge theme={selectedVehicle.status === 'Active' ? 'success' : 'default'}>
                 {selectedVehicle.status}
-              </Badge>
+              </forge-badge>
             )}
           </div>
           {selectedVehicle && (
@@ -1142,20 +1056,16 @@ export function VehiclesPage({ onNavigate }: VehiclesPageProps) {
                   <div>
                     <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Assigned Driver</div>
                     <div className="flex items-center gap-2" style={{ marginTop: 'var(--forge-spacing-xxsmall)' }}>
-                      <User className="h-4 w-4 text-muted-foreground" />
+                      <forge-icon name="person" style={{ fontSize: '16px', color: 'var(--forge-theme-text-medium)' }}></forge-icon>
                       <span style={{ fontWeight: 500, fontFamily: 'var(--forge-font-family)' }}>{selectedVehicle.driver}</span>
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Primary Route</div>
+                    <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Primary Run</div>
                     <div className="flex items-center gap-2" style={{ marginTop: 'var(--forge-spacing-xxsmall)' }}>
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
+                      <forge-icon name="location_on" style={{ fontSize: '16px', color: 'var(--forge-theme-text-medium)' }}></forge-icon>
                       <span style={{ fontFamily: 'var(--forge-font-family)' }}>{selectedVehicle.primaryRoute || 'None'}</span>
                     </div>
-                  </div>
-                  <div>
-                    <div className="text-muted-foreground" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}>Secondary Route</div>
-                    <div style={{ fontFamily: 'var(--forge-font-family)', marginTop: 'var(--forge-spacing-xxsmall)' }}>{selectedVehicle.secondaryRoute || 'None'}</div>
                   </div>
                 </div>
               </div>

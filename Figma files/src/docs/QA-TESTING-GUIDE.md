@@ -57,10 +57,10 @@ The Student Transportation Incident Tracker is a comprehensive incident manageme
 
 ### Test Data Requirements
 - **Students**: At least 20 test student records across different grades and schools
-- **Drivers**: At least 10 test driver records with different routes
+- **Drivers**: At least 10 test driver records with different runs
 - **Vehicles**: At least 15 test vehicles with varying statuses
 - **Incidents**: Mix of student and driver incidents with varying severities
-- **Routes**: Multiple routes assigned to different drivers and vehicles
+- **Runs**: Multiple runs assigned to different drivers and vehicles
 
 ### Browser Support Matrix
 | Browser | Version | Desktop | Mobile | Priority |
@@ -425,7 +425,7 @@ The Student Transportation Incident Tracker is a comprehensive incident manageme
    - Student ID auto-fills
    - Student photo displays
    - Grade and school show
-   - Bus and route auto-populate
+   - Bus and run auto-populate
 
 **Expected Results**:
 - ✅ Autocomplete dropdown appears as you type
@@ -434,7 +434,7 @@ The Student Transportation Incident Tracker is a comprehensive incident manageme
 - ✅ Selecting a student populates all fields
 - ✅ Student photo displays in rounded frame
 - ✅ Student ID field becomes disabled/read-only
-- ✅ Bus and route fields auto-populate
+- ✅ Bus and run fields auto-populate
 
 **Edge Cases**:
 - [ ] Search with no results shows "No student found"
@@ -541,9 +541,9 @@ The Student Transportation Incident Tracker is a comprehensive incident manageme
 
 ---
 
-#### TC-FORM-007: Vehicle and Route Selection
+#### TC-FORM-007: Vehicle and Run Selection
 **Priority**: P1  
-**Description**: Verify vehicle and route dropdowns work correctly
+**Description**: Verify vehicle and run dropdowns work correctly
 
 **Test Steps**:
 1. Click "Vehicle Number" dropdown
@@ -554,9 +554,9 @@ The Student Transportation Incident Tracker is a comprehensive incident manageme
 
 **Expected Results**:
 - ✅ Vehicle dropdown displays all vehicles
-- ✅ Route dropdown displays all routes
-- ✅ Selecting a route with an assigned driver auto-fills driver field
-- ✅ Help text displays under route field
+- ✅ Run dropdown displays all runs
+- ✅ Selecting a run with an assigned driver auto-fills driver field
+- ✅ Help text displays under run field
 - ✅ Fields remain optional
 
 ---
@@ -973,7 +973,7 @@ The Student Transportation Incident Tracker is a comprehensive incident manageme
    - Grade
    - School
    - Bus
-   - Route
+   - Run
    - Actions
 
 **Expected Results**:
@@ -1012,13 +1012,13 @@ The Student Transportation Incident Tracker is a comprehensive incident manageme
 
 #### TC-STU-003: Student Filters
 **Priority**: P1  
-**Description**: Verify student filtering by grade, school, bus, route
+**Description**: Verify student filtering by grade, school, bus, run
 
 **Test Steps**:
 1. Test grade filter dropdown
 2. Test school filter dropdown
 3. Test bus filter
-4. Test route filter
+4. Test run filter
 5. Test multiple filters combined
 6. Clear all filters
 
@@ -1080,7 +1080,7 @@ The Student Transportation Incident Tracker is a comprehensive incident manageme
    - Photo
    - Name
    - Employee ID
-   - Routes
+   - Runs
    - Status
    - Actions
 
@@ -1088,7 +1088,7 @@ The Student Transportation Incident Tracker is a comprehensive incident manageme
 - ✅ All drivers display in table
 - ✅ Driver photos show correctly
 - ✅ Employee IDs are formatted properly
-- ✅ Routes list displays
+- ✅ Runs list displays
 - ✅ Status indicators show correctly
 
 ---
@@ -1117,13 +1117,13 @@ The Student Transportation Incident Tracker is a comprehensive incident manageme
 **Test Steps**:
 1. Click "View" on a driver
 2. Verify driver details display
-3. Check assigned routes
+3. Check assigned runs
 4. Check incident history (if applicable)
 
 **Expected Results**:
 - ✅ Profile view opens
 - ✅ All driver information displays
-- ✅ Assigned routes list correctly
+- ✅ Assigned runs list correctly
 - ✅ Incident history shows (if any)
 - ✅ Close/Back button works
 
@@ -1142,7 +1142,7 @@ The Student Transportation Incident Tracker is a comprehensive incident manageme
    - Vehicle number
    - Type (bus icon/image)
    - Status
-   - Route assignment
+   - Run assignment
    - Actions
 
 **Expected Results**:
@@ -1185,7 +1185,7 @@ The Student Transportation Incident Tracker is a comprehensive incident manageme
 1. Click on a vehicle or "View" button
 2. Verify vehicle details display
 3. Check maintenance history (if implemented)
-4. Check assigned route/driver
+4. Check assigned run/driver
 
 **Expected Results**:
 - ✅ Detail view opens

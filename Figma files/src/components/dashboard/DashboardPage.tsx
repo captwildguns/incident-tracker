@@ -1,15 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
-import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent, defineDialogComponent } from '@tylertech/forge';
+import { ForgeCard, ForgeButton, ForgeMenu, ForgeIconButton } from '@tylertech/forge-react';
+import { defineCardComponent, defineDialogComponent, defineBadgeComponent, defineMenuComponent, defineIconButtonComponent } from '@tylertech/forge';
 defineCardComponent();
 defineDialogComponent();
+defineBadgeComponent();
+defineMenuComponent();
+defineIconButtonComponent();
 import { EditIncidentDialog } from '../incidents/EditIncidentDialog';
-import { Badge } from '../ui/badge';
+import { mockIncidents } from '../incidents/IncidentsPage';
 import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { AlertCircle, CheckCircle, XCircle, TrendingUp, Clock, MessageSquare, Bell, AlertTriangle, ArrowRight, Mail, Users, TrendingDown, UserCheck, MoreVertical, Eye, Edit, CheckCheck, Send, UserPlus } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { toast } from 'sonner';
 
 // Mock current user - in production, this would come from authentication context
@@ -23,22 +24,22 @@ const incidentTypeData = [
   { name: 'Behavioral', value: 35, fill: '#4A6FA5' },
   { name: 'Safety Violation', value: 22, fill: '#5B8BB8' },
   { name: 'Aggression/Violence', value: 18, fill: '#8B9264' },
-  { name: 'Driver Defiance', value: 12, fill: '#9FA870' },
+  { name: 'Driver Non-Compliance', value: 12, fill: '#9FA870' },
   { name: 'Property Damage', value: 8, fill: '#6B9BC5' },
   { name: 'Prohibited Items', value: 5, fill: '#7B8458' },
 ];
 
-const incidentsByDriverData = [
-  { driver: 'M. Chen', incidents: 8 },
-  { driver: 'L. Anderson', incidents: 7 },
-  { driver: 'D. Park', incidents: 6 },
-  { driver: 'R. Martinez', incidents: 5 },
-  { driver: 'J. Martinez', incidents: 4 },
-  { driver: 'M. Washington', incidents: 3 },
-  { driver: 'R. Williams', incidents: 3 },
-  { driver: 'T. Nguyen', incidents: 2 },
-  { driver: 'D. Coleman', incidents: 2 },
-  { driver: 'A. Foster', incidents: 2 },
+const incidentsByVehicleData = [
+  { vehicle: 'Bus 15', incidents: 10 },
+  { vehicle: 'Bus 8', incidents: 9 },
+  { vehicle: 'Bus 12', incidents: 7 },
+  { vehicle: 'Bus 9', incidents: 7 },
+  { vehicle: 'Bus 14', incidents: 4 },
+  { vehicle: 'Bus 4', incidents: 3 },
+  { vehicle: 'Bus 6', incidents: 2 },
+  { vehicle: 'Bus 11', incidents: 2 },
+  { vehicle: 'Bus 10', incidents: 2 },
+  { vehicle: 'Bus 5', incidents: 1 },
 ];
 
 const incidentsByDayData = [
@@ -115,8 +116,8 @@ function CustomPieChart({ data }: { data: { name: string; value: number; fill: s
   );
 }
 
-// Custom SVG Horizontal Bar Chart (for Incidents by Driver - layout="vertical" means horizontal bars)
-function CustomHorizontalBarChart({ data }: { data: { driver: string; incidents: number }[] }) {
+// Custom SVG Horizontal Bar Chart (for Incidents by Vehicle)
+function CustomHorizontalBarChart({ data }: { data: { vehicle: string; incidents: number }[] }) {
   const maxValue = Math.max(...data.map(d => d.incidents));
   const barHeight = 22;
   const gap = 6;
@@ -138,7 +139,7 @@ function CustomHorizontalBarChart({ data }: { data: { driver: string; incidents:
                 textAnchor="end"
                 style={{ fontSize: '11px', fill: 'var(--forge-text-secondary, #666)', fontFamily: 'var(--forge-font-family, Roboto, sans-serif)' }}
               >
-                {item.driver}
+                {item.vehicle}
               </text>
               <rect
                 x={labelWidth}
@@ -148,7 +149,7 @@ function CustomHorizontalBarChart({ data }: { data: { driver: string; incidents:
                 rx={4}
                 fill="#4A6FA5"
               >
-                <title>{`${item.driver}: ${item.incidents} incidents`}</title>
+                <title>{`${item.vehicle}: ${item.incidents} incidents`}</title>
               </rect>
               <text
                 x={labelWidth + barWidth + 6}
@@ -172,46 +173,29 @@ function CustomVerticalBarChart({ data }: { data: { day: string; incidents: numb
   const barWidth = 36;
   const gap = 16;
   const totalWidth = data.length * (barWidth + gap);
-  const leftPad = 30;
+  const leftPad = 8;
   const bottomPad = 24;
-
-  // Y-axis ticks
-  const yTicks = [0, Math.round(maxValue / 2), maxValue];
+  const topPad = 20;
 
   return (
     <div style={{ height: 200, overflow: 'hidden' }}>
-      <svg width="100%" height={chartHeight + bottomPad + 10} viewBox={`0 0 ${leftPad + totalWidth + 10} ${chartHeight + bottomPad + 10}`} preserveAspectRatio="xMinYMin meet">
-        {/* Y-axis ticks */}
-        {yTicks.map((tick, i) => {
-          const y = chartHeight - (tick / maxValue) * chartHeight + 5;
-          return (
-            <g key={`ytick-${i}`}>
-              <text
-                x={leftPad - 6}
-                y={y + 3}
-                textAnchor="end"
-                style={{ fontSize: '11px', fill: 'var(--forge-text-secondary, #666)', fontFamily: 'var(--forge-font-family, Roboto, sans-serif)' }}
-              >
-                {tick}
-              </text>
-              <line
-                x1={leftPad}
-                x2={leftPad + totalWidth}
-                y1={y}
-                y2={y}
-                stroke="#e5e7eb"
-                strokeWidth={1}
-              />
-            </g>
-          );
-        })}
+      <svg width="100%" height={chartHeight + bottomPad + topPad} viewBox={`0 0 ${leftPad + totalWidth + 10} ${chartHeight + bottomPad + topPad}`} preserveAspectRatio="xMinYMin meet">
         {/* Bars */}
         {data.map((item, index) => {
           const barH = maxValue > 0 ? (item.incidents / maxValue) * chartHeight : 0;
           const x = leftPad + index * (barWidth + gap) + gap / 2;
-          const y = chartHeight - barH + 5;
+          const y = chartHeight - barH + topPad;
           return (
             <g key={`vbar-${index}`}>
+              {/* Value label above bar */}
+              <text
+                x={x + barWidth / 2}
+                y={y - 6}
+                textAnchor="middle"
+                style={{ fontSize: '12px', fontWeight: 600, fill: 'var(--forge-theme-text-high, #111)', fontFamily: 'var(--forge-font-family, Roboto, sans-serif)' }}
+              >
+                {item.incidents}
+              </text>
               <rect
                 x={x}
                 y={y}
@@ -224,7 +208,7 @@ function CustomVerticalBarChart({ data }: { data: { day: string; incidents: numb
               </rect>
               <text
                 x={x + barWidth / 2}
-                y={chartHeight + bottomPad}
+                y={chartHeight + topPad + 16}
                 textAnchor="middle"
                 style={{ fontSize: '11px', fill: 'var(--forge-text-secondary, #666)', fontFamily: 'var(--forge-font-family, Roboto, sans-serif)' }}
               >
@@ -238,53 +222,12 @@ function CustomVerticalBarChart({ data }: { data: { day: string; incidents: numb
   );
 }
 
-const activeIncidents = [
-  {
-    id: 'INC-2025-0044',
-    student: 'Christopher Adams',
-    studentId: 'STU-1016',
-    type: 'Physical Altercation',
-    description: 'Pushed another student causing minor injury',
-    bus: 'Vehicle 15',
-    route: 'Jefferson Middle AM - Blue',
-    driver: 'David Park',
-    time: '5 mins ago',
-    date: '2025-03-16',
-    severity: 'High',
-    status: 'Open',
-    assignedTo: 'Sarah Williams',
-  },
-  {
-    id: 'INC-2025-0043',
-    student: 'Victoria Martinez',
-    studentId: 'STU-9905',
-    type: 'Disruptive Volume',
-    description: 'Playing music loudly on phone without headphones',
-    bus: 'Vehicle 14',
-    route: 'Roosevelt High AM - Red',
-    driver: 'Robert Thompson',
-    time: '12 mins ago',
-    date: '2025-03-16',
-    severity: 'Medium',
-    status: 'Open',
-    assignedTo: 'Sarah Williams',
-  },
-  {
-    id: 'INC-2025-0042',
-    student: 'Sarah Mitchell',
-    studentId: 'STU-2891',
-    type: 'Seat Refusal',
-    description: 'Student refused to remain seated during transport',
-    bus: 'Vehicle 12',
-    route: 'Meyers Middle AM - Yellow',
-    driver: 'Michael Chen',
-    time: '2 hours ago',
-    date: '2025-03-15',
-    severity: 'Medium',
-    status: 'Open',
-    assignedTo: 'Sarah Williams',
-  },
-];
+const activeIncidents = (mockIncidents as any[])
+  .filter(i => i.status !== 'Closed')
+  .slice()
+  .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+  .slice(0, 5)
+  .map(i => ({ ...i, time: (i.date || '').replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$2-$3-$1') }));
 
 const needsAttention = [
   {
@@ -314,7 +257,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0051',
     student: 'Natalie Collins',
-    type: 'Offensive Language',
+    type: 'Disruptive Behavior',
     bus: 'Bus 8',
     reason: 'High severity - profanity directed at driver',
     priority: 'high',
@@ -326,7 +269,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0061',
     student: 'Kayla Bailey',
-    type: 'Taunting/Bullying',
+    type: 'Harassment / Bullying',
     bus: 'Bus 8',
     reason: 'High severity - bullying behavior requires intervention',
     priority: 'high',
@@ -338,7 +281,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0045',
     student: 'Grace Phillips',
-    type: 'Taunting/Bullying',
+    type: 'Harassment / Bullying',
     bus: 'Bus 9',
     reason: 'High severity - ongoing bullying of younger student',
     priority: 'high',
@@ -350,7 +293,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0043',
     student: 'Victoria Martinez',
-    type: 'Disruptive Volume',
+    type: 'Disruptive Behavior',
     bus: 'Bus 14',
     reason: 'Open incident requires assignment of action items',
     priority: 'medium',
@@ -362,7 +305,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0048',
     student: 'Joshua Parker',
-    type: 'Seat Refusal',
+    type: 'Safety Violation',
     bus: 'Bus 14',
     reason: 'Medium severity - sat in restricted driver area',
     priority: 'medium',
@@ -374,7 +317,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0057',
     student: 'Alexis Morgan',
-    type: 'Eating/Drinking Violation',
+    type: 'Safety Violation',
     bus: 'Bus 12',
     reason: 'Open incident - left mess requiring cleanup',
     priority: 'medium',
@@ -386,7 +329,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0055',
     student: 'Samantha Reed',
-    type: 'Vandalism',
+    type: 'Property Damage',
     bus: 'Bus 15',
     reason: 'Open incident - property damage requires parent meeting',
     priority: 'medium',
@@ -398,7 +341,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0053',
     student: 'Hannah Morris',
-    type: 'Taunting/Bullying',
+    type: 'Harassment / Bullying',
     bus: 'Bus 14',
     reason: 'In Progress - awaiting parent meeting follow-up',
     priority: 'medium',
@@ -422,7 +365,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0035',
     student: 'James Patterson',
-    type: 'Verbal Abuse toward Driver',
+    type: 'Driver Non-Compliance',
     bus: 'Bus 12',
     reason: 'Overdue - incident reported 24+ hours ago',
     priority: 'medium',
@@ -458,7 +401,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0040',
     student: 'Emma Rodriguez',
-    type: 'Taunting/Bullying',
+    type: 'Harassment / Bullying',
     bus: 'Bus 15',
     reason: 'Driver awaiting response - 2 unread messages',
     priority: 'high',
@@ -470,7 +413,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0041',
     student: 'Marcus Johnson',
-    type: 'Emergency Exit Misuse',
+    type: 'Safety Violation',
     bus: 'Bus 8',
     reason: 'High severity - requires immediate parent contact',
     priority: 'critical',
@@ -482,7 +425,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0042',
     student: 'Sarah Mitchell',
-    type: 'Seat Refusal',
+    type: 'Safety Violation',
     bus: 'Bus 12',
     reason: 'Driver awaiting response on behavior plan',
     priority: 'medium',
@@ -498,8 +441,8 @@ const unansweredCommunications = [
   {
     incidentId: 'INC-2025-0042',
     student: 'Sarah Mitchell',
-    driver: 'Michael Chen',
-    type: 'Seat Refusal',
+    driver: 'John Chen',
+    type: 'Safety Violation',
     lastMessage: 'She was trying to talk to friends in the back. When I asked her to sit down, she complied briefly but stood up again after a few minutes.',
     timeSent: '10:45 AM',
     severity: 'Medium',
@@ -508,7 +451,7 @@ const unansweredCommunications = [
     incidentId: 'INC-2025-0040',
     student: 'Emma Rodriguez',
     driver: 'David Park',
-    type: 'Taunting/Bullying',
+    type: 'Harassment / Bullying',
     lastMessage: 'Yes, I separated them and had Emma sit closer to the front. She stopped the verbal taunting but gave dirty looks. I think this needs parent involvement.',
     timeSent: 'Yesterday 4:30 PM',
     severity: 'High',
@@ -555,7 +498,7 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
   const availableAssignees = [
     'Sarah Williams',
     'Jane Doe',
-    'Michael Chen',
+    'John Chen',
     'David Park',
     'Robert Thompson',
   ];
@@ -597,6 +540,25 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
     }
   };
 
+  const getPriorityTheme = (priority: string): string => {
+    switch (priority) {
+      case 'critical': return 'danger';
+      case 'high': return 'error';
+      case 'medium': return 'warning';
+      case 'low': return 'info';
+      default: return 'default';
+    }
+  };
+  const getSeverityTheme = (severity: string): string => {
+    switch (severity) {
+      case 'Critical': return 'danger';
+      case 'High': return 'error';
+      case 'Medium': return 'warning';
+      case 'Low': return 'info';
+      default: return 'default';
+    }
+  };
+
   return (
     <div style={{ padding: 'var(--forge-spacing-xlarge)' }}>
       {/* Page Header */}
@@ -613,12 +575,12 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                <UserCheck className="h-5 w-5 text-blue-600" />
+                <forge-icon name="person" style={{ fontSize: '20px', color: '#2563eb' }}></forge-icon>
               </div>
               <div>
                 <h2 className="flex items-center gap-2" style={{ margin: 0 }}>
                   My Incidents
-                  <Badge className="bg-blue-600 text-white">{myIncidents.length}</Badge>
+                  <forge-badge theme="info-primary" strong>{myIncidents.length}</forge-badge>
                 </h2>
                 <p className="text-muted-foreground" style={{ fontSize: '0.875rem', margin: 0, marginTop: '4px' }}>
                   Assigned to {currentUser.name}
@@ -632,7 +594,7 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
               className="border-blue-600 text-blue-600 hover:bg-blue-50"
             >
               View All My Incidents
-              <ArrowRight className="h-4 w-4 ml-2" />
+              <forge-icon name="arrow_forward" style={{ fontSize: '16px', marginLeft: '8px' }}></forge-icon>
             </ForgeButton>
           </div>
 
@@ -645,25 +607,18 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
                   className="border hover:shadow-md transition-all border-l-4 relative"
                   style={{ boxShadow: 'var(--forge-elevation-1)', borderLeftColor: colors.borderLeft.split('-')[2] === 'red' ? '#dc2626' : colors.borderLeft.split('-')[2] === 'orange' ? '#ea580c' : '#f59e0b' }}
                 >
-                  <div style={{ padding: 'var(--forge-spacing-medium)' }}>
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <div 
-                        className="flex-1 cursor-pointer"
+                  <div style={{ padding: 'var(--forge-spacing-small) var(--forge-spacing-medium)' }}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div
+                        className="flex-1 cursor-pointer min-w-0"
                         onClick={() => {
                           if (onNavigateToIncidentDetail) {
-                            // Convert triage item to full incident format for navigation
-                            // Map priority to severity for workflow assignment
                             let severity = 'Medium';
-                            if (item.priority === 'critical') {
-                              severity = 'High';
-                            } else if (item.priority === 'high') {
-                              severity = 'High';
-                            } else if (item.priority === 'medium') {
-                              severity = 'Medium';
-                            } else if (item.priority === 'low') {
-                              severity = 'Low';
-                            }
-                            
+                            if (item.priority === 'critical') severity = 'High';
+                            else if (item.priority === 'high') severity = 'High';
+                            else if (item.priority === 'medium') severity = 'Medium';
+                            else if (item.priority === 'low') severity = 'Low';
+
                             const fullIncident = {
                               ...item,
                               description: item.reason,
@@ -671,162 +626,79 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
                               severity: severity,
                               status: 'Open',
                               date: new Date().toISOString().split('T')[0],
-                              studentId: '', // Will be populated from incidents page
-                              driver: '', // Will be populated from incidents page
-                              createdBy: '', // Will be populated from incidents page
+                              studentId: '',
+                              driver: '',
+                              createdBy: '',
                             };
                             onNavigateToIncidentDetail(fullIncident);
                           }
                         }}
                       >
-                        <div className="flex items-center gap-2">
-                          <div className="font-medium" style={{ fontSize: '0.875rem' }}>{item.id}</div>
-                        </div>
-                        <p className="text-muted-foreground" style={{ fontSize: '0.8125rem', margin: 0 }}>
+                        <div className="font-semibold" style={{ fontSize: '1rem', lineHeight: 1.2 }}>
                           {item.student}
-                        </p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={colors.badge} style={{ fontSize: '0.6875rem', padding: '2px 8px' }}>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <forge-badge theme={getPriorityTheme(item.priority)} strong>
                           {item.priority.toUpperCase()}
-                        </Badge>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                            <button
-                              className="h-8 w-8 p-0 inline-flex items-center justify-center rounded hover:bg-black/5"
-                              style={{
-                                backgroundColor: 'transparent',
-                                color: 'var(--forge-text-secondary, #6b7280)',
-                                border: 'none',
-                                cursor: 'pointer',
-                                flexShrink: 0,
-                              }}
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                              <span className="sr-only">Quick actions</span>
+                        </forge-badge>
+                        <ForgeMenu
+                          placement="bottom-end"
+                          options={[
+                            { label: 'Edit Incident', value: 'edit', icon: 'edit' },
+                            { label: 'Reassign', value: 'reassign', icon: 'person_add' },
+                          ]}
+                          on-forge-menu-select={(evt: any) => {
+                            evt.stopPropagation();
+                            const val = evt.detail?.value;
+                            if (val === 'edit') {
+                              setEditingIncident(item);
+                              setEditDialogOpen(true);
+                            } else if (val === 'reassign') {
+                              setReassigningIncident(item);
+                              setSelectedAssignee(item.assignedTo);
+                              setReassignDialogOpen(true);
+                            }
+                          }}
+                          onClick={(e: any) => e.stopPropagation()}
+                        >
+                          <ForgeIconButton aria-label="Quick actions">
+                            <button type="button" onClick={(e) => e.stopPropagation()}>
+                              <forge-icon name="more_vert"></forge-icon>
                             </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-56">
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (onNavigateToIncidentDetail) {
-                                  // Map priority to severity for workflow assignment
-                                  let severity = 'Medium';
-                                  if (item.priority === 'critical') {
-                                    severity = 'High';
-                                  } else if (item.priority === 'high') {
-                                    severity = 'High';
-                                  } else if (item.priority === 'medium') {
-                                    severity = 'Medium';
-                                  } else if (item.priority === 'low') {
-                                    severity = 'Low';
-                                  }
-                                  
-                                  const fullIncident = {
-                                    ...item,
-                                    description: item.reason,
-                                    route: item.bus,
-                                    severity: severity,
-                                    status: 'Open',
-                                    date: new Date().toISOString().split('T')[0],
-                                    studentId: '',
-                                    driver: '',
-                                    createdBy: '',
-                                  };
-                                  onNavigateToIncidentDetail(fullIncident);
-                                }
-                              }}
-                            >
-                              <Eye className="mr-2 h-4 w-4" />
-                              <span>View Details</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setEditingIncident(item);
-                                setEditDialogOpen(true);
-                              }}
-                            >
-                              <Edit className="mr-2 h-4 w-4" />
-                              <span>Edit Incident</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onNavigateToCommunication(item.id, {
-                                  student: item.student,
-                                  type: item.type,
-                                  bus: item.bus,
-                                  priority: item.priority,
-                                  assignedTo: item.assignedTo,
-                                });
-                              }}
-                            >
-                              <Send className="mr-2 h-4 w-4" />
-                              <span>Message Driver</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setReassigningIncident(item);
-                                setSelectedAssignee(item.assignedTo);
-                                setReassignDialogOpen(true);
-                              }}
-                            >
-                              <UserPlus className="mr-2 h-4 w-4" />
-                              <span>Reassign</span>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setInProgressItems(prev => {
-                                  const next = new Set(prev);
-                                  next.add(item.id);
-                                  return next;
-                                });
-                                toast.success('Status Updated', {
-                                  description: `${item.id} marked as In Progress`,
-                                });
-                              }}
-                            >
-                              {inProgressItems.has(item.id) ? (
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                              ) : (
-                                <Clock className="mr-2 h-4 w-4" />
-                              )}
-                              <span>{inProgressItems.has(item.id) ? 'In Progress' : 'Mark In Progress'}</span>
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                          </ForgeIconButton>
+                        </ForgeMenu>
                       </div>
                     </div>
 
-                    <div className="mb-2">
-                      <Badge variant="outline" style={{ fontSize: '0.75rem' }}>{item.type}</Badge>
+                    <div className="flex items-center justify-between gap-2" style={{ marginTop: '2px' }}>
+                      <p className="text-muted-foreground" style={{ fontSize: '0.75rem', margin: 0 }}>
+                        {item.id}
+                      </p>
+                      <forge-badge theme="default">{item.type}</forge-badge>
                     </div>
 
-                    <div className="flex items-center gap-1 text-muted-foreground mb-2" style={{ fontSize: '0.8125rem' }}>
-                      <Clock className="h-3 w-3" />
+                    <div className="flex items-center gap-1 text-muted-foreground" style={{ fontSize: '0.8125rem', marginTop: 'var(--forge-spacing-xsmall)' }}>
+                      <forge-icon name="access_time" style={{ fontSize: '12px' }}></forge-icon>
                       <span>{item.bus} • {item.time}</span>
                     </div>
 
-                    <div className="flex items-start gap-1 text-muted-foreground mb-3" style={{ fontSize: '0.8125rem' }}>
-                      <AlertCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                    <div className="flex items-start gap-1 text-muted-foreground" style={{ fontSize: '0.8125rem', marginTop: '2px', marginBottom: 'var(--forge-spacing-small)' }}>
+                      <forge-icon name="error" style={{ fontSize: '12px', marginTop: '2px', flexShrink: 0 }}></forge-icon>
                       <span>{item.reason}</span>
                     </div>
 
                     {/* Quick Action Buttons */}
                     <div style={{
                       display: 'flex', gap: 'var(--forge-spacing-xsmall)',
-                      paddingTop: 'var(--forge-spacing-small)',
+                      paddingTop: 'var(--forge-spacing-xsmall)',
                       borderTop: '1px solid var(--forge-theme-outline)',
                     }}>
-                      <button
-                        onClick={(e) => {
+                      <ForgeButton
+                        variant="outlined"
+                        className="incident-card-action-btn"
+                        style={{ flex: 1 }}
+                        onClick={(e: any) => {
                           e.stopPropagation();
                           if (onNavigateToIncidentDetail) {
                             let severity = 'Medium';
@@ -844,43 +716,29 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
                             onNavigateToIncidentDetail(fullIncident);
                           }
                         }}
-                        style={{
-                          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
-                          padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)',
-                          border: '1px solid var(--forge-theme-outline-medium)',
-                          borderRadius: 'var(--forge-shape-medium)',
-                          background: 'var(--forge-theme-surface)',
-                          cursor: 'pointer', fontFamily: 'Roboto, sans-serif', fontSize: '0.75rem',
-                          color: 'var(--forge-theme-text-high)',
-                        }}
                       >
-                        <Eye className="h-3 w-3" />
                         View
-                      </button>
-                      <button
-                        onClick={(e) => {
+                      </ForgeButton>
+                      <ForgeButton
+                        variant="outlined"
+                        className="incident-card-action-btn"
+                        style={{ flex: 1 }}
+                        onClick={(e: any) => {
                           e.stopPropagation();
                           onNavigateToCommunication(item.id, {
                             student: item.student, type: item.type, bus: item.bus,
                             priority: item.priority, assignedTo: item.assignedTo,
                           });
                         }}
-                        style={{
-                          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
-                          padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)',
-                          border: '1px solid var(--forge-theme-outline-medium)',
-                          borderRadius: 'var(--forge-shape-medium)',
-                          background: 'var(--forge-theme-surface)',
-                          cursor: 'pointer', fontFamily: 'Roboto, sans-serif', fontSize: '0.75rem',
-                          color: 'var(--forge-theme-text-high)',
-                        }}
                       >
-                        <MessageSquare className="h-3 w-3" />
                         Message
-                      </button>
-                      <button
+                      </ForgeButton>
+                      <ForgeButton
+                        variant="outlined"
                         disabled={inProgressItems.has(item.id)}
-                        onClick={(e) => {
+                        className="incident-card-action-btn"
+                        style={{ flex: 1 }}
+                        onClick={(e: any) => {
                           e.stopPropagation();
                           setInProgressItems(prev => {
                             const next = new Set(prev);
@@ -891,27 +749,9 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
                             description: `${item.id} has been marked as In Progress`,
                           });
                         }}
-                        style={{
-                          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px',
-                          padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)',
-                          border: inProgressItems.has(item.id)
-                            ? '1px solid #86efac'
-                            : '1px solid var(--forge-theme-outline-medium)',
-                          borderRadius: 'var(--forge-shape-medium)',
-                          background: inProgressItems.has(item.id) ? '#f0fdf4' : 'var(--forge-theme-surface)',
-                          cursor: inProgressItems.has(item.id) ? 'default' : 'pointer',
-                          fontFamily: 'Roboto, sans-serif', fontSize: '0.75rem',
-                          color: inProgressItems.has(item.id) ? '#15803d' : 'var(--forge-theme-text-high)',
-                          opacity: inProgressItems.has(item.id) ? 0.8 : 1,
-                        }}
                       >
-                        {inProgressItems.has(item.id) ? (
-                          <CheckCircle className="h-3 w-3" />
-                        ) : (
-                          <Clock className="h-3 w-3" />
-                        )}
                         {inProgressItems.has(item.id) ? 'In Progress' : 'Mark In Progress'}
-                      </button>
+                      </ForgeButton>
                     </div>
                   </div>
                 </ForgeCard>
@@ -926,17 +766,11 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
         <ForgeCard
           style={{ boxShadow: 'var(--forge-elevation-1)', cursor: 'pointer' }}
           className="hover:shadow-lg transition-shadow"
-          onClick={() => onNavigateToFilteredIncidents?.({ status: 'Open', severity: 'High' })}
+          onClick={() => onNavigateToFilteredIncidents?.({ status: 'Open', severity: 'Critical' })}
         >
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: '0.875rem', fontWeight: 500, fontFamily: 'var(--forge-font-family)' }}>Critical Incidents</h3>
-            <AlertTriangle className="h-4 w-4 text-red-600" />
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: '2rem', fontWeight: 600, color: '#dc2626', fontFamily: 'var(--forge-font-family)' }}>8</div>
-            <p className="text-muted-foreground" style={{ fontSize: '0.75rem', margin: 0, fontFamily: 'var(--forge-font-family)' }}>
-              High severity requiring action
-            </p>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: '#dc2626', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>1</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Critical Incidents</h3>
           </div>
         </ForgeCard>
 
@@ -945,15 +779,9 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
           className="hover:shadow-lg transition-shadow"
           onClick={() => onNavigateToFilteredIncidents?.({ status: 'Open' })}
         >
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: '0.875rem', fontWeight: 500, fontFamily: 'var(--forge-font-family)' }}>Open Incidents</h3>
-            <AlertCircle className="h-4 w-4 text-orange-500" />
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: '2rem', fontWeight: 600, color: 'var(--brand-blue-dark)', fontFamily: 'var(--forge-font-family)' }}>23</div>
-            <p className="text-muted-foreground" style={{ fontSize: '0.75rem', margin: 0, fontFamily: 'var(--forge-font-family)' }}>
-              <TrendingUp className="inline h-3 w-3" /> +12% from last month
-            </p>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--brand-blue-dark)', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>23</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Open Incidents</h3>
           </div>
         </ForgeCard>
 
@@ -962,15 +790,9 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
           className="hover:shadow-lg transition-shadow"
           onClick={() => onNavigateToStudentsWithActiveIncidents?.()}
         >
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: '0.875rem', fontWeight: 500, fontFamily: 'var(--forge-font-family)' }}>Students w/ Incidents</h3>
-            <Users className="h-4 w-4 text-purple-600" />
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: '2rem', fontWeight: 600, color: '#9333ea', fontFamily: 'var(--forge-font-family)' }}>26</div>
-            <p className="text-muted-foreground" style={{ fontSize: '0.75rem', margin: 0, fontFamily: 'var(--forge-font-family)' }}>
-              Click to view students with active incidents
-            </p>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: '#9333ea', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>26</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Students w/ Incidents</h3>
           </div>
         </ForgeCard>
 
@@ -984,30 +806,12 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
             onNavigateToFilteredIncidents?.({ status: 'Open', dateAfter: dateStr });
           }}
         >
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: '0.875rem', fontWeight: 500, fontFamily: 'var(--forge-font-family)' }}>Incidents This Week</h3>
-            <TrendingDown className="h-4 w-4 text-green-600" />
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: '2rem', fontWeight: 600, color: '#16a34a', fontFamily: 'var(--forge-font-family)' }}>12</div>
-            <p className="text-muted-foreground" style={{ fontSize: '0.75rem', margin: 0, fontFamily: 'var(--forge-font-family)' }}>
-              -18% from last week
-            </p>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: '#16a34a', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>12</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Incidents This Week</h3>
           </div>
         </ForgeCard>
 
-        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: '0.875rem', fontWeight: 500 }}>Avg Response Time</h3>
-            <Clock className="h-4 w-4 text-blue-500" />
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: '2rem', fontWeight: 600 }}>4.2<span style={{ fontSize: '1rem' }}>hrs</span></div>
-            <p className="text-muted-foreground" style={{ fontSize: '0.75rem', margin: 0 }}>
-              Target: {'<'} 6 hours
-            </p>
-          </div>
-        </ForgeCard>
       </div>
 
       {/* Charts Row */}
@@ -1022,13 +826,13 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
           </div>
         </ForgeCard>
 
-        {/* Incidents by Driver */}
+        {/* Incidents by Vehicle */}
         <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
           <div style={{ padding: 'var(--forge-spacing-medium)', paddingBottom: 'var(--forge-spacing-small)' }}>
-            <h3 className="forge-typography--heading4" style={{ fontSize: '1rem' }}>Incidents by Driver</h3>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '1rem' }}>Incidents by Vehicle</h3>
           </div>
           <div style={{ paddingTop: 0 }}>
-            <CustomHorizontalBarChart data={incidentsByDriverData} />
+            <CustomHorizontalBarChart data={incidentsByVehicleData} />
           </div>
         </ForgeCard>
 
@@ -1061,7 +865,17 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
                   <th className="forge-table-cell forge-table-cell--header">Type</th>
                   <th className="forge-table-cell forge-table-cell--header">Severity</th>
                   <th className="forge-table-cell forge-table-cell--header">Assigned To</th>
-                  <th className="forge-table-cell forge-table-cell--header">Time</th>
+                  <th
+                    className="forge-table-cell forge-table-cell--header"
+                    aria-sort="descending"
+                    title="Locked sort: newest first"
+                    style={{ cursor: 'default' }}
+                  >
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      Created On
+                      <forge-icon name="arrow_downward" style={{ fontSize: '14px', opacity: 0.8 }}></forge-icon>
+                    </span>
+                  </th>
                   <th className="forge-table-cell forge-table-cell--header">Messages</th>
                 </tr>
               </thead>
@@ -1088,15 +902,12 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
                     </td>
                     <td className="forge-table-cell" style={{ fontFamily: 'var(--forge-font-family)' }}>{incident.student}</td>
                     <td className="forge-table-cell">
-                      <Badge variant="outline" style={{ fontFamily: 'var(--forge-font-family)' }}>{incident.type}</Badge>
+                      <forge-badge theme="default">{incident.type}</forge-badge>
                     </td>
                     <td className="forge-table-cell">
-                      <Badge
-                        variant={incident.severity === 'High' ? 'destructive' : 'secondary'}
-                        style={{ fontFamily: 'var(--forge-font-family)' }}
-                      >
+                      <forge-badge theme={getSeverityTheme(incident.severity)} strong>
                         {incident.severity}
-                      </Badge>
+                      </forge-badge>
                     </td>
                     <td className="forge-table-cell" style={{ fontFamily: 'var(--forge-font-family)' }}>{incident.assignedTo}</td>
                     <td className="forge-table-cell" style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--forge-theme-text-low)' }}>
@@ -1110,7 +921,7 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
                           onClick={() => onNavigateToCommunication(incident.id)}
                           title="View driver communication"
                         >
-                          <MessageSquare className="h-4 w-4" />
+                          <forge-icon name="chat" style={{ fontSize: '16px' }}></forge-icon>
                         </ForgeButton>
                       )}
                     </td>
@@ -1139,13 +950,13 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
                 </div>
                 <div>
                   <div className="text-muted-foreground" style={{ fontSize: '0.875rem' }}>Priority</div>
-                  <Badge className={getPriorityColor(selectedTriageItem.priority).badge}>
+                  <forge-badge theme={getPriorityTheme(selectedTriageItem.priority)} strong>
                     {selectedTriageItem.priority.toUpperCase()}
-                  </Badge>
+                  </forge-badge>
                 </div>
                 <div>
                   <div className="text-muted-foreground" style={{ fontSize: '0.875rem' }}>Incident Type</div>
-                  <Badge variant="outline">{selectedTriageItem.type}</Badge>
+                  <forge-badge theme="default">{selectedTriageItem.type}</forge-badge>
                 </div>
                 <div>
                   <div className="text-muted-foreground" style={{ fontSize: '0.875rem' }}>Vehicle</div>
@@ -1162,7 +973,7 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
                   Why This Needs Attention
                 </div>
                 <Alert className={`${getPriorityColor(selectedTriageItem.priority).bg} border ${getPriorityColor(selectedTriageItem.priority).border}`}>
-                  <AlertCircle className="h-4 w-4" />
+                  <forge-icon name="error" style={{ fontSize: '16px' }}></forge-icon>
                   <AlertDescription className={getPriorityColor(selectedTriageItem.priority).text}>
                     {selectedTriageItem.reason}
                   </AlertDescription>
@@ -1188,7 +999,7 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
                   }}
                 >
                   Take Action on Incident
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <forge-icon name="arrow_forward" style={{ fontSize: '16px', marginLeft: '8px' }}></forge-icon>
                 </ForgeButton>
                 <ForgeButton
                   variant="outline"
@@ -1197,7 +1008,7 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
                     onNavigate('communications');
                   }}
                 >
-                  <MessageSquare className="mr-2 h-4 w-4" />
+                  <forge-icon name="chat" style={{ fontSize: '16px', marginRight: '8px' }}></forge-icon>
                   Message Driver
                 </ForgeButton>
               </div>

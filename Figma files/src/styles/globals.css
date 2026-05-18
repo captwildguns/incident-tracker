@@ -46,9 +46,14 @@
   --forge-theme-success-container: rgba(46, 125, 50, 0.12);
   --forge-theme-success-container-low: rgba(46, 125, 50, 0.08);
 
-  --forge-theme-warning: #E65100;
-  --forge-theme-warning-container: rgba(230, 81, 0, 0.12);
-  --forge-theme-warning-container-low: rgba(230, 81, 0, 0.08);
+  --forge-theme-warning: #D14900;
+  --forge-theme-warning-container: rgba(209, 73, 0, 0.12);
+  --forge-theme-warning-container-low: rgba(209, 73, 0, 0.08);
+
+  /* Critical severity — above error, used for weapon/immediate-danger incidents */
+  --forge-theme-critical: #6D0012;
+  --forge-theme-critical-container: rgba(109, 0, 18, 0.12);
+  --forge-theme-critical-container-low: rgba(109, 0, 18, 0.08);
 
   --forge-theme-info: #1565C0;
   --forge-theme-info-container: rgba(21, 101, 192, 0.12);
@@ -275,4 +280,37 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Hide scrollbar on drawer nav while keeping scroll behavior */
+.drawer-nav-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.drawer-nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Incident card action buttons: uniform size, 3 across */
+forge-button.incident-card-action-btn {
+  --forge-button-min-width: 0;
+  --forge-button-text-padding-inline: 8px;
+  --forge-button-padding-inline: 8px;
+  --forge-button-height: 36px;
+  font-size: 0.6875rem;
+  height: 36px;
+}
+forge-button.incident-card-action-btn::part(root) {
+  font-size: 0.6875rem !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  box-sizing: border-box !important;
+}
+
+/* Drawer nav list-items hover in brand blue */
+.drawer-nav-scroll forge-list-item,
+.drawer-nav-bottom forge-list-item {
+  --forge-state-layer-color: var(--forge-theme-primary);
+  --forge-state-layer-hover-opacity: 0.12;
 }

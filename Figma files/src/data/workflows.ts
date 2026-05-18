@@ -60,7 +60,7 @@ export const workflows: Workflow[] = [
     id: 'WF-001',
     name: 'Physical Altercation Response',
     description: 'Workflow for handling physical altercations between students requiring immediate intervention and parent notification',
-    incidentTypes: ['Physical Altercation', 'Physical Assault', 'Throwing Objects'],
+    incidentTypes: ['Physical Altercation'],
     severityLevels: ['High'],
     isActive: true,
     createdBy: 'Sarah Williams',
@@ -268,9 +268,9 @@ export const workflows: Workflow[] = [
   // ─────────────────────────────────────────────
   {
     id: 'WF-002',
-    name: 'Bullying & Harassment Investigation',
+    name: 'Harassment / Bullying Investigation',
     description: 'Comprehensive workflow for investigating and resolving bullying, taunting, harassment, and unwanted contact incidents',
-    incidentTypes: ['Taunting/Bullying', 'Student Harassment', 'Unwanted Physical Contact'],
+    incidentTypes: ['Harassment / Bullying'],
     severityLevels: ['High', 'Medium'],
     isActive: true,
     createdBy: 'Sarah Williams',
@@ -371,80 +371,10 @@ export const workflows: Workflow[] = [
     ],
   },
   {
-    id: 'WF-004',
-    name: 'Offensive Language Protocol',
-    description: 'Workflow for addressing inappropriate language and profanity incidents',
-    incidentTypes: ['Offensive Language'],
-    severityLevels: ['Medium', 'High'],
-    isActive: true,
-    createdBy: 'Sarah Williams',
-    createdDate: '2025-02-05',
-    lastModified: '2025-03-05',
-    steps: [
-      {
-        id: 'step-1',
-        name: 'Immediate Documentation',
-        description: 'Driver documents exact language used and context',
-        assignedRole: 'Driver',
-        estimatedDuration: '10 minutes',
-        required: true,
-        order: 1,
-        trigger: { type: 'manual' },
-      },
-      {
-        id: 'step-2',
-        name: 'Principal Review',
-        description: 'School principal reviews incident severity and determines appropriate response',
-        assignedRole: 'School Principal',
-        estimatedDuration: '20 minutes',
-        required: true,
-        order: 2,
-        trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: false,
-          notifyAssignee: true,
-          notifyApprovers: false,
-          additionalRecipients: [],
-        },
-      },
-      {
-        id: 'step-3',
-        name: 'Parent Conference',
-        description: 'Schedule and conduct parent conference to address behavior',
-        assignedRole: 'School Principal',
-        estimatedDuration: '30 minutes',
-        required: true,
-        order: 3,
-        trigger: { type: 'time-delay', delayAmount: 24, delayUnit: 'hours' },
-      },
-      {
-        id: 'step-4',
-        name: 'Disciplinary Action',
-        description: 'Implement appropriate disciplinary measures per district policy',
-        assignedRole: 'Administrator',
-        estimatedDuration: '15 minutes',
-        required: true,
-        order: 4,
-        requiresApproval: true,
-        approvers: ['Administrator'],
-        trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: true,
-          notifyAssignee: true,
-          notifyApprovers: true,
-          additionalRecipients: [],
-          emailTemplate: 'Approval Request',
-        },
-      },
-    ],
-  },
-  {
     id: 'WF-005',
-    name: 'Disruptive Behavior - Minor',
-    description: 'Quick resolution workflow for minor disruptive behaviors like loud music, yelling, or inappropriate affection',
-    incidentTypes: ['Disruptive Volume', 'Inappropriate Affection'],
+    name: 'Disruptive Behavior',
+    description: 'Workflow for disruptive behavior incidents including offensive language, excessive noise, inappropriate affection, unauthorized device usage, and unauthorized recording',
+    incidentTypes: ['Disruptive Behavior'],
     severityLevels: ['Low', 'Medium'],
     isActive: true,
     createdBy: 'Jane Doe',
@@ -476,7 +406,7 @@ export const workflows: Workflow[] = [
           notifyAssignee: false,
           notifyApprovers: false,
           additionalRecipients: [],
-          emailTemplate: 'Default Notification',
+          emailTemplate: 'Parent/Guardian Notification',
         },
       },
       {
@@ -577,75 +507,19 @@ export const workflows: Workflow[] = [
   // ─────────────────────────────────────────────
   {
     id: 'WF-003',
-    name: 'Seat & Seatbelt Compliance',
-    description: 'Workflow for handling seat refusal, seatbelt refusal, and unsafe movement on the bus',
-    incidentTypes: ['Seat Refusal', 'Seatbelt Refusal', 'Unsafe Movement', 'Window Misuse'],
+    name: 'Safety Violation Response',
+    description: 'Workflow for all student safety violations on the bus including seat/seatbelt refusal, unsafe movement, window misuse, emergency exit misuse, wrong stop exit, and eating/drinking',
+    incidentTypes: ['Safety Violation'],
     severityLevels: ['Low', 'Medium', 'High'],
     isActive: true,
     createdBy: 'Jane Doe',
     createdDate: '2025-02-01',
-    lastModified: '2025-03-01',
-    steps: [
-      {
-        id: 'step-1',
-        name: 'Driver Verbal Warning',
-        description: 'Driver issues verbal warning, re-seats student if needed, and documents incident',
-        assignedRole: 'Driver',
-        estimatedDuration: '5 minutes',
-        required: true,
-        order: 1,
-        trigger: { type: 'manual' },
-      },
-      {
-        id: 'step-2',
-        name: 'Parent Notification',
-        description: 'Send automated notification to parent about safety compliance issue',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '10 minutes',
-        required: true,
-        order: 2,
-        trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: false,
-          notifyAssignee: true,
-          notifyApprovers: false,
-          additionalRecipients: [],
-          emailTemplate: 'Default Notification',
-        },
-      },
-      {
-        id: 'step-3',
-        name: 'Escalation Review (if repeated)',
-        description: 'Review student history and escalate if this is a repeat offense',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '15 minutes',
-        required: false,
-        order: 3,
-        trigger: {
-          type: 'conditional',
-          conditions: [
-            { field: 'repeatOffense', operator: 'equals', value: 'true' },
-          ],
-        },
-      },
-    ],
-  },
-  {
-    id: 'WF-009',
-    name: 'Emergency Safety Response',
-    description: 'Workflow for high-risk safety violations including emergency exit misuse and wrong stop exit',
-    incidentTypes: ['Emergency Exit Misuse', 'Wrong Stop Exit'],
-    severityLevels: ['Medium', 'High'],
-    isActive: true,
-    createdBy: 'Sarah Williams',
-    createdDate: '2025-02-22',
     lastModified: '2025-03-16',
     steps: [
       {
         id: 'step-1',
         name: 'Immediate Safety Response',
-        description: 'Driver secures the bus, accounts for all students, and ensures no one is in danger',
+        description: 'Driver addresses the safety issue, secures the situation, and documents the incident',
         assignedRole: 'Driver',
         estimatedDuration: '10 minutes',
         required: true,
@@ -655,7 +529,7 @@ export const workflows: Workflow[] = [
       {
         id: 'step-2',
         name: 'Dispatch & Safety Coordinator Alert',
-        description: 'Notify dispatch and safety coordinator immediately; request assistance if student left the bus at wrong location',
+        description: 'For high-severity situations (emergency exit, wrong stop): notify dispatch and safety coordinator immediately',
         assignedRole: 'Safety Coordinator',
         estimatedDuration: '10 minutes',
         required: true,
@@ -663,18 +537,18 @@ export const workflows: Workflow[] = [
         trigger: { type: 'auto-complete' },
         emailNotifications: {
           notifyOnStart: true,
-          notifyOnComplete: true,
+          notifyOnComplete: false,
           notifyAssignee: true,
           notifyApprovers: false,
           additionalRecipients: ['dispatch@district.edu'],
-          emailTemplate: 'Urgent Action Required',
+          emailTemplate: 'Parent/Guardian Notification',
         },
       },
       {
         id: 'step-3',
         name: 'Parent Notification',
-        description: 'Contact parent/guardian immediately to inform them of the safety incident',
-        assignedRole: 'School Principal',
+        description: 'Contact parent/guardian to inform them of the safety violation and reinforce bus safety expectations',
+        assignedRole: 'Safety Coordinator',
         estimatedDuration: '15 minutes',
         required: true,
         order: 3,
@@ -685,19 +559,23 @@ export const workflows: Workflow[] = [
           notifyAssignee: true,
           notifyApprovers: false,
           additionalRecipients: [],
+          emailTemplate: 'Parent/Guardian Notification',
         },
       },
       {
         id: 'step-4',
         name: 'Safety Review & Disciplinary Action',
-        description: 'Review incident for safety protocol improvements and determine disciplinary measures',
+        description: 'Review incident severity and history. Determine if disciplinary measures are warranted.',
         assignedRole: 'Administrator',
-        estimatedDuration: '30 minutes',
-        required: true,
+        estimatedDuration: '20 minutes',
+        required: false,
         order: 4,
         requiresApproval: true,
         approvers: ['Administrator'],
-        trigger: { type: 'auto-complete' },
+        trigger: {
+          type: 'conditional',
+          conditions: [{ field: 'severity', operator: 'in', value: 'High' }],
+        },
         emailNotifications: {
           notifyOnStart: true,
           notifyOnComplete: true,
@@ -712,73 +590,19 @@ export const workflows: Workflow[] = [
         name: 'Documentation & Close',
         description: 'Complete all documentation and close the incident',
         assignedRole: 'Safety Coordinator',
-        estimatedDuration: '15 minutes',
-        required: true,
-        order: 5,
-        trigger: { type: 'approval-granted' },
-      },
-    ],
-  },
-  {
-    id: 'WF-007',
-    name: 'Food & Beverage Violation',
-    description: 'Simple workflow for handling eating/drinking violations on buses',
-    incidentTypes: ['Eating/Drinking Violation'],
-    severityLevels: ['Low', 'Medium'],
-    isActive: true,
-    createdBy: 'Jane Doe',
-    createdDate: '2025-02-20',
-    lastModified: '2025-02-25',
-    steps: [
-      {
-        id: 'step-1',
-        name: 'Driver Warning & Cleanup',
-        description: 'Driver issues warning and has student clean up mess if applicable',
-        assignedRole: 'Driver',
         estimatedDuration: '10 minutes',
         required: true,
-        order: 1,
-        trigger: { type: 'manual' },
-      },
-      {
-        id: 'step-2',
-        name: 'Parent Notification',
-        description: 'Send notification to parent about bus rules',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '5 minutes',
-        required: true,
-        order: 2,
+        order: 5,
         trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: false,
-          notifyOnComplete: false,
-          notifyAssignee: false,
-          notifyApprovers: false,
-          additionalRecipients: [],
-          emailTemplate: 'Default Notification',
-        },
-      },
-      {
-        id: 'step-3',
-        name: 'Review & Close',
-        description: 'Safety coordinator reviews and closes incident',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '5 minutes',
-        required: true,
-        order: 3,
-        trigger: { type: 'time-delay', delayAmount: 24, delayUnit: 'hours' },
       },
     ],
   },
 
-  // ─────────────────────────────────────────────
-  // DRIVER DEFIANCE (student toward driver)
-  // ─────────────────────────────────────────────
   {
     id: 'WF-010',
-    name: 'Driver Defiance & Harassment Protocol',
-    description: 'Workflow for student defiance, harassment, or threats directed at the bus driver',
-    incidentTypes: ['Driver Defiance', 'Driver Harassment', 'Driver Threat', 'Verbal Abuse toward Driver'],
+    name: 'Driver Non-Compliance Protocol',
+    description: 'Workflow for all student behavior directed at the bus driver including defiance, verbal abuse, harassment, and threatening behavior',
+    incidentTypes: ['Driver Non-Compliance'],
     severityLevels: ['Medium', 'High'],
     isActive: true,
     createdBy: 'Sarah Williams',
@@ -869,7 +693,7 @@ export const workflows: Workflow[] = [
     id: 'WF-006',
     name: 'Property Damage Investigation',
     description: 'Workflow for investigating and resolving vandalism and property damage incidents',
-    incidentTypes: ['Vandalism'],
+    incidentTypes: ['Property Damage'],
     severityLevels: ['Medium', 'High'],
     isActive: true,
     createdBy: 'Sarah Williams',
@@ -953,7 +777,7 @@ export const workflows: Workflow[] = [
     id: 'WF-011',
     name: 'Prohibited Items Response',
     description: 'Workflow for handling possession of prohibited items including tobacco, harmful items, illegal substances, and inappropriate materials',
-    incidentTypes: ['Tobacco/Vaping', 'Harmful Items', 'Illegal Substances', 'Inappropriate Material', 'Weapon Possession'],
+    incidentTypes: ['Prohibited Items', 'Weapon Possession'],
     severityLevels: ['Medium', 'High'],
     isActive: true,
     createdBy: 'Sarah Williams',
@@ -1038,535 +862,6 @@ export const workflows: Workflow[] = [
     ],
   },
 
-  // ─────────────────────────────────────────────
-  // PRIVACY VIOLATION
-  // ─────────────────────────────────────────────
-  {
-    id: 'WF-012',
-    name: 'Privacy Violation Response',
-    description: 'Workflow for handling unauthorized recording or photography on the bus',
-    incidentTypes: ['Unauthorized Recording'],
-    severityLevels: ['Medium', 'High'],
-    isActive: true,
-    createdBy: 'Jane Doe',
-    createdDate: '2025-03-01',
-    lastModified: '2025-03-16',
-    steps: [
-      {
-        id: 'step-1',
-        name: 'Immediate Intervention',
-        description: 'Driver instructs student to stop recording immediately and documents the incident',
-        assignedRole: 'Driver',
-        estimatedDuration: '5 minutes',
-        required: true,
-        order: 1,
-        trigger: { type: 'manual' },
-      },
-      {
-        id: 'step-2',
-        name: 'Safety Coordinator Review',
-        description: 'Review what was recorded, assess privacy impact, and determine if content was shared online',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '30 minutes',
-        required: true,
-        order: 2,
-        trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: true,
-          notifyAssignee: true,
-          notifyApprovers: false,
-          additionalRecipients: [],
-        },
-      },
-      {
-        id: 'step-3',
-        name: 'Parent Notification & Content Removal',
-        description: 'Contact parent/guardian; request deletion of any recordings and removal from social media if shared',
-        assignedRole: 'School Principal',
-        estimatedDuration: '30 minutes',
-        required: true,
-        order: 3,
-        trigger: { type: 'auto-complete' },
-      },
-      {
-        id: 'step-4',
-        name: 'Disciplinary Action & Close',
-        description: 'Implement disciplinary measures per district privacy policy and close case',
-        assignedRole: 'Administrator',
-        estimatedDuration: '20 minutes',
-        required: true,
-        order: 4,
-        trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: true,
-          notifyAssignee: true,
-          notifyApprovers: false,
-          additionalRecipients: [],
-        },
-      },
-    ],
-  },
-
-  // ─────────────────────────────────────────────
-  // DRIVER OPERATIONAL
-  // ─────────────────────────────────────────────
-  {
-    id: 'WF-015',
-    name: 'Driver Operational Review',
-    description: 'Workflow for reviewing and resolving driver operational incidents such as late arrivals, route deviations, missed stops, policy violations, and communication issues',
-    incidentTypes: ['Late Arrival', 'Route Deviation', 'Missed Stop', 'Policy Violation', 'Communication Issue'],
-    severityLevels: ['Low', 'Medium'],
-    isActive: true,
-    createdBy: 'Jane Doe',
-    createdDate: '2025-03-05',
-    lastModified: '2025-03-16',
-    steps: [
-      {
-        id: 'step-1',
-        name: 'Incident Documentation',
-        description: 'Document the operational incident including time, location, affected routes, and number of students impacted',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '15 minutes',
-        required: true,
-        order: 1,
-        trigger: { type: 'manual' },
-      },
-      {
-        id: 'step-2',
-        name: 'Driver Statement & Review',
-        description: 'Obtain driver statement and review GPS/route data to verify the incident details',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '20 minutes',
-        required: true,
-        order: 2,
-        trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: false,
-          notifyAssignee: true,
-          notifyApprovers: false,
-          additionalRecipients: [],
-        },
-      },
-      {
-        id: 'step-3',
-        name: 'Supervisor Review & Corrective Action',
-        description: 'Transportation supervisor reviews incident and determines if corrective action, retraining, or disciplinary measures are needed',
-        assignedRole: 'Administrator',
-        estimatedDuration: '30 minutes',
-        required: true,
-        order: 3,
-        trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: true,
-          notifyAssignee: true,
-          notifyApprovers: false,
-          additionalRecipients: [],
-        },
-      },
-      {
-        id: 'step-4',
-        name: 'Documentation & Close',
-        description: 'Record corrective action taken, update driver file if needed, and close incident',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '10 minutes',
-        required: true,
-        order: 4,
-        trigger: { type: 'auto-complete' },
-      },
-    ],
-  },
-
-  // ─────────────────────────────────────────────
-  // DRIVER SAFETY
-  // ─────────────────────────────────────────────
-  {
-    id: 'WF-016',
-    name: 'Driver Safety Investigation',
-    description: 'Workflow for investigating serious driver safety violations including unsafe driving, distracted driving, equipment violations, and loading/unloading safety issues',
-    incidentTypes: ['Unsafe Driving', 'Distracted Driving', 'Equipment Safety Violation', 'Loading/Unloading Safety Issue'],
-    severityLevels: ['Medium', 'High'],
-    isActive: true,
-    createdBy: 'Sarah Williams',
-    createdDate: '2025-03-05',
-    lastModified: '2025-03-16',
-    steps: [
-      {
-        id: 'step-1',
-        name: 'Immediate Safety Assessment',
-        description: 'Assess if the driver should be immediately removed from route; pull driver from service if safety risk is ongoing',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '15 minutes',
-        required: true,
-        order: 1,
-        trigger: { type: 'manual' },
-      },
-      {
-        id: 'step-2',
-        name: 'Evidence Collection & Driver Statement',
-        description: 'Collect dashcam footage, GPS data, witness statements, and obtain the driver written statement',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '45 minutes',
-        required: true,
-        order: 2,
-        trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: true,
-          notifyAssignee: true,
-          notifyApprovers: false,
-          additionalRecipients: [],
-        },
-      },
-      {
-        id: 'step-3',
-        name: 'Formal Investigation Review',
-        description: 'Transportation director conducts formal review of all evidence and determines findings',
-        assignedRole: 'Administrator',
-        estimatedDuration: '1 hour',
-        required: true,
-        order: 3,
-        requiresApproval: true,
-        approvers: ['Administrator'],
-        trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: true,
-          notifyAssignee: true,
-          notifyApprovers: true,
-          additionalRecipients: [],
-          emailTemplate: 'Approval Request',
-        },
-      },
-      {
-        id: 'step-4',
-        name: 'Corrective Action & Retraining',
-        description: 'Implement corrective action: written warning, mandatory retraining, suspension, or termination per policy',
-        assignedRole: 'Administrator',
-        estimatedDuration: '30 minutes',
-        required: true,
-        order: 4,
-        trigger: { type: 'approval-granted' },
-      },
-      {
-        id: 'step-5',
-        name: 'Documentation & Close',
-        description: 'Update driver personnel file, complete all documentation, and close investigation',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '20 minutes',
-        required: true,
-        order: 5,
-        trigger: { type: 'auto-complete' },
-      },
-    ],
-  },
-
-  // ─────────────────────────────────────────────
-  // VEHICLE INCIDENTS
-  // ─────────────────────────────────────────────
-  {
-    id: 'WF-017',
-    name: 'Vehicle Accident Response',
-    description: 'Comprehensive workflow for major vehicle accidents and collisions with other vehicles',
-    incidentTypes: ['Vehicle Accident', 'Collision with Vehicle'],
-    severityLevels: ['High'],
-    isActive: true,
-    createdBy: 'Sarah Williams',
-    createdDate: '2025-03-08',
-    lastModified: '2025-03-16',
-    steps: [
-      {
-        id: 'step-1',
-        name: 'Emergency Response & Student Safety',
-        description: 'Ensure all students are safe; call 911 if injuries; do not move the vehicle unless directed by emergency services',
-        assignedRole: 'Driver',
-        estimatedDuration: '15 minutes',
-        required: true,
-        order: 1,
-        trigger: { type: 'manual' },
-      },
-      {
-        id: 'step-2',
-        name: 'Dispatch & Administration Notification',
-        description: 'Notify dispatch, safety coordinator, and administration immediately with location and status',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '10 minutes',
-        required: true,
-        order: 2,
-        trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: true,
-          notifyAssignee: true,
-          notifyApprovers: false,
-          additionalRecipients: ['dispatch@district.edu', 'fleet@district.edu'],
-          emailTemplate: 'Urgent Action Required',
-        },
-      },
-      {
-        id: 'step-3',
-        name: 'Parent Notification (All Students)',
-        description: 'Contact parents/guardians of ALL students on the bus at the time of the accident',
-        assignedRole: 'School Principal',
-        estimatedDuration: '1 hour',
-        required: true,
-        order: 3,
-        trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: false,
-          notifyAssignee: true,
-          notifyApprovers: false,
-          additionalRecipients: [],
-        },
-      },
-      {
-        id: 'step-4',
-        name: 'Police Report & Insurance Documentation',
-        description: 'Obtain police report, file insurance claim, photograph all damage, and collect witness information',
-        assignedRole: 'Fleet Manager',
-        estimatedDuration: '2 hours',
-        required: true,
-        order: 4,
-        trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: true,
-          notifyAssignee: true,
-          notifyApprovers: false,
-          additionalRecipients: ['insurance@district.edu'],
-        },
-      },
-      {
-        id: 'step-5',
-        name: 'Post-Accident Driver Review',
-        description: 'Conduct post-accident review; drug/alcohol testing per DOT requirements if applicable',
-        assignedRole: 'Administrator',
-        estimatedDuration: '1 hour',
-        required: true,
-        order: 5,
-        requiresApproval: true,
-        approvers: ['Administrator', 'District Superintendent'],
-        trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: true,
-          notifyAssignee: true,
-          notifyApprovers: true,
-          additionalRecipients: [],
-          emailTemplate: 'Approval Request',
-        },
-      },
-      {
-        id: 'step-6',
-        name: 'Vehicle Repair & Return to Service',
-        description: 'Coordinate vehicle repair, safety inspection, and return-to-service certification',
-        assignedRole: 'Fleet Manager',
-        estimatedDuration: '1–5 days',
-        required: true,
-        order: 6,
-        trigger: { type: 'approval-granted' },
-      },
-      {
-        id: 'step-7',
-        name: 'Final Documentation & Close',
-        description: 'Complete all documentation, update fleet records, and close the incident',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '30 minutes',
-        required: true,
-        order: 7,
-        trigger: { type: 'auto-complete' },
-      },
-    ],
-  },
-  {
-    id: 'WF-018',
-    name: 'Minor Vehicle Incident',
-    description: 'Streamlined workflow for minor vehicle incidents such as bumping, backing incidents, mirror strikes, object collisions, and property damage',
-    incidentTypes: ['Vehicle Bumping/Light Contact', 'Collision with Object', 'Backing Incident', 'Mirror Strike', 'Property Damage'],
-    severityLevels: ['Low', 'Medium'],
-    isActive: true,
-    createdBy: 'Jane Doe',
-    createdDate: '2025-03-08',
-    lastModified: '2025-03-16',
-    steps: [
-      {
-        id: 'step-1',
-        name: 'Scene Documentation',
-        description: 'Driver photographs damage to bus and any other property/vehicle; exchange information if another party is involved',
-        assignedRole: 'Driver',
-        estimatedDuration: '15 minutes',
-        required: true,
-        order: 1,
-        trigger: { type: 'manual' },
-      },
-      {
-        id: 'step-2',
-        name: 'Fleet Manager & Safety Review',
-        description: 'Fleet manager assesses damage; safety coordinator reviews dashcam footage and driver statement',
-        assignedRole: 'Fleet Manager',
-        estimatedDuration: '30 minutes',
-        required: true,
-        order: 2,
-        trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: true,
-          notifyAssignee: true,
-          notifyApprovers: false,
-          additionalRecipients: ['maintenance@district.edu'],
-        },
-      },
-      {
-        id: 'step-3',
-        name: 'Corrective Action (if needed)',
-        description: 'Determine if driver retraining, route modification, or other corrective action is needed',
-        assignedRole: 'Administrator',
-        estimatedDuration: '20 minutes',
-        required: false,
-        order: 3,
-        trigger: { type: 'auto-complete' },
-      },
-      {
-        id: 'step-4',
-        name: 'Repair & Documentation Close',
-        description: 'Schedule repair if needed, complete documentation, and close incident',
-        assignedRole: 'Fleet Manager',
-        estimatedDuration: '30 minutes',
-        required: true,
-        order: 4,
-        trigger: { type: 'auto-complete' },
-      },
-    ],
-  },
-  {
-    id: 'WF-019',
-    name: 'Vehicle Mechanical Response',
-    description: 'Workflow for handling mechanical failures and vehicle breakdowns during service',
-    incidentTypes: ['Mechanical Failure', 'Vehicle Breakdown'],
-    severityLevels: ['Medium', 'High'],
-    isActive: true,
-    createdBy: 'Jane Doe',
-    createdDate: '2025-03-10',
-    lastModified: '2025-03-16',
-    steps: [
-      {
-        id: 'step-1',
-        name: 'Safe Stop & Student Safety',
-        description: 'Driver pulls over safely, secures the bus, and ensures all students are safe; contact dispatch for replacement vehicle',
-        assignedRole: 'Driver',
-        estimatedDuration: '10 minutes',
-        required: true,
-        order: 1,
-        trigger: { type: 'manual' },
-      },
-      {
-        id: 'step-2',
-        name: 'Dispatch Replacement & Parent Notification',
-        description: 'Dispatch a replacement bus; notify parents of delay and any route changes',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '20 minutes',
-        required: true,
-        order: 2,
-        trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: true,
-          notifyAssignee: true,
-          notifyApprovers: false,
-          additionalRecipients: ['dispatch@district.edu'],
-          emailTemplate: 'Urgent Action Required',
-        },
-      },
-      {
-        id: 'step-3',
-        name: 'Mechanical Assessment & Tow',
-        description: 'Fleet manager arranges tow if necessary and conducts initial mechanical assessment',
-        assignedRole: 'Fleet Manager',
-        estimatedDuration: '1 hour',
-        required: true,
-        order: 3,
-        trigger: { type: 'auto-complete' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: true,
-          notifyAssignee: true,
-          notifyApprovers: false,
-          additionalRecipients: ['maintenance@district.edu'],
-        },
-      },
-      {
-        id: 'step-4',
-        name: 'Pre-Trip Inspection Review',
-        description: 'Review pre-trip inspection records to determine if the issue should have been caught; address any gaps',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '20 minutes',
-        required: true,
-        order: 4,
-        trigger: { type: 'auto-complete' },
-      },
-      {
-        id: 'step-5',
-        name: 'Repair, Recertify & Close',
-        description: 'Complete repairs, pass safety inspection, return vehicle to service, and close incident',
-        assignedRole: 'Fleet Manager',
-        estimatedDuration: '1–3 days',
-        required: true,
-        order: 5,
-        trigger: { type: 'auto-complete' },
-      },
-    ],
-  },
-
-  // ─────────────────────────────────────────────
-  // DEFAULT / GENERAL (catch-all)
-  // ─────────────────────────────────────────────
-  {
-    id: 'WF-DEFAULT',
-    name: 'General Incident Review',
-    description: 'Default workflow for reviewing and determining follow-up actions for incidents without specialized workflows',
-    incidentTypes: [], // Empty means it applies to any type not covered by other workflows
-    severityLevels: ['Low', 'Medium', 'High'], // Applies to all severities
-    isActive: true,
-    createdBy: 'System',
-    createdDate: '2025-01-01',
-    lastModified: '2025-03-16',
-    steps: [
-      {
-        id: 'step-1',
-        name: 'Initial Review',
-        description: 'Review incident details, driver report, and any supporting documentation or photos',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '10 minutes',
-        required: true,
-        order: 1,
-        trigger: { type: 'manual' },
-      },
-      {
-        id: 'step-2',
-        name: 'Determine Follow-up Action',
-        description: 'Based on incident review, determine the appropriate next steps and follow-up actions',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '15 minutes',
-        required: true,
-        order: 2,
-        trigger: { type: 'auto-complete' },
-      },
-      {
-        id: 'step-3',
-        name: 'Complete Documentation & Close',
-        description: 'Document the determined action, update incident status, and close the workflow',
-        assignedRole: 'Safety Coordinator',
-        estimatedDuration: '10 minutes',
-        required: true,
-        order: 3,
-        trigger: { type: 'auto-complete' },
-      },
-    ],
-  },
 ];
 
 // ─────────────────────────────────────────────
@@ -1582,7 +877,6 @@ export function assignWorkflowToIncident(incidentType: string, severity: string)
   let matchingWorkflow = workflows.find(
     (workflow) =>
       workflow.isActive &&
-      workflow.id !== 'WF-DEFAULT' &&
       workflow.incidentTypes.includes(incidentType) &&
       workflow.severityLevels.includes(normSeverity)
   );
@@ -1593,49 +887,23 @@ export function assignWorkflowToIncident(incidentType: string, severity: string)
     matchingWorkflow = workflows.find(
       (workflow) =>
         workflow.isActive &&
-        workflow.id !== 'WF-DEFAULT' &&
         workflow.incidentTypes.includes(incidentType)
     );
   }
 
-  // If specific workflow found, use it
-  if (matchingWorkflow) {
-    // Clone workflow and reset step statuses for new incident
-    const newWorkflow: Workflow = {
-      ...matchingWorkflow,
-      active: true, // Set instance as active when first assigned
-      steps: matchingWorkflow.steps.map((step) => ({
-        ...step,
-        status: 'Not Started',
-        completedDate: undefined,
-        completedBy: undefined,
-        comments: undefined,
-      })),
-    };
-    
-    return newWorkflow;
-  }
+  if (!matchingWorkflow) return null;
 
-  // If no specific workflow found, use default workflow
-  const defaultWorkflow = workflows.find((workflow) => workflow.id === 'WF-DEFAULT');
-  
-  if (defaultWorkflow) {
-    const newWorkflow: Workflow = {
-      ...defaultWorkflow,
-      active: true,
-      steps: defaultWorkflow.steps.map((step) => ({
-        ...step,
-        status: 'Not Started',
-        completedDate: undefined,
-        completedBy: undefined,
-        comments: undefined,
-      })),
-    };
-    
-    return newWorkflow;
-  }
-
-  return null;
+  return {
+    ...matchingWorkflow,
+    active: true,
+    steps: matchingWorkflow.steps.map((step) => ({
+      ...step,
+      status: 'Not Started',
+      completedDate: undefined,
+      completedBy: undefined,
+      comments: undefined,
+    })),
+  };
 }
 
 // Check if a workflow instance is currently active
@@ -1681,13 +949,13 @@ export function getCurrentStep(steps: WorkflowStep[]): WorkflowStep | null {
 // Helper: get the workflow that covers a given incident type label
 export function getWorkflowForIncidentType(incidentTypeLabel: string): Workflow | undefined {
   return workflows.find(
-    (wf) => wf.id !== 'WF-DEFAULT' && wf.incidentTypes.includes(incidentTypeLabel)
+    (wf) => wf.incidentTypes.includes(incidentTypeLabel)
   );
 }
 
 // Helper: list all incident type labels that have NO dedicated workflow (should be empty if coverage is complete)
 export function getUncoveredIncidentTypes(allTypeLabels: string[]): string[] {
   return allTypeLabels.filter(
-    (label) => !workflows.some((wf) => wf.id !== 'WF-DEFAULT' && wf.incidentTypes.includes(label))
+    (label) => !workflows.some((wf) => wf.incidentTypes.includes(label))
   );
 }

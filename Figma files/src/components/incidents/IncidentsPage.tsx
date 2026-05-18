@@ -1,42 +1,99 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { ForgeCard } from '@tylertech/forge-react';
-import { defineCardComponent, defineDialogComponent, defineTextFieldComponent } from '@tylertech/forge';
+import { ForgeCard, ForgeButton, ForgeIconButton, useForgeToast } from '@tylertech/forge-react';
+import {
+  defineCardComponent,
+  defineDialogComponent,
+  defineTextFieldComponent,
+  defineButtonComponent,
+  defineBadgeComponent,
+  defineAutocompleteComponent,
+  defineIconComponent,
+  defineIconButtonComponent,
+} from '@tylertech/forge';
 defineCardComponent();
 defineDialogComponent();
 defineTextFieldComponent();
-import { ForgeButton } from '@tylertech/forge-react';
-import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
-import { Badge } from '../ui/badge';
+defineBadgeComponent();
+defineAutocompleteComponent();
+defineIconComponent();
+defineIconButtonComponent();
 import { ForgeMultiSelect } from '../ui/forge-multiselect';
-import { Search, Download, Plus, MessageSquare, ArrowUpDown, ArrowUp, ArrowDown, Check, Camera, X, ZoomIn, GitBranch, AlertCircle, AlertTriangle, Clock, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { EditIncidentDialog } from './EditIncidentDialog';
 import { NewIncidentForm } from './NewIncidentForm';
 import { hasActiveCommunication } from '../communications/communicationsData';
-import { toast } from 'sonner';
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '../ui/command';
 import { IncidentWorkflowProgress } from './IncidentWorkflowProgress';
 import { assignWorkflowToIncident, Workflow, workflows } from '../../data/workflows';
 import { ExportDropdown } from '../shared/ExportDropdown';
 import type { ExportFormat } from '../shared/ExportDropdown';
 
 // Get default workflow for direct reference
-const defaultWorkflow = workflows.find(w => w.id === 'WF-DEFAULT');
 
-const mockIncidents = [
+const severityTheme = (severity: string): string => {
+  switch (severity) {
+    case 'Critical': return 'danger';
+    case 'High': return 'error';
+    case 'Medium': return 'warning';
+    case 'Low': return 'info';
+    default: return 'default';
+  }
+};
+const statusTheme = (status: string): string => {
+  switch (status) {
+    case 'Open': return 'info-primary';
+    case 'In Progress': return 'warning';
+    case 'Closed': return 'default';
+    default: return 'default';
+  }
+};
+
+export const mockIncidents = [
+  {
+    id: 'INC-2025-0063',
+    date: '2025-03-05',
+    student: 'Marcus Johnson',
+    studentId: 'STU-3421',
+    type: 'Weapon Possession',
+    description: 'Student was found in possession of a folding knife during a routine bag check at the school pick-up stop. Student refused to surrender the item and became verbally aggressive. Police were notified and responded to the scene. Student was removed from the bus and held pending parent/guardian arrival.',
+    bus: 'Bus 15',
+    route: 'Washington High PM - Wolf Rd',
+    driver: 'Lisa Anderson',
+    severity: 'Critical',
+    status: 'Open',
+    createdBy: 'Lisa Anderson',
+    assignedTo: 'Sarah Williams',
+    documents: [
+      {
+        id: 'doc-crit-1',
+        name: 'Police-Report-Ref-2025-0443.pdf',
+        size: '312 KB',
+        type: 'application/pdf',
+        uploadedBy: 'Sarah Williams',
+        uploadedAt: '2025-03-05 04:10 PM'
+      },
+      {
+        id: 'doc-crit-2',
+        name: 'Witness-Statement-Driver.pdf',
+        size: '88 KB',
+        type: 'application/pdf',
+        uploadedBy: 'Lisa Anderson',
+        uploadedAt: '2025-03-05 03:55 PM'
+      }
+    ],
+  },
   {
     id: 'INC-2025-0062',
     date: '2025-02-26',
     student: 'Justin Rivera',
     studentId: 'STU-1894',
-    type: 'Seat Refusal',
+    type: 'Safety Violation',
     description: 'Moved seats without permission',
     bus: 'Bus 12',
     route: 'Meyers Middle AM - Yellow',
-    driver: 'Michael Chen',
+    driver: 'John Chen',
     severity: 'Low',
     status: 'Closed',
-    createdBy: 'Michael Chen',
+    createdBy: 'John Chen',
     assignedTo: 'Jane Doe',
   },
   {
@@ -44,7 +101,7 @@ const mockIncidents = [
     date: '2025-02-27',
     student: 'Kayla Bailey',
     studentId: 'STU-9783',
-    type: 'Taunting/Bullying',
+    type: 'Harassment / Bullying',
     description: 'Spreading rumors and excluding another student',
     bus: 'Bus 8',
     route: 'Washington High PM - Wolf Rd',
@@ -53,6 +110,11 @@ const mockIncidents = [
     status: 'Open',
     createdBy: 'Lisa Anderson',
     assignedTo: 'Sarah Williams',
+    involvedStudents: [
+      { studentId: 'STU-9783', name: 'Kayla Bailey', role: 'Instigator', severity: 'High', parentNotified: true },
+      { studentId: 'STU-1956', name: 'Emma Rodriguez', role: 'Victim', severity: 'Medium', parentNotified: true },
+      { studentId: 'STU-5349', name: 'Alexis Morgan', role: 'Participant', severity: 'Medium', parentNotified: false },
+    ],
     documents: [
       {
         id: 'doc-1',
@@ -77,7 +139,7 @@ const mockIncidents = [
     date: '2025-02-28',
     student: 'Nathan Richardson',
     studentId: 'STU-8672',
-    type: 'Disruptive Volume',
+    type: 'Disruptive Behavior',
     description: 'Playing videos on phone at high volume',
     bus: 'Bus 15',
     route: 'Jefferson Middle AM - Blue',
@@ -101,6 +163,10 @@ const mockIncidents = [
     status: 'Open',
     createdBy: 'Jennifer Martinez',
     assignedTo: 'Sarah Williams',
+    involvedStudents: [
+      { studentId: 'STU-7561', name: 'Brianna Cooper', role: 'Instigator', severity: 'High', parentNotified: true },
+      { studentId: 'STU-2016', name: 'Andrew Rogers', role: 'Victim', severity: 'Medium', parentNotified: true },
+    ],
     photos: [
       {
         id: 'photo-7',
@@ -135,7 +201,7 @@ const mockIncidents = [
     date: '2025-03-02',
     student: 'Dylan Bell',
     studentId: 'STU-6450',
-    type: 'Offensive Language',
+    type: 'Disruptive Behavior',
     description: 'Using inappropriate language with other students',
     bus: 'Bus 14',
     route: 'Roosevelt High AM - Red',
@@ -150,21 +216,21 @@ const mockIncidents = [
     date: '2025-03-03',
     student: 'Alexis Morgan',
     studentId: 'STU-5349',
-    type: 'Eating/Drinking Violation',
+    type: 'Safety Violation',
     description: 'Eating messy food and leaving trash on floor',
     bus: 'Bus 12',
     route: 'Meyers Middle AM - Yellow',
-    driver: 'Michael Chen',
+    driver: 'John Chen',
     severity: 'Medium',
     status: 'Open',
-    createdBy: 'Michael Chen',
+    createdBy: 'John Chen',
     assignedTo: 'Sarah Williams',
     photos: [
       {
         id: 'photo-8',
         url: 'https://images.unsplash.com/photo-1764083029045-4c45c365b710?w=800&h=600&fit=crop',
         thumbnail: 'https://images.unsplash.com/photo-1764083029045-4c45c365b710?w=200&h=150&fit=crop',
-        uploadedBy: 'Michael Chen',
+        uploadedBy: 'John Chen',
         uploadedAt: '2025-03-03 07:52 AM',
         caption: 'Food debris on floor'
       }
@@ -175,7 +241,7 @@ const mockIncidents = [
     date: '2025-03-04',
     student: 'Jacob Cook',
     studentId: 'STU-4238',
-    type: 'Window Misuse',
+    type: 'Safety Violation',
     description: 'Hanging arm out window while bus moving',
     bus: 'Bus 8',
     route: 'Washington High PM - Wolf Rd',
@@ -210,7 +276,7 @@ const mockIncidents = [
     date: '2025-03-05',
     student: 'Samantha Reed',
     studentId: 'STU-3127',
-    type: 'Vandalism',
+    type: 'Property Damage',
     description: 'Drew on window with marker',
     bus: 'Bus 15',
     route: 'Jefferson Middle AM - Blue',
@@ -253,7 +319,7 @@ const mockIncidents = [
     date: '2025-03-06',
     student: 'Andrew Rogers',
     studentId: 'STU-2016',
-    type: 'Disruptive Volume',
+    type: 'Disruptive Behavior',
     description: 'Yelling and making loud noises',
     bus: 'Bus 9',
     route: 'Lincoln Elementary AM - Green',
@@ -268,7 +334,7 @@ const mockIncidents = [
     date: '2025-03-07',
     student: 'Hannah Morris',
     studentId: 'STU-1905',
-    type: 'Taunting/Bullying',
+    type: 'Harassment / Bullying',
     description: 'Making fun of another student repeatedly',
     bus: 'Bus 14',
     route: 'Roosevelt High AM - Red',
@@ -277,6 +343,11 @@ const mockIncidents = [
     status: 'Open',
     createdBy: 'Robert Thompson',
     assignedTo: 'Sarah Williams',
+    involvedStudents: [
+      { studentId: 'STU-1905', name: 'Hannah Morris', role: 'Instigator', severity: 'Medium', parentNotified: true },
+      { studentId: 'STU-3127', name: 'Samantha Reed', role: 'Victim', severity: 'Low', parentNotified: true },
+      { studentId: 'STU-6450', name: 'Dylan Bell', role: 'Bystander', severity: 'Low', parentNotified: false },
+    ],
   },
   {
     id: 'INC-2025-0052',
@@ -287,17 +358,21 @@ const mockIncidents = [
     description: 'Grabbed and pushed another student in argument',
     bus: 'Bus 12',
     route: 'Meyers Middle AM - Yellow',
-    driver: 'Michael Chen',
+    driver: 'John Chen',
     severity: 'High',
     status: 'Open',
-    createdBy: 'Michael Chen',
+    createdBy: 'John Chen',
     assignedTo: 'Sarah Williams',
+    involvedStudents: [
+      { studentId: 'STU-9894', name: 'Tyler Stewart', role: 'Instigator', severity: 'High', parentNotified: true },
+      { studentId: 'STU-1894', name: 'Justin Rivera', role: 'Victim', severity: 'Medium', parentNotified: true },
+    ],
     photos: [
       {
         id: 'photo-11',
         url: 'https://images.unsplash.com/photo-1764083029045-4c45c365b710?w=800&h=600&fit=crop',
         thumbnail: 'https://images.unsplash.com/photo-1764083029045-4c45c365b710?w=200&h=150&fit=crop',
-        uploadedBy: 'Michael Chen',
+        uploadedBy: 'John Chen',
         uploadedAt: '2025-03-08 07:58 AM',
         caption: 'Location of incident on bus'
       },
@@ -305,7 +380,7 @@ const mockIncidents = [
         id: 'photo-12',
         url: 'https://images.unsplash.com/photo-1764703810989-1c69e849f8f3?w=800&h=600&fit=crop',
         thumbnail: 'https://images.unsplash.com/photo-1764703810989-1c69e849f8f3?w=200&h=150&fit=crop',
-        uploadedBy: 'Michael Chen',
+        uploadedBy: 'John Chen',
         uploadedAt: '2025-03-08 07:59 AM',
         caption: 'View from driver position'
       }
@@ -316,7 +391,7 @@ const mockIncidents = [
         name: 'Physical-Altercation-Report.pdf',
         size: '189 KB',
         type: 'application/pdf',
-        uploadedBy: 'Michael Chen',
+        uploadedBy: 'John Chen',
         uploadedAt: '2025-03-08 08:30 AM'
       },
       {
@@ -334,7 +409,7 @@ const mockIncidents = [
     date: '2025-03-09',
     student: 'Natalie Collins',
     studentId: 'STU-8783',
-    type: 'Offensive Language',
+    type: 'Disruptive Behavior',
     description: 'Directed profanity at driver when asked to quiet down',
     bus: 'Bus 8',
     route: 'Washington High PM - Wolf Rd',
@@ -349,7 +424,7 @@ const mockIncidents = [
     date: '2025-03-10',
     student: 'Brandon Edwards',
     studentId: 'STU-7672',
-    type: 'Emergency Exit Misuse',
+    type: 'Safety Violation',
     description: 'Touched emergency exit release without permission',
     bus: 'Bus 15',
     route: 'Jefferson Middle AM - Blue',
@@ -392,7 +467,7 @@ const mockIncidents = [
     date: '2025-03-11',
     student: 'Chloe Evans',
     studentId: 'STU-6561',
-    type: 'Eating/Drinking Violation',
+    type: 'Safety Violation',
     description: 'Spilled juice on seat and floor',
     bus: 'Bus 9',
     route: 'Lincoln Elementary AM - Green',
@@ -407,7 +482,7 @@ const mockIncidents = [
     date: '2025-03-12',
     student: 'Joshua Parker',
     studentId: 'STU-5450',
-    type: 'Seat Refusal',
+    type: 'Safety Violation',
     description: 'Refused assigned seat and sat in restricted area',
     bus: 'Bus 14',
     route: 'Roosevelt High AM - Red',
@@ -422,14 +497,14 @@ const mockIncidents = [
     date: '2025-03-13',
     student: 'Madison Turner',
     studentId: 'STU-4349',
-    type: 'Window Misuse',
+    type: 'Safety Violation',
     description: 'Opening and closing window repeatedly',
     bus: 'Bus 12',
     route: 'Meyers Middle AM - Yellow',
-    driver: 'Michael Chen',
+    driver: 'John Chen',
     severity: 'Low',
     status: 'Closed',
-    createdBy: 'Michael Chen',
+    createdBy: 'John Chen',
     assignedTo: 'Jane Doe',
   },
   {
@@ -437,7 +512,7 @@ const mockIncidents = [
     date: '2025-03-14',
     student: 'Ryan Campbell',
     studentId: 'STU-3238',
-    type: 'Vandalism',
+    type: 'Property Damage',
     description: 'Carved initials into seat back',
     bus: 'Bus 8',
     route: 'Washington High PM - Wolf Rd',
@@ -452,7 +527,7 @@ const mockIncidents = [
     date: '2025-03-15',
     student: 'Grace Phillips',
     studentId: 'STU-2127',
-    type: 'Taunting/Bullying',
+    type: 'Harassment / Bullying',
     description: 'Repeatedly teasing younger student about appearance',
     bus: 'Bus 9',
     route: 'Lincoln Elementary AM - Green',
@@ -482,7 +557,7 @@ const mockIncidents = [
     date: '2025-03-16',
     student: 'Victoria Martinez',
     studentId: 'STU-9905',
-    type: 'Disruptive Volume',
+    type: 'Disruptive Behavior',
     description: 'Playing music loudly on phone without headphones',
     bus: 'Bus 14',
     route: 'Roosevelt High AM - Red',
@@ -497,21 +572,21 @@ const mockIncidents = [
     date: '2025-03-15',
     student: 'Sarah Mitchell',
     studentId: 'STU-2891',
-    type: 'Seat Refusal',
+    type: 'Safety Violation',
     description: 'Student refused to remain seated during transport',
     bus: 'Bus 12',
     route: 'Meyers Middle AM - Yellow',
-    driver: 'Michael Chen',
+    driver: 'John Chen',
     severity: 'Medium',
     status: 'Open',
-    createdBy: 'Michael Chen',
+    createdBy: 'John Chen',
     assignedTo: 'Sarah Williams',
     photos: [
       {
         id: 'photo-1',
         url: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&h=600&fit=crop',
         thumbnail: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=200&h=150&fit=crop',
-        uploadedBy: 'Michael Chen',
+        uploadedBy: 'John Chen',
         uploadedAt: '2025-03-15 08:15 AM',
         caption: 'Student standing in aisle'
       },
@@ -519,7 +594,7 @@ const mockIncidents = [
         id: 'photo-2',
         url: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=800&h=600&fit=crop',
         thumbnail: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=200&h=150&fit=crop',
-        uploadedBy: 'Michael Chen',
+        uploadedBy: 'John Chen',
         uploadedAt: '2025-03-15 08:16 AM',
         caption: 'View from driver mirror'
       }
@@ -530,7 +605,7 @@ const mockIncidents = [
         name: 'Safety-Violation-Report.pdf',
         size: '156 KB',
         type: 'application/pdf',
-        uploadedBy: 'Michael Chen',
+        uploadedBy: 'John Chen',
         uploadedAt: '2025-03-15 08:20 AM'
       },
       {
@@ -554,7 +629,7 @@ const mockIncidents = [
         name: 'Student-Seating-Chart.xlsx',
         size: '45 KB',
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        uploadedBy: 'Michael Chen',
+        uploadedBy: 'John Chen',
         uploadedAt: '2025-03-15 08:25 AM'
       }
     ]
@@ -564,7 +639,7 @@ const mockIncidents = [
     date: '2025-03-15',
     student: 'Marcus Johnson',
     studentId: 'STU-3421',
-    type: 'Emergency Exit Misuse',
+    type: 'Safety Violation',
     description: 'Student attempted to open emergency exit during normal transport',
     bus: 'Bus 8',
     route: 'Washington High PM - Wolf Rd',
@@ -589,7 +664,7 @@ const mockIncidents = [
     date: '2025-03-14',
     student: 'Emma Rodriguez',
     studentId: 'STU-1956',
-    type: 'Taunting/Bullying',
+    type: 'Harassment / Bullying',
     description: 'Verbal altercation with another student',
     bus: 'Bus 15',
     route: 'Jefferson Middle AM - Blue',
@@ -604,14 +679,14 @@ const mockIncidents = [
     date: '2025-03-14',
     student: 'James Thompson',
     studentId: 'STU-4782',
-    type: 'Vandalism',
+    type: 'Property Damage',
     description: 'Seat cushion torn - monetary restitution required',
     bus: 'Bus 12',
     route: 'Meyers Middle AM - Yellow',
-    driver: 'Michael Chen',
+    driver: 'John Chen',
     severity: 'Low',
     status: 'Closed',
-    createdBy: 'Michael Chen',
+    createdBy: 'John Chen',
     assignedTo: 'Jane Doe',
   },
   {
@@ -619,7 +694,7 @@ const mockIncidents = [
     date: '2025-03-13',
     student: 'Olivia Davis',
     studentId: 'STU-5623',
-    type: 'Offensive Language',
+    type: 'Disruptive Behavior',
     description: 'Using profane and offensive language toward other students',
     bus: 'Bus 8',
     route: 'Washington High PM - Wolf Rd',
@@ -649,7 +724,7 @@ const mockIncidents = [
     date: '2025-03-10',
     student: 'Sophia Garcia',
     studentId: 'STU-7234',
-    type: 'Eating/Drinking Violation',
+    type: 'Safety Violation',
     description: 'Student eating snacks and spilled drink on seat',
     bus: 'Bus 9',
     route: 'Lincoln Elementary AM - Green',
@@ -664,14 +739,14 @@ const mockIncidents = [
     date: '2025-03-08',
     student: 'Liam Brown',
     studentId: 'STU-8512',
-    type: 'Window Misuse',
+    type: 'Safety Violation',
     description: 'Opening windows excessively and throwing paper outside',
     bus: 'Bus 12',
     route: 'Meyers Middle AM - Yellow',
-    driver: 'Michael Chen',
+    driver: 'John Chen',
     severity: 'Medium',
     status: 'Closed',
-    createdBy: 'Michael Chen',
+    createdBy: 'John Chen',
     assignedTo: 'Jane Doe',
   },
   {
@@ -679,7 +754,7 @@ const mockIncidents = [
     date: '2025-03-07',
     student: 'Ava Martinez',
     studentId: 'STU-9123',
-    type: 'Disruptive Volume',
+    type: 'Disruptive Behavior',
     description: 'Excessive noise and screaming, disturbing driver',
     bus: 'Bus 15',
     route: 'Jefferson Middle AM - Blue',
@@ -694,7 +769,7 @@ const mockIncidents = [
     date: '2025-03-05',
     student: 'Ethan Lee',
     studentId: 'STU-1045',
-    type: 'Seat Refusal',
+    type: 'Safety Violation',
     description: 'Refused assigned seat and moved multiple times',
     bus: 'Bus 8',
     route: 'Washington High PM - Wolf Rd',
@@ -709,7 +784,7 @@ const mockIncidents = [
     date: '2025-02-28',
     student: 'Isabella White',
     studentId: 'STU-2387',
-    type: 'Taunting/Bullying',
+    type: 'Harassment / Bullying',
     description: 'Continued verbal harassment of younger student',
     bus: 'Bus 9',
     route: 'Lincoln Elementary AM - Green',
@@ -724,7 +799,7 @@ const mockIncidents = [
     date: '2025-02-26',
     student: 'Mason Taylor',
     studentId: 'STU-3498',
-    type: 'Offensive Language',
+    type: 'Disruptive Behavior',
     description: 'Repeated use of profanity despite warnings',
     bus: 'Bus 4',
     route: 'Eastside Middle AM - Teal',
@@ -739,7 +814,7 @@ const mockIncidents = [
     date: '2025-02-24',
     student: 'Charlotte Anderson',
     studentId: 'STU-4561',
-    type: 'Vandalism',
+    type: 'Property Damage',
     description: 'Writing on seat backs with permanent marker',
     bus: 'Bus 6',
     route: 'Oakwood Elementary AM - Bronze',
@@ -769,7 +844,7 @@ const mockIncidents = [
     date: '2025-02-19',
     student: 'Mia Jackson',
     studentId: 'STU-6783',
-    type: 'Disruptive Volume',
+    type: 'Disruptive Behavior',
     description: 'Playing loud music from phone speaker',
     bus: 'Bus 5',
     route: 'Riverside Elementary AM - Violet',
@@ -784,7 +859,7 @@ const mockIncidents = [
     date: '2025-02-15',
     student: 'Lucas Harris',
     studentId: 'STU-7894',
-    type: 'Emergency Exit Misuse',
+    type: 'Safety Violation',
     description: 'Tampering with emergency exit door mechanism',
     bus: 'Bus 10',
     route: 'Parkview Middle AM - Navy',
@@ -799,7 +874,7 @@ const mockIncidents = [
     date: '2025-02-12',
     student: 'Harper Clark',
     studentId: 'STU-8905',
-    type: 'Eating/Drinking Violation',
+    type: 'Safety Violation',
     description: 'Spilled soda creating slipping hazard',
     bus: 'Bus 15',
     route: 'Jefferson Middle AM - Blue',
@@ -814,7 +889,7 @@ const mockIncidents = [
     date: '2025-02-10',
     student: 'Benjamin Lewis',
     studentId: 'STU-9016',
-    type: 'Seat Refusal',
+    type: 'Safety Violation',
     description: 'Standing in aisle during transport despite warnings',
     bus: 'Bus 8',
     route: 'Washington High PM - Wolf Rd',
@@ -829,7 +904,7 @@ const mockIncidents = [
     date: '2025-02-07',
     student: 'Amelia Robinson',
     studentId: 'STU-1127',
-    type: 'Window Misuse',
+    type: 'Safety Violation',
     description: 'Hanging objects out window while bus moving',
     bus: 'Bus 9',
     route: 'Lincoln Elementary AM - Green',
@@ -844,7 +919,7 @@ const mockIncidents = [
     date: '2025-02-05',
     student: 'Henry Walker',
     studentId: 'STU-2238',
-    type: 'Offensive Language',
+    type: 'Disruptive Behavior',
     description: 'Directing profanity at driver',
     bus: 'Bus 4',
     route: 'Eastside Middle AM - Teal',
@@ -859,7 +934,7 @@ const mockIncidents = [
     date: '2025-02-03',
     student: 'Evelyn Hall',
     studentId: 'STU-3349',
-    type: 'Taunting/Bullying',
+    type: 'Harassment / Bullying',
     description: 'Name-calling and mocking another student',
     bus: 'Bus 6',
     route: 'Oakwood Elementary AM - Bronze',
@@ -874,7 +949,7 @@ const mockIncidents = [
     date: '2025-01-31',
     student: 'Alexander Young',
     studentId: 'STU-4450',
-    type: 'Vandalism',
+    type: 'Property Damage',
     description: 'Scratching window with metal object',
     bus: 'Bus 11',
     route: 'Hillcrest High AM - Crimson',
@@ -889,7 +964,7 @@ const mockIncidents = [
     date: '2025-01-28',
     student: 'Abigail King',
     studentId: 'STU-5561',
-    type: 'Disruptive Volume',
+    type: 'Disruptive Behavior',
     description: 'Yelling and screaming, refusing to quiet down',
     bus: 'Bus 10',
     route: 'Parkview Middle AM - Navy',
@@ -919,7 +994,7 @@ const mockIncidents = [
     date: '2025-01-21',
     student: 'Emily Scott',
     studentId: 'STU-7783',
-    type: 'Eating/Drinking Violation',
+    type: 'Safety Violation',
     description: 'Eating messy food and littering wrappers',
     bus: 'Bus 15',
     route: 'Jefferson Middle AM - Blue',
@@ -934,7 +1009,7 @@ const mockIncidents = [
     date: '2025-01-17',
     student: 'Matthew Green',
     studentId: 'STU-8894',
-    type: 'Seat Refusal',
+    type: 'Safety Violation',
     description: 'Changed seats multiple times causing disruption',
     bus: 'Bus 8',
     route: 'Washington High PM - Wolf Rd',
@@ -980,17 +1055,16 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
   const [isNewIncidentDialogOpen, setIsNewIncidentDialogOpen] = useState(false);
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-  const [studentLookupOpen, setStudentLookupOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [selectedPhoto, setSelectedPhoto] = useState<any>(null);
-  const studentLookupRef = useRef<HTMLDivElement>(null);
+  const toastHelper = useForgeToast();
   const newIncidentDialogRef = useRef<HTMLElement>(null);
   const photoDialogRef = useRef<HTMLElement>(null);
 
   // Enrich incidents with workflow data
   const incidentsWithWorkflows = mockIncidents.map((incident) => {
-    const workflow = assignWorkflowToIncident(incident.type, incident.severity) || defaultWorkflow;
+    const workflow = assignWorkflowToIncident(incident.type, incident.severity);
     
     // For open incidents with workflows, set appropriate step statuses
     if (workflow && incident.status === 'Open') {
@@ -1038,22 +1112,6 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
     new Set(mockIncidents.map(inc => inc.assignedTo))
   ).sort();
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (studentLookupRef.current && !studentLookupRef.current.contains(event.target as Node)) {
-        setStudentLookupOpen(false);
-      }
-    };
-
-    if (studentLookupOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }
-  }, [studentLookupOpen]);
-
   // Sync New Incident Dialog open state to forge-dialog
   useEffect(() => {
     const el = newIncidentDialogRef.current as any;
@@ -1092,7 +1150,6 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
     setAssignedToFilter(pendingAssignedToFilter);
     setSeverityFilter(pendingSeverityFilter);
     setDateAfterFilter(pendingDateAfterFilter);
-    setStudentLookupOpen(false);
     setShowAllIncidents(false);
   };
 
@@ -1114,25 +1171,23 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
   const handleExport = (format: ExportFormat) => {
     const formatLabels: Record<ExportFormat, string> = {
       excel: 'Excel Spreadsheet',
-      word: 'Word Document',
       csv: 'CSV',
-      'csv-no-header': 'CSV (no header)',
     };
     const formatExtensions: Record<ExportFormat, string> = {
       excel: 'xlsx',
-      word: 'docx',
       csv: 'csv',
-      'csv-no-header': 'csv',
     };
 
-    toast.success('Export started', {
-      description: `Your ${formatLabels[format]} is being prepared and will download shortly.`,
-    });
+    toastHelper[0]({
+      message: `Export started — your ${formatLabels[format]} is being prepared and will download shortly.`,
+      theme: 'success',
+      duration: 3000,
+    } as any);
 
     // Simulate export delay
     setTimeout(() => {
       // Create CSV content
-      const headers = ['Incident ID', 'Date', 'Student', 'Student ID', 'Type', 'Vehicle', 'Route', 'Driver', 'Severity', 'Status', 'Description'];
+      const headers = ['Incident ID', 'Date', 'Student', 'Student ID', 'Type', 'Vehicle', 'Run', 'Driver', 'Severity', 'Status', 'Description'];
       const rows = filteredIncidents.map(inc => [
         inc.id,
         inc.date,
@@ -1162,19 +1217,21 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
-      toast.success('Export complete', {
-        description: `Your ${formatLabels[format]} has been downloaded.`,
-      });
+      toastHelper[0]({
+        message: `Export complete — your ${formatLabels[format]} has been downloaded.`,
+        theme: 'success',
+        duration: 3000,
+      } as any);
     }, 1500);
   };
 
   const filteredIncidents = useMemo(() => incidentsWithWorkflows.filter((incident) => {
+    const q = searchTerm.trim().toLowerCase();
     const matchesSearch =
-      incident.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      incident.student.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      incident.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      incident.bus.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      incident.route.toLowerCase().includes(searchTerm.toLowerCase());
+      q === '' ||
+      incident.student.toLowerCase().includes(q) ||
+      incident.bus.toLowerCase().includes(q) ||
+      incident.route.toLowerCase().includes(q);
     
     const matchesStatus = statusFilter.length === 0 || statusFilter.includes(incident.status);
     const matchesType = typeFilter.length === 0 || typeFilter.includes(incident.type);
@@ -1205,8 +1262,8 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
         comparison = a.type.localeCompare(b.type);
         break;
       case 'severity': {
-        const severityOrder = { 'High': 3, 'Medium': 2, 'Low': 1 };
-        comparison = (severityOrder[a.severity as keyof typeof severityOrder] || 0) - 
+        const severityOrder = { 'Critical': 4, 'High': 3, 'Medium': 2, 'Low': 1 };
+        comparison = (severityOrder[a.severity as keyof typeof severityOrder] || 0) -
                      (severityOrder[b.severity as keyof typeof severityOrder] || 0);
         break;
       }
@@ -1250,7 +1307,7 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
   // KPI calculations
   const totalIncidents = mockIncidents.length;
   const openIncidents = mockIncidents.filter(i => i.status === 'Open').length;
-  const highSeverity = mockIncidents.filter(i => i.severity === 'High').length;
+  const criticalIncidents = mockIncidents.filter(i => i.severity === 'Critical').length;
   const closedIncidents = mockIncidents.filter(i => i.status === 'Closed').length;
 
   return (
@@ -1278,78 +1335,38 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
             cursor: 'pointer',
           }}
         >
-          <Plus className="h-4 w-4" />
+          <forge-icon name="add" style={{ fontSize: '16px' }}></forge-icon>
           New Incident
         </button>
       </div>
 
       {/* Summary Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" style={{ marginBottom: 'var(--forge-spacing-large)' }}>
-        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', borderRadius: 'var(--forge-radius-large)', borderColor: 'var(--forge-color-border-default)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }}>
-            <div className="flex flex-row items-center justify-between pb-2">
-              <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>Total Incidents</h3>
-            <AlertCircle className="h-4 w-4" style={{ color: 'var(--brand-blue-dark)' }} />
-            </div>
-            <div>
-            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: 'var(--brand-blue-dark)', fontFamily: 'Roboto, sans-serif' }}>
-              {totalIncidents}
-            </div>
-            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'Roboto, sans-serif' }}>
-              All recorded incidents
-            </p>
-            </div>
+        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: '#dc2626', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>{criticalIncidents}</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Critical Incidents</h3>
           </div>
         </ForgeCard>
 
-        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', borderRadius: 'var(--forge-radius-large)', borderColor: 'var(--forge-color-border-default)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }}>
-            <div className="flex flex-row items-center justify-between pb-2">
-              <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>Open Incidents</h3>
-              <Clock className="h-4 w-4" style={{ color: '#ea580c' }} />
-            </div>
-            <div>
-              <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: '#ea580c', fontFamily: 'Roboto, sans-serif' }}>
-                {openIncidents}
-              </div>
-              <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'Roboto, sans-serif' }}>
-                Awaiting resolution
-              </p>
-            </div>
+        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: '#ea580c', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>{openIncidents}</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Open Incidents</h3>
           </div>
         </ForgeCard>
 
-        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', borderRadius: 'var(--forge-radius-large)', borderColor: 'var(--forge-color-border-default)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }}>
-            <div className="flex flex-row items-center justify-between pb-2">
-              <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>High Severity</h3>
-              <AlertTriangle className="h-4 w-4" style={{ color: '#dc2626' }} />
-            </div>
-            <div>
-              <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: '#dc2626', fontFamily: 'Roboto, sans-serif' }}>
-                {highSeverity}
-              </div>
-              <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'Roboto, sans-serif' }}>
-                Require immediate attention
-              </p>
-            </div>
+        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--brand-blue-dark)', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>{totalIncidents}</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Total Incidents</h3>
           </div>
         </ForgeCard>
 
-        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', borderRadius: 'var(--forge-radius-large)', borderColor: 'var(--forge-color-border-default)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }}>
-            <div className="flex flex-row items-center justify-between pb-2">
-              <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>Closed Incidents</h3>
-              <TrendingUp className="h-4 w-4" style={{ color: 'var(--brand-olive-medium)' }} />
-            </div>
-            <div>
-              <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: 'var(--brand-olive-medium)', fontFamily: 'Roboto, sans-serif' }}>
-                {closedIncidents}
-              </div>
-              <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'Roboto, sans-serif' }}>
-                Successfully resolved
-              </p>
-            </div>
+        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--brand-olive-medium)', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>{closedIncidents}</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Closed Incidents</h3>
           </div>
         </ForgeCard>
       </div>
@@ -1360,68 +1377,49 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
           <div className="flex items-center" style={{ gap: 'var(--forge-spacing-small)' }}>
             {/* Search */}
             <div className="flex-1 min-w-0">
-              <div className="relative" ref={studentLookupRef}>
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-                {/* @ts-ignore */}
+              <forge-autocomplete
+                allow-unmatched
+                filter-on-focus
+                ref={(el: any) => {
+                  if (!el) return;
+                  el.filter = (filterText: string) => {
+                    const q = (filterText || '').toLowerCase();
+                    if (!q) return [];
+                    const studentMatches = uniqueStudents
+                      .filter(s => s.name.toLowerCase().includes(q))
+                      .map(s => ({ label: `${s.name} (Student)`, value: s.name }));
+                    const busMatches = Array.from(new Set(mockIncidents.map(i => i.bus)))
+                      .filter(b => b.toLowerCase().includes(q))
+                      .map(b => ({ label: `${b} (Vehicle)`, value: b }));
+                    const routeMatches = Array.from(new Set(mockIncidents.map(i => i.route)))
+                      .filter(r => r.toLowerCase().includes(q))
+                      .map(r => ({ label: `${r} (Run)`, value: r }));
+                    return [...studentMatches, ...busMatches, ...routeMatches].slice(0, 20);
+                  };
+                  const handler = (e: any) => {
+                    const val = e.detail?.value;
+                    if (val !== undefined) setPendingSearchTerm(val);
+                  };
+                  el.removeEventListener('forge-autocomplete-change', handler);
+                  el.addEventListener('forge-autocomplete-change', handler);
+                }}
+              >
                 <forge-text-field>
+                  <forge-icon slot="start" name="search"></forge-icon>
                   <input
                     type="text"
-                    placeholder="Search incidents, students, vehicles, routes..."
+                    placeholder="Search by student, vehicle, or run..."
                     value={pendingSearchTerm}
-                    onChange={(e) => {
-                      setPendingSearchTerm(e.target.value);
-                      setStudentLookupOpen(true);
-                    }}
-                    onFocus={() => setStudentLookupOpen(true)}
+                    onChange={(e) => setPendingSearchTerm(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         handleSearch();
                       }
                     }}
-                    style={{ paddingLeft: '2rem', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--forge-font-size-base)' }}
+                    style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--forge-font-size-base)' }}
                   />
                 </forge-text-field>
-                {studentLookupOpen && pendingSearchTerm && (
-                  <div className="absolute z-50 w-full mt-1 border overflow-auto" style={{ backgroundColor: 'var(--background)', borderColor: 'var(--forge-color-border-default)', borderRadius: 'var(--forge-radius-medium)', boxShadow: 'var(--forge-elevation-2)', maxHeight: '400px' }}>
-                    <Command>
-                      <CommandList>
-                        <CommandEmpty>No student found.</CommandEmpty>
-                        <CommandGroup>
-                          {uniqueStudents
-                            .filter((student) =>
-                              student.name.toLowerCase().includes(pendingSearchTerm.toLowerCase()) ||
-                              student.id.toLowerCase().includes(pendingSearchTerm.toLowerCase())
-                            )
-                            .map((student) => (
-                              <CommandItem
-                                key={student.id}
-                                value={student.name}
-                                onSelect={() => {
-                                  setPendingSearchTerm(student.name);
-                                  setStudentLookupOpen(false);
-                                }}
-                              >
-                                <Check
-                                  className={
-                                    pendingSearchTerm === student.name
-                                      ? "mr-2 h-4 w-4 opacity-100"
-                                      : "mr-2 h-4 w-4 opacity-0"
-                                  }
-                                />
-                                <div className="flex flex-col">
-                                  <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--forge-font-size-base)' }}>{student.name}</div>
-                                  <div className="text-muted-foreground" style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--forge-font-size-sm)' }}>
-                                    {student.id}
-                                  </div>
-                                </div>
-                              </CommandItem>
-                            ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </div>
-                )}
-              </div>
+              </forge-autocomplete>
             </div>
 
             {/* Status Filter */}
@@ -1445,17 +1443,17 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
             <div className="shrink-0">
               <ForgeMultiSelect
                 options={[
-                  { value: 'Seat Refusal', label: 'Seat Refusal' },
-                  { value: 'Seatbelt Refusal', label: 'Seatbelt Refusal' },
-                  { value: 'Emergency Exit Misuse', label: 'Emergency Exit Misuse' },
-                  { value: 'Taunting/Bullying', label: 'Taunting/Bullying' },
-                  { value: 'Offensive Language', label: 'Offensive Language' },
+                  { value: 'Safety Violation', label: 'Safety Violation' },
+                  { value: 'Safety Violation', label: 'Safety Violation' },
+                  { value: 'Safety Violation', label: 'Safety Violation' },
+                  { value: 'Harassment / Bullying', label: 'Harassment / Bullying' },
+                  { value: 'Disruptive Behavior', label: 'Disruptive Behavior' },
                   { value: 'Physical Altercation', label: 'Physical Altercation' },
-                  { value: 'Driver Defiance', label: 'Driver Defiance' },
-                  { value: 'Driver Harassment', label: 'Driver Harassment' },
-                  { value: 'Vandalism', label: 'Vandalism' },
-                  { value: 'Tobacco/Vaping', label: 'Tobacco/Vaping' },
-                  { value: 'Harmful Items', label: 'Harmful Items' },
+                  { value: 'Driver Non-Compliance', label: 'Driver Non-Compliance' },
+                  { value: 'Driver Non-Compliance', label: 'Driver Non-Compliance' },
+                  { value: 'Property Damage', label: 'Property Damage' },
+                  { value: 'Prohibited Items', label: 'Prohibited Items' },
+                  { value: 'Prohibited Items', label: 'Prohibited Items' },
                 ]}
                 selected={pendingTypeFilter}
                 onChange={setPendingTypeFilter}
@@ -1481,6 +1479,7 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
             <div className="shrink-0">
               <ForgeMultiSelect
                 options={[
+                  { value: 'Critical', label: 'Critical' },
                   { value: 'High', label: 'High' },
                   { value: 'Medium', label: 'Medium' },
                   { value: 'Low', label: 'Low' },
@@ -1506,7 +1505,7 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
                 borderColor: 'var(--forge-color-border-default)',
               }}
             >
-              <Search className="mr-2 h-4 w-4" />
+              <forge-icon slot="start" name="search"></forge-icon>
               Search
             </ForgeButton>
           </div>
@@ -1516,7 +1515,7 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
       {/* Active Filter Banner */}
       {(severityFilter.length > 0 || statusFilter.length > 0 || dateAfterFilter) && (
         <div className="flex items-center gap-3 p-3 rounded-md mb-4" style={{ backgroundColor: 'var(--forge-color-surface-info, #eff6ff)', border: '1px solid var(--forge-color-border-info, #bfdbfe)', borderRadius: 'var(--forge-radius-medium)', fontFamily: 'var(--forge-font-family)' }}>
-          <AlertCircle className="h-4 w-4 shrink-0" style={{ color: 'var(--forge-color-text-info, #2563eb)' }} />
+          <forge-icon name="error" style={{ fontSize: '16px', flexShrink: 0, color: 'var(--forge-color-text-info, #2563eb)' }}></forge-icon>
           <span style={{ fontSize: 'var(--forge-font-size-sm)', color: 'var(--forge-color-text-info, #1e40af)' }}>
             Filtered view: 
             {severityFilter.length > 0 && ` Severity = ${severityFilter.join(', ')}`}
@@ -1560,90 +1559,90 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
         </div>
         <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
           <div className="overflow-x-auto">
-            <table className="forge-table" style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'calc(var(--forge-font-size-base) + 4px)' }}>
+            <table className="forge-table" style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'calc(var(--forge-font-size-base) + 4px)', minWidth: '1400px', width: '100%' }}>
               <thead>
                 <tr>
-                  <th className="forge-table-cell forge-table-cell--header">
+                  <th className="forge-table-cell forge-table-cell--header" style={{ minWidth: '130px' }}>
                     <button
                       onClick={() => handleSort('id')}
                       className="flex items-center gap-1 hover:text-primary transition-colors"
                     >
                       Incident ID
-                      {sortField === 'id' && sortDirection === 'desc' && <ArrowDown className="h-4 w-4" />}
-                      {sortField === 'id' && sortDirection === 'asc' && <ArrowUp className="h-4 w-4" />}
-                      {sortField !== 'id' && <ArrowUpDown className="h-4 w-4 opacity-30" />}
+                      {sortField === 'id' && sortDirection === 'desc' && <forge-icon name="arrow_downward" style={{ fontSize: '14px' }}></forge-icon>}
+                      {sortField === 'id' && sortDirection === 'asc' && <forge-icon name="arrow_upward" style={{ fontSize: '14px' }}></forge-icon>}
+                      {sortField !== 'id' && <forge-icon name="unfold_more" style={{ fontSize: '14px', opacity: 0.3 }}></forge-icon>}
                     </button>
                   </th>
-                  <th className="forge-table-cell forge-table-cell--header">
+                  <th className="forge-table-cell forge-table-cell--header" style={{ minWidth: '110px' }}>
                     <button
                       onClick={() => handleSort('date')}
                       className="flex items-center gap-1 hover:text-primary transition-colors"
                     >
                       Date
-                      {sortField === 'date' && sortDirection === 'desc' && <ArrowDown className="h-4 w-4" />}
-                      {sortField === 'date' && sortDirection === 'asc' && <ArrowUp className="h-4 w-4" />}
-                      {sortField !== 'date' && <ArrowUpDown className="h-4 w-4 opacity-30" />}
+                      {sortField === 'date' && sortDirection === 'desc' && <forge-icon name="arrow_downward" style={{ fontSize: '14px' }}></forge-icon>}
+                      {sortField === 'date' && sortDirection === 'asc' && <forge-icon name="arrow_upward" style={{ fontSize: '14px' }}></forge-icon>}
+                      {sortField !== 'date' && <forge-icon name="unfold_more" style={{ fontSize: '14px', opacity: 0.3 }}></forge-icon>}
                     </button>
                   </th>
-                  <th className="forge-table-cell forge-table-cell--header">
+                  <th className="forge-table-cell forge-table-cell--header" style={{ minWidth: '180px' }}>
                     <button
                       onClick={() => handleSort('student')}
                       className="flex items-center gap-1 hover:text-primary transition-colors"
                     >
                       Student
-                      {sortField === 'student' && sortDirection === 'desc' && <ArrowDown className="h-4 w-4" />}
-                      {sortField === 'student' && sortDirection === 'asc' && <ArrowUp className="h-4 w-4" />}
-                      {sortField !== 'student' && <ArrowUpDown className="h-4 w-4 opacity-30" />}
+                      {sortField === 'student' && sortDirection === 'desc' && <forge-icon name="arrow_downward" style={{ fontSize: '14px' }}></forge-icon>}
+                      {sortField === 'student' && sortDirection === 'asc' && <forge-icon name="arrow_upward" style={{ fontSize: '14px' }}></forge-icon>}
+                      {sortField !== 'student' && <forge-icon name="unfold_more" style={{ fontSize: '14px', opacity: 0.3 }}></forge-icon>}
                     </button>
                   </th>
-                  <th className="forge-table-cell forge-table-cell--header">
+                  <th className="forge-table-cell forge-table-cell--header" style={{ minWidth: '180px' }}>
                     <button
                       onClick={() => handleSort('type')}
                       className="flex items-center gap-1 hover:text-primary transition-colors"
                     >
                       Type
-                      {sortField === 'type' && sortDirection === 'desc' && <ArrowDown className="h-4 w-4" />}
-                      {sortField === 'type' && sortDirection === 'asc' && <ArrowUp className="h-4 w-4" />}
-                      {sortField !== 'type' && <ArrowUpDown className="h-4 w-4 opacity-30" />}
+                      {sortField === 'type' && sortDirection === 'desc' && <forge-icon name="arrow_downward" style={{ fontSize: '14px' }}></forge-icon>}
+                      {sortField === 'type' && sortDirection === 'asc' && <forge-icon name="arrow_upward" style={{ fontSize: '14px' }}></forge-icon>}
+                      {sortField !== 'type' && <forge-icon name="unfold_more" style={{ fontSize: '14px', opacity: 0.3 }}></forge-icon>}
                     </button>
                   </th>
-                  <th className="forge-table-cell forge-table-cell--header">Vehicle/Run</th>
-                  <th className="forge-table-cell forge-table-cell--header">
+                  <th className="forge-table-cell forge-table-cell--header" style={{ minWidth: '220px' }}>Vehicle/Run</th>
+                  <th className="forge-table-cell forge-table-cell--header" style={{ minWidth: '110px' }}>
                     <button
                       onClick={() => handleSort('severity')}
                       className="flex items-center gap-1 hover:text-primary transition-colors"
                     >
                       Severity
-                      {sortField === 'severity' && sortDirection === 'desc' && <ArrowDown className="h-4 w-4" />}
-                      {sortField === 'severity' && sortDirection === 'asc' && <ArrowUp className="h-4 w-4" />}
-                      {sortField !== 'severity' && <ArrowUpDown className="h-4 w-4 opacity-30" />}
+                      {sortField === 'severity' && sortDirection === 'desc' && <forge-icon name="arrow_downward" style={{ fontSize: '14px' }}></forge-icon>}
+                      {sortField === 'severity' && sortDirection === 'asc' && <forge-icon name="arrow_upward" style={{ fontSize: '14px' }}></forge-icon>}
+                      {sortField !== 'severity' && <forge-icon name="unfold_more" style={{ fontSize: '14px', opacity: 0.3 }}></forge-icon>}
                     </button>
                   </th>
-                  <th className="forge-table-cell forge-table-cell--header">
+                  <th className="forge-table-cell forge-table-cell--header" style={{ minWidth: '130px' }}>
                     <button
                       onClick={() => handleSort('status')}
                       className="flex items-center gap-1 hover:text-primary transition-colors"
                     >
                       Status
-                      {sortField === 'status' && sortDirection === 'desc' && <ArrowDown className="h-4 w-4" />}
-                      {sortField === 'status' && sortDirection === 'asc' && <ArrowUp className="h-4 w-4" />}
-                      {sortField !== 'status' && <ArrowUpDown className="h-4 w-4 opacity-30" />}
+                      {sortField === 'status' && sortDirection === 'desc' && <forge-icon name="arrow_downward" style={{ fontSize: '14px' }}></forge-icon>}
+                      {sortField === 'status' && sortDirection === 'asc' && <forge-icon name="arrow_upward" style={{ fontSize: '14px' }}></forge-icon>}
+                      {sortField !== 'status' && <forge-icon name="unfold_more" style={{ fontSize: '14px', opacity: 0.3 }}></forge-icon>}
                     </button>
                   </th>
-                  <th className="forge-table-cell forge-table-cell--header" style={{ minWidth: '200px' }}>
+                  <th className="forge-table-cell forge-table-cell--header" style={{ minWidth: '240px' }}>
                     <button
                       onClick={() => handleSort('workflow')}
                       className="flex items-center gap-1 hover:text-primary transition-colors"
                     >
-                      <GitBranch className="h-4 w-4" />
+                      <forge-icon name="account_tree" style={{ fontSize: '16px' }}></forge-icon>
                       Workflow Step
-                      {sortField === 'workflow' && sortDirection === 'desc' && <ArrowDown className="h-4 w-4" />}
-                      {sortField === 'workflow' && sortDirection === 'asc' && <ArrowUp className="h-4 w-4" />}
-                      {sortField !== 'workflow' && <ArrowUpDown className="h-4 w-4 opacity-30" />}
+                      {sortField === 'workflow' && sortDirection === 'desc' && <forge-icon name="arrow_downward" style={{ fontSize: '14px' }}></forge-icon>}
+                      {sortField === 'workflow' && sortDirection === 'asc' && <forge-icon name="arrow_upward" style={{ fontSize: '14px' }}></forge-icon>}
+                      {sortField !== 'workflow' && <forge-icon name="unfold_more" style={{ fontSize: '14px', opacity: 0.3 }}></forge-icon>}
                     </button>
                   </th>
-                  <th className="forge-table-cell forge-table-cell--header">Assigned To</th>
-                  <th className="forge-table-cell forge-table-cell--header">Messages</th>
+                  <th className="forge-table-cell forge-table-cell--header" style={{ minWidth: '150px' }}>Assigned To</th>
+                  <th className="forge-table-cell forge-table-cell--header" style={{ minWidth: '100px' }}>Messages</th>
                 </tr>
               </thead>
               <tbody>
@@ -1661,13 +1660,29 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
                       </td>
                       <td className="forge-table-cell">{incident.date.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$2-$3-$1')}</td>
                       <td className="forge-table-cell">
-                        <div>{incident.student}</div>
-                        <div style={{ fontSize: 'calc(var(--forge-font-size-sm) - 2px)', color: 'var(--forge-theme-text-low)' }}>
-                          {incident.studentId}
-                        </div>
+                        {incident.involvedStudents && incident.involvedStudents.length > 1 ? (
+                          <>
+                            <div title={incident.involvedStudents.map((s: any) => `${s.name} (${s.role})`).join(', ')}>
+                              {incident.involvedStudents[0].name}
+                              <span style={{ marginLeft: '4px', color: 'var(--forge-theme-text-low)' }}>
+                                +{incident.involvedStudents.length - 1} more
+                              </span>
+                            </div>
+                            <div style={{ fontSize: 'calc(var(--forge-font-size-sm) - 2px)', color: 'var(--forge-theme-text-low)' }}>
+                              {incident.involvedStudents.length} students involved
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div>{incident.student}</div>
+                            <div style={{ fontSize: 'calc(var(--forge-font-size-sm) - 2px)', color: 'var(--forge-theme-text-low)' }}>
+                              {incident.studentId}
+                            </div>
+                          </>
+                        )}
                       </td>
                       <td className="forge-table-cell">
-                        <Badge variant="outline" style={{ fontSize: '0.9em', padding: '2px 8px' }}>{incident.type}</Badge>
+                        <forge-badge theme="default">{incident.type}</forge-badge>
                       </td>
                       <td className="forge-table-cell">
                         <div>{incident.bus}</div>
@@ -1676,28 +1691,14 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
                         </div>
                       </td>
                       <td className="forge-table-cell">
-                        <Badge
-                          variant={
-                            incident.severity === 'High' ? 'destructive' :
-                            incident.severity === 'Medium' ? 'secondary' :
-                            'outline'
-                          }
-                          style={{ fontSize: '0.9em', padding: '2px 8px' }}
-                        >
+                        <forge-badge theme={severityTheme(incident.severity)} strong>
                           {incident.severity}
-                        </Badge>
+                        </forge-badge>
                       </td>
                       <td className="forge-table-cell">
-                        <Badge
-                          variant={
-                            incident.status === 'Open' ? 'default' :
-                            incident.status === 'In Progress' ? 'secondary' :
-                            'outline'
-                          }
-                          style={{ fontSize: '0.9em', padding: '2px 8px' }}
-                        >
+                        <forge-badge theme={statusTheme(incident.status)}>
                           {incident.status}
-                        </Badge>
+                        </forge-badge>
                       </td>
                       <td className="forge-table-cell">
                         <IncidentWorkflowProgress workflow={incident.workflow} />
@@ -1715,7 +1716,7 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
                               onNavigateToCommunication(incident.id);
                             }}
                           >
-                            <MessageSquare style={{ width: '1.07em', height: '1.07em' }} />
+                            <forge-icon name="chat" style={{ fontSize: '16px' }}></forge-icon>
                           </ForgeButton>
                         )}
                       </td>
@@ -1727,15 +1728,15 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
           {/* Pagination Controls */}
           <div className="flex items-center justify-between" style={{ paddingTop: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--forge-color-border-subtle)', marginTop: 'var(--forge-spacing-medium)' }}>
             <div className="flex items-center" style={{ gap: 'var(--forge-spacing-small)' }}>
-              <span style={{ fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', whiteSpace: 'nowrap' }}>
                 Showing {sortedIncidents.length === 0 ? 0 : startIndex + 1}–{Math.min(startIndex + rowsPerPage, sortedIncidents.length)} of {sortedIncidents.length} incidents
               </span>
-              {rowsPerPage === 10 && sortedIncidents.length > 10 && (
+              {rowsPerPage === 5 && sortedIncidents.length > 5 && (
                 <ForgeButton
                   variant="outlined"
-                  size="sm"
+                  dense
                   onClick={() => { setRowsPerPage(25); setCurrentPage(1); }}
-                  style={{ fontSize: 'var(--forge-font-size-sm)' }}
+                  style={{ fontSize: '0.75rem' }}
                 >
                   Show 25
                 </ForgeButton>
@@ -1743,46 +1744,53 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
               {rowsPerPage === 25 && (
                 <ForgeButton
                   variant="outlined"
-                  size="sm"
-                  onClick={() => { setRowsPerPage(10); setCurrentPage(1); }}
-                  style={{ fontSize: 'var(--forge-font-size-sm)' }}
+                  dense
+                  onClick={() => { setRowsPerPage(5); setCurrentPage(1); }}
+                  style={{ fontSize: '0.75rem' }}
                 >
-                  Show 10
+                  Show 5
                 </ForgeButton>
               )}
             </div>
 
             {totalPages > 1 && (
               <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)' }}>
-                <ForgeButton
-                  variant="outlined"
-                  size="sm"
+                <ForgeIconButton
+                  aria-label="Previous page"
+                  dense
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  style={{ padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)' }}
                 >
-                  <ChevronLeft className="h-4 w-4" />
-                </ForgeButton>
+                  <button type="button">
+                    <forge-icon name="chevron_left"></forge-icon>
+                  </button>
+                </ForgeIconButton>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                   <ForgeButton
                     key={page}
                     variant={page === currentPage ? 'raised' : 'outlined'}
-                    size="sm"
+                    dense
                     onClick={() => setCurrentPage(page)}
-                    style={{ minWidth: '32px', padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)', fontSize: 'var(--forge-font-size-sm)' }}
+                    className="pagination-page-btn"
+                    style={{
+                      ['--forge-button-min-width' as any]: '24px',
+                      ['--forge-button-padding-inline' as any]: '6px',
+                      fontSize: '0.75rem',
+                    }}
                   >
                     {page}
                   </ForgeButton>
                 ))}
-                <ForgeButton
-                  variant="outlined"
-                  size="sm"
+                <ForgeIconButton
+                  aria-label="Next page"
+                  dense
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  style={{ padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)' }}
                 >
-                  <ChevronRight className="h-4 w-4" />
-                </ForgeButton>
+                  <button type="button">
+                    <forge-icon name="chevron_right"></forge-icon>
+                  </button>
+                </ForgeIconButton>
               </div>
             )}
           </div>
@@ -1805,7 +1813,7 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
             <NewIncidentForm onNavigate={(page) => {
               setIsNewIncidentDialogOpen(false);
               if (page === 'incidents') {
-                toast.success('Incident reported successfully!');
+                toastHelper[0]({ message: 'Incident reported successfully!', theme: 'success', duration: 3000 } as any);
               }
             }} />
           </div>

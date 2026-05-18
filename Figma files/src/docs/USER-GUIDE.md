@@ -115,7 +115,7 @@ The application uses a Tyler Forge header with two navigation systems:
 
 Horizontal tab bar below the header provides quick access:
 
-| Tab | Route | Icon | Purpose |
+| Tab | Run | Icon | Purpose |
 |-----|-------|------|---------|
 | Dashboard | `dashboard` | Home | Personal triage and analytics |
 | Incidents | `incidents` | AlertCircle | Incident list and management |
@@ -343,7 +343,7 @@ NOTE: These are computed aggregates, not sample data. Actual values depend on th
 | Student | string + avatar | Yes | Student name with circular photo avatar |
 | Driver | string | Yes | Reporting/involved driver |
 | Vehicle | string | Yes | Bus number |
-| Route | string | Yes | Route name |
+| Run | string | Yes | Run name |
 | Type | string + badge | Yes | Color-coded by category |
 | Severity | enum + badge | Yes | Color-coded: High=red, Medium=amber, Low=gray |
 | Status | enum + badge | Yes | Color-coded: Open=blue, In Progress=amber, Closed=green |
@@ -395,7 +395,7 @@ When a user clicks an incident ID, the system checks if the incident has a workf
 
 | Tab Name | Purpose | Contents | Default? | Notes |
 |----------|---------|----------|----------|-------|
-| Overview | Core incident information | Incident metadata, student/driver info, description, severity, status, route, location | Yes | Read-only summary |
+| Overview | Core incident information | Incident metadata, student/driver info, description, severity, status, run, location | Yes | Read-only summary |
 | Workflow | Step-by-step workflow progress | Workflow name, progress bar, step list with status indicators, complete/approve actions | No | Interactive workflow management |
 | History | Audit trail of changes | Chronological list of status changes, edits, workflow actions | No | Read-only log |
 | Photos | Photo evidence gallery | Uploaded incident photos with thumbnails and zoom | No | View-only |
@@ -415,7 +415,7 @@ When a user clicks an incident ID, the system checks if the incident has a workf
 | studentId | Student ID | read-only string | Y | -- | `^STU-\d{4}$` | server | `STU-1016` |
 | driver | Driver | read-only string | Y | -- | max 100 chars | server | `David Park` |
 | bus | Vehicle | read-only string | Y | -- | `Bus ##` or `Vehicle ##` format | server | `Vehicle 15` |
-| route | Route | read-only string | Y | -- | max 100 chars | server | `Jefferson Middle AM - Blue` |
+| run | Run | read-only string | Y | -- | max 100 chars | server | `Jefferson Middle AM - Blue` |
 | description | Description | read-only text | Y | -- | max 2000 chars | server | `Pushed another student causing minor injury` |
 
 ### Workflow Tab Fields
@@ -518,7 +518,7 @@ Fields mirror the New Incident form fields (see [Section 6](#6-new-incident-form
 |-------|-------------|
 | **Default (initial)** | Category selector shown - two large buttons: Student Incident / Driver Incident |
 | **Category selected** | Full form appears with fields filtered by category |
-| **Student selected** | Student photo and details auto-populate; associated bus/route may pre-fill |
+| **Student selected** | Student photo and details auto-populate; associated bus/run may pre-fill |
 | **Address selected** | Map component renders with pin at selected location |
 | **Photos uploaded** | Thumbnail gallery with remove (X) buttons |
 | **Documents uploaded** | File list with icons and remove buttons |
@@ -540,7 +540,7 @@ Fields mirror the New Incident form fields (see [Section 6](#6-new-incident-form
 | location | Location | select (grouped) | Y | `""` | "Select location" | Must select from context-dependent list | Groups differ for student vs driver incidents | static list varies by incidentCategory | `on-bus` |
 | address | Address / Intersection | autocomplete (Command) | N | `""` | "Search for an address..." | Must select from verified address list | Shows map pin when selected | Google Places API (mock) | `1234 Main Street, Meridian, ID 83642` |
 | bus | Vehicle | select | Y | `""` | "Select vehicle" | Must select from fleet list | Auto-populated if driver selected first | API `/api/vehicles` (mock) | `bus-12` |
-| route | Route | select | Y | `""` | "Select route" | Must select from route list | Associated with vehicle and driver | API `/api/routes` (mock) | `lincoln-elem-am-green` |
+| run | Run | select | Y | `""` | "Select run" | Must select from run list | Associated with vehicle and driver | API `/api/runs` (mock) | `lincoln-elem-am-green` |
 | witnessPresent | Witness Present | checkbox | N | `false` | -- | boolean | Check if witnesses were present | user-entered | `true` |
 | witnessName | Witness Name | text input | N (conditional: shown if witnessPresent) | `""` | "Witness name" | max 100 chars | Name of witness | user-entered | `Jane Smith` |
 | parentNotified | Parent/Guardian Notified | checkbox | N | `false` | -- | boolean | Check if parent has been contacted | user-entered | `false` |
@@ -643,7 +643,7 @@ NOTE: These are computed aggregates. Actual values depend on the live dataset.
 | Grade | string | Yes | e.g., `8th Grade` |
 | School | string | Yes | School name |
 | Bus | string | Yes | Assigned vehicle |
-| Route | string | Yes | Assigned route |
+| Run | string | Yes | Assigned run |
 | Incidents | integer | Yes | Total incident count |
 | Last Incident | date `YYYY-MM-DD` | Yes | Most recent incident date; "--" if none |
 
@@ -663,7 +663,7 @@ Triggered by clicking a Student ID.
 | grade | Grade | read-only string | e.g. `8th Grade` | server | `8th Grade` |
 | school | School | read-only string | max 100 chars | server | `Lincoln Middle School` |
 | bus | Bus | read-only string | Bus/Vehicle format | server | `Bus 12` |
-| route | Route | read-only string | max 100 chars | server | `Meyers Middle AM - Yellow` |
+| run | Run | read-only string | max 100 chars | server | `Meyers Middle AM - Yellow` |
 | incidentCount | Incidents | read-only integer | >= 0 | computed | `1` |
 
 **Incident History Table** within the dialog:
@@ -714,7 +714,7 @@ Triggered by clicking a Student ID.
 
 | Field Name | Label | Type | Required | Default | Placeholder | Validation Rules / Constraints | Help Text | Source | Example |
 |------------|-------|------|----------|---------|-------------|-------------------------------|-----------|--------|---------|
-| searchQuery | Search | text input | N | `""` | "Search drivers..." | max 200 chars; searches name, employeeId, route | Real-time filtering | user-entered | `Chen` |
+| searchQuery | Search | text input | N | `""` | "Search drivers..." | max 200 chars; searches name, employeeId, run | Real-time filtering | user-entered | `Chen` |
 | statusFilter | Status | select | N | `all` | "All Statuses" | `all` / `Active` / `On Leave` / `Inactive` | Filter by employment status | static list | `Active` |
 
 ### Table Columns
@@ -725,7 +725,7 @@ Triggered by clicking a Student ID.
 | Name | string + avatar + employeeId | Yes | Photo avatar + employee ID in smaller text below |
 | Contact | string | Yes | Phone number format `(555) 123-4567` |
 | Assigned Vehicle | string | Yes | Bus name |
-| Primary Route | string | Yes | Route name |
+| Primary Run | string | Yes | Run name |
 | Status | enum + badge | Yes | Active (green), On Leave (yellow), Inactive (gray) |
 | Safety Rating | string + badge | Yes | Good/Excellent/Needs Improvement |
 
@@ -746,8 +746,8 @@ Triggered by clicking a Student ID.
 | hireDate | Hire Date | read-only date | `YYYY-MM-DD` | server | `2019-08-15` |
 | yearsOfService | Years of Service | read-only integer | >= 0 | computed from hireDate | `5` |
 | assignedVehicle | Assigned Vehicle | read-only string | Vehicle name | server | `Bus 1` |
-| primaryRoute | Primary Route | read-only string | max 100 chars | server | `Westside Elementary AM - Gold` |
-| secondaryRoute | Secondary Route | read-only string | max 100 chars; nullable | server | `Westside Elementary PM - Gold` |
+| primaryRoute | Primary Run | read-only string | max 100 chars | server | `Westside Elementary AM - Gold` |
+| secondaryRoute | Secondary Run | read-only string | max 100 chars; nullable | server | `Westside Elementary PM - Gold` |
 | defaultGarage | Default Garage | read-only string | max 100 chars | server | `East Service Center` |
 | safetyRating | Safety Rating | read-only string | `Good` / `Excellent` / `Needs Improvement` | server | `Good` |
 | performanceScore | Performance Score | read-only integer | 0-100 | server | `87` |
@@ -791,7 +791,7 @@ Triggered by clicking a Student ID.
 
 | Field Name | Label | Type | Required | Default | Placeholder | Validation | Source | Example |
 |------------|-------|------|----------|---------|-------------|------------|--------|---------|
-| searchQuery | Search | text input | N | `""` | "Search vehicles..." | max 200 chars; searches id, name, driver, route | user-entered | `VEH-015` |
+| searchQuery | Search | text input | N | `""` | "Search vehicles..." | max 200 chars; searches id, name, driver, run | user-entered | `VEH-015` |
 | statusFilter | Status | select | N | `all` | "All Statuses" | `all` / `Active` / `Maintenance` / `Inactive` | static list | `Active` |
 | maintenanceFilter | Maintenance | select | N | `all` | "All Maintenance" | `all` / `Excellent` / `Good` / `Needs Attention` / `In Repair` | static list | `Good` |
 
@@ -802,7 +802,7 @@ Triggered by clicking a Student ID.
 | Vehicle ID | string link | Yes | `^VEH-\d{3}$`; click opens detail dialog |
 | Details | string + bus photo | Yes | Bus name with circular photo (bus model image) |
 | Driver | string | Yes | Currently assigned driver |
-| Primary Route | string | Yes | Main route |
+| Primary Run | string | Yes | Main run |
 | Status | enum + badge | Yes | Active (green), Maintenance (amber), Inactive (gray) |
 | Maintenance | string + icon | Yes | Checkmark (good), Warning (needs attention), Wrench (in repair) |
 | Incidents | integer + trend | Yes | Count with trend arrow: red up (>8), green down (<4) |
@@ -822,8 +822,8 @@ Triggered by clicking a Student ID.
 | capacity | Capacity | read-only integer | > 0 | server | `72` |
 | status | Status | read-only enum | `Active` / `Maintenance` / `Inactive` | server | `Active` |
 | driver | Assigned Driver | read-only string | max 100 chars | server | `David Park` |
-| primaryRoute | Primary Route | read-only string | max 100 chars | server | `Jefferson Middle AM - Blue` |
-| secondaryRoute | Secondary Route | read-only string | nullable | server | `Jefferson Middle PM - Blue` |
+| primaryRoute | Primary Run | read-only string | max 100 chars | server | `Jefferson Middle AM - Blue` |
+| secondaryRoute | Secondary Run | read-only string | nullable | server | `Jefferson Middle PM - Blue` |
 | fuelType | Fuel Type | read-only string | e.g. `Diesel`, `Propane`, `Electric` | server | `Diesel` |
 | mileage | Mileage | read-only integer | >= 0, comma-formatted | server | `45,200` |
 | hourmeter | Hourmeter | read-only number | >= 0, 1 decimal | server | `2,340.5` |
@@ -907,7 +907,7 @@ The vehicles page uses imported bus model images for visual display:
 
 #### Incident Context Header
 
-Shows linked incident details: ID, date, student, type, severity, bus, route.
+Shows linked incident details: ID, date, student, type, severity, bus, run.
 
 #### Message Fields
 
@@ -1416,7 +1416,7 @@ The system defines 35+ incident types across 10 categories. Each type has an `id
 | Category | Type Label | Default Severity |
 |----------|-----------|-----------------|
 | **Driver Operational** | Late Arrival | Low |
-| | Route Deviation | Medium |
+| | Run Deviation | Medium |
 | | Missed Stop | Medium |
 | | Policy Violation | Medium |
 | | Communication Issue | Low |

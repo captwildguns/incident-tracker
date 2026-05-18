@@ -322,7 +322,7 @@ export function HelpPage() {
                       <div>
                         <p className="mb-1"><strong>Driver Incidents (18 types) across 3 categories:</strong></p>
                         <ul className="ml-5 space-y-1">
-                          <li><strong>Driver Operational:</strong> Late Arrival, Route Deviation, Missed Stop, Policy Violation, Communication Issue</li>
+                          <li><strong>Driver Operational:</strong> Late Arrival, Run Deviation, Missed Stop, Policy Violation, Communication Issue</li>
                           <li><strong>Driver Safety:</strong> Unsafe Driving, Distracted Driving, Equipment Safety Violation, Loading/Unloading Safety Issue</li>
                           <li><strong>Vehicle Incident:</strong> Vehicle Accident, Vehicle Bumping/Light Contact, Collision with Object, Collision with Vehicle, Backing Incident, Mirror Strike, Property Damage, Mechanical Failure, Vehicle Breakdown</li>
                         </ul>
@@ -416,7 +416,7 @@ export function HelpPage() {
                         <li><strong>WF-011 Prohibited Items Response</strong> &mdash; Tobacco/Vaping, Harmful Items, Illegal Substances, Inappropriate Material, Weapon Possession</li>
                         <li><strong>WF-012 Privacy Violation Response</strong> &mdash; Unauthorized Recording</li>
                         <li><strong>WF-014 Repeated Misconduct Escalation</strong> &mdash; Repeated Misconduct</li>
-                        <li><strong>WF-015 Driver Operational Review</strong> &mdash; Late Arrival, Route Deviation, Missed Stop, Policy Violation, Communication Issue</li>
+                        <li><strong>WF-015 Driver Operational Review</strong> &mdash; Late Arrival, Run Deviation, Missed Stop, Policy Violation, Communication Issue</li>
                         <li><strong>WF-016 Driver Safety Investigation</strong> &mdash; Unsafe Driving, Distracted Driving, Equipment Safety Violation, Loading/Unloading Safety Issue</li>
                         <li><strong>WF-017 Vehicle Accident Response</strong> &mdash; Vehicle Accident, Collision with Vehicle</li>
                         <li><strong>WF-018 Minor Vehicle Incident</strong> &mdash; Vehicle Bumping, Collision with Object, Backing Incident, Mirror Strike, Property Damage</li>
@@ -471,16 +471,11 @@ export function HelpPage() {
                         Each workflow step can be configured to send email notifications using one of the <strong>10 system email templates</strong>:
                       </p>
                       <ul className="ml-5 space-y-1">
-                        <li><strong>Default Notification</strong> &mdash; Generic step start/complete alerts</li>
                         <li><strong>Urgent Action Required</strong> &mdash; High-priority alerts for critical steps</li>
                         <li><strong>Approval Request</strong> &mdash; Sent to approvers when approval is needed</li>
-                        <li><strong>Status Update</strong> &mdash; Incident status change notifications</li>
-                        <li><strong>Completion Notice</strong> &mdash; Sent when a workflow is fully completed</li>
                         <li><strong>Custom Template</strong> &mdash; Blank customizable template</li>
                         <li><strong>Parent/Guardian Notification</strong> &mdash; Tailored for parent communication about student incidents</li>
                         <li><strong>Escalation Notice</strong> &mdash; For repeated offenses and progressive discipline</li>
-                        <li><strong>Follow-up Reminder</strong> &mdash; Scheduled reminders for 30-day check-ins and monitoring</li>
-                        <li><strong>Corrective Action / Retraining Notice</strong> &mdash; For driver corrective actions and retraining</li>
                       </ul>
                       <p className="mt-2" style={{ fontStyle: 'italic', fontSize: 'var(--text-sm)' }}>
                         Templates are managed in Administration &rarr; Email Templates. Each template supports {`{{variable}}`} placeholders that are populated at send time.
@@ -583,7 +578,7 @@ export function HelpPage() {
                         <li><strong>Vehicle ID:</strong> Clickable unique identifier</li>
                         <li><strong>Details:</strong> Bus name, year, make, model</li>
                         <li><strong>Assigned Driver:</strong> Current assignment</li>
-                        <li><strong>Primary Route:</strong> Main route with icon</li>
+                        <li><strong>Primary Run:</strong> Main run with icon</li>
                         <li><strong>Status:</strong> Active, Inactive, or Maintenance</li>
                         <li><strong>Maintenance Status:</strong> Excellent, Good, Needs Attention, In Repair (color-coded badges)</li>
                         <li><strong>Incidents:</strong> Count with trend indicator</li>
@@ -613,7 +608,7 @@ export function HelpPage() {
                       <h4 className="mb-2">Driver List View</h4>
                       <ul className="ml-5 space-y-1">
                         <li><strong>Driver ID:</strong> Clickable identifier</li>
-                        <li><strong>Name, Status, Vehicle, Route, Certifications, Incidents, Communications</strong></li>
+                        <li><strong>Name, Status, Vehicle, Run, Certifications, Incidents, Communications</strong></li>
                       </ul>
                     </div>
                     <div>
@@ -652,7 +647,7 @@ export function HelpPage() {
                         <li>Incidents This Month</li>
                         <li>Incidents by Student</li>
                         <li>Incidents by Driver (with enriched driver names for student incidents)</li>
-                        <li>Incidents by Route</li>
+                        <li>Incidents by Run</li>
                         <li>Resolution Time Report</li>
                         <li>Monthly Summary</li>
                       </ul>
@@ -704,7 +699,7 @@ export function HelpPage() {
                       <h4 className="mb-2">Email Templates Tab</h4>
                       <p className="mb-2">Manage notification email templates used by workflow step notifications:</p>
                       <ul className="ml-5 space-y-1">
-                        <li><strong>10 System-Default Templates:</strong> Default Notification, Urgent Action Required, Approval Request, Status Update, Completion Notice, Custom Template, Parent/Guardian Notification, Escalation Notice, Follow-up Reminder, Corrective Action / Retraining Notice</li>
+                        <li><strong>5 System-Default Templates:</strong> Urgent Action Required, Approval Request, Custom Template, Parent/Guardian Notification, Escalation Notice</li>
                         <li><strong>Variable Placeholders:</strong> Templates use {`{{variable_name}}`} syntax (e.g., {`{{recipient_name}}`}, {`{{incident_id}}`}, {`{{step_name}}`}) that are populated when emails are sent</li>
                         <li><strong>Template Categories:</strong> Notification, Approval, Escalation, Completion, Custom</li>
                         <li><strong>Actions:</strong> Create new template, edit, duplicate, preview, delete</li>

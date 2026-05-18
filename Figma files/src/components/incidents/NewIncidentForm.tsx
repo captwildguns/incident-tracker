@@ -1,15 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent, defineButtonComponent, defineTextFieldComponent } from '@tylertech/forge';
+import { defineCardComponent, defineButtonComponent, defineTextFieldComponent, defineStepperComponent } from '@tylertech/forge';
 defineCardComponent();
 defineButtonComponent();
 defineTextFieldComponent();
+defineStepperComponent();
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Checkbox } from '../ui/checkbox';
 import { Badge } from '../ui/badge';
 import {
-  AlertCircle, Send, Check, Circle, CheckCircle2, Upload, X,
+  AlertCircle, Send, Circle, CheckCircle2, Upload, X,
   Image as ImageIcon, FileText, Users, ChevronRight, ChevronDown, ChevronUp, Plus,
 } from 'lucide-react';
 import { Alert, AlertDescription } from '../ui/alert';
@@ -32,7 +33,7 @@ const mockStudents = [
 const mockDrivers = [
   { id: 'DRV-101', name: 'Robert Martinez', employeeId: 'EMP-4521', photoUrl: 'https://images.unsplash.com/photo-1633665503034-78f3628a86e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxidXMlMjBkcml2ZXIlMjBwb3J0cmFpdCUyMHByb2Zlc3Npb25hbHxlbnwxfHx8fDE3Njc3MTg2Njh8MA&ixlib=rb-4.1.0&q=80&w=1080', routes: ['lincoln-elem-am-green'] },
   { id: 'DRV-102', name: 'Jennifer Davis', employeeId: 'EMP-4522', photoUrl: 'https://images.unsplash.com/photo-1758691737610-1f18e008f5f2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjB3b3JrZXIlMjBoZWFkc2hvdCUyMHdvbWFufGVufDF8fHx8MTc2NzcxODY2OXww&ixlib=rb-4.1.0&q=80&w=1080', routes: ['washington-high-pm-wolf'] },
-  { id: 'DRV-103', name: 'Michael Chen', employeeId: 'EMP-4523', photoUrl: 'https://images.unsplash.com/photo-1568585105565-e372998a195d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjB3b3JrZXIlMjBoZWFkc2hvdCUyMG1hbnxlbnwxfHx8fDE3Njc3MTg2Njl8MA&ixlib=rb-4.1.0&q=80&w=1080', routes: ['jefferson-middle-am-blue'] },
+  { id: 'DRV-103', name: 'John Chen', employeeId: 'EMP-4523', photoUrl: 'https://images.unsplash.com/photo-1568585105565-e372998a195d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjB3b3JrZXIlMjBoZWFkc2hvdCUyMG1hbnxlbnwxfHx8fDE3Njc3MTg2Njl8MA&ixlib=rb-4.1.0&q=80&w=1080', routes: ['jefferson-middle-am-blue'] },
   { id: 'DRV-104', name: 'Patricia Johnson', employeeId: 'EMP-4524', photoUrl: 'https://images.unsplash.com/photo-1599768431736-c78b881ae983?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBkcml2ZXIlMjBoZWFkc2hvdHxlbnwxfHx8fDE3Njc3MTg2Njh8MA&ixlib=rb-4.1.0&q=80&w=1080', routes: ['roosevelt-high-pm-red'] },
   { id: 'DRV-105', name: 'David Thompson', employeeId: 'EMP-4525', photoUrl: 'https://images.unsplash.com/photo-1485540031485-a278dfc63d2e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmFuc2l0JTIwZHJpdmVyJTIwcG9ydHJhaXR8ZW58MXx8fHwxNzY3NzE4NjY5fDA&ixlib=rb-4.1.0&q=80&w=1080', routes: ['colonie-high-am-purple'] },
   { id: 'DRV-106', name: 'Lisa Anderson', employeeId: 'EMP-4526', photoUrl: 'https://images.unsplash.com/photo-1695395860911-2be98a6cba4a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzY2hvb2wlMjBidXMlMjBkcml2ZXIlMjB1bmlmb3JtfGVufDF8fHx8MTc2NzcxODY2OHww&ixlib=rb-4.1.0&q=80&w=1080', routes: ['meyers-middle-am-yellow'] },
@@ -42,7 +43,7 @@ const mockDrivers = [
 type Student = typeof mockStudents[0];
 interface PerStudentData {
   role: 'instigator' | 'participant' | 'victim' | 'bystander' | '';
-  severityOverride: 'shared' | 'low' | 'medium' | 'high';
+  severityOverride: 'shared' | 'low' | 'medium' | 'high' | 'critical';
   incidentTypeOverride: string;
   parentNotified: boolean;
   actionTaken: string;
@@ -58,6 +59,7 @@ interface SharedFormData {
   route: string;
   witnessPresent: boolean;
   witnessNames: string[];
+  tags: string[];
 }
 
 
@@ -156,6 +158,72 @@ function WitnessFields({ names, onChange }: { names: string[]; onChange: (names:
   );
 }
 
+function TagFields({ tags, onChange }: { tags: string[]; onChange: (tags: string[]) => void }) {
+  const [inputValue, setInputValue] = useState('');
+  const [focused, setFocused] = useState(false);
+
+  const addTag = (raw: string) => {
+    const tag = raw.trim();
+    if (tag && !tags.includes(tag)) onChange([...tags, tag]);
+    setInputValue('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addTag(inputValue);
+    } else if (e.key === 'Backspace' && inputValue === '' && tags.length > 0) {
+      onChange(tags.slice(0, -1));
+    }
+  };
+
+  return (
+    <div>
+      {tags.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
+          {tags.map((tag, idx) => (
+            <div key={idx} style={{
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              padding: '4px 10px', borderRadius: '999px',
+              background: '#EEF2F9', border: '1px solid #C5D2E8',
+              fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)', color: '#4A6FA5',
+            }}>
+              {tag}
+              <button
+                type="button"
+                onClick={() => onChange(tags.filter((_, i) => i !== idx))}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', color: '#4A6FA5' }}
+                aria-label={`Remove tag ${tag}`}
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+      <div style={{
+        display: 'flex', alignItems: 'center',
+        border: `1px solid ${focused ? '#4A6FA5' : '#C5D2E8'}`,
+        borderRadius: '6px', padding: '8px 12px', background: '#fff',
+      }}>
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          onFocus={() => setFocused(true)}
+          onBlur={() => { setFocused(false); if (inputValue.trim()) addTag(inputValue); }}
+          placeholder="Type a tag and press Enter..."
+          style={{ flex: 1, border: 'none', outline: 'none', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', background: 'transparent' }}
+        />
+      </div>
+      <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: '11px', color: 'var(--forge-theme-text-medium)', marginTop: '4px' }}>
+        Press Enter or comma to add a tag
+      </div>
+    </div>
+  );
+}
+
 export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
   const [incidentCategory] = useState<'student'>('student');
   const [currentStep, setCurrentStep] = useState(1);
@@ -171,7 +239,7 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
   // Step 2: shared incident data
   const [sharedData, setSharedData] = useState<SharedFormData>({
     incidentType: '', severity: '', description: '', location: '',
-    bus: '', route: '', witnessPresent: false, witnessNames: [],
+    bus: '', route: '', witnessPresent: false, witnessNames: [], tags: [],
   });
   const [locationCoordinates, setLocationCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [locationAddress, setLocationAddress] = useState('');
@@ -272,39 +340,32 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
         </Alert>
       )}
 
-      {/* Step indicator */}
-      <div className="flex items-center justify-between mb-2">
-        <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)', color: 'var(--forge-theme-text-medium)' }}>
-          Step {currentStep} of 4
-        </span>
-      </div>
-
-      {/* Step progress indicator */}
-      <div className="flex mb-6" style={{ borderBottom: '1px solid var(--forge-color-border-subtle)' }}>
-        {STEPS.map((step) => {
-          const isActive = currentStep === step.number;
-          const isDone = currentStep > step.number;
-          return (
-            <div
-              key={step.number}
-              className="flex-1 text-center pb-3 relative"
-              style={{
-                borderBottom: isActive ? '2px solid #4A6FA5' : isDone ? '2px solid #5A8F5A' : '2px solid transparent',
-                marginBottom: '-1px',
-              }}
-            >
-              <span style={{
-                fontFamily: 'Roboto, sans-serif',
-                fontSize: 'var(--text-xs)',
-                fontWeight: isActive ? 500 : 400,
-                color: isActive ? '#4A6FA5' : isDone ? '#5A8F5A' : 'var(--forge-theme-text-medium)',
-              }}>
-                {isDone && <Check style={{ display: 'inline', width: 12, height: 12, marginRight: 4, verticalAlign: 'middle' }} />}
+      {/* Forge Stepper */}
+      <div className="mb-6">
+        {/* @ts-ignore */}
+        <forge-stepper
+          selected-index={currentStep - 1}
+          linear="true"
+          layout-mode="fixed"
+          style={{ width: '100%' }}
+        >
+          {STEPS.map((step) => {
+            const isDone = currentStep > step.number;
+            const isActive = currentStep === step.number;
+            return (
+              // @ts-ignore
+              <forge-step
+                key={step.number}
+                completed={isDone ? 'true' : undefined}
+                editable={isDone ? 'true' : undefined}
+                selected={isActive ? 'true' : undefined}
+              >
                 {step.label}
-              </span>
-            </div>
-          );
-        })}
+              </forge-step>
+            );
+          })}
+        {/* @ts-ignore */}
+        </forge-stepper>
       </div>
 
       {/* ── Step 1: Involved Students ── */}
@@ -534,11 +595,15 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
               <div>
                 <Label style={{ fontFamily: 'Roboto, sans-serif' }}>Severity Level *</Label>
                 <div className="flex gap-3 mt-2">
-                  {(['low', 'medium', 'high'] as const).map(level => (
+                  {(['low', 'medium', 'high', 'critical'] as const).map(level => (
                     <button key={level} type="button" onClick={() => setSharedData(s => ({ ...s, severity: level }))}
                       className={`flex items-center gap-2 px-4 py-2 rounded-md border-2 transition-all ${sharedData.severity === level ? 'border-primary bg-primary/5' : 'border-transparent bg-muted/50 hover:bg-muted'}`}>
                       {sharedData.severity === level ? <CheckCircle2 className="h-4 w-4 text-primary" /> : <Circle className="h-4 w-4 text-muted-foreground" />}
-                      <Badge variant={level === 'high' ? 'destructive' : level === 'medium' ? 'secondary' : 'outline'} className="pointer-events-none">{level.charAt(0).toUpperCase() + level.slice(1)}</Badge>
+                      <Badge
+                        variant={level === 'critical' || level === 'high' ? 'destructive' : level === 'medium' ? 'secondary' : 'outline'}
+                        style={level === 'critical' ? { background: 'var(--forge-theme-critical)', color: '#fff', borderColor: 'var(--forge-theme-critical)' } : undefined}
+                        className="pointer-events-none"
+                      >{level.charAt(0).toUpperCase() + level.slice(1)}</Badge>
                     </button>
                   ))}
                 </div>
@@ -565,6 +630,14 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
                   onChange={(names) => setSharedData(s => ({ ...s, witnessNames: names }))}
                 />
               )}
+
+              <div>
+                <Label style={{ fontFamily: 'Roboto, sans-serif', display: 'block', marginBottom: '8px' }}>Tags</Label>
+                <TagFields
+                  tags={sharedData.tags}
+                  onChange={(tags) => setSharedData(s => ({ ...s, tags }))}
+                />
+              </div>
 
               {/* Location map */}
               <IncidentLocationMap
@@ -668,7 +741,6 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
                       }}
                     >
                       <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)', minWidth: 20, textAlign: 'center' }}>{idx + 1}</span>
-                      <img src={student.photoUrl} alt={student.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', fontWeight: 500 }}>{student.name}</p>
                         <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)' }}>
@@ -731,6 +803,7 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
                                 { value: 'low', label: 'Low' },
                                 { value: 'medium', label: 'Medium' },
                                 { value: 'high', label: 'High' },
+                                { value: 'critical', label: 'Critical' },
                               ] as const).map(option => (
                                 <button
                                   key={option.value}
@@ -901,7 +974,6 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
                 return (
                   <div key={student.id} className="flex items-start gap-3 p-3 rounded-lg border" style={{ borderColor: 'var(--forge-color-border-default)', borderRadius: 'var(--forge-radius-medium)' }}>
                     <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)', minWidth: 20, textAlign: 'center', paddingTop: 2 }}>{idx + 1}</span>
-                    <img src={student.photoUrl} alt={student.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', fontWeight: 500 }}>{student.name}</p>
                       <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)' }}>

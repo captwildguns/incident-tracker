@@ -39,6 +39,7 @@ export interface WorkflowStepTemplate {
   defaultRole: string;
   defaultDuration: string;
   requiresApproval: boolean;
+  instructions?: string[];
   emailNotifications?: {
     notifyOnStart: boolean;
     notifyOnComplete: boolean;

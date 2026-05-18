@@ -1,16 +1,18 @@
 import { ReactNode, useState, useRef, useEffect } from 'react';
-import { Menu, Search, HelpCircle, Home, AlertCircle, Users, UserCircle, Bus, MessageSquare, FileText, GitBranch, Shield } from 'lucide-react';
 import {
   defineScaffoldComponent,
   defineAppBarComponent,
   defineModalDrawerComponent,
   defineIconComponent,
+  defineIconButtonComponent,
+  defineAvatarComponent,
   defineListComponent,
   defineListItemComponent,
   defineDividerComponent,
   IconRegistry,
 } from '@tylertech/forge';
 import {
+  tylIconMenu,
   tylIconHome,
   tylIconWarning,
   tylIconPeople,
@@ -19,50 +21,102 @@ import {
   tylIconChat,
   tylIconDescription,
   tylIconAccountTree,
-  tylIconSecurity,
+  tylIconSettings,
   tylIconHelpOutline,
   tylIconExitToApp,
   tylIconFeedback,
+  tylIconAccessTime,
+  tylIconAdd,
+  tylIconBarChart,
+  tylIconBuild,
+  tylIconCalendarToday,
+  tylIconFilterList,
+  tylIconLocationOn,
+  tylIconPhone,
+  tylIconRefresh,
+  tylIconSchool,
+  tylIconShield,
+  tylIconTrackChanges,
+  tylIconArrowDownward,
+  tylIconArrowDropDown,
+  tylIconArrowForward,
+  tylIconArrowUpward,
+  tylIconCheck,
+  tylIconCheckCircle,
+  tylIconChevronLeft,
+  tylIconContentCopy,
+  tylIconDelete,
+  tylIconFlashOn,
+  tylIconHowToReg,
+  tylIconRadioButtonUnchecked,
+  tylIconChevronRight,
+  tylIconClose,
+  tylIconDownload,
+  tylIconEdit,
+  tylIconEmail,
+  tylIconError,
+  tylIconMoreVert,
+  tylIconPersonAdd,
+  tylIconPhotoCamera,
+  tylIconSearch,
+  tylIconSend,
+  tylIconTrendingDown,
+  tylIconTrendingUp,
+  tylIconUnfoldMore,
+  tylIconVisibility,
+  tylIconZoomIn,
 } from '@tylertech/tyler-icons';
-import { NotificationsDropdown } from './NotificationsDropdown';
 
 // Define Forge custom elements (one-time registration)
 defineScaffoldComponent();
 defineAppBarComponent();
 defineModalDrawerComponent();
 defineIconComponent();
+defineIconButtonComponent();
+defineAvatarComponent();
 defineListComponent();
 defineListItemComponent();
 defineDividerComponent();
 
 // Register Tyler icons
 IconRegistry.define([
+  tylIconMenu,
   tylIconHome, tylIconWarning, tylIconPeople, tylIconPerson,
   tylIconDirectionsBus, tylIconChat, tylIconDescription,
-  tylIconAccountTree, tylIconSecurity, tylIconHelpOutline,
+  tylIconAccountTree, tylIconSettings, tylIconHelpOutline,
   tylIconExitToApp, tylIconFeedback,
+  tylIconAccessTime, tylIconAdd, tylIconArrowDownward, tylIconArrowDropDown, tylIconArrowForward, tylIconArrowUpward,
+  tylIconBarChart, tylIconBuild, tylIconCalendarToday, tylIconFilterList, tylIconLocationOn, tylIconPhone, tylIconRefresh, tylIconSchool, tylIconShield, tylIconTrackChanges,
+  tylIconCheck, tylIconCheckCircle, tylIconChevronLeft, tylIconChevronRight, tylIconClose,
+  tylIconContentCopy, tylIconDelete, tylIconFlashOn, tylIconHowToReg, tylIconRadioButtonUnchecked,
+  tylIconDownload, tylIconEdit, tylIconEmail, tylIconError, tylIconMoreVert, tylIconPersonAdd,
+  tylIconPhotoCamera, tylIconSearch, tylIconSend, tylIconTrendingDown, tylIconTrendingUp,
+  tylIconUnfoldMore, tylIconVisibility, tylIconZoomIn,
 ]);
+
+import { GlobalSearch } from './GlobalSearch';
 
 interface AppLayoutProps {
   children: ReactNode;
   currentPage: string;
   onNavigate: (page: string) => void;
   onNavigateToCommunication?: (incidentId: string, incidentData?: any) => void;
+  onNavigateToIncidentDetail?: (incident: any) => void;
 }
 
 const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: Home, forgeIcon: 'home' },
-  { id: 'incidents', label: 'Incidents', icon: AlertCircle, forgeIcon: 'warning' },
-  { id: 'students', label: 'Students', icon: Users, forgeIcon: 'people' },
-  { id: 'drivers', label: 'Drivers', icon: UserCircle, forgeIcon: 'person' },
-  { id: 'vehicles', label: 'Vehicles', icon: Bus, forgeIcon: 'directions_bus' },
-  { id: 'communications', label: 'Communications', icon: MessageSquare, forgeIcon: 'chat' },
-  { id: 'reports', label: 'Reports', icon: FileText, forgeIcon: 'description' },
-  { id: 'workflows', label: 'Workflows', icon: GitBranch, forgeIcon: 'account_tree' },
-  { id: 'admin', label: 'Admin', icon: Shield, forgeIcon: 'security' },
+  { id: 'dashboard', label: 'Dashboard', forgeIcon: 'home' },
+  { id: 'incidents', label: 'Incidents', forgeIcon: 'warning' },
+  { id: 'students', label: 'Students', forgeIcon: 'people' },
+  { id: 'drivers', label: 'Drivers', forgeIcon: 'person' },
+  { id: 'vehicles', label: 'Vehicles', forgeIcon: 'directions_bus' },
+  { id: 'communications', label: 'Communications', forgeIcon: 'chat' },
+  { id: 'reports', label: 'Reports', forgeIcon: 'description' },
+  { id: 'workflows', label: 'Workflows', forgeIcon: 'account_tree' },
+  { id: 'admin', label: 'Admin', forgeIcon: 'settings' },
 ];
 
-export function AppLayout({ children, currentPage, onNavigate, onNavigateToCommunication }: AppLayoutProps) {
+export function AppLayout({ children, currentPage, onNavigate, onNavigateToCommunication, onNavigateToIncidentDetail }: AppLayoutProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const drawerRef = useRef<HTMLElement>(null);
 
@@ -99,6 +153,7 @@ export function AppLayout({ children, currentPage, onNavigate, onNavigateToCommu
       <aside style={{
         width: '280px', height: '100%', display: 'flex', flexDirection: 'column',
         backgroundColor: 'var(--forge-theme-surface)', color: 'var(--forge-theme-text-high)',
+        overflowX: 'hidden',
       }}>
         {/* Profile Section */}
         <div style={{
@@ -106,82 +161,44 @@ export function AppLayout({ children, currentPage, onNavigate, onNavigateToCommu
           borderBottom: '1px solid var(--forge-theme-outline)',
           backgroundColor: 'var(--forge-theme-primary)',
           color: 'white',
+          display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)' }}>
-            <div style={{
-              width: '40px', height: '40px', borderRadius: '50%',
-              backgroundColor: 'var(--brand-olive-dark)', display: 'flex', alignItems: 'center',
-              justifyContent: 'center', color: 'white', fontSize: '14px',
-              fontWeight: 500, flexShrink: 0,
-            }}>
-              SW
-            </div>
-            <div>
-              <div className="forge-typography--body1" style={{ fontWeight: 500, color: 'white', fontSize: '14px' }}>Sarah Williams</div>
-              <div className="forge-typography--label1" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '12px' }}>Safety Coordinator</div>
-            </div>
-          </div>
+          <forge-avatar text="SW" style={{ '--forge-avatar-background': 'var(--brand-olive-dark)', '--forge-avatar-color': 'white' } as any}></forge-avatar>
+          <span className="forge-typography--body1" style={{ fontWeight: 500, color: 'white', fontSize: '14px' }}>Sarah Williams</span>
         </div>
 
         {/* Navigation Items */}
-        <nav style={{ flex: 1, overflowY: 'auto', padding: 'var(--forge-spacing-xsmall) 0' }}>
-          {navItems.map((item) => {
-            const isActive = currentPage === item.id;
-            const Icon = item.icon;
-            return (
-              <button
-                key={item.id}
-                onClick={() => { onNavigate(item.id); setIsDrawerOpen(false); }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '12px', width: '100%',
-                  padding: '10px 20px',
-                  background: isActive ? 'var(--forge-theme-primary-container)' : 'none',
-                  border: 'none', cursor: 'pointer',
-                  color: isActive ? 'var(--forge-theme-primary)' : 'var(--forge-theme-text-high)',
-                  fontFamily: 'Roboto, sans-serif', fontSize: '14px',
-                  fontWeight: isActive ? 500 : 400,
-                  borderLeft: isActive ? '3px solid var(--forge-theme-primary)' : '3px solid transparent',
-                }}
-              >
-                <Icon size={20} style={{ opacity: isActive ? 1 : 0.6, flexShrink: 0 }} />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
+        <forge-list className="drawer-nav-scroll" style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
+          {navItems.map((item) => (
+            <forge-list-item
+              key={item.id}
+              {...(currentPage === item.id ? { selected: true } : {})}
+              onClick={() => { onNavigate(item.id); setIsDrawerOpen(false); }}
+            >
+              <forge-icon slot="start" name={item.forgeIcon}></forge-icon>
+              {item.label}
+            </forge-list-item>
+          ))}
+        </forge-list>
 
         {/* Bottom Actions */}
-        <div style={{ borderTop: '1px solid var(--forge-theme-outline)', padding: 'var(--forge-spacing-xsmall) 0' }}>
-          <button
-            onClick={() => { onNavigate('help'); setIsDrawerOpen(false); }}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '12px', width: '100%',
-              padding: '10px 20px', background: 'none', border: 'none',
-              cursor: 'pointer', color: 'var(--forge-theme-text-medium)',
-              fontFamily: 'Roboto, sans-serif', fontSize: '14px',
-            }}
-          >
-            <HelpCircle size={20} style={{ opacity: 0.6 }} />
-            <span>Help</span>
-          </button>
-          <button
-            style={{
-              display: 'flex', alignItems: 'center', gap: '12px', width: '100%',
-              padding: '10px 20px', background: 'none', border: 'none',
-              cursor: 'pointer', color: 'var(--forge-theme-text-medium)',
-              fontFamily: 'Roboto, sans-serif', fontSize: '14px',
-            }}
-          >
-            <forge-icon name="exit_to_app" style={{ fontSize: '20px', opacity: 0.6 }}></forge-icon>
-            <span>Logout</span>
-          </button>
-        </div>
+        <forge-divider></forge-divider>
+        <forge-list className="drawer-nav-bottom">
+          <forge-list-item onClick={() => { onNavigate('help'); setIsDrawerOpen(false); }}>
+            <forge-icon slot="start" name="help_outline"></forge-icon>
+            Help
+          </forge-list-item>
+          <forge-list-item onClick={() => { /* logout */ }}>
+            <forge-icon slot="start" name="exit_to_app"></forge-icon>
+            Logout
+          </forge-list-item>
+        </forge-list>
 
+        <forge-divider></forge-divider>
         <div className="forge-typography--label1" style={{
           color: 'var(--forge-theme-text-low)',
           padding: 'var(--forge-spacing-small) var(--forge-spacing-large)',
           textAlign: 'center',
-          borderTop: '1px solid var(--forge-theme-outline)',
         }}>
           &copy; 2025 Tyler Technologies Inc. v1.2.0
         </div>
@@ -189,87 +206,44 @@ export function AppLayout({ children, currentPage, onNavigate, onNavigateToCommu
     </forge-modal-drawer>
 
     <forge-scaffold>
-      {/* Context Bar */}
+      {/* App Bar */}
       <div slot="header">
-        <div
-          className="forge-typography--label1"
-          style={{
-            backgroundColor: 'var(--forge-theme-surface-container-high)',
-            color: 'var(--forge-theme-text-medium)',
-            padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-large)',
-            fontSize: '12px',
-            borderBottom: '1px solid var(--forge-theme-outline)',
-          }}
-        >
-          <span style={{ fontWeight: 500 }}>2024-25 School Year</span>
-        </div>
-
-        {/* App Bar */}
         <forge-app-bar>
-          <button slot="start" type="button" aria-label="Menu"
+          <forge-icon-button slot="start" aria-label="Menu"
             onClick={() => setIsDrawerOpen(!isDrawerOpen)}
-            style={{
-              background: 'none', border: 'none', cursor: 'pointer', color: 'white',
-              display: 'flex', alignItems: 'center', padding: '8px',
-            }}
+            style={{ color: 'white' }}
           >
-            <Menu size={24} />
-          </button>
+            <forge-icon name="menu"></forge-icon>
+          </forge-icon-button>
 
           <div slot="start" style={{ display: 'flex', flexDirection: 'column', cursor: 'pointer' }} onClick={() => onNavigate('dashboard')}>
-            <span className="forge-typography--label1" style={{ color: 'var(--forge-theme-text-medium-inverse)', lineHeight: 1.2 }}>
-              Student Transportation - <em style={{ fontWeight: 400 }}>powered by Traversa</em>
-            </span>
             <span className="forge-typography--heading4" style={{ color: 'var(--forge-theme-text-high-inverse)', lineHeight: 1.3 }}>
               Incident Tracker
             </span>
           </div>
 
           <div slot="center" style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{
-              display: 'flex', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.15)',
-              borderRadius: 'var(--forge-shape-full)', padding: '4px 16px', minWidth: '280px',
-            }}>
-              <Search size={16} style={{ color: 'rgba(255,255,255,0.7)', marginRight: '8px' }} />
-              <input type="text" placeholder="Search..."
-                style={{
-                  background: 'none', border: 'none', outline: 'none', color: 'white',
-                  fontSize: '14px', fontFamily: 'Roboto, sans-serif', width: '100%',
-                }}
-              />
-            </div>
+            <GlobalSearch
+              onNavigate={onNavigate}
+              onNavigateToIncidentDetail={onNavigateToIncidentDetail}
+              onNavigateToCommunication={onNavigateToCommunication}
+            />
           </div>
 
-          <div slot="end" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <NotificationsDropdown onNavigate={onNavigate} />
-            <button type="button" aria-label="Help"
+          <div slot="end" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <forge-icon-button aria-label="Help"
               onClick={() => onNavigate('help')}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer', color: 'white',
-                display: 'flex', alignItems: 'center', padding: '8px', borderRadius: '50%',
-              }}
+              style={{ color: 'white' }}
             >
-              <HelpCircle size={22} />
-            </button>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: '8px', padding: '4px 8px',
-              cursor: 'pointer', borderRadius: 'var(--forge-shape-full)',
-            }}>
-              <div style={{
-                width: '32px', height: '32px', borderRadius: '50%',
-                backgroundColor: 'var(--brand-olive-dark)', display: 'flex',
-                alignItems: 'center', justifyContent: 'center', color: 'white',
-                fontSize: '13px', fontWeight: 500, fontFamily: 'Roboto, sans-serif',
-              }}>
-                SW
-              </div>
-            </div>
+              <forge-icon name="help_outline"></forge-icon>
+            </forge-icon-button>
+            <forge-avatar text="SW" style={{ '--forge-avatar-background': 'var(--brand-olive-dark)', '--forge-avatar-color': 'white', '--forge-avatar-size': '32px' } as any}></forge-avatar>
           </div>
         </forge-app-bar>
       </div>
 
       {/* Main Content */}
-      <main slot="body" style={{ backgroundColor: 'var(--forge-theme-surface-dim)', minHeight: 'calc(100vh - 140px)' }}>
+      <main slot="body" style={{ backgroundColor: 'var(--forge-theme-surface-dim)', minHeight: 'calc(100vh - 140px)', overflowX: 'hidden' }}>
         {children}
       </main>
 

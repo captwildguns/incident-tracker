@@ -33,6 +33,7 @@ import {
   Ban,
   Archive,
   Library,
+  X,
 } from 'lucide-react';
 import { workflowStepTemplates, WorkflowStepTemplate } from './WorkflowStepLibrary';
 import { toast } from 'sonner';
@@ -111,10 +112,13 @@ export function StepTemplateManager({
       notifyAssignee: true,
     },
     tags: [] as string[],
+    instructions: [] as string[],
   });
 
   const [tagInput, setTagInput] = useState('');
   const [editTagInput, setEditTagInput] = useState('');
+  const [newInstructionInput, setNewInstructionInput] = useState('');
+  const [editInstructionInput, setEditInstructionInput] = useState('');
   const [editForm, setEditForm] = useState({
     name: '',
     description: '',
@@ -129,6 +133,7 @@ export function StepTemplateManager({
       notifyAssignee: true,
     },
     tags: [] as string[],
+    instructions: [] as string[],
   });
 
   const createDialogRef = useRef<HTMLElement>(null);
@@ -160,8 +165,10 @@ export function StepTemplateManager({
           notifyAssignee: editingTemplate.emailNotifications?.notifyAssignee ?? true,
         },
         tags: [...editingTemplate.tags],
+        instructions: [...(editingTemplate.instructions || [])],
       });
       setEditTagInput('');
+      setEditInstructionInput('');
     }
   }, [editingTemplate, isEditDialogOpen]);
 
@@ -224,6 +231,7 @@ export function StepTemplateManager({
       requiresApproval: newTemplate.requiresApproval,
       emailNotifications: newTemplate.emailNotifications,
       tags: newTemplate.tags,
+      instructions: newTemplate.instructions,
     };
 
     if (onAddTemplate) {
@@ -249,8 +257,10 @@ export function StepTemplateManager({
         notifyAssignee: true,
       },
       tags: [],
+      instructions: [],
     });
     setTagInput('');
+    setNewInstructionInput('');
     setIsCreateDialogOpen(false);
   };
 
@@ -288,6 +298,7 @@ export function StepTemplateManager({
       requiresApproval: editForm.requiresApproval,
       emailNotifications: editForm.emailNotifications,
       tags: editForm.tags,
+      instructions: editForm.instructions,
     };
     if (onEditTemplate) onEditTemplate(updated);
     toast.success('Template updated', { description: `"${updated.name}" has been saved` });
@@ -477,6 +488,57 @@ export function StepTemplateManager({
                       style={{ marginTop: 'var(--forge-spacing-xsmall)' }}
                     />
                   </forge-text-field>
+                </div>
+              </div>
+
+              {/* "What to do next" Instructions */}
+              <div>
+                <Label style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: '4px' }}>
+                  "What to do next" Instructions
+                </Label>
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-xsmall)' }}>
+                  These bullet points appear on the step action card to guide the assignee. Leave empty to use the default instructions.
+                </p>
+                {newTemplate.instructions.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: 'var(--forge-spacing-small)' }}>
+                    {newTemplate.instructions.map((item, idx) => (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px', background: 'var(--muted)', borderRadius: '4px' }}>
+                        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', minWidth: '16px' }}>·</span>
+                        <span style={{ flex: 1, fontSize: 'var(--text-sm)' }}>{item}</span>
+                        <button
+                          type="button"
+                          onClick={() => setNewTemplate({ ...newTemplate, instructions: newTemplate.instructions.filter((_, i) => i !== idx) })}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: 'var(--muted-foreground)', display: 'flex' }}
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)' }}>
+                  {/* @ts-ignore */}
+                  <forge-text-field style={{ flex: 1 }}>
+                    <input
+                      type="text"
+                      value={newInstructionInput}
+                      onChange={(e) => setNewInstructionInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const val = newInstructionInput.trim();
+                          if (val) { setNewTemplate({ ...newTemplate, instructions: [...newTemplate.instructions, val] }); setNewInstructionInput(''); }
+                        }
+                      }}
+                      placeholder="Type an instruction and press Enter..."
+                    />
+                  </forge-text-field>
+                  <ForgeButton type="button" variant="outlined" onClick={() => {
+                    const val = newInstructionInput.trim();
+                    if (val) { setNewTemplate({ ...newTemplate, instructions: [...newTemplate.instructions, val] }); setNewInstructionInput(''); }
+                  }}>
+                    Add
+                  </ForgeButton>
                 </div>
               </div>
 
@@ -681,6 +743,57 @@ export function StepTemplateManager({
                   <forge-text-field>
                     <input type="text" value={editForm.defaultDuration} onChange={(e) => setEditForm({ ...editForm, defaultDuration: e.target.value })} placeholder="e.g., 30 minutes" style={{ marginTop: 'var(--forge-spacing-xsmall)' }} />
                   </forge-text-field>
+                </div>
+              </div>
+
+              {/* "What to do next" Instructions */}
+              <div>
+                <Label style={{ fontSize: 'var(--text-sm)', display: 'block', marginBottom: '4px' }}>
+                  "What to do next" Instructions
+                </Label>
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-xsmall)' }}>
+                  These bullet points appear on the step action card to guide the assignee. Leave empty to use the default instructions.
+                </p>
+                {editForm.instructions.length > 0 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: 'var(--forge-spacing-small)' }}>
+                    {editForm.instructions.map((item, idx) => (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px', background: 'var(--muted)', borderRadius: '4px' }}>
+                        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', minWidth: '16px' }}>·</span>
+                        <span style={{ flex: 1, fontSize: 'var(--text-sm)' }}>{item}</span>
+                        <button
+                          type="button"
+                          onClick={() => setEditForm({ ...editForm, instructions: editForm.instructions.filter((_, i) => i !== idx) })}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: 'var(--muted-foreground)', display: 'flex' }}
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)' }}>
+                  {/* @ts-ignore */}
+                  <forge-text-field style={{ flex: 1 }}>
+                    <input
+                      type="text"
+                      value={editInstructionInput}
+                      onChange={(e) => setEditInstructionInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const val = editInstructionInput.trim();
+                          if (val) { setEditForm({ ...editForm, instructions: [...editForm.instructions, val] }); setEditInstructionInput(''); }
+                        }
+                      }}
+                      placeholder="Type an instruction and press Enter..."
+                    />
+                  </forge-text-field>
+                  <ForgeButton type="button" variant="outlined" onClick={() => {
+                    const val = editInstructionInput.trim();
+                    if (val) { setEditForm({ ...editForm, instructions: [...editForm.instructions, val] }); setEditInstructionInput(''); }
+                  }}>
+                    Add
+                  </ForgeButton>
                 </div>
               </div>
 

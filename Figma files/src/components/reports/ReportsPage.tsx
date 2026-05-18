@@ -1,78 +1,50 @@
 import { useState, useRef, useEffect } from 'react';
-import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent, defineButtonComponent, defineDialogComponent } from '@tylertech/forge';
+import { ForgeCard, ForgeButton, useForgeToast } from '@tylertech/forge-react';
+import {
+  defineCardComponent,
+  defineButtonComponent,
+  defineDialogComponent,
+  defineBadgeComponent,
+  defineIconComponent,
+} from '@tylertech/forge';
 defineCardComponent();
 defineButtonComponent();
 defineDialogComponent();
-import { Download, Calendar, BarChart3, TrendingUp, Users, AlertTriangle, Bus, Shield, FileText, School, Clock, Target, Eye, X, ArrowUp, ArrowDown } from 'lucide-react';
-import { Badge } from '../ui/badge';
-import { toast } from 'sonner@2.0.3';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+defineBadgeComponent();
+defineIconComponent();
 
 const quickReports = [
   {
     id: 'monthly-summary',
     title: 'Monthly Summary',
     description: 'Incident statistics and trends for the current month',
-    icon: Calendar,
-    color: 'text-blue-500',
+    icon: 'calendar_today',
+    color: '#3b82f6',
     lastRun: '1 day ago',
   },
   {
-    id: 'student-history',
-    title: 'Student Incident History',
-    description: 'Complete incident history by student',
-    icon: Users,
-    color: 'text-purple-500',
-    lastRun: '3 days ago',
-  },
-  {
-    id: 'driver-performance',
-    title: 'Driver Report Summary',
-    description: 'Incidents reported by driver with response metrics',
-    icon: TrendingUp,
-    color: 'text-green-500',
+    id: 'yearly-summary',
+    title: 'Yearly Summary',
+    description: 'Annual incident trends and totals broken down by school term (Fall, Spring, Summer)',
+    icon: 'date_range',
+    color: '#7c3aed',
     lastRun: '1 week ago',
   },
   {
-    id: 'high-severity',
-    title: 'High Severity Incidents',
-    description: 'All high severity incidents requiring immediate attention',
-    icon: AlertTriangle,
-    color: 'text-red-500',
+    id: 'high-critical-severity',
+    title: 'High & Critical Incidents',
+    description: 'All High and Critical severity incidents requiring immediate or escalated attention',
+    icon: 'warning',
+    color: '#ef4444',
     lastRun: '2 days ago',
-  },
-  {
-    id: 'vehicle-report',
-    title: 'Vehicle Incident Report',
-    description: 'Incidents grouped by vehicle number',
-    icon: Bus,
-    color: 'text-amber-500',
-    lastRun: '5 days ago',
   },
   {
     id: 'open-incidents',
     title: 'Open Incidents Report',
     description: 'All currently open incidents requiring action',
-    icon: FileText,
-    color: 'text-cyan-500',
+    icon: 'description',
+    color: '#06b6d4',
     lastRun: '1 day ago',
-  },
-  {
-    id: 'weekly-trends',
-    title: 'Weekly Trends Analysis',
-    description: 'Week-over-week incident trends and patterns',
-    icon: BarChart3,
-    color: 'text-indigo-500',
-    lastRun: '2 days ago',
-  },
-  {
-    id: 'repeat-offenders',
-    title: 'Repeat Offender Report',
-    description: 'Students with multiple incidents requiring intervention',
-    icon: Target,
-    color: 'text-violet-500',
-    lastRun: '1 week ago',
   },
 ];
 
@@ -80,27 +52,17 @@ const quickReports = [
 function getReportData(reportId: string) {
   switch (reportId) {
     case 'monthly-summary':
-      return mockIncidents.filter(inc => inc.date >= '2025-03-01');
-    case 'student-history':
-      return mockIncidents;
-    case 'driver-performance':
-      return mockIncidents;
-    case 'high-severity':
-      return mockIncidents.filter(inc => inc.severity === 'High');
-    case 'vehicle-report':
-      return mockIncidents;
+      // Past 30 days from today (2026-05-12)
+      return mockIncidents.filter(inc => inc.date >= '2026-04-12').sort((a, b) => b.date.localeCompare(a.date));
+    case 'yearly-summary':
+      // Current school year: Sept 1 2025 – today
+      return mockIncidents.filter(inc => inc.date >= '2025-09-01').sort((a, b) => b.date.localeCompare(a.date));
+    case 'high-critical-severity':
+      return mockIncidents.filter(inc => inc.severity === 'High' || inc.severity === 'Critical').sort((a, b) => b.date.localeCompare(a.date));
     case 'open-incidents':
-      return mockIncidents.filter(inc => inc.status === 'Open' || inc.status === 'In Progress');
-    case 'weekly-trends':
-      return mockIncidents.filter(inc => inc.date >= '2025-03-01');
-    case 'repeat-offenders': {
-      const studentCounts: Record<string, number> = {};
-      mockIncidents.forEach(inc => { studentCounts[inc.student] = (studentCounts[inc.student] || 0) + 1; });
-      const repeats = Object.keys(studentCounts).filter(s => studentCounts[s] > 1);
-      return mockIncidents.filter(inc => repeats.includes(inc.student));
-    }
+      return mockIncidents.filter(inc => inc.status === 'Open' || inc.status === 'In Progress').sort((a, b) => b.date.localeCompare(a.date));
     default:
-      return mockIncidents;
+      return mockIncidents.sort((a, b) => b.date.localeCompare(a.date));
   }
 }
 
@@ -108,41 +70,16 @@ interface ReportsPageProps {
   onNavigate: (page: string) => void;
 }
 
-// Mock incident data for preview
+// Mock incident data for preview — dates span school year 2025-2026 and include current month (May 2026)
 const mockIncidents = [
+  // ── May 2026 (current month) ──
   {
-    id: 'INC-2025-0042',
-    date: '2025-03-15',
-    student: 'Sarah Mitchell',
-    studentId: 'STU-2891',
-    type: 'Seat Refusal',
-    description: 'Student refused to remain seated during transport',
-    vehicle: 'Vehicle 12',
-    route: 'Meyers Middle AM - Yellow',
-    driver: 'Michael Chen',
-    severity: 'Medium',
-    status: 'Open',
-  },
-  {
-    id: 'INC-2025-0041',
-    date: '2025-03-15',
+    id: 'INC-2026-0063',
+    date: '2026-05-08',
     student: 'Marcus Johnson',
     studentId: 'STU-3421',
-    type: 'Emergency Exit Misuse',
-    description: 'Student attempted to open emergency exit during normal transport',
-    vehicle: 'Vehicle 8',
-    route: 'Washington High PM - Wolf Rd',
-    driver: 'Lisa Anderson',
-    severity: 'High',
-    status: 'In Progress',
-  },
-  {
-    id: 'INC-2025-0040',
-    date: '2025-03-14',
-    student: 'Emma Rodriguez',
-    studentId: 'STU-1956',
-    type: 'Taunting/Bullying',
-    description: 'Verbal altercation with another student',
+    type: 'Physical Altercation',
+    description: 'Student involved in physical altercation with another student near the back of the bus',
     vehicle: 'Vehicle 15',
     route: 'Jefferson Middle AM - Blue',
     driver: 'David Park',
@@ -150,103 +87,133 @@ const mockIncidents = [
     status: 'Open',
   },
   {
-    id: 'INC-2025-0039',
-    date: '2025-03-14',
-    student: 'James Thompson',
-    studentId: 'STU-4782',
-    type: 'Vandalism',
-    description: 'Seat cushion torn - monetary restitution required',
+    id: 'INC-2026-0062',
+    date: '2026-05-05',
+    student: 'Emma Rodriguez',
+    studentId: 'STU-1956',
+    type: 'Safety Violation',
+    description: 'Student repeatedly refused to remain seated and was disruptive to the driver',
     vehicle: 'Vehicle 12',
     route: 'Meyers Middle AM - Yellow',
-    driver: 'Michael Chen',
-    severity: 'Low',
-    status: 'Closed',
-  },
-  {
-    id: 'INC-2025-0038',
-    date: '2025-03-13',
-    student: 'Olivia Davis',
-    studentId: 'STU-5623',
-    type: 'Offensive Language',
-    description: 'Using profane and offensive language toward other students',
-    vehicle: 'Vehicle 8',
-    route: 'Washington High PM - Wolf Rd',
-    driver: 'Lisa Anderson',
+    driver: 'John Chen',
     severity: 'Medium',
+    status: 'Open',
+  },
+  // ── April 2026 ──
+  {
+    id: 'INC-2026-0061',
+    date: '2026-04-28',
+    student: 'Sarah Mitchell',
+    studentId: 'STU-2891',
+    type: 'Harassment / Bullying',
+    description: 'Ongoing verbal harassment of a younger student on the same route',
+    vehicle: 'Vehicle 9',
+    route: 'Lincoln Elementary AM - Green',
+    driver: 'Robert Martinez',
+    severity: 'High',
     status: 'In Progress',
   },
   {
-    id: 'INC-2025-0037',
-    date: '2025-03-12',
+    id: 'INC-2026-0060',
+    date: '2026-04-22',
     student: 'Noah Wilson',
     studentId: 'STU-6891',
-    type: 'Physical Altercation',
-    description: 'Physical fight with another student',
+    type: 'Weapon Possession',
+    description: 'Student found in possession of a pocket knife during boarding check',
+    vehicle: 'Vehicle 8',
+    route: 'Washington High PM - Wolf Rd',
+    driver: 'Lisa Anderson',
+    severity: 'Critical',
+    status: 'Open',
+  },
+  {
+    id: 'INC-2026-0059',
+    date: '2026-04-17',
+    student: 'James Thompson',
+    studentId: 'STU-4782',
+    type: 'Disruptive Behavior',
+    description: 'Directed profane language at the driver after a route change announcement',
     vehicle: 'Vehicle 15',
     route: 'Jefferson Middle AM - Blue',
     driver: 'David Park',
+    severity: 'Medium',
+    status: 'Closed',
+  },
+  {
+    id: 'INC-2026-0058',
+    date: '2026-04-14',
+    student: 'Olivia Davis',
+    studentId: 'STU-5623',
+    type: 'Safety Violation',
+    description: 'Student attempted to open emergency exit while bus was in motion',
+    vehicle: 'Vehicle 12',
+    route: 'Meyers Middle AM - Yellow',
+    driver: 'John Chen',
     severity: 'High',
     status: 'Closed',
   },
+  // ── March 2026 ──
   {
-    id: 'INC-2025-0036',
-    date: '2025-03-10',
-    student: 'Sophia Garcia',
-    studentId: 'STU-7234',
-    type: 'Eating/Drinking Violation',
-    description: 'Student eating snacks and spilled drink on seat',
-    vehicle: 'Vehicle 9',
-    route: 'Lincoln Elementary AM - Green',
-    driver: 'Robert Martinez',
-    severity: 'Low',
-    status: 'Closed',
-  },
-  {
-    id: 'INC-2025-0035',
-    date: '2025-03-08',
+    id: 'INC-2026-0057',
+    date: '2026-03-20',
     student: 'Liam Brown',
     studentId: 'STU-8512',
-    type: 'Window Misuse',
-    description: 'Opening windows excessively and throwing paper outside',
-    vehicle: 'Vehicle 12',
-    route: 'Meyers Middle AM - Yellow',
-    driver: 'Michael Chen',
+    type: 'Property Damage',
+    description: 'Student carved initials into seat back with a pen during the afternoon route',
+    vehicle: 'Vehicle 9',
+    route: 'Lincoln Elementary AM - Green',
+    driver: 'Robert Martinez',
     severity: 'Medium',
     status: 'Closed',
   },
   {
-    id: 'INC-2025-0034',
-    date: '2025-03-07',
+    id: 'INC-2026-0056',
+    date: '2026-03-12',
     student: 'Ava Martinez',
     studentId: 'STU-9123',
-    type: 'Disruptive Volume',
-    description: 'Excessive noise and screaming, disturbing driver',
-    vehicle: 'Vehicle 15',
-    route: 'Jefferson Middle AM - Blue',
-    driver: 'David Park',
-    severity: 'Medium',
+    type: 'Threatening Behavior',
+    description: 'Student made verbal threats toward another student and refused to de-escalate',
+    vehicle: 'Vehicle 8',
+    route: 'Washington High PM - Wolf Rd',
+    driver: 'Lisa Anderson',
+    severity: 'High',
     status: 'Closed',
   },
+  // ── February 2026 ──
   {
-    id: 'INC-2025-0033',
-    date: '2025-03-05',
+    id: 'INC-2026-0055',
+    date: '2026-02-24',
     student: 'Ethan Lee',
     studentId: 'STU-1045',
-    type: 'Seat Refusal',
-    description: 'Refused assigned seat and moved multiple times',
-    vehicle: 'Vehicle 8',
-    route: 'Washington High PM - Wolf Rd',
-    driver: 'Lisa Anderson',
-    severity: 'Low',
+    type: 'Prohibited Items',
+    description: 'Student found vaping in the rear of the bus; device confiscated',
+    vehicle: 'Vehicle 15',
+    route: 'Jefferson Middle AM - Blue',
+    driver: 'David Park',
+    severity: 'High',
     status: 'Closed',
   },
   {
-    id: 'INC-2025-0032',
-    date: '2025-02-28',
+    id: 'INC-2026-0054',
+    date: '2026-02-11',
+    student: 'Sophia Garcia',
+    studentId: 'STU-7234',
+    type: 'Disruptive Behavior',
+    description: 'Playing music at high volume from a portable speaker, ignoring driver warnings',
+    vehicle: 'Vehicle 12',
+    route: 'Meyers Middle AM - Yellow',
+    driver: 'John Chen',
+    severity: 'Low',
+    status: 'Closed',
+  },
+  // ── January 2026 ──
+  {
+    id: 'INC-2026-0053',
+    date: '2026-01-30',
     student: 'Isabella White',
     studentId: 'STU-2387',
-    type: 'Taunting/Bullying',
-    description: 'Continued verbal harassment of younger student',
+    type: 'Physical Altercation',
+    description: 'Fight between two students resulting in minor injury; parents notified',
     vehicle: 'Vehicle 9',
     route: 'Lincoln Elementary AM - Green',
     driver: 'Robert Martinez',
@@ -254,25 +221,26 @@ const mockIncidents = [
     status: 'Closed',
   },
   {
-    id: 'INC-2025-0031',
-    date: '2025-02-26',
+    id: 'INC-2026-0052',
+    date: '2026-01-15',
     student: 'Mason Taylor',
     studentId: 'STU-3498',
-    type: 'Offensive Language',
-    description: 'Repeated use of profanity despite warnings',
-    vehicle: 'Vehicle 12',
-    route: 'Meyers Middle AM - Yellow',
-    driver: 'Michael Chen',
-    severity: 'Medium',
+    type: 'Safety Violation',
+    description: 'Student hanging arm out of window and throwing items at passing vehicles',
+    vehicle: 'Vehicle 8',
+    route: 'Washington High PM - Wolf Rd',
+    driver: 'Lisa Anderson',
+    severity: 'High',
     status: 'Closed',
   },
+  // ── December 2025 ──
   {
-    id: 'INC-2025-0030',
-    date: '2025-02-24',
+    id: 'INC-2025-0051',
+    date: '2025-12-18',
     student: 'Charlotte Anderson',
     studentId: 'STU-4561',
-    type: 'Vandalism',
-    description: 'Writing on seat backs with permanent marker',
+    type: 'Safety Violation',
+    description: 'Refused assigned seat on multiple occasions during the last week of the term',
     vehicle: 'Vehicle 15',
     route: 'Jefferson Middle AM - Blue',
     driver: 'David Park',
@@ -280,168 +248,93 @@ const mockIncidents = [
     status: 'Closed',
   },
   {
-    id: 'INC-2025-0029',
-    date: '2025-02-21',
+    id: 'INC-2025-0050',
+    date: '2025-12-05',
     student: 'Aiden Thomas',
     studentId: 'STU-5672',
-    type: 'Physical Altercation',
-    description: 'Pushing and shoving with another student in aisle',
-    vehicle: 'Vehicle 8',
-    route: 'Washington High PM - Wolf Rd',
-    driver: 'Lisa Anderson',
-    severity: 'High',
+    type: 'Disruptive Behavior',
+    description: 'Used offensive and discriminatory language directed at another student',
+    vehicle: 'Vehicle 12',
+    route: 'Meyers Middle AM - Yellow',
+    driver: 'John Chen',
+    severity: 'Medium',
     status: 'Closed',
   },
+  // ── November 2025 ──
   {
-    id: 'INC-2025-0028',
-    date: '2025-02-19',
+    id: 'INC-2025-0049',
+    date: '2025-11-19',
     student: 'Mia Jackson',
     studentId: 'STU-6783',
-    type: 'Disruptive Volume',
-    description: 'Playing loud music from phone speaker',
+    type: 'Harassment / Bullying',
+    description: 'Repeated bullying of same student over multiple weeks; escalated to administration',
     vehicle: 'Vehicle 9',
     route: 'Lincoln Elementary AM - Green',
     driver: 'Robert Martinez',
-    severity: 'Low',
+    severity: 'High',
     status: 'Closed',
   },
   {
-    id: 'INC-2025-0027',
-    date: '2025-02-15',
+    id: 'INC-2025-0048',
+    date: '2025-11-07',
     student: 'Lucas Harris',
     studentId: 'STU-7894',
-    type: 'Emergency Exit Misuse',
-    description: 'Tampering with emergency exit door mechanism',
-    vehicle: 'Vehicle 12',
-    route: 'Meyers Middle AM - Yellow',
-    driver: 'Michael Chen',
-    severity: 'High',
+    type: 'Property Damage',
+    description: 'Multiple seat cushions slashed with a sharp object',
+    vehicle: 'Vehicle 8',
+    route: 'Washington High PM - Wolf Rd',
+    driver: 'Lisa Anderson',
+    severity: 'Medium',
     status: 'Closed',
   },
+  // ── October 2025 ──
   {
-    id: 'INC-2025-0026',
-    date: '2025-02-12',
+    id: 'INC-2025-0047',
+    date: '2025-10-22',
     student: 'Harper Clark',
     studentId: 'STU-8905',
-    type: 'Eating/Drinking Violation',
-    description: 'Spilled soda creating slipping hazard',
+    type: 'Physical Altercation',
+    description: 'Physical confrontation between students escalated; bus pulled over to resolve',
     vehicle: 'Vehicle 15',
     route: 'Jefferson Middle AM - Blue',
     driver: 'David Park',
-    severity: 'Medium',
+    severity: 'High',
     status: 'Closed',
   },
   {
-    id: 'INC-2025-0025',
-    date: '2025-02-10',
+    id: 'INC-2025-0046',
+    date: '2025-10-09',
     student: 'Benjamin Lewis',
     studentId: 'STU-9016',
-    type: 'Seat Refusal',
-    description: 'Standing in aisle during transport despite warnings',
-    vehicle: 'Vehicle 8',
-    route: 'Washington High PM - Wolf Rd',
-    driver: 'Lisa Anderson',
-    severity: 'Medium',
-    status: 'Closed',
-  },
-  {
-    id: 'INC-2025-0024',
-    date: '2025-02-07',
-    student: 'Amelia Robinson',
-    studentId: 'STU-1127',
-    type: 'Window Misuse',
-    description: 'Hanging objects out window while bus moving',
-    vehicle: 'Vehicle 9',
-    route: 'Lincoln Elementary AM - Green',
-    driver: 'Robert Martinez',
-    severity: 'High',
-    status: 'Closed',
-  },
-  {
-    id: 'INC-2025-0023',
-    date: '2025-02-05',
-    student: 'Henry Walker',
-    studentId: 'STU-2238',
-    type: 'Offensive Language',
-    description: 'Directing profanity at driver',
+    type: 'Safety Violation',
+    description: 'Spilled energy drink causing a slip hazard in the aisle',
     vehicle: 'Vehicle 12',
     route: 'Meyers Middle AM - Yellow',
-    driver: 'Michael Chen',
-    severity: 'High',
-    status: 'Closed',
-  },
-  {
-    id: 'INC-2025-0022',
-    date: '2025-02-03',
-    student: 'Evelyn Hall',
-    studentId: 'STU-3349',
-    type: 'Taunting/Bullying',
-    description: 'Name-calling and mocking another student',
-    vehicle: 'Vehicle 15',
-    route: 'Jefferson Middle AM - Blue',
-    driver: 'David Park',
-    severity: 'Medium',
-    status: 'Closed',
-  },
-  {
-    id: 'INC-2025-0021',
-    date: '2025-01-31',
-    student: 'Alexander Young',
-    studentId: 'STU-4450',
-    type: 'Vandalism',
-    description: 'Scratching window with metal object',
-    vehicle: 'Vehicle 8',
-    route: 'Washington High PM - Wolf Rd',
-    driver: 'Lisa Anderson',
-    severity: 'Medium',
-    status: 'Closed',
-  },
-  {
-    id: 'INC-2025-0020',
-    date: '2025-01-28',
-    student: 'Abigail King',
-    studentId: 'STU-5561',
-    type: 'Disruptive Volume',
-    description: 'Yelling and screaming, refusing to quiet down',
-    vehicle: 'Vehicle 9',
-    route: 'Lincoln Elementary AM - Green',
-    driver: 'Robert Martinez',
-    severity: 'Medium',
-    status: 'Closed',
-  },
-  {
-    id: 'INC-2025-0019',
-    date: '2025-01-24',
-    student: 'Daniel Wright',
-    studentId: 'STU-6672',
-    type: 'Physical Altercation',
-    description: 'Kicked another student during argument',
-    vehicle: 'Vehicle 12',
-    route: 'Meyers Middle AM - Yellow',
-    driver: 'Michael Chen',
-    severity: 'High',
-    status: 'Closed',
-  },
-  {
-    id: 'INC-2025-0018',
-    date: '2025-01-21',
-    student: 'Emily Scott',
-    studentId: 'STU-7783',
-    type: 'Eating/Drinking Violation',
-    description: 'Eating messy food and littering wrappers',
-    vehicle: 'Vehicle 15',
-    route: 'Jefferson Middle AM - Blue',
-    driver: 'David Park',
+    driver: 'John Chen',
     severity: 'Low',
     status: 'Closed',
   },
+  // ── September 2025 ──
   {
-    id: 'INC-2025-0017',
-    date: '2025-01-17',
-    student: 'Matthew Green',
-    studentId: 'STU-8894',
-    type: 'Seat Refusal',
-    description: 'Changed seats multiple times causing disruption',
+    id: 'INC-2025-0045',
+    date: '2025-09-25',
+    student: 'Amelia Robinson',
+    studentId: 'STU-1127',
+    type: 'Driver Non-Compliance',
+    description: 'Refused all driver instructions and used aggressive language throughout the route',
+    vehicle: 'Vehicle 9',
+    route: 'Lincoln Elementary AM - Green',
+    driver: 'Robert Martinez',
+    severity: 'High',
+    status: 'Closed',
+  },
+  {
+    id: 'INC-2025-0044',
+    date: '2025-09-10',
+    student: 'Henry Walker',
+    studentId: 'STU-2238',
+    type: 'Safety Violation',
+    description: 'First week of school - student repeatedly changed seats and stood in aisle',
     vehicle: 'Vehicle 8',
     route: 'Washington High PM - Wolf Rd',
     driver: 'Lisa Anderson',
@@ -451,6 +344,7 @@ const mockIncidents = [
 ];
 
 export function ReportsPage({ onNavigate }: ReportsPageProps) {
+  const toastHelper = useForgeToast();
   const [selectedDateRange, setSelectedDateRange] = useState('this-month');
   const [selectedIncidentTypes, setSelectedIncidentTypes] = useState<string[]>([]);
   const [selectedRuns, setSelectedRuns] = useState<string[]>([]);
@@ -481,7 +375,7 @@ export function ReportsPage({ onNavigate }: ReportsPageProps) {
     'Behavioral',
     'Safety Violation',
     'Aggression/Violence',
-    'Driver Defiance',
+    'Driver Non-Compliance',
     'Property Damage',
     'Prohibited Items',
     'Privacy Violation',
@@ -538,27 +432,27 @@ export function ReportsPage({ onNavigate }: ReportsPageProps) {
 
   const handleGenerateReport = () => {
     const formatLabel = selectedFormat === 'pdf' ? 'PDF' : selectedFormat === 'excel' ? 'Excel' : 'CSV';
-    toast.success(`Report Generated`, {
-      description: `Your custom ${formatLabel} report with ${filteredIncidents.length} incident(s) is ready for download.`
-    });
+    toastHelper[0]({
+      message: `Report Generated — your custom ${formatLabel} report with ${filteredIncidents.length} incident(s) is ready for download.`,
+      theme: 'success',
+      duration: 3000,
+    } as any);
   };
 
   const handleQuickReport = (reportId: string, reportTitle: string) => {
     // Different messages for different report types
     const messages: Record<string, string> = {
       'monthly-summary': 'Your Monthly Summary PDF report for March 2025 with incident statistics and trends is ready for download.',
-      'student-history': 'Your Student Incident History Excel report with complete records for all students is ready for download.',
-      'driver-performance': 'Your Driver Report Summary PDF with incident counts and response metrics is ready for download.',
-      'high-severity': 'Your High Severity Incidents PDF report with all critical incidents requiring immediate attention is ready for download.',
-      'vehicle-report': 'Your Vehicle Incident Report PDF grouping incidents by vehicle number is ready for download.',
+      'yearly-summary': 'Your Yearly Summary PDF report with annual incident totals broken down by school term is ready for download.',
+      'high-critical-severity': 'Your High & Critical Incidents PDF report with all escalated incidents requiring immediate attention is ready for download.',
       'open-incidents': 'Your Open Incidents Report PDF with all currently open incidents requiring action is ready for download.',
-      'weekly-trends': 'Your Weekly Trends Analysis PDF report showing week-over-week incident trends and patterns is ready for download.',
-      'repeat-offenders': 'Your Repeat Offender Report PDF with students having multiple incidents requiring intervention is ready for download.',
     };
 
-    toast.success(`${reportTitle} Generated`, {
-      description: messages[reportId] || `Your ${reportTitle} report is ready for download.`
-    });
+    toastHelper[0]({
+      message: `${reportTitle} Generated — ${messages[reportId] || `Your ${reportTitle} report is ready for download.`}`,
+      theme: 'success',
+      duration: 3000,
+    } as any);
   };
 
   // Filter incidents based on selected criteria
@@ -612,7 +506,6 @@ export function ReportsPage({ onNavigate }: ReportsPageProps) {
         <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {quickReports.map((report) => {
-              const Icon = report.icon;
               return (
                 <ForgeCard
                   key={report.id}
@@ -621,12 +514,12 @@ export function ReportsPage({ onNavigate }: ReportsPageProps) {
                 >
                   <div style={{ padding: 'var(--forge-spacing-medium)', paddingTop: 'var(--forge-spacing-large)' }}>
                     <div className="flex items-start justify-between mb-3">
-                      <div className={`p-2 rounded ${report.color} bg-opacity-10`}>
-                        <Icon className={`h-6 w-6 ${report.color}`} />
+                      <div style={{ padding: '8px', borderRadius: '6px', backgroundColor: `${report.color}1A` }}>
+                        <forge-icon name={report.icon} style={{ fontSize: '24px', color: report.color }}></forge-icon>
                       </div>
-                      <Badge variant="outline" className="text-xs">
+                      <forge-badge theme="default">
                         {report.lastRun}
-                      </Badge>
+                      </forge-badge>
                     </div>
                     
                     <h3 style={{ margin: 0, marginBottom: '8px' }}>{report.title}</h3>
@@ -634,23 +527,17 @@ export function ReportsPage({ onNavigate }: ReportsPageProps) {
                       {report.description}
                     </p>
                     
-                    <button
+                    <ForgeButton
+                      variant="raised"
+                      full-width
                       onClick={() => {
                         setPreviewReport(report);
                         setIsPreviewOpen(true);
                       }}
-                      style={{
-                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                        gap: '8px', width: '100%', padding: '6px 12px',
-                        backgroundColor: 'var(--forge-theme-primary)', color: 'white',
-                        border: 'none', borderRadius: 'var(--forge-shape-medium)',
-                        cursor: 'pointer', fontFamily: 'Roboto, sans-serif',
-                        fontSize: '14px', fontWeight: 500,
-                      }}
                     >
-                      <Eye className="h-4 w-4" />
+                      <forge-icon slot="start" name="visibility"></forge-icon>
                       View Report
-                    </button>
+                    </ForgeButton>
                   </div>
                 </ForgeCard>
               );
@@ -668,314 +555,25 @@ export function ReportsPage({ onNavigate }: ReportsPageProps) {
               <h2 style={{ margin: 0, fontSize: 'var(--forge-font-size-xl)', fontWeight: 'var(--forge-font-weight-medium)', fontFamily: 'var(--forge-font-family)' }}>
                 {previewReport?.title}
               </h2>
-              <button
+              <ForgeButton
+                variant="raised"
                 onClick={() => {
                   if (previewReport) {
                     handleQuickReport(previewReport.id, previewReport.title);
                   }
                 }}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '8px',
-                  padding: '6px 12px',
-                  backgroundColor: 'var(--forge-theme-primary)', color: 'white',
-                  border: 'none', borderRadius: 'var(--forge-shape-medium)',
-                  cursor: 'pointer', fontFamily: 'Roboto, sans-serif',
-                  fontSize: '13px', fontWeight: 500,
-                }}
               >
-                <Download className="h-4 w-4" />
+                <forge-icon slot="start" name="download"></forge-icon>
                 Download Report
-              </button>
+              </ForgeButton>
             </div>
           </div>
 
           {previewReport && (
             <div className="flex-1 overflow-hidden flex flex-col" style={{ minHeight: 0 }}>
-              {previewReport.id === 'weekly-trends' ? (
-                // Weekly Trends Dashboard
+              {false ? null : (
+                // Standard Table View
                 <>
-                  {(() => {
-                    const data = getReportData(previewReport.id);
-                    
-                    // Group incidents by week
-                    const weeklyData: Record<string, any[]> = {};
-                    data.forEach(inc => {
-                      const date = new Date(inc.date);
-                      const weekStart = new Date(date);
-                      weekStart.setDate(date.getDate() - date.getDay());
-                      const weekKey = weekStart.toISOString().split('T')[0];
-                      if (!weeklyData[weekKey]) weeklyData[weekKey] = [];
-                      weeklyData[weekKey].push(inc);
-                    });
-
-                    const weeks = Object.keys(weeklyData).sort();
-                    const thisWeek = weeklyData[weeks[weeks.length - 1]] || [];
-                    const lastWeek = weeklyData[weeks[weeks.length - 2]] || [];
-
-                    const thisWeekCount = thisWeek.length;
-                    const lastWeekCount = lastWeek.length;
-                    const weekOverWeekChange = lastWeekCount > 0 ? ((thisWeekCount - lastWeekCount) / lastWeekCount * 100) : 0;
-
-                    const thisWeekHigh = thisWeek.filter(i => i.severity === 'High').length;
-                    const lastWeekHigh = lastWeek.filter(i => i.severity === 'High').length;
-                    const highSeverityChange = lastWeekHigh > 0 ? ((thisWeekHigh - lastWeekHigh) / lastWeekHigh * 100) : 0;
-
-                    return (
-                      <>
-                        {/* Trend Summary Cards */}
-                        <div className="grid grid-cols-4" style={{ gap: 'var(--forge-spacing-medium)', marginBottom: 'var(--forge-spacing-large)' }}>
-                          <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
-                            <div style={{ padding: 'var(--forge-spacing-medium)' }}>
-                              <div style={{ fontSize: 'var(--forge-font-size-xs)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-xxsmall)' }}>This Week</div>
-                              <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-xxsmall)' }}>{thisWeekCount}</div>
-                              <div className="flex items-center" style={{ fontSize: 'var(--forge-font-size-xs)' }}>
-                                {weekOverWeekChange > 0 ? (
-                                  <><ArrowUp className="h-3 w-3 mr-1" style={{ color: 'var(--destructive)' }} /><span style={{ color: 'var(--destructive)' }}>+{weekOverWeekChange.toFixed(1)}%</span></>
-                                ) : weekOverWeekChange < 0 ? (
-                                  <><ArrowDown className="h-3 w-3 mr-1" style={{ color: 'hsl(var(--success))' }} /><span style={{ color: 'hsl(var(--success))' }}>{weekOverWeekChange.toFixed(1)}%</span></>
-                                ) : (
-                                  <span className="text-muted-foreground">No change</span>
-                                )}
-                                <span className="text-muted-foreground ml-1">vs last week</span>
-                              </div>
-                            </div>
-                          </ForgeCard>
-
-                          <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
-                            <div style={{ padding: 'var(--forge-spacing-medium)' }}>
-                              <div style={{ fontSize: 'var(--forge-font-size-xs)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-xxsmall)' }}>Last Week</div>
-                              <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-xxsmall)' }}>{lastWeekCount}</div>
-                              <div style={{ fontSize: 'var(--forge-font-size-xs)', color: 'var(--muted-foreground)' }}>
-                                {weeks[weeks.length - 2] ? new Date(weeks[weeks.length - 2]).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'N/A'}
-                              </div>
-                            </div>
-                          </ForgeCard>
-
-                          <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
-                            <div style={{ padding: 'var(--forge-spacing-medium)' }}>
-                              <div style={{ fontSize: 'var(--forge-font-size-xs)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-xxsmall)' }}>High Severity Trend</div>
-                              <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-xxsmall)', color: 'var(--destructive)' }}>{thisWeekHigh}</div>
-                              <div className="flex items-center" style={{ fontSize: 'var(--forge-font-size-xs)' }}>
-                                {highSeverityChange > 0 ? (
-                                  <><ArrowUp className="h-3 w-3 mr-1" style={{ color: 'var(--destructive)' }} /><span style={{ color: 'var(--destructive)' }}>+{highSeverityChange.toFixed(1)}%</span></>
-                                ) : highSeverityChange < 0 ? (
-                                  <><ArrowDown className="h-3 w-3 mr-1" style={{ color: 'hsl(var(--success))' }} /><span style={{ color: 'hsl(var(--success))' }}>{highSeverityChange.toFixed(1)}%</span></>
-                                ) : (
-                                  <span className="text-muted-foreground">No change</span>
-                                )}
-                              </div>
-                            </div>
-                          </ForgeCard>
-
-                          <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
-                            <div style={{ padding: 'var(--forge-spacing-medium)' }}>
-                              <div style={{ fontSize: 'var(--forge-font-size-xs)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-xxsmall)' }}>4-Week Average</div>
-                              <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-xxsmall)' }}>
-                                {weeks.length > 0 ? (data.length / weeks.length).toFixed(1) : '0'}
-                              </div>
-                              <div style={{ fontSize: 'var(--forge-font-size-xs)', color: 'var(--muted-foreground)' }}>
-                                incidents per week
-                              </div>
-                            </div>
-                          </ForgeCard>
-                        </div>
-
-                        {/* Charts Section */}
-                        <div className="flex-1 overflow-y-auto" style={{ minHeight: 0 }}>
-                          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 'var(--forge-spacing-medium)', marginBottom: 'var(--forge-spacing-medium)' }}>
-                            {/* Incident Trend Line Chart */}
-                            <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
-                              <div style={{ padding: 'var(--forge-spacing-medium)', paddingBottom: 'var(--forge-spacing-small)' }}>
-                                <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--forge-font-size-base)' }}>Weekly Incident Trend</h3>
-                              </div>
-                              <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-                                <ResponsiveContainer width="100%" height={250}>
-                                  <LineChart data={weeks.map((week, index) => ({
-                                    id: `week-${index}`,
-                                    week: new Date(week).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                                    incidents: weeklyData[week].length,
-                                    high: weeklyData[week].filter(i => i.severity === 'High').length,
-                                  }))}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                                    <XAxis dataKey="week" style={{ fontSize: 'var(--forge-font-size-xs)' }} stroke="hsl(var(--muted-foreground))" />
-                                    <YAxis style={{ fontSize: 'var(--forge-font-size-xs)' }} stroke="hsl(var(--muted-foreground))" />
-                                    <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))', borderRadius: 'var(--forge-radius-small)', fontSize: 'var(--forge-font-size-sm)' }} />
-                                    <Legend wrapperStyle={{ fontSize: 'var(--forge-font-size-xs)' }} />
-                                    <Line type="monotone" dataKey="incidents" stroke="hsl(var(--primary))" strokeWidth={2} name="Total Incidents" />
-                                    <Line type="monotone" dataKey="high" stroke="hsl(var(--destructive))" strokeWidth={2} name="High Severity" />
-                                  </LineChart>
-                                </ResponsiveContainer>
-                              </div>
-                            </ForgeCard>
-
-                            {/* Incident Type Breakdown */}
-                            <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
-                              <div style={{ padding: 'var(--forge-spacing-medium)', paddingBottom: 'var(--forge-spacing-small)' }}>
-                                <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--forge-font-size-base)' }}>This Week by Type</h3>
-                              </div>
-                              <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-                                {(() => {
-                                  const typeCounts: Record<string, number> = {};
-                                  thisWeek.forEach(inc => {
-                                    typeCounts[inc.type] = (typeCounts[inc.type] || 0) + 1;
-                                  });
-                                  const topTypes = Object.entries(typeCounts)
-                                    .sort((a, b) => b[1] - a[1])
-                                    .slice(0, 5);
-                                  
-                                  return (
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-small)' }}>
-                                      {topTypes.map(([type, count]) => (
-                                        <div key={type}>
-                                          <div className="flex justify-between items-center" style={{ marginBottom: 'var(--forge-spacing-xxsmall)' }}>
-                                            <span style={{ fontSize: 'var(--forge-font-size-xs)' }}>{type}</span>
-                                            <span style={{ fontSize: 'var(--forge-font-size-xs)', fontWeight: 'var(--forge-font-weight-medium)' }}>{count}</span>
-                                          </div>
-                                          <div style={{ height: '6px', backgroundColor: 'var(--muted)', borderRadius: 'var(--forge-radius-small)', overflow: 'hidden' }}>
-                                            <div style={{ 
-                                              width: `${(count / thisWeekCount * 100)}%`, 
-                                              height: '100%', 
-                                              backgroundColor: 'hsl(var(--primary))',
-                                              transition: 'width 0.3s ease'
-                                            }} />
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  );
-                                })()}
-                              </div>
-                            </ForgeCard>
-                          </div>
-
-                          {/* Severity Distribution Over Time */}
-                          <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
-                            <div style={{ padding: 'var(--forge-spacing-medium)', paddingBottom: 'var(--forge-spacing-small)' }}>
-                              <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--forge-font-size-base)' }}>Severity Distribution by Week</h3>
-                            </div>
-                            <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-                              <ResponsiveContainer width="100%" height={200}>
-                                <BarChart data={weeks.map((week, index) => ({
-                                  id: `severity-week-${index}`,
-                                  week: new Date(week).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                                  High: weeklyData[week].filter(i => i.severity === 'High').length,
-                                  Medium: weeklyData[week].filter(i => i.severity === 'Medium').length,
-                                  Low: weeklyData[week].filter(i => i.severity === 'Low').length,
-                                }))}>
-                                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                                  <XAxis dataKey="week" style={{ fontSize: 'var(--forge-font-size-xs)' }} stroke="hsl(var(--muted-foreground))" />
-                                  <YAxis style={{ fontSize: 'var(--forge-font-size-xs)' }} stroke="hsl(var(--muted-foreground))" />
-                                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))', borderRadius: 'var(--forge-radius-small)', fontSize: 'var(--forge-font-size-sm)' }} />
-                                  <Legend wrapperStyle={{ fontSize: 'var(--forge-font-size-xs)' }} />
-                                  <Bar dataKey="High" stackId="a" fill="hsl(var(--destructive))" />
-                                  <Bar dataKey="Medium" stackId="a" fill="hsl(var(--warning))" />
-                                  <Bar dataKey="Low" stackId="a" fill="hsl(var(--success))" />
-                                </BarChart>
-                              </ResponsiveContainer>
-                            </div>
-                          </ForgeCard>
-
-                          {/* Key Insights */}
-                          <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', marginTop: 'var(--forge-spacing-medium)' }}>
-                            <div style={{ padding: 'var(--forge-spacing-medium)', paddingBottom: 'var(--forge-spacing-small)' }}>
-                              <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--forge-font-size-base)' }}>Key Insights</h3>
-                            </div>
-                            <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-small)' }}>
-                                {weekOverWeekChange > 10 && (
-                                  <div className="flex items-start" style={{ padding: 'var(--forge-spacing-small)', backgroundColor: 'hsl(var(--destructive) / 0.1)', borderRadius: 'var(--forge-radius-small)' }}>
-                                    <AlertTriangle className="h-4 w-4 mr-2 mt-0.5" style={{ color: 'var(--destructive)', flexShrink: 0 }} />
-                                    <div>
-                                      <div style={{ fontWeight: 'var(--forge-font-weight-medium)', fontSize: 'var(--forge-font-size-sm)' }}>Significant Increase</div>
-                                      <div style={{ fontSize: 'var(--forge-font-size-xs)', color: 'var(--muted-foreground)' }}>
-                                        Incidents increased by {weekOverWeekChange.toFixed(1)}% this week. Consider reviewing recent changes.
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                                {weekOverWeekChange < -10 && (
-                                  <div className="flex items-start" style={{ padding: 'var(--forge-spacing-small)', backgroundColor: 'hsl(var(--success) / 0.1)', borderRadius: 'var(--forge-radius-small)' }}>
-                                    <TrendingUp className="h-4 w-4 mr-2 mt-0.5" style={{ color: 'hsl(var(--success))', flexShrink: 0 }} />
-                                    <div>
-                                      <div style={{ fontWeight: 'var(--forge-font-weight-medium)', fontSize: 'var(--forge-font-size-sm)' }}>Positive Trend</div>
-                                      <div style={{ fontSize: 'var(--forge-font-size-xs)', color: 'var(--muted-foreground)' }}>
-                                        Incidents decreased by {Math.abs(weekOverWeekChange).toFixed(1)}% this week. Great progress!
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                                {(() => {
-                                  const mostCommonType = Object.entries(
-                                    thisWeek.reduce((acc: Record<string, number>, inc) => {
-                                      acc[inc.type] = (acc[inc.type] || 0) + 1;
-                                      return acc;
-                                    }, {})
-                                  ).sort((a, b) => b[1] - a[1])[0];
-                                  
-                                  if (mostCommonType && mostCommonType[1] > 2) {
-                                    return (
-                                      <div className="flex items-start" style={{ padding: 'var(--forge-spacing-small)', backgroundColor: 'var(--muted)', borderRadius: 'var(--forge-radius-small)' }}>
-                                        <BarChart3 className="h-4 w-4 mr-2 mt-0.5 text-muted-foreground" style={{ flexShrink: 0 }} />
-                                        <div>
-                                          <div style={{ fontWeight: 'var(--forge-font-weight-medium)', fontSize: 'var(--forge-font-size-sm)' }}>Most Common Type</div>
-                                          <div style={{ fontSize: 'var(--forge-font-size-xs)', color: 'var(--muted-foreground)' }}>
-                                            "{mostCommonType[0]}" accounts for {mostCommonType[1]} incidents ({(mostCommonType[1] / thisWeekCount * 100).toFixed(0)}%) this week.
-                                          </div>
-                                        </div>
-                                      </div>
-                                    );
-                                  }
-                                })()}
-                              </div>
-                            </div>
-                          </ForgeCard>
-                        </div>
-                      </>
-                    );
-                  })()}
-                </>
-              ) : (
-                // Standard Table View for Other Reports
-                <>
-                  {/* Summary stats */}
-                  <div
-                    className="grid grid-cols-4"
-                    style={{
-                      gap: 'var(--forge-spacing-medium)',
-                      padding: 'var(--forge-spacing-medium)',
-                      backgroundColor: 'var(--muted)',
-                      borderRadius: 'var(--forge-radius-medium)',
-                      marginBottom: 'var(--forge-spacing-medium)',
-                    }}
-                  >
-                    {(() => {
-                      const data = getReportData(previewReport.id);
-                      const highCount = data.filter(d => d.severity === 'High').length;
-                      const openCount = data.filter(d => d.status === 'Open' || d.status === 'In Progress').length;
-                      const uniqueStudents = new Set(data.map(d => d.student)).size;
-                      return (
-                        <>
-                          <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: 'var(--forge-font-size-xs)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-xxsmall)' }}>Total Incidents</div>
-                            <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--forge-font-weight-medium)' }}>{data.length}</div>
-                          </div>
-                          <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: 'var(--forge-font-size-xs)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-xxsmall)' }}>High Severity</div>
-                            <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--forge-font-weight-medium)', color: 'var(--destructive)' }}>{highCount}</div>
-                          </div>
-                          <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: 'var(--forge-font-size-xs)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-xxsmall)' }}>Open / In Progress</div>
-                            <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--forge-font-weight-medium)', color: 'var(--primary)' }}>{openCount}</div>
-                          </div>
-                          <div style={{ textAlign: 'center' }}>
-                            <div style={{ fontSize: 'var(--forge-font-size-xs)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-xxsmall)' }}>Unique Students</div>
-                            <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 'var(--forge-font-weight-medium)' }}>{uniqueStudents}</div>
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </div>
-
               {/* Report table */}
               <div className="flex-1 overflow-y-auto" style={{ border: '1px solid var(--forge-color-border-default)', borderRadius: 'var(--forge-radius-medium)' }}>
                 <table className="forge-table" style={{ fontSize: 'var(--forge-font-size-sm)', whiteSpace: 'nowrap' }}>
@@ -983,16 +581,10 @@ export function ReportsPage({ onNavigate }: ReportsPageProps) {
                     <tr>
                       <th className="forge-table-cell forge-table-cell--header">Incident ID</th>
                       <th className="forge-table-cell forge-table-cell--header">Date</th>
-                      {previewReport.id === 'driver-performance' || previewReport.id === 'vehicle-report' ? (
-                        <th className="forge-table-cell forge-table-cell--header">Driver</th>
-                      ) : (
-                        <th className="forge-table-cell forge-table-cell--header">Student</th>
-                      )}
+                      <th className="forge-table-cell forge-table-cell--header">Student</th>
                       <th className="forge-table-cell forge-table-cell--header">Type</th>
                       <th className="forge-table-cell forge-table-cell--header">Vehicle</th>
-                      {previewReport.id !== 'driver-performance' && previewReport.id !== 'vehicle-report' && (
-                        <th className="forge-table-cell forge-table-cell--header">Driver</th>
-                      )}
+                      <th className="forge-table-cell forge-table-cell--header">Driver</th>
                       <th className="forge-table-cell forge-table-cell--header">Severity</th>
                       <th className="forge-table-cell forge-table-cell--header">Status</th>
                     </tr>
@@ -1004,29 +596,23 @@ export function ReportsPage({ onNavigate }: ReportsPageProps) {
                         className="forge-table-row"
                       >
                         <td className="forge-table-cell" style={{ fontWeight: 'var(--forge-font-weight-medium)', color: 'var(--primary)' }}>{incident.id}</td>
-                        <td className="forge-table-cell" style={{ color: 'var(--muted-foreground)' }}>{incident.date}</td>
-                        {previewReport.id === 'driver-performance' || previewReport.id === 'vehicle-report' ? (
-                          <td className="forge-table-cell">{incident.driver}</td>
-                        ) : (
-                          <td className="forge-table-cell">
-                            <div>{incident.student}</div>
-                            <div style={{ fontSize: 'var(--forge-font-size-xs)', color: 'var(--muted-foreground)' }}>{incident.studentId}</div>
-                          </td>
-                        )}
+                        <td className="forge-table-cell" style={{ color: 'var(--muted-foreground)' }}>{incident.date.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$2-$3-$1')}</td>
+                        <td className="forge-table-cell">
+                          <div>{incident.student}</div>
+                          <div style={{ fontSize: 'var(--forge-font-size-xs)', color: 'var(--muted-foreground)' }}>{incident.studentId}</div>
+                        </td>
                         <td className="forge-table-cell">{incident.type}</td>
                         <td className="forge-table-cell" style={{ color: 'var(--muted-foreground)' }}>{incident.vehicle}</td>
-                        {previewReport.id !== 'driver-performance' && previewReport.id !== 'vehicle-report' && (
-                          <td className="forge-table-cell">{incident.driver}</td>
-                        )}
+                        <td className="forge-table-cell">{incident.driver}</td>
                         <td className="forge-table-cell">
-                          <Badge variant={incident.severity === 'High' ? 'destructive' : incident.severity === 'Medium' ? 'secondary' : 'outline'} style={{ fontSize: 'var(--forge-font-size-xs)' }}>
+                          <forge-badge theme={incident.severity === 'Critical' ? 'danger' : incident.severity === 'High' ? 'error' : incident.severity === 'Medium' ? 'warning' : 'info'} strong>
                             {incident.severity}
-                          </Badge>
+                          </forge-badge>
                         </td>
                         <td className="forge-table-cell">
-                          <Badge variant={incident.status === 'Open' ? 'default' : incident.status === 'In Progress' ? 'secondary' : 'outline'} style={{ fontSize: 'var(--forge-font-size-xs)' }}>
+                          <forge-badge theme={incident.status === 'Open' ? 'info-primary' : incident.status === 'In Progress' ? 'warning' : 'default'}>
                             {incident.status}
-                          </Badge>
+                          </forge-badge>
                         </td>
                       </tr>
                     ))}
@@ -1037,7 +623,7 @@ export function ReportsPage({ onNavigate }: ReportsPageProps) {
                   {/* Footer with record count */}
                   <div className="flex items-center justify-between" style={{ paddingTop: 'var(--forge-spacing-small)', fontSize: 'var(--forge-font-size-xs)', color: 'var(--muted-foreground)' }}>
                     <span>Showing {getReportData(previewReport.id).length} record(s)</span>
-                    <span>Generated: March 3, 2026</span>
+                    <span>Generated: 05-12-2026</span>
                   </div>
                 </>
               )}

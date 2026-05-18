@@ -395,7 +395,7 @@ interface StudentsPageProps {
 ```typescript
 const [searchTerm, setSearchTerm] = useState('');
 const [gradeFilter, setGradeFilter] = useState('all');
-const [sortColumn, setSortColumn] = useState<'id' | 'name' | 'grade' | 'school' | 'contact' | 'route' | 'incidents' | 'lastIncident'>('name');
+const [sortColumn, setSortColumn] = useState<'id' | 'name' | 'grade' | 'school' | 'contact' | 'run' | 'incidents' | 'lastIncident'>('name');
 const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 const [selectedStudent, setSelectedStudent] = useState<any>(null);
 ```
@@ -459,7 +459,7 @@ interface VehiclesPageProps {
 const [searchTerm, setSearchTerm] = useState('');
 const [statusFilter, setStatusFilter] = useState('all');
 const [maintenanceFilter, setMaintenanceFilter] = useState('all');
-const [sortColumn, setSortColumn] = useState<'id' | 'details' | 'driver' | 'route' | 'status' | 'maintenance' | 'incidents' | 'mileage'>('details');
+const [sortColumn, setSortColumn] = useState<'id' | 'details' | 'driver' | 'run' | 'status' | 'maintenance' | 'incidents' | 'mileage'>('details');
 const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
 ```
@@ -553,7 +553,7 @@ interface DriversPageProps {
 ```typescript
 const [searchTerm, setSearchTerm] = useState('');
 const [statusFilter, setStatusFilter] = useState('all');
-const [sortColumn, setSortColumn] = useState<'id' | 'name' | 'contact' | 'vehicle' | 'route' | 'status' | 'safety'>('name');
+const [sortColumn, setSortColumn] = useState<'id' | 'name' | 'contact' | 'vehicle' | 'run' | 'status' | 'safety'>('name');
 const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 const [selectedDriver, setSelectedDriver] = useState<any>(null);
 ```
@@ -625,7 +625,7 @@ const [formData, setFormData] = useState({
   type: '',
   severity: '',
   location: '',
-  route: '',
+  run: '',
   
   // Involved Parties
   studentName: '',
@@ -995,7 +995,7 @@ interface Incident {
   driverName: string;
   driverEmployeeId: string;
   vehicle: string;               // Bus number
-  route: string;
+  run: string;
   type: 'Student Behavior' | 'Safety Violation' | 'Mechanical' | 'Accident' | 'Other';
   severity: 'Critical' | 'High' | 'Medium' | 'Low';
   status: 'Open' | 'Under Review' | 'Resolved' | 'Closed';
@@ -1030,7 +1030,7 @@ interface Student {
   secondaryContact?: string;
   email?: string;
   emergencyContact: string;
-  route: string;
+  run: string;
   pickupLocation: string;
   dropoffLocation: string;
   specialNeeds?: string;
@@ -1640,7 +1640,7 @@ Test at breakpoints:
 ### Current Optimizations
 
 1. **Code Splitting:** 
-   - Vite automatically splits code by route
+   - Vite automatically splits code by run
    - Lazy loading for heavy components
 
 2. **Image Optimization:**

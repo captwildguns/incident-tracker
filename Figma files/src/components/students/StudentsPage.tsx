@@ -1,20 +1,30 @@
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import { Badge } from '../ui/badge';
-import { ForgeButton } from '@tylertech/forge-react';
-import { defineButtonComponent, defineCardComponent, defineDialogComponent, defineTextFieldComponent } from '@tylertech/forge';
+import { ForgeButton, ForgeCard, ForgeIconButton, useForgeToast } from '@tylertech/forge-react';
+import {
+  defineButtonComponent,
+  defineCardComponent,
+  defineDialogComponent,
+  defineTextFieldComponent,
+  defineBadgeComponent,
+  defineAvatarComponent,
+  defineCheckboxComponent,
+  defineAutocompleteComponent,
+  defineIconComponent,
+  defineIconButtonComponent,
+} from '@tylertech/forge';
 defineButtonComponent();
-import { ForgeCard } from '@tylertech/forge-react';
 defineCardComponent();
 defineDialogComponent();
 defineTextFieldComponent();
-import { Checkbox } from '../ui/checkbox';
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '../ui/command';
+defineBadgeComponent();
+defineAvatarComponent();
+defineCheckboxComponent();
+defineAutocompleteComponent();
+defineIconComponent();
+defineIconButtonComponent();
 import { ForgeMultiSelect } from '../ui/forge-multiselect';
-import { Search, AlertTriangle, AlertCircle, Calendar, GraduationCap, School, Check, Filter, X, Download, ChevronUp, ChevronDown, ChevronsUpDown, Users, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { ExportDropdown } from '../shared/ExportDropdown';
 import type { ExportFormat } from '../shared/ExportDropdown';
-import { toast } from 'sonner@2.0.3';
 
 // Photo URLs for students
 const femalePhotos = [
@@ -31,7 +41,7 @@ const malePhotos = [
   'https://images.unsplash.com/photo-1719861915316-449b8de4b0f2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxib3klMjBzdHVkZW50JTIwcG9ydHJhaXQlMjBzY2hvb2x8ZW58MXx8fHwxNzY5NTMwMTUzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
 ];
 
-const mockStudents = [
+export const mockStudents = [
   {
     id: 'STU-2891',
     name: 'Sarah Mitchell',
@@ -40,7 +50,7 @@ const mockStudents = [
     school: 'Lincoln Middle School',
     bus: 'Bus 12',
     route: 'Meyers Middle AM - Yellow',
-    incidentCount: 1,
+    incidentCount: 4,
     lastIncident: '2025-03-15',
     incidents: [
       {
@@ -49,7 +59,35 @@ const mockStudents = [
         type: 'Seat Refusal',
         severity: 'Medium',
         status: 'Open',
+        role: 'Instigator',
         description: 'Student refused to remain seated during transport',
+      },
+      {
+        id: 'INC-2025-0027',
+        date: '2025-02-21',
+        type: 'Disruptive Volume',
+        severity: 'Low',
+        status: 'Closed',
+        role: 'Instigator',
+        description: 'Talking loudly and disturbing other students during the afternoon run',
+      },
+      {
+        id: 'INC-2025-0014',
+        date: '2025-01-30',
+        type: 'Offensive Language',
+        severity: 'Medium',
+        status: 'Closed',
+        role: 'Participant',
+        description: 'Used inappropriate language toward another student; verbal warning issued',
+      },
+      {
+        id: 'INC-2024-0388',
+        date: '2024-12-05',
+        type: 'Taunting/Bullying',
+        severity: 'High',
+        status: 'In Progress',
+        role: 'Victim',
+        description: 'Repeatedly taunted a younger student; parent conference scheduled, follow-up pending',
       },
     ],
   },
@@ -1102,6 +1140,9 @@ interface StudentsPageProps {
   onNavigateToIncidentDetail?: (incident: any) => void;
 }
 
+// Converts YYYY-MM-DD to MM-DD-YYYY for display
+const fmtDate = (d: string) => d ? d.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$2-$3-$1') : d;
+
 const MONTH_NAMES = [
   'january', 'february', 'march', 'april', 'may', 'june',
   'july', 'august', 'september', 'october', 'november', 'december'
@@ -1152,9 +1193,8 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [incidentSearchTerm, setIncidentSearchTerm] = useState('');
-  const [studentLookupOpen, setStudentLookupOpen] = useState(false);
-  const studentLookupRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
+  const toastHelper = useForgeToast();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [gradeFilter, setGradeFilter] = useState<string[]>([]);
   const [schoolFilter, setSchoolFilter] = useState<string[]>([]);
@@ -1165,28 +1205,12 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   // Pagination state
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Get unique grades and schools for filters
   const uniqueGrades = Array.from(new Set(mockStudents.map(s => s.grade))).sort();
   const uniqueSchools = Array.from(new Set(mockStudents.map(s => s.school))).sort();
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (studentLookupRef.current && !studentLookupRef.current.contains(event.target as Node)) {
-        setStudentLookupOpen(false);
-      }
-    };
-
-    if (studentLookupOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => {
-        document.removeEventListener('mousedown', handleClickOutside);
-      };
-    }
-  }, [studentLookupOpen]);
 
   // Sync dialogOpen state to forge-dialog element
   useEffect(() => {
@@ -1283,11 +1307,11 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
   // Render sort icon for column header
   const SortIcon = ({ column }: { column: typeof sortColumn }) => {
     if (sortColumn !== column) {
-      return <ChevronsUpDown className="h-4 w-4 ml-1 text-muted-foreground" />;
+      return <forge-icon name="unfold_more" style={{ fontSize: '14px', marginLeft: '4px', opacity: 0.5 }}></forge-icon>;
     }
     return sortDirection === 'asc' 
-      ? <ChevronUp className="h-4 w-4 ml-1" /> 
-      : <ChevronDown className="h-4 w-4 ml-1" />;
+      ? <forge-icon name="arrow_upward" style={{ fontSize: '14px', marginLeft: '4px' }}></forge-icon>
+      : <forge-icon name="arrow_downward" style={{ fontSize: '14px', marginLeft: '4px' }}></forge-icon>;
   };
 
   const activeFilterCount = [
@@ -1304,11 +1328,13 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
 
   const handleExport = (format: ExportFormat) => {
     const formatLabels: Record<ExportFormat, string> = {
-      excel: 'Excel Spreadsheet', word: 'Word Document', csv: 'CSV', 'csv-no-header': 'CSV (no header)',
+      excel: 'Excel Spreadsheet', csv: 'CSV',
     };
-    toast.success('Export started', {
-      description: `Preparing ${formatLabels[format]} export for students data.`,
-    });
+    toastHelper[0]({
+      message: `Export started — preparing ${formatLabels[format]} for students data.`,
+      theme: 'success',
+      duration: 3000,
+    } as any);
   };
 
   // KPI calculations
@@ -1331,63 +1357,31 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
 
       {/* Summary Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" style={{ marginBottom: 'var(--forge-spacing-large)' }}>
-        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', borderRadius: 'var(--forge-radius-large)', borderColor: 'var(--forge-color-border-default)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>Total Students</h3>
-            <Users className="h-4 w-4" style={{ color: 'var(--brand-blue-dark)' }} />
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: 'var(--brand-blue-dark)', fontFamily: 'Roboto, sans-serif' }}>
-              {totalStudents}
-            </div>
-            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'Roboto, sans-serif' }}>
-              In district transportation
-            </p>
+        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--brand-blue-dark)', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>{totalStudents}</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Total Students</h3>
           </div>
         </ForgeCard>
 
-        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', borderRadius: 'var(--forge-radius-large)', borderColor: 'var(--forge-color-border-default)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>Active Incidents</h3>
-            <AlertCircle className="h-4 w-4" style={{ color: '#ea580c' }} />
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: '#ea580c', fontFamily: 'Roboto, sans-serif' }}>
-              {studentsWithActiveIncidents}
-            </div>
-            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'Roboto, sans-serif' }}>
-              Students with open incidents
-            </p>
+        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: '#ea580c', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>{studentsWithActiveIncidents}</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Active Incidents</h3>
           </div>
         </ForgeCard>
 
-        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', borderRadius: 'var(--forge-radius-large)', borderColor: 'var(--forge-color-border-default)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>Total Incidents</h3>
-            <AlertTriangle className="h-4 w-4" style={{ color: '#dc2626' }} />
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: '#dc2626', fontFamily: 'Roboto, sans-serif' }}>
-              {totalStudentIncidents}
-            </div>
-            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'Roboto, sans-serif' }}>
-              Across all students
-            </p>
+        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: '#dc2626', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>{totalStudentIncidents}</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Total Incidents</h3>
           </div>
         </ForgeCard>
 
-        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', borderRadius: 'var(--forge-radius-large)', borderColor: 'var(--forge-color-border-default)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>Repeat Offenders</h3>
-            <RefreshCw className="h-4 w-4" style={{ color: 'var(--brand-olive-medium)' }} />
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: 'var(--brand-olive-medium)', fontFamily: 'Roboto, sans-serif' }}>
-              {repeatOffenders}
-            </div>
-            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'Roboto, sans-serif' }}>
-              Students with 3+ incidents
-            </p>
+        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--brand-olive-medium)', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>{repeatOffenders}</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Repeat Offenders</h3>
           </div>
         </ForgeCard>
       </div>
@@ -1397,70 +1391,22 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
         <div style={{ padding: 'var(--forge-spacing-medium)', paddingTop: 'var(--forge-spacing-large)' }}>
           <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
             {/* Search */}
-            <div className="relative flex-1 min-w-[300px]" ref={studentLookupRef}>
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-              {/* @ts-ignore */}
+            <div className="flex-1 min-w-[300px]">
               <forge-text-field>
+                <forge-icon slot="start" name="search"></forge-icon>
                 <input
                   type="text"
                   placeholder="Search by student name, ID, or school..."
                   value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setStudentLookupOpen(true);
-                  }}
-                  onFocus={() => setStudentLookupOpen(true)}
-                  style={{ paddingLeft: '2rem' }}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </forge-text-field>
-              {studentLookupOpen && searchTerm && (
-                <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-[400px] overflow-auto">
-                  <Command className="bg-white">
-                    <CommandList className="bg-white">
-                      <CommandEmpty className="text-foreground p-4 text-center">No student found.</CommandEmpty>
-                      <CommandGroup className="bg-white">
-                        {mockStudents
-                          .filter((student) =>
-                            student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            student.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            student.school.toLowerCase().includes(searchTerm.toLowerCase())
-                          )
-                          .map((student) => (
-                            <CommandItem
-                              key={student.id}
-                              value={student.name}
-                              onSelect={() => {
-                                setSearchTerm(student.name);
-                                setStudentLookupOpen(false);
-                              }}
-                              className="hover:bg-accent text-foreground cursor-pointer group"
-                            >
-                              <Check
-                                className={
-                                  searchTerm === student.name
-                                    ? "mr-2 h-4 w-4 opacity-100 group-hover:text-white"
-                                    : "mr-2 h-4 w-4 opacity-0"
-                                }
-                              />
-                              <div className="flex flex-col">
-                                <div className="text-foreground group-hover:text-white">{student.name}</div>
-                                <div className="text-sm text-muted-foreground group-hover:text-white">
-                                  {student.id} • {student.grade} • {student.school}
-                                </div>
-                              </div>
-                            </CommandItem>
-                          ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </div>
-              )}
             </div>
 
             {/* Filters Section */}
             <div className="flex items-center gap-3 flex-wrap">
               <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-muted-foreground" />
+                <forge-icon name="filter_list" style={{ fontSize: '16px', color: 'var(--forge-theme-text-medium)' }}></forge-icon>
                 <span className="text-sm text-muted-foreground">Filters:</span>
               </div>
 
@@ -1485,19 +1431,18 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
               />
 
               {/* Active Incidents Filter */}
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  checked={activeIncidentsFilter}
-                  onCheckedChange={(checked) => setActiveIncidentsFilter(checked === true)}
-                  id="active-incidents"
-                />
-                <label 
-                  htmlFor="active-incidents"
-                  className="text-sm text-muted-foreground cursor-pointer whitespace-nowrap"
-                >
-                  Active Incidents Only
-                </label>
-              </div>
+              <forge-checkbox
+                ref={(el: any) => {
+                  if (!el) return;
+                  el.checked = activeIncidentsFilter;
+                  const handler = (e: any) => setActiveIncidentsFilter(!!e.target.checked);
+                  el.removeEventListener('change', handler);
+                  el.addEventListener('change', handler);
+                }}
+                style={{ whiteSpace: 'nowrap' }}
+              >
+                Active Incidents Only
+              </forge-checkbox>
 
               {/* Clear Filters Button */}
               {activeFilterCount > 0 && (
@@ -1513,7 +1458,7 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
       {/* Active Filter Banner */}
       {activeIncidentsFilter && (
         <div className="flex items-center gap-3 p-3 rounded-md mb-4" style={{ backgroundColor: 'var(--forge-color-surface-info, #f5f3ff)', border: '1px solid var(--forge-color-border-info, #c4b5fd)', borderRadius: 'var(--forge-radius-medium)', fontFamily: 'var(--forge-font-family)' }}>
-          <AlertCircle className="h-4 w-4 shrink-0" style={{ color: 'var(--forge-color-text-info, #7c3aed)' }} />
+          <forge-icon name="error" style={{ fontSize: '16px', flexShrink: 0, color: 'var(--forge-color-text-info, #7c3aed)' }}></forge-icon>
           <span style={{ fontSize: 'var(--forge-font-size-sm)', color: 'var(--forge-color-text-info, #5b21b6)', fontFamily: 'var(--forge-font-family)' }}>
             Filtered view: Showing only students with active (non-closed) incidents
           </span>
@@ -1629,55 +1574,37 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
                             <div style={{ fontWeight: 500, fontFamily: 'var(--forge-font-family)' }}>{student.name}</div>
                             {hasActiveIncidents && (
                               <div className="flex items-center gap-1 mt-0.5">
-                                <Badge
-                                  className={
-                                    highestActiveSeverity === 'High'
-                                      ? 'h-5 text-xs bg-red-100 text-red-700 hover:bg-red-200 border-red-300'
-                                      : highestActiveSeverity === 'Medium'
-                                      ? 'h-5 text-xs bg-orange-100 text-orange-700 hover:bg-orange-200 border-orange-300'
-                                      : 'h-5 text-xs bg-yellow-100 text-yellow-700 hover:bg-yellow-200 border-yellow-300'
-                                  }
-                                  style={{ fontFamily: 'var(--forge-font-family)' }}
+                                <forge-badge
+                                  theme={highestActiveSeverity === 'High' ? 'error' : highestActiveSeverity === 'Medium' ? 'warning' : 'default'}
+                                  strong
                                 >
                                   Active Incident
-                                </Badge>
+                                </forge-badge>
                               </div>
                             )}
                           </div>
                         </td>
                         <td className="forge-table-cell">
-                          <div className="flex items-center gap-2">
-                            <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                            <span>{student.grade}</span>
-                          </div>
+                          <span>{student.grade}</span>
                         </td>
                         <td className="forge-table-cell">
-                          <div className="flex items-center gap-2">
-                            <School className="h-4 w-4 text-muted-foreground" />
-                            <span>{student.school}</span>
-                          </div>
+                          <span>{student.school}</span>
                         </td>
                         <td className="forge-table-cell">
                           {/* Incident count badge with color coding:
                               1-2 incidents: yellow
                               3 incidents: orange
                               4+ incidents: red */}
-                          <Badge
-                            className={
-                              student.incidentCount >= 4
-                                ? "bg-red-100 text-red-700 border-red-300 hover:bg-red-200"
-                                : student.incidentCount === 3
-                                ? "bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200"
-                                : "bg-yellow-100 text-yellow-700 border-yellow-300 hover:bg-yellow-200"
-                            }
+                          <forge-badge
+                            theme={student.incidentCount >= 4 ? 'error' : student.incidentCount === 3 ? 'warning' : 'default'}
                           >
                             {student.incidentCount} {student.incidentCount === 1 ? 'incident' : 'incidents'}
-                          </Badge>
+                          </forge-badge>
                         </td>
                         <td className="forge-table-cell">
                           <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                            <span>{student.lastIncident}</span>
+                            <forge-icon name="calendar_today" style={{ fontSize: '16px', color: 'var(--forge-theme-text-medium)' }}></forge-icon>
+                            <span>{fmtDate(student.lastIncident)}</span>
                           </div>
                         </td>
                         </tr>
@@ -1690,15 +1617,15 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
           {/* Pagination Controls */}
           <div className="flex items-center justify-between" style={{ paddingTop: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--forge-color-border-subtle)', marginTop: 'var(--forge-spacing-medium)' }}>
             <div className="flex items-center" style={{ gap: 'var(--forge-spacing-small)' }}>
-              <span style={{ fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', whiteSpace: 'nowrap' }}>
                 Showing {startIndex + 1}–{Math.min(startIndex + rowsPerPage, sortedStudents.length)} of {sortedStudents.length} students
               </span>
-              {rowsPerPage === 10 && sortedStudents.length > 10 && (
+              {rowsPerPage === 5 && sortedStudents.length > 5 && (
                 <ForgeButton
                   variant="outlined"
-                  size="sm"
+                  dense
                   onClick={() => { setRowsPerPage(25); setCurrentPage(1); }}
-                  style={{ fontSize: 'var(--forge-font-size-sm)' }}
+                  style={{ fontSize: '0.75rem' }}
                 >
                   Show 25
                 </ForgeButton>
@@ -1706,11 +1633,11 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
               {rowsPerPage === 25 && (
                 <ForgeButton
                   variant="outlined"
-                  size="sm"
-                  onClick={() => { setRowsPerPage(10); setCurrentPage(1); }}
-                  style={{ fontSize: 'var(--forge-font-size-sm)' }}
+                  dense
+                  onClick={() => { setRowsPerPage(5); setCurrentPage(1); }}
+                  style={{ fontSize: '0.75rem' }}
                 >
-                  Show 10
+                  Show 5
                 </ForgeButton>
               )}
             </div>
@@ -1724,7 +1651,7 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   style={{ padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)' }}
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <forge-icon name="chevron_left" style={{ fontSize: '18px' }}></forge-icon>
                 </ForgeButton>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                   <ForgeButton
@@ -1732,7 +1659,11 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
                     variant={page === currentPage ? 'raised' : 'outlined'}
                     size="sm"
                     onClick={() => setCurrentPage(page)}
-                    style={{ minWidth: '32px', padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)', fontSize: 'var(--forge-font-size-sm)' }}
+                    style={{
+                      ['--forge-button-min-width' as any]: '24px',
+                      ['--forge-button-padding-inline' as any]: '6px',
+                      fontSize: '0.75rem',
+                    }}
                   >
                     {page}
                   </ForgeButton>
@@ -1744,7 +1675,7 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   style={{ padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)' }}
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <forge-icon name="chevron_right" style={{ fontSize: '18px' }}></forge-icon>
                 </ForgeButton>
               </div>
             )}
@@ -1755,45 +1686,33 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
       {/* @ts-ignore */}
       <forge-dialog ref={dialogRef} aria-label={`Student Profile - ${selectedStudent?.name || ''}`}>
         <div style={{ padding: 'var(--forge-spacing-large)', minWidth: '500px', maxWidth: '700px', maxHeight: '85vh', overflowY: 'auto' }}>
-          <h2 style={{ margin: 0, marginBottom: 'var(--forge-spacing-large)', fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)', fontSize: 'var(--forge-font-size-xl)' }}>
-            Student Profile - {selectedStudent?.name}
-          </h2>
           {selectedStudent && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-large)' }}>
-              {/* Student Quick Info - No Photo */}
-              <div style={{ paddingBottom: 'var(--forge-spacing-medium)', borderBottom: '1px solid var(--forge-color-border-default)' }}>
-                <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--foreground)' }}>
-                  Student ID: {selectedStudent.id}
-                  <span style={{ margin: '0 var(--forge-spacing-xsmall)', color: 'var(--muted-foreground)' }}>·</span>
-                  {selectedStudent.grade}
+            <>
+              {/* Header: 2-column split — name+grade/school left, last incident+ID right */}
+              <div className="flex items-start justify-between gap-4" style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
+                <div>
+                  <h2 style={{ margin: 0, marginBottom: 'var(--forge-spacing-xxsmall)', fontFamily: 'var(--forge-font-family)', fontWeight: 700, fontSize: 'var(--forge-font-size-xl)' }}>
+                    Student Profile - {selectedStudent.name}
+                  </h2>
+                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>
+                    {selectedStudent.grade}
+                    <span style={{ margin: '0 var(--forge-spacing-xsmall)' }}>·</span>
+                    {selectedStudent.school}
+                  </div>
                 </div>
-                <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)', marginTop: 'var(--forge-spacing-xxsmall)' }}>
-                  {selectedStudent.school}
+                <div className="flex-shrink-0 text-right" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>
+                  <div className="flex items-center justify-end" style={{ gap: 'var(--forge-spacing-xsmall)', marginBottom: 'var(--forge-spacing-xxsmall)' }}>
+                    <forge-icon name="calendar_today" style={{ fontSize: '14px' }}></forge-icon>
+                    <span>Last Incident: {fmtDate(selectedStudent.lastIncident)}</span>
+                  </div>
+                  <div>{selectedStudent.id}</div>
                 </div>
               </div>
 
-              {/* Incident Summary */}
               <div>
-                <h3 style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-lg)', fontWeight: 'var(--forge-font-weight-medium)', marginBottom: 'var(--forge-spacing-small)' }}>
-                  Incident Summary
-                </h3>
-                <div className="grid grid-cols-2" style={{ gap: 'var(--forge-spacing-medium)', marginBottom: 'var(--forge-spacing-medium)' }}>
-                  <div>
-                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Total Incidents</div>
-                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-xl)', fontWeight: 'var(--forge-font-weight-medium)' }}>{selectedStudent.incidentCount}</div>
-                  </div>
-                  <div>
-                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Last Incident</div>
-                    <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)' }}>
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span>{selectedStudent.lastIncident}</span>
-                    </div>
-                  </div>
-                </div>
-
                 {/* Incident Search/Filter */}
                 <div className="relative" style={{ marginBottom: 'var(--forge-spacing-xsmall)' }}>
-                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <forge-icon name="search" style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', fontSize: '14px', color: 'var(--forge-theme-text-medium)', pointerEvents: 'none' }}></forge-icon>
                   <input
                     type="text"
                     placeholder="Search incidents by ID, type, status, or description..."
@@ -1812,7 +1731,7 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
                       onClick={() => setIncidentSearchTerm('')}
                       className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground bg-transparent border-none p-0 cursor-pointer"
                     >
-                      <X className="h-3.5 w-3.5" />
+                      <forge-icon name="close" style={{ fontSize: '14px' }}></forge-icon>
                     </button>
                   )}
                 </div>
@@ -1832,72 +1751,84 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
                         matchesDate(incident.date, incidentSearchTerm)
                       );
                     })
-                    .map((incident: any) => (
-                    <ForgeCard
-                      key={incident.id}
-                      className="hover:bg-accent/50 transition-colors cursor-pointer"
-                      style={{ border: '1px solid var(--forge-color-border-subtle)', borderRadius: 'var(--forge-radius-large)' }}
-                      onClick={() => {
-                        if (onNavigateToIncidentDetail && selectedStudent) {
-                          const fullIncident = {
-                            ...incident,
-                            student: selectedStudent.name,
-                            studentId: selectedStudent.id,
-                            bus: selectedStudent.bus,
-                            route: selectedStudent.route,
-                            driver: 'Assigned Driver',
-                            assignedTo: 'Jane Doe',
-                            createdBy: 'System',
-                          };
-                          onNavigateToIncidentDetail(fullIncident);
-                        }
-                      }}
-                    >
-                      <div style={{ padding: 'var(--forge-spacing-medium)' }}>
-                        {/* Row 1: Incident ID + Date */}
-                        <div className="flex items-center justify-between" style={{ marginBottom: 'var(--forge-spacing-xsmall)' }}>
-                          <span
-                            style={{ fontWeight: 'var(--forge-font-weight-medium)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--foreground)' }}
-                          >
-                            {incident.id}
-                          </span>
-                          <span style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)' }}>
-                            {incident.date}
-                          </span>
-                        </div>
-                        {/* Row 2: Type + Severity badges left, Status badge right */}
-                        <div className="flex items-center justify-between" style={{ marginBottom: 'var(--forge-spacing-xsmall)' }}>
-                          <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xxsmall)' }}>
-                            <Badge variant="outline" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-xs)' }}>{incident.type}</Badge>
-                            <Badge
-                              variant={
-                                incident.severity === 'High' ? 'destructive' :
-                                incident.severity === 'Medium' ? 'secondary' :
-                                'outline'
-                              }
-                              style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-xs)' }}
+                    .map((incident: any) => {
+                      const borderColor = incident.severity === 'Critical' ? '#dc2626'
+                        : incident.severity === 'High' ? '#ea580c'
+                        : incident.severity === 'Medium' ? '#f59e0b'
+                        : '#94a3b8';
+                      return (
+                      <ForgeCard
+                        key={incident.id}
+                        className="hover:shadow-md transition-all cursor-pointer"
+                        style={{
+                          border: '1px solid var(--forge-color-border-subtle)',
+                          borderLeft: `4px solid ${borderColor}`,
+                          boxShadow: 'var(--forge-elevation-1)',
+                        }}
+                        onClick={() => {
+                          if (onNavigateToIncidentDetail && selectedStudent) {
+                            const fullIncident = {
+                              ...incident,
+                              student: selectedStudent.name,
+                              studentId: selectedStudent.id,
+                              bus: selectedStudent.bus,
+                              route: selectedStudent.route,
+                              driver: 'Assigned Driver',
+                              assignedTo: 'Jane Doe',
+                              createdBy: 'System',
+                            };
+                            onNavigateToIncidentDetail(fullIncident);
+                          }
+                        }}
+                      >
+                        <div style={{ padding: 'var(--forge-spacing-small) var(--forge-spacing-medium)' }}>
+                          {/* Row 1: Incident ID (bold) + Severity badge */}
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="font-semibold" style={{ fontSize: '1rem', lineHeight: 1.2 }}>
+                              {incident.id}
+                            </div>
+                            <forge-badge
+                              theme={incident.severity === 'Critical' ? 'danger' : incident.severity === 'High' ? 'error' : incident.severity === 'Medium' ? 'warning' : 'info'}
+                              strong
                             >
-                              {incident.severity}
-                            </Badge>
+                              {incident.severity.toUpperCase()}
+                            </forge-badge>
                           </div>
-                          <Badge
-                            variant={
-                              incident.status === 'Open' ? 'default' :
-                              incident.status === 'In Progress' ? 'secondary' :
-                              'outline'
-                            }
-                            style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-xs)' }}
-                          >
-                            {incident.status}
-                          </Badge>
+
+                          {/* Row 2: Date (muted) + Type badge (right) */}
+                          <div className="flex items-center justify-between gap-2" style={{ marginTop: '2px' }}>
+                            <p className="text-muted-foreground" style={{ fontSize: '0.75rem', margin: 0 }}>
+                              {fmtDate(incident.date)}
+                            </p>
+                            <forge-badge theme="default">{incident.type}</forge-badge>
+                          </div>
+
+                          {/* Row 2b: Role chip */}
+                          {incident.role && (
+                            <div className="flex justify-end" style={{ marginTop: '2px' }}>
+                              <forge-badge
+                                theme={incident.role === 'Instigator' ? 'error' : incident.role === 'Victim' ? 'info-primary' : incident.role === 'Participant' ? 'warning' : 'default'}
+                              >
+                                {incident.role}
+                              </forge-badge>
+                            </div>
+                          )}
+
+                          {/* Row 3: Bus + Status */}
+                          <div className="flex items-center gap-1 text-muted-foreground" style={{ fontSize: '0.8125rem', marginTop: 'var(--forge-spacing-xsmall)' }}>
+                            <forge-icon name="access_time" style={{ fontSize: '12px' }}></forge-icon>
+                            <span>{selectedStudent.bus} • {incident.status}</span>
+                          </div>
+
+                          {/* Row 4: Description */}
+                          <div className="flex items-start gap-1 text-muted-foreground" style={{ fontSize: '0.8125rem', marginTop: '2px' }}>
+                            <forge-icon name="error" style={{ fontSize: '12px', marginTop: '2px', flexShrink: 0 }}></forge-icon>
+                            <span>{incident.description}</span>
+                          </div>
                         </div>
-                        {/* Row 3: Description */}
-                        <p style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)', margin: 0 }}>
-                          {incident.description}
-                        </p>
-                      </div>
-                    </ForgeCard>
-                  ))}
+                      </ForgeCard>
+                      );
+                    })}
                   {incidentSearchTerm.trim() && selectedStudent.incidents.filter((inc: any) => {
                     const t = incidentSearchTerm.toLowerCase();
                     return inc.id?.toLowerCase().includes(t) || inc.type?.toLowerCase().includes(t) || inc.status?.toLowerCase().includes(t) || inc.severity?.toLowerCase().includes(t) || inc.description?.toLowerCase().includes(t) || matchesDate(inc.date, incidentSearchTerm);
@@ -1908,7 +1839,7 @@ export function StudentsPage({ onNavigate, initialActiveIncidentsFilter = false,
                   )}
                 </div>
               </div>
-            </div>
+            </>
           )}
         </div>
       </forge-dialog>

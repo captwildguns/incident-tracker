@@ -31,7 +31,7 @@
 | location | Location | select (grouped) | Y | "" | Context-dependent list | static | `on-bus` |
 | address | Address | autocomplete | N | "" | Verified address list | Google Places mock | `1234 Main Street, Meridian, ID 83642` |
 | bus | Vehicle | select | Y | "" | Fleet list | API mock | `bus-12` |
-| route | Route | select | Y | "" | Route list | API mock | `lincoln-elem-am-green` |
+| run | Run | select | Y | "" | Run list | API mock | `lincoln-elem-am-green` |
 | witnessPresent | Witness Present | checkbox | N | false | boolean | user-entered | `true` |
 | witnessName | Witness Name | text input | N | "" | max 100 chars | user-entered | `Jane Smith` |
 | parentNotified | Parent Notified | checkbox | N | false | boolean | user-entered | `false` |

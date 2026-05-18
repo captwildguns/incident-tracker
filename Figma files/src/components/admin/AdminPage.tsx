@@ -1,15 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { ForgeButton } from '@tylertech/forge-react';
-import { defineButtonComponent, defineDialogComponent, defineTextFieldComponent } from '@tylertech/forge';
+import { defineButtonComponent, defineDialogComponent, defineTextFieldComponent, defineTabBarComponent, defineTabComponent, defineBadgeComponent, defineIconComponent } from '@tylertech/forge';
 defineButtonComponent();
 defineDialogComponent();
 defineTextFieldComponent();
+defineTabBarComponent();
+defineTabComponent();
+defineBadgeComponent();
+defineIconComponent();
 import { Label } from '../ui/label';
-import { Badge } from '../ui/badge';
 import { Textarea } from '../ui/textarea';
 import {
-  Users,
-  Mail,
   Plus,
   Pencil,
   Trash2,
@@ -181,7 +182,6 @@ function categoryBadgeStyle(cat: string): React.CSSProperties {
     Notification: { bg: 'rgba(74, 111, 165, 0.10)', border: 'var(--brand-blue-medium)', color: 'var(--brand-blue-dark)' },
     Approval: { bg: 'rgba(255, 193, 7, 0.12)', border: 'var(--secondary)', color: '#8B6914' },
     Escalation: { bg: 'rgba(176, 0, 32, 0.08)', border: 'var(--destructive)', color: 'var(--destructive)' },
-    Completion: { bg: 'rgba(159, 168, 112, 0.15)', border: 'var(--brand-olive-medium)', color: 'var(--brand-olive-dark)' },
     Custom: { bg: 'rgba(63, 81, 181, 0.10)', border: 'var(--primary)', color: 'var(--primary)' },
   };
   const c = map[cat] || { bg: 'var(--muted)', border: 'var(--border)', color: 'var(--foreground)' };
@@ -618,78 +618,31 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
       </div>
 
       {/* Section Tabs */}
-      <div
-        style={{
-          display: 'flex',
-          gap: '0',
-          borderBottom: '2px solid var(--border)',
-          marginBottom: 'var(--forge-spacing-large)',
-        }}
+      {/* @ts-ignore */}
+      <forge-tab-bar
+        active-tab={activeSection === 'users' ? 0 : activeSection === 'templates' ? 1 : 2}
+        style={{ marginBottom: 'var(--forge-spacing-large)' }}
       >
-        <button
-          onClick={() => setActiveSection('users')}
-          style={{
-            padding: 'var(--forge-spacing-small) var(--forge-spacing-large)',
-            background: 'none',
-            border: 'none',
-            borderBottom: activeSection === 'users' ? '2px solid var(--primary)' : '2px solid transparent',
-            marginBottom: '-2px',
-            color: activeSection === 'users' ? 'var(--primary)' : 'var(--muted-foreground)',
-            cursor: 'pointer',
-            fontSize: 'var(--text-base)',
-            fontWeight: 'var(--forge-font-weight-medium)',
-            fontFamily: 'var(--forge-font-family)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--forge-spacing-xsmall)',
-          }}
-        >
-          <Users size={18} />
+        {/* @ts-ignore */}
+        <forge-tab onClick={() => setActiveSection('users')}>
+          <forge-icon name="people" slot="leading"></forge-icon>
           Incident Tracker Roles
-        </button>
-        <button
-          onClick={() => setActiveSection('templates')}
-          style={{
-            padding: 'var(--forge-spacing-small) var(--forge-spacing-large)',
-            background: 'none',
-            border: 'none',
-            borderBottom: activeSection === 'templates' ? '2px solid var(--primary)' : '2px solid transparent',
-            marginBottom: '-2px',
-            color: activeSection === 'templates' ? 'var(--primary)' : 'var(--muted-foreground)',
-            cursor: 'pointer',
-            fontSize: 'var(--text-base)',
-            fontWeight: 'var(--forge-font-weight-medium)',
-            fontFamily: 'var(--forge-font-family)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--forge-spacing-xsmall)',
-          }}
-        >
-          <Mail size={18} />
+        {/* @ts-ignore */}
+        </forge-tab>
+        {/* @ts-ignore */}
+        <forge-tab onClick={() => setActiveSection('templates')}>
+          <forge-icon name="email" slot="leading"></forge-icon>
           Email Templates
-        </button>
-        <button
-          onClick={() => setActiveSection('incidentTypes')}
-          style={{
-            padding: 'var(--forge-spacing-small) var(--forge-spacing-large)',
-            background: 'none',
-            border: 'none',
-            borderBottom: activeSection === 'incidentTypes' ? '2px solid var(--primary)' : '2px solid transparent',
-            marginBottom: '-2px',
-            color: activeSection === 'incidentTypes' ? 'var(--primary)' : 'var(--muted-foreground)',
-            cursor: 'pointer',
-            fontSize: 'var(--text-base)',
-            fontWeight: 'var(--forge-font-weight-medium)',
-            fontFamily: 'var(--forge-font-family)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--forge-spacing-xsmall)',
-          }}
-        >
-          <AlertTriangle size={18} />
+        {/* @ts-ignore */}
+        </forge-tab>
+        {/* @ts-ignore */}
+        <forge-tab onClick={() => setActiveSection('incidentTypes')}>
+          <forge-icon name="warning" slot="leading"></forge-icon>
           Incident Types
-        </button>
-      </div>
+        {/* @ts-ignore */}
+        </forge-tab>
+      {/* @ts-ignore */}
+      </forge-tab-bar>
 
       {/* ══════════════════════════════════════════════════════════════════════ */}
       {/* USER ROLES SECTION                                                    */}
@@ -765,23 +718,19 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                       <td className="forge-table-cell">
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--forge-spacing-xxsmall)' }}>
                           {user.roles.map((role) => (
-                            <Badge key={role} variant="outline" style={roleBadgeStyle(role)}>{role}</Badge>
+                            // @ts-ignore
+                            <forge-badge key={role} theme="default" style={roleBadgeStyle(role)}>{role}</forge-badge>
                           ))}
                         </div>
                       </td>
                       <td className="forge-table-cell">
-                        <Badge
-                          variant="outline"
-                          style={{
-                            background: user.status === 'Active' ? 'rgba(159, 168, 112, 0.15)' : 'rgba(0,0,0,0.06)',
-                            borderColor: user.status === 'Active' ? 'var(--brand-olive-medium)' : 'var(--muted-foreground)',
-                            color: user.status === 'Active' ? 'var(--brand-olive-dark)' : 'var(--muted-foreground)',
-                            fontSize: 'var(--text-xs)',
-                            fontFamily: 'var(--forge-font-family)',
-                          }}
+                        {/* @ts-ignore */}
+                        <forge-badge
+                          theme={user.status === 'Active' ? 'success' : 'default'}
                         >
                           {user.status}
-                        </Badge>
+                        {/* @ts-ignore */}
+                        </forge-badge>
                       </td>
                       <td className="forge-table-cell" style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>
                         {user.lastLogin || '—'}
@@ -834,7 +783,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                   { value: 'Notification', label: 'Notification' },
                   { value: 'Approval', label: 'Approval' },
                   { value: 'Escalation', label: 'Escalation' },
-                  { value: 'Completion', label: 'Completion' },
                   { value: 'Custom', label: 'Custom' },
                 ]}
                 placeholder="All Categories"
@@ -864,11 +812,11 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)', flexWrap: 'wrap' }}>
                         <span style={{ ...sectionHeaderStyle, fontSize: 'var(--text-base)' }}>{tpl.name}</span>
-                        <Badge variant="outline" style={categoryBadgeStyle(tpl.category)}>{tpl.category}</Badge>
+                        {/* @ts-ignore */}
+                        <forge-badge style={categoryBadgeStyle(tpl.category)}>{tpl.category}</forge-badge>
                         {tpl.isDefault && (
-                          <Badge variant="outline" style={{ fontSize: 'var(--text-xs)', fontFamily: 'var(--forge-font-family)', background: 'rgba(63,81,181,0.06)', borderColor: 'var(--primary)', color: 'var(--primary)' }}>
-                            System Default
-                          </Badge>
+                          // @ts-ignore
+                          <forge-badge theme="info-primary">System Default</forge-badge>
                         )}
                       </div>
                       <p style={{ ...mutedTextStyle, marginTop: 'var(--forge-spacing-xxsmall)' }}>{tpl.description}</p>
@@ -903,9 +851,11 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                         <div style={{ ...labelStyle, marginBottom: 'var(--forge-spacing-xsmall)' }}>Template Variables</div>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--forge-spacing-xxsmall)' }}>
                           {tpl.variables.map((v) => (
-                            <Badge key={v} variant="outline" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)', background: 'var(--input-background)' }}>
+                            // @ts-ignore
+                            <forge-badge key={v} theme="default" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)', background: 'var(--input-background)' }}>
                               {'{{' + v + '}}'}
-                            </Badge>
+                            {/* @ts-ignore */}
+                            </forge-badge>
                           ))}
                         </div>
                       </div>
@@ -1057,14 +1007,18 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
             {/* Status */}
             <div>
               <Label style={labelStyle}>Status</Label>
-              <select
-                value={userForm.status}
-                onChange={(e) => setUserForm({ ...userForm, status: e.target.value as 'Active' | 'Inactive' })}
-                style={selectStyle}
-              >
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
+              {/* @ts-ignore */}
+              <forge-text-field style={inputWrapperStyle}>
+                <select
+                  value={userForm.status}
+                  onChange={(e) => setUserForm({ ...userForm, status: e.target.value as 'Active' | 'Inactive' })}
+                  style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', width: '100%' }}
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              {/* @ts-ignore */}
+              </forge-text-field>
             </div>
 
             {/* Roles */}
@@ -1112,20 +1066,13 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
             <ForgeButton variant="outlined" onClick={() => setIsUserDialogOpen(false)} style={{ flex: 1, fontFamily: 'var(--forge-font-family)' }}>
               Cancel
             </ForgeButton>
-            <button
-              type="button"
+            <ForgeButton
               onClick={saveUser}
               disabled={!userForm.firstName || !userForm.lastName || !userForm.email || userForm.roles.length === 0}
-              style={{
-                flex: 1, height: '36px', padding: '0 16px',
-                background: (!userForm.firstName || !userForm.lastName || !userForm.email || userForm.roles.length === 0) ? '#9BAEC8' : '#4A6FA5',
-                color: '#ffffff', border: 'none', borderRadius: '4px',
-                fontFamily: 'var(--forge-font-family)', fontSize: '14px', fontWeight: 500,
-                cursor: (!userForm.firstName || !userForm.lastName || !userForm.email || userForm.roles.length === 0) ? 'not-allowed' : 'pointer',
-              }}
+              style={{ flex: 1, fontFamily: 'var(--forge-font-family)' }}
             >
               {editingUser ? 'Save Changes' : 'Add User'}
-            </button>
+            </ForgeButton>
           </div>
         </div>
       {/* @ts-ignore */}
@@ -1165,17 +1112,20 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
               </div>
               <div>
                 <Label style={labelStyle}>Category</Label>
-                <select
-                  value={templateForm.category}
-                  onChange={(e) => setTemplateForm({ ...templateForm, category: e.target.value as EmailTemplate['category'] })}
-                  style={selectStyle}
-                >
-                  <option value="Notification">Notification</option>
-                  <option value="Approval">Approval</option>
-                  <option value="Escalation">Escalation</option>
-                  <option value="Completion">Completion</option>
-                  <option value="Custom">Custom</option>
-                </select>
+                {/* @ts-ignore */}
+                <forge-text-field style={inputWrapperStyle}>
+                  <select
+                    value={templateForm.category}
+                    onChange={(e) => setTemplateForm({ ...templateForm, category: e.target.value as EmailTemplate['category'] })}
+                    style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', width: '100%' }}
+                  >
+                    <option value="Notification">Notification</option>
+                    <option value="Approval">Approval</option>
+                    <option value="Escalation">Escalation</option>
+                    <option value="Custom">Custom</option>
+                  </select>
+                {/* @ts-ignore */}
+                </forge-text-field>
               </div>
             </div>
 
@@ -1239,9 +1189,9 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                   { token: 'parent_name', label: 'Parent/Guardian Name' },
                   { token: 'parent_email', label: 'Parent/Guardian Email' },
                 ]},
-                { group: 'Vehicle & Route', vars: [
+                { group: 'Vehicle & Run', vars: [
                   { token: 'vehicle_number', label: 'Vehicle Number' },
-                  { token: 'route_name', label: 'Route/Run Name' },
+                  { token: 'route_name', label: 'Run Name' },
                   { token: 'driver_name', label: 'Driver Name' },
                 ]},
                 { group: 'Workflow', vars: [
@@ -1457,9 +1407,11 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                 <div style={labelStyle}>Available Variables</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--forge-spacing-xxsmall)' }}>
                   {previewTemplate.variables.map((v) => (
-                    <Badge key={v} variant="outline" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)', background: 'var(--input-background)' }}>
+                    // @ts-ignore
+                    <forge-badge key={v} theme="default" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)', background: 'var(--input-background)' }}>
                       {'{{' + v + '}}'}
-                    </Badge>
+                    {/* @ts-ignore */}
+                    </forge-badge>
                   ))}
                 </div>
               </div>
@@ -1529,34 +1481,29 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                         <div style={{ fontSize: 'var(--text-xs)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)' }}>{it.id}</div>
                       </td>
                       <td className="forge-table-cell">
-                        <Badge variant="outline" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)' }}>{it.category}</Badge>
+                        {/* @ts-ignore */}
+                        <forge-badge theme="default" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)' }}>{it.category}</forge-badge>
                       </td>
                       <td className="forge-table-cell">
-                        <Badge
-                          variant="outline"
-                          style={{
-                            fontFamily: 'var(--forge-font-family)',
-                            fontSize: 'var(--text-xs)',
-                            background: it.applicableTo === 'student' ? 'rgba(74, 111, 165, 0.10)' : it.applicableTo === 'driver' ? 'rgba(159, 168, 112, 0.15)' : 'rgba(63, 81, 181, 0.10)',
-                            borderColor: it.applicableTo === 'student' ? 'var(--brand-blue-medium)' : it.applicableTo === 'driver' ? 'var(--brand-olive-medium)' : 'var(--primary)',
-                          }}
+                        {/* @ts-ignore */}
+                        <forge-badge
+                          theme={it.applicableTo === 'student' ? 'info' : it.applicableTo === 'driver' ? 'default' : 'info-primary'}
+                          style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)' }}
                         >
                           {it.applicableTo === 'student' ? 'Student' : it.applicableTo === 'driver' ? 'Driver' : 'Both'}
-                        </Badge>
+                        {/* @ts-ignore */}
+                        </forge-badge>
                       </td>
                       <td className="forge-table-cell">
-                        <Badge
-                          variant="outline"
-                          style={{
-                            fontFamily: 'var(--forge-font-family)',
-                            fontSize: 'var(--text-xs)',
-                            background: it.defaultSeverity === 'High' ? 'rgba(176, 0, 32, 0.08)' : it.defaultSeverity === 'Medium' ? 'rgba(255, 193, 7, 0.12)' : 'rgba(159, 168, 112, 0.15)',
-                            borderColor: it.defaultSeverity === 'High' ? 'var(--destructive)' : it.defaultSeverity === 'Medium' ? 'var(--secondary)' : 'var(--brand-olive-medium)',
-                            color: it.defaultSeverity === 'High' ? 'var(--destructive)' : it.defaultSeverity === 'Medium' ? '#8B6914' : 'var(--brand-olive-dark)',
-                          }}
+                        {/* @ts-ignore */}
+                        <forge-badge
+                          theme={it.defaultSeverity === 'Critical' ? 'danger' : it.defaultSeverity === 'High' ? 'error' : it.defaultSeverity === 'Medium' ? 'warning' : 'info'}
+                          strong
+                          style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)' }}
                         >
                           {it.defaultSeverity}
-                        </Badge>
+                        {/* @ts-ignore */}
+                        </forge-badge>
                       </td>
                       <td className="forge-table-cell">
                         {(() => {
@@ -1665,15 +1612,19 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--forge-spacing-medium)' }}>
               <div>
                 <div style={labelStyle}>Category <span style={{ color: 'var(--destructive)' }}>*</span></div>
-                <select
-                  value={itForm.category}
-                  onChange={(e) => setItForm({ ...itForm, category: e.target.value })}
-                  style={selectStyle}
-                >
-                  {allItCategories.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
+                {/* @ts-ignore */}
+                <forge-text-field style={inputWrapperStyle}>
+                  <select
+                    value={itForm.category}
+                    onChange={(e) => setItForm({ ...itForm, category: e.target.value })}
+                    style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', width: '100%' }}
+                  >
+                    {allItCategories.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                {/* @ts-ignore */}
+                </forge-text-field>
               </div>
               <div>
                 <div style={labelStyle}>Applies To</div>
@@ -1767,21 +1718,25 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
               {/* Existing workflow selector */}
               {itWorkflowOption === 'existing' && (
                 <div>
-                  <select
-                    value={selectedWorkflowId}
-                    onChange={(e) => setSelectedWorkflowId(e.target.value)}
-                    style={selectStyle}
-                  >
-                    <option value="">— Select a workflow —</option>
-                    {workflowsList
-                      .filter((w) => w.isActive)
-                      .sort((a, b) => a.id.localeCompare(b.id))
-                      .map((w) => (
-                        <option key={w.id} value={w.id}>
-                          {w.id}: {w.name}
-                        </option>
-                      ))}
-                  </select>
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <select
+                      value={selectedWorkflowId}
+                      onChange={(e) => setSelectedWorkflowId(e.target.value)}
+                      style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', width: '100%' }}
+                    >
+                      <option value="">— Select a workflow —</option>
+                      {workflowsList
+                        .filter((w) => w.isActive)
+                        .sort((a, b) => a.id.localeCompare(b.id))
+                        .map((w) => (
+                          <option key={w.id} value={w.id}>
+                            {w.id}: {w.name}
+                          </option>
+                        ))}
+                    </select>
+                  {/* @ts-ignore */}
+                  </forge-text-field>
                   {selectedWorkflowId && (() => {
                     const wf = workflowsList.find((w) => w.id === selectedWorkflowId);
                     return wf ? (

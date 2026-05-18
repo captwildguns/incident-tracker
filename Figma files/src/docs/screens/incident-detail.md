@@ -34,7 +34,7 @@
 | student | read-only string | max 100 chars | `Christopher Adams` |
 | driver | read-only string | max 100 chars | `David Park` |
 | bus | read-only string | Vehicle format | `Vehicle 15` |
-| route | read-only string | max 100 chars | `Jefferson Middle AM - Blue` |
+| run | read-only string | max 100 chars | `Jefferson Middle AM - Blue` |
 
 ## Workflow Tab Fields
 

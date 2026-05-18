@@ -187,7 +187,7 @@ Clicking an Incident ID opens a comprehensive dialog showing:
 - Student name and ID
 - Driver name and employee ID
 - Vehicle (bus number)
-- Route information
+- Run information
 - Incident location
 
 **Incident Details:**
@@ -249,7 +249,7 @@ All columns support sorting (click header to sort):
 3. **Grade:** Current grade level
 4. **School:** School of attendance
 5. **Contact:** Parent/guardian phone number
-6. **Route:** Assigned bus route
+6. **Run:** Assigned bus run
 7. **Incidents:** Total incident count
 8. **Last Incident:** Date of most recent incident
 
@@ -278,7 +278,7 @@ Click a Student ID to view complete student information:
 - Emergency contact
 
 **Transportation Details:**
-- Assigned route
+- Assigned run
 - Regular pickup location
 - Regular drop-off location
 - Special transportation needs (if any)
@@ -310,7 +310,7 @@ The Vehicles page manages the complete district fleet with visual representation
 ### Filtering Options
 
 **Search Bar:**
-- Search by vehicle ID, bus name, driver, or route
+- Search by vehicle ID, bus name, driver, or run
 - Real-time filtering
 
 **Status Filter:**
@@ -335,7 +335,7 @@ All 8 columns support sorting:
 1. **Vehicle ID:** Unique identifier (e.g., VEH-015)
 2. **Details:** Bus name with actual bus photo
 3. **Driver:** Currently assigned driver
-4. **Primary Route:** Main route assignment
+4. **Primary Run:** Main run assignment
 5. **Status:** Operational status (Active/Inactive/Maintenance)
 6. **Maintenance:** Current maintenance condition
 7. **Incidents:** Total incident count with trend indicators
@@ -388,8 +388,8 @@ Click a Vehicle ID to see complete vehicle information:
 **Assignment Information:**
 - Assigned driver with icon
 - Incident count for the year
-- Primary route with location icon
-- Secondary route (if applicable)
+- Primary run with location icon
+- Secondary run (if applicable)
 
 **Maintenance & Inspection:**
 - Maintenance status with icon and badge
@@ -417,7 +417,7 @@ The Drivers page manages all district bus drivers with photos and detailed track
 ### Search and Filter
 
 **Search Bar:**
-- Search by driver name, employee ID, or route
+- Search by driver name, employee ID, or run
 - Real-time filtering
 
 **Status Filter:**
@@ -440,7 +440,7 @@ All 7 columns support sorting by clicking the header:
 2. **Name:** Full name with driver photo and employee ID
 3. **Contact:** Primary phone number
 4. **Assigned Vehicle:** Current bus assignment
-5. **Primary Route:** Main route
+5. **Primary Run:** Main run
 6. **Status:** Employment status
 7. **Safety Rating:** Performance rating (star out of 5.0)
 
@@ -481,8 +481,8 @@ Click a Driver ID to view complete driver information:
 
 **Assignment Information:**
 - Assigned vehicle (bus number)
-- Primary route
-- Secondary route (if applicable)
+- Primary run
+- Secondary run (if applicable)
 - Typical hours/schedule
 
 **Safety & Performance:**
@@ -528,7 +528,7 @@ The New Incident page guides you through creating detailed incident reports.
 
 **Optional Fields:**
 - **Location:** Where the incident occurred
-- **Route:** Bus route if applicable
+- **Run:** Bus run if applicable
 
 **Validation:**
 - Date cannot be in the future
@@ -790,7 +790,7 @@ Add charts to your report:
 **Heat Maps:**
 - Incidents by day of week
 - Incidents by time of day
-- Incidents by route
+- Incidents by run
 
 **Comparative Analytics:**
 - School-to-school comparisons

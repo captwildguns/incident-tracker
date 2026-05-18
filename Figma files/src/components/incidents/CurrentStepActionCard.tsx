@@ -244,8 +244,8 @@ export function CurrentStepActionCard({ step, stepNumber, totalSteps, onComplete
               What to do next
             </span>
           </div>
-          <ul 
-            style={{ 
+          <ul
+            style={{
               margin: 0,
               paddingLeft: 'var(--forge-spacing-large)',
               fontFamily: 'Roboto, sans-serif',
@@ -254,9 +254,16 @@ export function CurrentStepActionCard({ step, stepNumber, totalSteps, onComplete
               lineHeight: '1.6',
             }}
           >
-            <li>Complete all tasks outlined in: "{step.name}"</li>
-            <li>Document any actions taken or findings in the incident notes</li>
-            <li>Click "Complete This Step" below to proceed to the next workflow stage</li>
+            {(step.instructions && step.instructions.length > 0
+              ? step.instructions
+              : [
+                  `Complete all tasks outlined in: "${step.name}"`,
+                  'Document any actions taken or findings in the incident notes',
+                  'Click "Complete This Step" below to proceed to the next workflow stage',
+                ]
+            ).map((item, i) => (
+              <li key={i}>{item}</li>
+            ))}
           </ul>
         </div>
 
@@ -456,18 +463,6 @@ export function CurrentStepActionCard({ step, stepNumber, totalSteps, onComplete
             }}
           >
             View Step Details
-          </ForgeButton>
-          <ForgeButton
-            variant="flat"
-            onClick={onViewDetails}
-            style={{
-              fontFamily: 'Roboto, sans-serif',
-              fontSize: 'var(--text-sm)',
-              fontWeight: 'var(--font-weight-medium)',
-              marginLeft: 'auto',
-            }}
-          >
-            View Full Workflow →
           </ForgeButton>
         </div>
       </div>

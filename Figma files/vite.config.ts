@@ -5,7 +5,7 @@
   import path from 'path';
 
   export default defineConfig({
-    base: '/',
+    base: '/incident-tracker/',
     plugins: [react(), tailwindcss()],
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],

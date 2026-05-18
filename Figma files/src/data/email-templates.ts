@@ -6,24 +6,13 @@ export interface EmailTemplate {
   description: string;
   subject: string;
   body: string;
-  category: 'Notification' | 'Approval' | 'Escalation' | 'Completion' | 'Custom';
+  category: 'Notification' | 'Approval' | 'Escalation' | 'Custom';
   variables: string[];
   lastModified: string;
   isDefault: boolean;
 }
 
 export const INITIAL_EMAIL_TEMPLATES: EmailTemplate[] = [
-  {
-    id: 'ET-001',
-    name: 'Default Notification',
-    description: 'Standard notification sent when a workflow step starts or completes.',
-    subject: '[Incident Tracker] {{step_name}} - {{incident_id}}',
-    body: 'Hello {{recipient_name}},\n\nThis is to inform you that the workflow step "{{step_name}}" for incident {{incident_id}} has been {{action}}.\n\nIncident Details:\n- Type: {{incident_type}}\n- Severity: {{severity}}\n- Date: {{incident_date}}\n\nPlease log in to the Incident Tracker to review and take appropriate action.\n\nThank you,\nIncident Tracker System',
-    category: 'Notification',
-    variables: ['recipient_name', 'step_name', 'incident_id', 'action', 'incident_type', 'severity', 'incident_date'],
-    lastModified: '2026-03-10',
-    isDefault: true,
-  },
   {
     id: 'ET-002',
     name: 'Urgent Action Required',
@@ -43,28 +32,6 @@ export const INITIAL_EMAIL_TEMPLATES: EmailTemplate[] = [
     body: 'Hello {{recipient_name}},\n\nYour approval is needed for the following workflow step:\n\nStep: {{step_name}}\nIncident: {{incident_id}}\nRequested By: {{requested_by}}\nDate: {{request_date}}\n\nDetails:\n{{step_description}}\n\nPlease log in to the Incident Tracker to review and approve or reject this step.\n\nThank you,\nIncident Tracker System',
     category: 'Approval',
     variables: ['recipient_name', 'step_name', 'incident_id', 'requested_by', 'request_date', 'step_description'],
-    lastModified: '2026-03-10',
-    isDefault: true,
-  },
-  {
-    id: 'ET-004',
-    name: 'Status Update',
-    description: 'Notification sent when the status of an incident or workflow step changes.',
-    subject: '[Status Update] {{incident_id}} - {{new_status}}',
-    body: 'Hello {{recipient_name}},\n\nThe status of incident {{incident_id}} has been updated:\n\nPrevious Status: {{old_status}}\nNew Status: {{new_status}}\nUpdated By: {{updated_by}}\nDate: {{update_date}}\n\nPlease log in to the Incident Tracker for more details.\n\nThank you,\nIncident Tracker System',
-    category: 'Notification',
-    variables: ['recipient_name', 'incident_id', 'old_status', 'new_status', 'updated_by', 'update_date'],
-    lastModified: '2026-03-10',
-    isDefault: true,
-  },
-  {
-    id: 'ET-005',
-    name: 'Completion Notice',
-    description: 'Sent when a workflow is fully completed for an incident.',
-    subject: '[Completed] Workflow Complete - {{incident_id}}',
-    body: 'Hello {{recipient_name}},\n\nThe workflow for incident {{incident_id}} has been fully completed.\n\nIncident Summary:\n- Type: {{incident_type}}\n- Severity: {{severity}}\n- Total Steps Completed: {{total_steps}}\n- Completed By: {{completed_by}}\n- Completion Date: {{completion_date}}\n\nAll required steps have been fulfilled. Please review the incident for final disposition.\n\nThank you,\nIncident Tracker System',
-    category: 'Completion',
-    variables: ['recipient_name', 'incident_id', 'incident_type', 'severity', 'total_steps', 'completed_by', 'completion_date'],
     lastModified: '2026-03-10',
     isDefault: true,
   },
@@ -98,28 +65,6 @@ export const INITIAL_EMAIL_TEMPLATES: EmailTemplate[] = [
     body: 'Hello {{recipient_name}},\n\nThis incident has been escalated due to {{escalation_reason}}.\n\nStudent: {{student_name}}\nCurrent Incident: {{incident_id}} — {{incident_type}}\nPrior Incidents: {{prior_incident_count}}\n\nIncident History Summary:\n{{incident_history}}\n\nRecommended Action: {{recommended_action}}\n\nThis matter requires your review to determine progressive discipline measures per district policy. Please log in to the Incident Tracker to review the full history and take action.\n\nThank you,\nIncident Tracker System',
     category: 'Escalation',
     variables: ['recipient_name', 'student_name', 'incident_id', 'incident_type', 'escalation_reason', 'prior_incident_count', 'incident_history', 'recommended_action'],
-    lastModified: '2026-03-17',
-    isDefault: true,
-  },
-  {
-    id: 'ET-009',
-    name: 'Follow-up Reminder',
-    description: 'Scheduled reminder for follow-up actions such as 30-day check-ins, behavior plan reviews, or post-incident monitoring.',
-    subject: '[Reminder] Follow-up Due: {{step_name}} - {{incident_id}}',
-    body: 'Hello {{recipient_name}},\n\nThis is a scheduled reminder that a follow-up action is due:\n\nStep: {{step_name}}\nIncident: {{incident_id}}\nOriginal Incident Date: {{incident_date}}\nFollow-up Due Date: {{due_date}}\n\nOriginal Incident Summary:\n{{incident_summary}}\n\nFollow-up Instructions:\n{{follow_up_instructions}}\n\nPlease log in to the Incident Tracker to complete this follow-up and document your findings.\n\nThank you,\nIncident Tracker System',
-    category: 'Notification',
-    variables: ['recipient_name', 'step_name', 'incident_id', 'incident_date', 'due_date', 'incident_summary', 'follow_up_instructions'],
-    lastModified: '2026-03-17',
-    isDefault: true,
-  },
-  {
-    id: 'ET-010',
-    name: 'Corrective Action / Retraining Notice',
-    description: 'Sent to drivers or staff when corrective action, retraining, or disciplinary measures have been determined following a driver-related incident.',
-    subject: '[Action Required] Corrective Action Assigned - {{incident_id}}',
-    body: 'Hello {{recipient_name}},\n\nFollowing the review of incident {{incident_id}} ({{incident_type}}, {{incident_date}}), the following corrective action has been determined:\n\nAction Type: {{action_type}}\nDetails: {{action_details}}\nDeadline: {{action_deadline}}\nAssigned By: {{assigned_by}}\n\nIncident Summary:\n{{incident_summary}}\n\nFindings:\n{{investigation_findings}}\n\nPlease acknowledge receipt of this notice and complete the required action by the deadline above. If you have questions, contact {{contact_name}} at {{contact_email}}.\n\nThank you,\n{{sender_name}}\nStudent Transportation Department',
-    category: 'Notification',
-    variables: ['recipient_name', 'incident_id', 'incident_type', 'incident_date', 'action_type', 'action_details', 'action_deadline', 'assigned_by', 'incident_summary', 'investigation_findings', 'contact_name', 'contact_email', 'sender_name'],
     lastModified: '2026-03-17',
     isDefault: true,
   },

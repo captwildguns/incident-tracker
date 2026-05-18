@@ -1,21 +1,27 @@
 import { useState, useRef, useEffect } from 'react';
-import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent, defineDialogComponent, defineTextFieldComponent } from '@tylertech/forge';
+import { ForgeCard, ForgeButton, useForgeToast } from '@tylertech/forge-react';
+import {
+  defineCardComponent,
+  defineDialogComponent,
+  defineTextFieldComponent,
+  defineButtonComponent,
+  defineBadgeComponent,
+  defineAutocompleteComponent,
+  defineIconComponent,
+} from '@tylertech/forge';
 defineCardComponent();
 defineDialogComponent();
 defineTextFieldComponent();
-import { Badge } from '../ui/badge';
-import { defineButtonComponent } from '@tylertech/forge';
 defineButtonComponent();
+defineBadgeComponent();
+defineAutocompleteComponent();
+defineIconComponent();
 import { ForgeMultiSelect } from '../ui/forge-multiselect';
-import { Search, Download, User, Phone, Mail, Calendar, AlertCircle, CheckCircle, Clock, FileText, MapPin, Bus, UserCircle, ChevronUp, ChevronDown, ChevronsUpDown, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
-import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList } from '../ui/command';
 import { ExportDropdown } from '../shared/ExportDropdown';
 import type { ExportFormat } from '../shared/ExportDropdown';
-import { toast } from 'sonner@2.0.3';
 
 // Mock driver data
-const mockDrivers = [
+export const mockDrivers = [
   {
     id: 'DRV-001',
     firstName: 'Sarah',
@@ -114,12 +120,12 @@ const mockDrivers = [
   },
   {
     id: 'DRV-004',
-    firstName: 'Michael',
+    firstName: 'John',
     lastName: 'Chen',
-    fullName: 'Michael Chen',
+    fullName: 'John Chen',
     employeeId: 'EMP-2020-067',
     phone: '(555) 456-7890',
-    email: 'michael.chen@district.edu',
+    email: 'john.chen@district.edu',
     photo: 'https://images.unsplash.com/photo-1567662851835-98c9c2a1180c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhc2lhbiUyMG1hbGUlMjBwcm9mZXNzaW9uYWwlMjBwYXNzcG9ydCUyMGhlYWRzaG90fGVufDF8fHx8MTc2OTUyNjgxOXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
     status: 'Active',
     licenseNumber: 'CDL-NY-6251487',
@@ -507,8 +513,8 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [yearsOfServiceFilter, setYearsOfServiceFilter] = useState<string[]>([]);
   const [selectedDriver, setSelectedDriver] = useState<any>(null);
-  const [driverLookupOpen, setDriverLookupOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const toastHelper = useForgeToast();
   const dialogRef = useRef<HTMLElement>(null);
   
   // Sorting state
@@ -516,7 +522,7 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   
   // Pagination state
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -544,7 +550,7 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
     threeMonthsFromNow.setMonth(threeMonthsFromNow.getMonth() + 3);
     return licenseExpiry <= threeMonthsFromNow || medicalExpiry <= threeMonthsFromNow || bgExpiry <= threeMonthsFromNow;
   }).length;
-  const avgPerformance = Math.round(mockDrivers.reduce((sum, d) => sum + d.performanceScore, 0) / totalDrivers);
+  const inactiveDrivers = mockDrivers.filter(d => d.status !== 'Active').length;
   const avgIncidents = (mockDrivers.reduce((sum, d) => sum + d.incidentCount, 0) / totalDrivers).toFixed(1);
 
   // Filter drivers
@@ -621,11 +627,11 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
   // Render sort icon for column header
   const SortIcon = ({ column }: { column: typeof sortColumn }) => {
     if (sortColumn !== column) {
-      return <ChevronsUpDown className="h-4 w-4 ml-1 text-muted-foreground" />;
+      return <forge-icon name="unfold_more" style={{ fontSize: '14px', marginLeft: '4px', opacity: 0.5 }}></forge-icon>;
     }
     return sortDirection === 'asc' 
-      ? <ChevronUp className="h-4 w-4 ml-1" /> 
-      : <ChevronDown className="h-4 w-4 ml-1" />;
+      ? <forge-icon name="arrow_upward" style={{ fontSize: '14px', marginLeft: '4px' }}></forge-icon>
+      : <forge-icon name="arrow_downward" style={{ fontSize: '14px', marginLeft: '4px' }}></forge-icon>;
   };
 
   const isExpiringOrExpired = (dateString: string) => {
@@ -641,27 +647,27 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
 
   const handleExport = (format: ExportFormat) => {
     const formatLabels: Record<ExportFormat, string> = {
-      excel: 'Excel Spreadsheet', word: 'Word Document', csv: 'CSV', 'csv-no-header': 'CSV (no header)',
+      excel: 'Excel Spreadsheet', csv: 'CSV',
     };
     const formatExtensions: Record<ExportFormat, string> = {
-      excel: 'xlsx', word: 'docx', csv: 'csv', 'csv-no-header': 'csv',
+      excel: 'xlsx', csv: 'csv',
     };
 
-    toast.success('Export started', {
-      description: `Preparing ${formatLabels[format]} export for drivers data.`,
-    });
+    toastHelper[0]({
+      message: `Export started — preparing ${formatLabels[format]} for drivers data.`,
+      theme: 'success',
+      duration: 3000,
+    } as any);
 
     setTimeout(() => {
-      const headers = ['Driver ID', 'Name', 'Employee ID', 'Status', 'Phone', 'Email', 'License', 'Years of Service', 'Primary Route', 'Safety Rating', 'Incidents', 'Performance', 'On-Time %'];
+      const headers = ['Driver ID', 'Name', 'Employee ID', 'Status', 'Phone', 'Email', 'License', 'Years of Service', 'Primary Run', 'Safety Rating', 'Incidents', 'Performance', 'On-Time %'];
       const rows = sortedDrivers.map(d => [
         d.id, `"${d.fullName}"`, d.employeeId, d.status, d.phone, d.email,
         d.licenseNumber, d.yearsOfService, `"${d.primaryRoute}"`,
         d.safetyRating, d.incidentCount, d.performanceScore, d.onTimePercentage
       ].join(','));
 
-      const csvContent = format === 'csv-no-header'
-        ? rows.join('\n')
-        : [headers.join(','), ...rows].join('\n');
+      const csvContent = [headers.join(','), ...rows].join('\n');
 
       const blob = new Blob([csvContent], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
@@ -673,9 +679,11 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
 
-      toast.success('Export complete', {
-        description: `Your ${formatLabels[format]} has been downloaded.`,
-      });
+      toastHelper[0]({
+        message: `Export complete — your ${formatLabels[format]} has been downloaded.`,
+        theme: 'success',
+        duration: 3000,
+      } as any);
     }, 1500);
   };
 
@@ -684,7 +692,7 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
       {/* Page Header */}
       <div className="flex items-center justify-between" style={{ marginBottom: 'var(--forge-spacing-large)' }}>
         <div>
-          <h1 style={{ margin: 0, marginBottom: '8px' }}>Driver Management</h1>
+          <h1 style={{ margin: 0, marginBottom: '8px' }}>Drivers</h1>
           <p className="text-muted-foreground" style={{ margin: 0 }}>
             Monitor and manage all district bus drivers
           </p>
@@ -693,63 +701,31 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
 
       {/* Summary Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" style={{ marginBottom: 'var(--forge-spacing-large)' }}>
-        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', borderRadius: 'var(--forge-radius-large)', borderColor: 'var(--forge-color-border-default)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>Total Drivers</h3>
-            <User className="h-4 w-4" style={{ color: 'var(--brand-blue-dark)' }} />
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: 'var(--brand-blue-dark)', fontFamily: 'Roboto, sans-serif' }}>
-              {totalDrivers}
-            </div>
-            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'Roboto, sans-serif' }}>
-              In transportation fleet
-            </p>
+        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--brand-blue-dark)', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>{totalDrivers}</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Total Drivers</h3>
           </div>
         </ForgeCard>
 
-        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', borderRadius: 'var(--forge-radius-large)', borderColor: 'var(--forge-color-border-default)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>Active Drivers</h3>
-            <CheckCircle className="h-4 w-4" style={{ color: 'var(--brand-olive-medium)' }} />
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: 'var(--brand-olive-medium)', fontFamily: 'Roboto, sans-serif' }}>
-              {activeDrivers}
-            </div>
-            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'Roboto, sans-serif' }}>
-              Currently on duty
-            </p>
+        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--brand-olive-medium)', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>{activeDrivers}</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Active Drivers</h3>
           </div>
         </ForgeCard>
 
-        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', borderRadius: 'var(--forge-radius-large)', borderColor: 'var(--forge-color-border-default)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>Expiring Certifications</h3>
-            <AlertCircle className="h-4 w-4" style={{ color: expiringCerts > 0 ? '#dc2626' : 'var(--brand-blue-dark)' }} />
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: expiringCerts > 0 ? '#dc2626' : 'var(--brand-blue-dark)', fontFamily: 'Roboto, sans-serif' }}>
-              {expiringCerts}
-            </div>
-            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'Roboto, sans-serif' }}>
-              {expiringCerts > 0 ? 'Need attention' : 'All current'}
-            </p>
+        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: expiringCerts > 0 ? '#dc2626' : 'var(--brand-blue-dark)', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>{expiringCerts}</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Expiring Certifications</h3>
           </div>
         </ForgeCard>
 
-        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', borderRadius: 'var(--forge-radius-large)', borderColor: 'var(--forge-color-border-default)' }}>
-          <div style={{ padding: 'var(--forge-spacing-medium)' }} className="flex flex-row items-center justify-between pb-2">
-            <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-sm)', fontWeight: 500, fontFamily: 'Roboto, sans-serif' }}>Avg. Performance</h3>
-            <TrendingUp className="h-4 w-4" style={{ color: 'var(--brand-blue-medium)' }} />
-          </div>
-          <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-            <div style={{ fontSize: 'var(--text-3xl)', fontWeight: 700, color: 'var(--brand-blue-medium)', fontFamily: 'Roboto, sans-serif' }}>
-              {avgPerformance}<span style={{ fontSize: 'var(--text-sm)' }}>%</span>
-            </div>
-            <p className="text-muted-foreground" style={{ fontSize: 'var(--text-xs)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'Roboto, sans-serif' }}>
-              Fleet performance score
-            </p>
+        <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
+          <div style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-medium)', textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', fontWeight: 700, color: 'var(--brand-blue-medium)', fontFamily: 'var(--forge-font-family)', lineHeight: 1 }}>{inactiveDrivers}</div>
+            <h3 className="forge-typography--heading4" style={{ fontSize: '0.9375rem', fontWeight: 400, fontFamily: 'var(--forge-font-family)', margin: 'var(--forge-spacing-xxsmall) 0 0', color: 'var(--forge-theme-text-high)' }}>Inactive Drivers</h3>
           </div>
         </ForgeCard>
       </div>
@@ -760,88 +736,15 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
           <div className="flex items-center" style={{ gap: 'var(--forge-spacing-medium)' }}>
             {/* Search */}
             <div className="flex-1 min-w-0">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" style={{ zIndex: 1 }} />
-                {/* @ts-ignore */}
-                <forge-text-field>
-                  <input
-                    type="text"
-                    placeholder="Search drivers, vehicles, or routes..."
-                    value={searchTerm}
-                    onChange={(e) => {
-                      setSearchTerm(e.target.value);
-                      setDriverLookupOpen(true);
-                    }}
-                    onFocus={() => setDriverLookupOpen(true)}
-                    style={{ paddingLeft: '2rem' }}
-                  />
-                </forge-text-field>
-                {driverLookupOpen && searchTerm && (
-                  <div 
-                    className="absolute z-50 w-full mt-1 border rounded-md shadow-lg max-h-[400px] overflow-auto"
-                    style={{ 
-                      backgroundColor: 'var(--popover)', 
-                      borderColor: 'var(--border)',
-                      boxShadow: 'var(--forge-elevation-4)'
-                    }}
-                  >
-                    <Command>
-                      <CommandList>
-                        <CommandEmpty>No driver found.</CommandEmpty>
-                        <CommandGroup>
-                          {mockDrivers
-                            .filter((driver) =>
-                              driver.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              driver.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              driver.employeeId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              driver.assignedVehicle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              driver.primaryRoute.toLowerCase().includes(searchTerm.toLowerCase())
-                            )
-                            .slice(0, 8)
-                            .map((driver) => (
-                              <CommandItem
-                                key={driver.id}
-                                value={driver.fullName}
-                                onSelect={() => {
-                                  setSearchTerm(driver.fullName);
-                                  setDriverLookupOpen(false);
-                                }}
-                                style={{
-                                  cursor: 'pointer',
-                                  padding: 'var(--forge-spacing-small)',
-                                }}
-                              >
-                                <div className="flex flex-col w-full">
-                                  <div className="flex items-center justify-between">
-                                    <span style={{ fontWeight: 500 }}>{driver.fullName}</span>
-                                    <Badge variant={driver.status === 'Active' ? 'default' : 'secondary'} style={{ fontSize: '0.75rem' }}>
-                                      {driver.status}
-                                    </Badge>
-                                  </div>
-                                  <div className="text-sm text-muted-foreground mt-1">
-                                    {driver.id} • {driver.employeeId}
-                                  </div>
-                                  <div className="text-sm text-muted-foreground flex items-center gap-4 mt-1">
-                                    <span className="flex items-center gap-1">
-                                      <Bus className="h-3 w-3" />
-                                      {driver.assignedVehicle}
-                                    </span>
-                                    {driver.primaryRoute && (
-                                      <span className="flex items-center gap-1">
-                                        <MapPin className="h-3 w-3" />
-                                        {driver.primaryRoute}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </CommandItem>
-                            ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </div>
-                )}
-              </div>
+              <forge-text-field>
+                <forge-icon slot="start" name="search"></forge-icon>
+                <input
+                  type="text"
+                  placeholder="Search drivers, vehicles, or runs..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </forge-text-field>
             </div>
 
             {/* Status Filter */}
@@ -957,6 +860,9 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
                     key={driver.id}
                     className="forge-table-row cursor-pointer"
                     onClick={() => { setSelectedDriver(driver); setDialogOpen(true); }}
+                    style={{ transition: 'background-color 0.15s' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--forge-theme-primary-container-minimum)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
                   >
                     <td className="forge-table-cell">
                       <span style={{ fontWeight: 500, fontFamily: 'var(--forge-font-family)', color: 'var(--foreground)' }}>
@@ -968,10 +874,7 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
                     </td>
                     <td className="forge-table-cell">
                       <div style={{ fontSize: '0.875rem' }}>
-                        <div className="flex items-center gap-1">
-                          <Phone className="h-3 w-3 text-muted-foreground" />
-                          <span>{driver.phone}</span>
-                        </div>
+                        <span>{driver.phone}</span>
                       </div>
                     </td>
                     <td className="forge-table-cell">
@@ -985,9 +888,9 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
                       </span>
                     </td>
                     <td className="forge-table-cell">
-                      <Badge variant={driver.status === 'Active' ? 'default' : 'secondary'}>
+                      <forge-badge theme={driver.status === 'Active' ? 'success' : 'default'}>
                         {driver.status}
-                      </Badge>
+                      </forge-badge>
                     </td>
                   </tr>
                 ))}
@@ -998,15 +901,15 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
           {/* Pagination Controls */}
           <div className="flex items-center justify-between" style={{ paddingTop: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--forge-color-border-subtle)', marginTop: 'var(--forge-spacing-medium)' }}>
             <div className="flex items-center" style={{ gap: 'var(--forge-spacing-small)' }}>
-              <span style={{ fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)', whiteSpace: 'nowrap' }}>
                 Showing {startIndex + 1}–{Math.min(startIndex + rowsPerPage, sortedDrivers.length)} of {sortedDrivers.length} drivers
               </span>
-              {rowsPerPage === 10 && sortedDrivers.length > 10 && (
+              {rowsPerPage === 5 && sortedDrivers.length > 5 && (
                 <ForgeButton
                   variant="outlined"
-                  size="sm"
+                  dense
                   onClick={() => { setRowsPerPage(25); setCurrentPage(1); }}
-                  style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}
+                  style={{ fontSize: '0.75rem', fontFamily: 'var(--forge-font-family)' }}
                 >
                   Show 25
                 </ForgeButton>
@@ -1014,11 +917,11 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
               {rowsPerPage === 25 && (
                 <ForgeButton
                   variant="outlined"
-                  size="sm"
-                  onClick={() => { setRowsPerPage(10); setCurrentPage(1); }}
-                  style={{ fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}
+                  dense
+                  onClick={() => { setRowsPerPage(5); setCurrentPage(1); }}
+                  style={{ fontSize: '0.75rem', fontFamily: 'var(--forge-font-family)' }}
                 >
-                  Show 10
+                  Show 5
                 </ForgeButton>
               )}
             </div>
@@ -1032,7 +935,7 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   style={{ padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)' }}
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <forge-icon name="chevron_left" style={{ fontSize: '18px' }}></forge-icon>
                 </ForgeButton>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                   <ForgeButton
@@ -1040,7 +943,12 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
                     variant={page === currentPage ? 'raised' : 'outlined'}
                     size="sm"
                     onClick={() => setCurrentPage(page)}
-                    style={{ minWidth: '32px', padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)', fontSize: 'var(--forge-font-size-sm)', fontFamily: 'var(--forge-font-family)' }}
+                    style={{
+                      ['--forge-button-min-width' as any]: '24px',
+                      ['--forge-button-padding-inline' as any]: '6px',
+                      fontSize: '0.75rem',
+                      fontFamily: 'var(--forge-font-family)',
+                    }}
                   >
                     {page}
                   </ForgeButton>
@@ -1052,7 +960,7 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   style={{ padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)' }}
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <forge-icon name="chevron_right" style={{ fontSize: '18px' }}></forge-icon>
                 </ForgeButton>
               </div>
             )}
@@ -1069,12 +977,9 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
               Driver Profile - {selectedDriver?.fullName}
             </h2>
             {selectedDriver && (
-              <Badge
-                variant={selectedDriver.status === 'Active' ? 'default' : 'secondary'}
-                style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-xs)' }}
-              >
+              <forge-badge theme={selectedDriver.status === 'Active' ? 'success' : 'default'}>
                 {selectedDriver.status}
-              </Badge>
+              </forge-badge>
             )}
           </div>
 
@@ -1094,7 +999,7 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
                   <div>
                     <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Phone</div>
                     <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)' }}>
-                      <Phone className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                      <forge-icon name="phone" style={{ fontSize: '16px', color: 'var(--muted-foreground)' }}></forge-icon>
                       <a href={`tel:${selectedDriver.phone}`} className="hover:underline" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--primary)' }}>
                         {selectedDriver.phone}
                       </a>
@@ -1103,14 +1008,14 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
                   <div>
                     <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Hire Date</div>
                     <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)', fontFamily: 'var(--forge-font-family)' }}>
-                      <Calendar className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
-                      <span>{selectedDriver.hireDate}</span>
+                      <forge-icon name="calendar_today" style={{ fontSize: '16px', color: 'var(--muted-foreground)' }}></forge-icon>
+                      <span>{selectedDriver.hireDate.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$2-$3-$1')}</span>
                     </div>
                   </div>
                   <div>
                     <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Email</div>
                     <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)' }}>
-                      <Mail className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                      <forge-icon name="email" style={{ fontSize: '16px', color: 'var(--muted-foreground)' }}></forge-icon>
                       <a href={`mailto:${selectedDriver.email}`} className="hover:underline" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--primary)' }}>
                         {selectedDriver.email}
                       </a>
@@ -1132,7 +1037,7 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
                   <div>
                     <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>License Expiry</div>
                     <div className={isExpiringOrExpired(selectedDriver.licenseExpiry).color} style={{ fontFamily: 'var(--forge-font-family)' }}>
-                      {selectedDriver.licenseExpiry}
+                      {selectedDriver.licenseExpiry.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$2-$3-$1')}
                       {isExpiringOrExpired(selectedDriver.licenseExpiry).status === 'expired' && ' (EXPIRED)'}
                       {isExpiringOrExpired(selectedDriver.licenseExpiry).status === 'expiring' && ' (Expiring Soon)'}
                     </div>
@@ -1153,14 +1058,14 @@ export function DriversPage({ onNavigate }: DriversPageProps) {
                   <div>
                     <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Assigned Vehicle</div>
                     <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)', fontFamily: 'var(--forge-font-family)' }}>
-                      <Bus className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                      <forge-icon name="directions_bus" style={{ fontSize: '16px', color: 'var(--muted-foreground)' }}></forge-icon>
                       <span>{selectedDriver.assignedVehicle}</span>
                     </div>
                   </div>
                   <div>
                     <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-sm)', color: 'var(--muted-foreground)' }}>Default Garage</div>
                     <div className="flex items-center" style={{ gap: 'var(--forge-spacing-xsmall)', fontFamily: 'var(--forge-font-family)' }}>
-                      <MapPin className="h-4 w-4" style={{ color: 'var(--muted-foreground)' }} />
+                      <forge-icon name="location_on" style={{ fontSize: '16px', color: 'var(--muted-foreground)' }}></forge-icon>
                       <span>{selectedDriver.defaultGarage}</span>
                     </div>
                   </div>

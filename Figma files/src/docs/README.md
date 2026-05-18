@@ -49,7 +49,7 @@ The Student Transportation Incident Tracker is a comprehensive web application d
 ### 👨‍✈️ Driver Management
 - Driver profiles with photos
 - Contact information and employment details
-- Vehicle and route assignments
+- Vehicle and run assignments
 - Safety rating tracking
 - Certification status monitoring
 - Sortable columns for all data fields
@@ -242,7 +242,7 @@ npm run dev
 
 - **Component Optimization:** Memoization where appropriate
 - **Image Optimization:** Lazy loading for images
-- **Code Splitting:** Route-based code splitting
+- **Code Splitting:** Run-based code splitting
 - **Bundle Size:** Tree shaking and minification
 
 ## Accessibility

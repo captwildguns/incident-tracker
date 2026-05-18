@@ -337,7 +337,7 @@ Comprehensive incident tracking and management system for all transportation-rel
 - Date and time
 - Incident type
 - Location
-- Route information
+- Run information
 
 #### Involved Parties
 - Student name, ID, grade, school
@@ -586,7 +586,7 @@ Centralized student information system with transportation details and incident 
 
 2. **Active Riders**
    - Students currently using transportation
-   - Regular route assignments
+   - Regular run assignments
    - Daily ridership
 
 3. **With Incidents**
@@ -607,7 +607,7 @@ Centralized student information system with transportation details and incident 
 - Student ID
 - School name
 - Grade level
-- Route number
+- Run number
 
 **Features:**
 - Real-time filtering
@@ -666,10 +666,10 @@ Centralized student information system with transportation details and incident 
    - Icon: Phone
    - Click to call (mobile)
 
-6. **Route**
-   - Assigned bus route
+6. **Run**
+   - Assigned bus run
    - Sort: Alphanumeric
-   - Linked to route details (future)
+   - Linked to run details (future)
 
 7. **Incidents**
    - Total count
@@ -731,7 +731,7 @@ Centralized student information system with transportation details and incident 
 - **Address:** Home address (optional)
 
 #### Transportation Details
-- **Assigned Route:** Primary route
+- **Assigned Run:** Primary run
 - **Bus Number:** Assigned vehicle
 - **Driver Name:** Regular driver
 - **Pickup Location:** Address/stop
@@ -837,7 +837,7 @@ Complete fleet management system with visual bus identification, maintenance tra
 - Vehicle ID (VEH-XXX)
 - Bus name (Bus 1, Bus 2, etc.)
 - Driver name
-- Route number
+- Run number
 - Make/model
 
 #### Status Filter
@@ -895,11 +895,11 @@ Complete fleet management system with visual bus identification, maintenance tra
    - Sort: Alphabetical
    - Clickable to driver profile
 
-4. **Primary Route**
-   - Main route assignment
+4. **Primary Run**
+   - Main run assignment
    - Icon: Map pin
    - Sort: Alphanumeric
-   - Linked to route details (future)
+   - Linked to run details (future)
 
 5. **Status**
    - Badge display
@@ -991,7 +991,7 @@ Complete fleet management system with visual bus identification, maintenance tra
   - Status: Enabled/Disabled
   - Visual indicator: Green dot for enabled
 - **Location Tracking:** Real-time capability
-- **Route Adherence:** Monitoring status
+- **Run Adherence:** Monitoring status
 
 #### Garage Assignments
 - **Default Garage:** Primary storage location
@@ -1001,9 +1001,9 @@ Complete fleet management system with visual bus identification, maintenance tra
 #### Assignment Information
 - **Assigned Driver:** Name with user icon
 - **Incident Count:** Year-to-date
-- **Primary Route:** With map pin icon
-- **Secondary Route:** If applicable
-- **Schedule:** AM/PM routes
+- **Primary Run:** With map pin icon
+- **Secondary Run:** If applicable
+- **Schedule:** AM/PM runs
 
 #### Maintenance & Inspection
 - **Maintenance Status:** Badge with icon
@@ -1073,7 +1073,7 @@ Comprehensive driver management with photos, safety tracking, certification moni
 **Searches:**
 - Driver name
 - Employee ID
-- Route number
+- Run number
 - Vehicle assignment
 - Phone number
 
@@ -1121,11 +1121,11 @@ Comprehensive driver management with photos, safety tracking, certification moni
    - Sort: Numeric
    - Clickable to vehicle details
 
-5. **Primary Route**
-   - Route name/number
+5. **Primary Run**
+   - Run name/number
    - Icon: Map pin
    - Sort: Alphanumeric
-   - Linked to route (future)
+   - Linked to run (future)
 
 6. **Status**
    - Employment status
@@ -1214,8 +1214,8 @@ Comprehensive driver management with photos, safety tracking, certification moni
 
 #### Assignment Information
 - **Assigned Vehicle:** Bus number and type
-- **Primary Route:** Route details
-- **Secondary Route:** If applicable
+- **Primary Run:** Run details
+- **Secondary Run:** If applicable
 - **Typical Schedule:** AM/PM times
 - **Special Assignments:** Field trips, activities
 
@@ -1225,7 +1225,7 @@ Comprehensive driver management with photos, safety tracking, certification moni
   - Incident rate
   - Inspection compliance
   - Student behavior management
-  - Route adherence
+  - Run adherence
 - **Total Incidents:** Year-to-date
 - **Safety Violations:** Count and details
 - **Commendations:** Positive recognition
@@ -1263,7 +1263,7 @@ Comprehensive driver management with photos, safety tracking, certification moni
 
 **Actions:**
 - **Edit Driver Info:** Update profile
-- **Update Assignment:** Change vehicle/route
+- **Update Assignment:** Change vehicle/run
 - **Schedule Training:** Book training
 - **Send Message:** Communicate with driver
 - **Generate Report:** Driver performance report
@@ -1314,7 +1314,7 @@ Guided multi-step form for comprehensive incident reporting with validation and 
    - Type: Time picker
    - Format: HH:MM (12 or 24 hour)
    - Validation: Must be valid time
-   - Context-aware (AM/PM routes)
+   - Context-aware (AM/PM runs)
 
 3. **Incident Type**
    - Type: Dropdown
@@ -1342,13 +1342,13 @@ Guided multi-step form for comprehensive incident reporting with validation and 
 5. **Location**
    - Type: Text input
    - Placeholder: "Where did this occur?"
-   - Examples: "On Route 5", "At school", "On highway"
+   - Examples: "On Run 5", "At school", "On highway"
    - Autocomplete from previous locations
 
-6. **Route**
+6. **Run**
    - Type: Dropdown
-   - Populated from route list
-   - "Not on route" option
+   - Populated from run list
+   - "Not on run" option
    - Filters by time of day
 
 **Validation:**
@@ -1589,7 +1589,7 @@ All entered information displayed for review:
 
 1. **Basic Information Card**
    - Date, time, type, severity
-   - Location, route
+   - Location, run
    - Edit button
 
 2. **Involved Parties Card**
@@ -1756,7 +1756,7 @@ Pre-configured reports ready to generate instantly:
 **Use Cases:**
 - Fleet management
 - Vehicle replacement planning
-- Route safety analysis
+- Run safety analysis
 
 #### 6. Open Incidents Report
 **View Type:** Table
@@ -1906,7 +1906,7 @@ Automated insights that dynamically appear based on data patterns:
 - Drivers
 - Vehicles
 - Communications
-- Routes (future)
+- Runs (future)
 
 **Description:** Choose what you want to report on
 
@@ -1928,7 +1928,7 @@ Automated insights that dynamically appear based on data patterns:
 - ☐ Actions Taken
 - ☐ Injuries
 - ☐ Location
-- ☐ Route
+- ☐ Run
 
 **Students:**
 - ☐ Student ID
@@ -1936,7 +1936,7 @@ Automated insights that dynamically appear based on data patterns:
 - ☐ Grade
 - ☐ School
 - ☐ Contact
-- ☐ Route
+- ☐ Run
 - ☐ Incident Count
 - ☐ Last Incident Date
 
@@ -1945,7 +1945,7 @@ Automated insights that dynamically appear based on data patterns:
 - ☐ Name
 - ☐ Contact
 - ☐ Vehicle
-- ☐ Route
+- ☐ Run
 - ☐ Status
 - ☐ Safety Rating
 - ☐ Incident Count
@@ -2126,7 +2126,7 @@ Automated insights that dynamically appear based on data patterns:
 2. **Heat Maps**
    - Incidents by day of week
    - Incidents by time of day
-   - Incidents by route segment
+   - Incidents by run segment
    - Geographic distribution
 
 3. **Comparative Analytics**
@@ -2329,7 +2329,7 @@ Centralized hub for safety coordinators to track and manage all communications w
 - Contact information
 - Click to call button
 - Click to email button
-- Assigned vehicle and route
+- Assigned vehicle and run
 
 #### Action Buttons
 
@@ -2760,19 +2760,19 @@ Powerful search and filtering across all data tables for quick information acces
 - Student ID
 - School
 - Grade
-- Route
+- Run
 
 **Vehicles:**
 - Vehicle ID
 - Bus name
 - Driver name
-- Route
+- Run
 - Make/model
 
 **Drivers:**
 - Driver name
 - Employee ID
-- Route
+- Run
 - Vehicle
 - Phone
 
@@ -2971,7 +2971,7 @@ Allow users to sort data tables by any column for better organization and analys
 
 #### GPS Tracking Integration
 - Real-time vehicle location
-- Route adherence monitoring
+- Run adherence monitoring
 - Speed monitoring
 - Harsh braking/acceleration alerts
 - Geofencing for incidents
@@ -2987,7 +2987,7 @@ Allow users to sort data tables by any column for better organization and analys
 #### Automated Incident Detection
 - Harsh braking triggers incident form
 - Speed violations auto-create incidents
-- Route deviation alerts
+- Run deviation alerts
 - Camera integration (AI detection)
 - Sensor data (student count, fights)
 
@@ -3044,18 +3044,18 @@ Allow users to sort data tables by any column for better organization and analys
 - Document storage
 - Compliance reporting
 
-#### Route Management Module
-- Full route planning
+#### Run Management Module
+- Full run planning
 - Stop management
 - Student assignment to stops
-- Route optimization
+- Run optimization
 - Map visualization
 
 ### Long-Term Vision
 
 **Comprehensive Transportation Management:**
 - Incident tracking (current)
-- Route planning and optimization
+- Run planning and optimization
 - Real-time GPS tracking
 - Maintenance scheduling
 - Driver management
@@ -3070,7 +3070,7 @@ Allow users to sort data tables by any column for better organization and analys
 - Predictive maintenance
 - Incident prevention recommendations
 - Driver coaching suggestions
-- Route optimization based on patterns
+- Run optimization based on patterns
 - Risk assessment
 - Resource allocation optimization
 

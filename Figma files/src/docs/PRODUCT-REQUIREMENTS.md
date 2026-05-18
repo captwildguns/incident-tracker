@@ -407,7 +407,7 @@ Centralized student information system with transportation details, behavioral h
 
 **Acceptance Criteria:**
 - Display all students in table with photos
-- Show student ID, name, grade, school, contact, route, incident count, last incident
+- Show student ID, name, grade, school, contact, run, incident count, last incident
 - Photos display as circular avatars (40px)
 - Fallback to initials if no photo available
 - "Active" badge appears for students with open incidents
@@ -427,14 +427,14 @@ Centralized student information system with transportation details, behavioral h
 - Enter text in search bar
 - Select grade level filter
 - Select school filter
-- Select route filter
+- Select run filter
 - View filtered results in real-time
 
 **Acceptance Criteria:**
-- Search matches student name, ID, school, route
+- Search matches student name, ID, school, run
 - Grade filter shows K-12 options
 - School filter shows all schools in district
-- Route filter shows all active routes
+- Run filter shows all active runs
 - Filters work in combination
 - Real-time filtering as user types
 - Clear filters button resets to default
@@ -452,7 +452,7 @@ Centralized student information system with transportation details, behavioral h
 - Click student ID from table
 - View profile information (name, ID, grade, school, DOB, age)
 - See contact information (parent phone, email, emergency contact)
-- Review transportation details (route, bus, driver, pickup/dropoff locations and times)
+- Review transportation details (run, bus, driver, pickup/dropoff locations and times)
 - View medical information (conditions, allergies, medications, emergency instructions)
 - Review complete incident history in timeline
 - Filter incident history by date range, type, or status
@@ -545,7 +545,7 @@ Comprehensive fleet management system with visual bus identification, maintenanc
 
 **Acceptance Criteria:**
 - Display all vehicles in table with photos
-- Show vehicle ID, details (name, year, make, model), driver, route, status, maintenance, incidents, mileage
+- Show vehicle ID, details (name, year, make, model), driver, run, status, maintenance, incidents, mileage
 - Vehicle photos display as circular avatars (40px) showing actual bus model
 - Maintenance condition shows icon and color coding
 - Incident count includes trend indicator (up/down arrow)
@@ -562,7 +562,7 @@ Comprehensive fleet management system with visual bus identification, maintenanc
 **Primary User Types:** Fleet Manager, Transportation Director
 
 **Key Interactions:**
-- Search by vehicle ID, name, driver, route, or make/model
+- Search by vehicle ID, name, driver, run, or make/model
 - Select status filter (All, Active, Maintenance, Inactive)
 - Select maintenance filter (All, Excellent, Good, Needs Attention, In Repair)
 - View filtered results
@@ -589,7 +589,7 @@ Comprehensive fleet management system with visual bus identification, maintenanc
 - View basic information (ID, name, status, license plate, make, model, year, VIN, capacity, fuel type)
 - See GPS & AVL configuration (GPS hardware ID, TYD AVL integration status)
 - Review garage assignments (default garage, mid-day garage)
-- View assignment information (driver, routes, incident count)
+- View assignment information (driver, runs, incident count)
 - Review maintenance & inspection data (status, last inspection, next inspection due)
 - View complete incident history involving this vehicle
 
@@ -659,14 +659,14 @@ Comprehensive fleet management system with visual bus identification, maintenanc
 
 **Key Interactions:**
 - View assigned driver in vehicle table and detail
-- View primary and secondary routes
+- View primary and secondary runs
 - Click "Assign Driver" from vehicle detail
-- Update route assignments
+- Update run assignments
 
 **Acceptance Criteria:**
 - Current driver assignment displays prominently
 - "Unassigned" shown if no driver assigned
-- Primary and secondary routes display
+- Primary and secondary runs display
 - Assignment changes reflect in both vehicle and driver records
 - Change history is logged
 
@@ -703,7 +703,7 @@ Comprehensive driver management with professional photos, safety performance tra
 
 **Acceptance Criteria:**
 - Display all drivers in table with photos
-- Show driver ID, name (with photo), contact, assigned vehicle, route, status, safety rating
+- Show driver ID, name (with photo), contact, assigned vehicle, run, status, safety rating
 - Driver photos display as circular avatars (40px)
 - Fallback to initials if no photo available
 - Safety rating shows as numeric value out of 5.0
@@ -746,7 +746,7 @@ Comprehensive driver management with professional photos, safety performance tra
 - Click driver ID from table
 - View profile information (name, employee ID, contact, hire date, status)
 - See employment details (employment type, shift, home location)
-- Review assignment information (vehicle, routes, route details)
+- Review assignment information (vehicle, runs, run details)
 - View certifications (CDL, First Aid/CPR, training, physical exam with expiration dates)
 - Review safety rating and performance metrics
 - View complete incident history (incidents reported by this driver)
@@ -755,7 +755,7 @@ Comprehensive driver management with professional photos, safety performance tra
 - Modal displays all driver information organized in sections
 - Driver photo displays prominently (80px)
 - Contact information includes phone, email, emergency contact
-- Assignment shows current vehicle and routes
+- Assignment shows current vehicle and runs
 - Certifications list all required credentials with expiration dates
 - Safety rating displays with visual indicator (stars or numeric)
 - Incident history shows chronological list
@@ -794,7 +794,7 @@ Comprehensive driver management with professional photos, safety performance tra
 **Primary User Types:** Transportation Director, Fleet Manager
 
 **Key Interactions:**
-- Search by name, employee ID, route, vehicle, or phone
+- Search by name, employee ID, run, vehicle, or phone
 - Filter by employment status (All, Active, On Leave, Inactive)
 - View filtered results
 
@@ -810,20 +810,20 @@ Comprehensive driver management with professional photos, safety performance tra
 #### 5.6 Manage Driver Assignments
 **As a** Transportation Director  
 **I want to** view and update driver assignments  
-**So that** I can optimize route coverage
+**So that** I can optimize run coverage
 
 **Primary User Types:** Transportation Director, Fleet Manager
 
 **Key Interactions:**
-- View assigned vehicle and routes
+- View assigned vehicle and runs
 - Update vehicle assignment
-- Update route assignment
+- Update run assignment
 - Reassign incidents from one driver to another
 
 **Acceptance Criteria:**
 - Current assignments display in driver profile
-- "Unassigned" shown if no vehicle/route assigned
-- Assignment changes reflect in vehicle and route records
+- "Unassigned" shown if no vehicle/run assigned
+- Assignment changes reflect in vehicle and run records
 - Reassignment requires confirmation
 - Change history is logged
 
@@ -853,7 +853,7 @@ Integrated messaging system enabling real-time communication between safety coor
 
 **Key Interactions:**
 - View list of incidents with active communications
-- See incident details (ID, date, student, type, driver, bus, route)
+- See incident details (ID, date, student, type, driver, bus, run)
 - View unread message count per incident
 - See last message preview and timestamp
 - Filter communications by status (All, Pending Response, Active Discussion, Resolved)
@@ -1444,7 +1444,7 @@ Comprehensive reporting and data visualization tools enabling data-driven decisi
 - Real-time live dashboards with automatic refresh
 - Custom dashboard configuration per user
 - Advanced statistical analysis (regression, correlation)
-- Comparative analysis between schools or routes
+- Comparative analysis between schools or runs
 - Goal setting and progress tracking
 - External data integration (weather, school events)
 
@@ -1459,7 +1459,7 @@ Streamlined incident reporting form allowing drivers and coordinators to quickly
 
 #### 9.1 Create New Incident Report
 **As a** Driver  
-**I want to** report an incident that occurred on my route  
+**I want to** report an incident that occurred on my run  
 **So that** safety coordinators are aware and can take appropriate action
 
 **Primary User Types:** Driver, Safety Coordinator
@@ -1647,7 +1647,7 @@ Streamlined incident reporting form allowing drivers and coordinators to quickly
 - Voice-to-text for description entry
 - Map-based location selection
 - Integration with dash camera footage
-- Automatic student roster suggestions based on route
+- Automatic student roster suggestions based on run
 - Template incident reports for common scenarios
 - Multi-incident reporting (multiple students in one report)
 
@@ -1675,7 +1675,7 @@ Universal search and advanced filtering capabilities across all data entities (i
 
 **Acceptance Criteria:**
 - Search box accessible from all pages
-- Searches across: Incident IDs, student names, driver names, vehicle numbers, routes
+- Searches across: Incident IDs, student names, driver names, vehicle numbers, runs
 - Results grouped by entity type
 - Shows top 5 results per category
 - "View All" option for each category

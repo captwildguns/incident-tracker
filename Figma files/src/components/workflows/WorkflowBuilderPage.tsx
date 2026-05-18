@@ -235,16 +235,6 @@ export function WorkflowBuilderPage({ onNavigate, selectedWorkflow }: WorkflowBu
         )}
         {selectedWorkflow && (
           <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', flexWrap: 'wrap', marginTop: 'var(--forge-spacing-small)' }}>
-            {selectedWorkflow.id === 'WF-DEFAULT' && (
-              <Badge
-                style={{
-                  background: 'var(--brand-blue-dark)',
-                  color: 'white',
-                }}
-              >
-                System Default Workflow
-              </Badge>
-            )}
           </div>
         )}
         <p
@@ -343,7 +333,7 @@ export function WorkflowBuilderPage({ onNavigate, selectedWorkflow }: WorkflowBu
                     border: '1px solid var(--border)', fontSize: 'var(--text-base)', background: 'var(--input-background)',
                   }}
                 >
-                  {['Low', 'Medium', 'High'].map(s => (
+                  {['Low', 'Medium', 'High', 'Critical'].map(s => (
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>

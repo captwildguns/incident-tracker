@@ -404,7 +404,7 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
               </Label>
               <select
                 id="email-template"
-                value={config.emailNotifications?.emailTemplate || 'Default Notification'}
+                value={config.emailNotifications?.emailTemplate || 'Parent/Guardian Notification'}
                 onChange={(e) =>
                   setConfig({
                     ...config,
@@ -433,7 +433,7 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
               </select>
               {(() => {
                 const selected = INITIAL_EMAIL_TEMPLATES.find(
-                  (t) => t.name === (config.emailNotifications?.emailTemplate || 'Default Notification')
+                  (t) => t.name === (config.emailNotifications?.emailTemplate || 'Parent/Guardian Notification')
                 );
                 return selected ? (
                   <p style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'var(--forge-font-family)' }}>

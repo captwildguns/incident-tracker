@@ -646,10 +646,10 @@
                 <h3>Test Data Requirements</h3>
                 <ul>
                     <li><strong>Students:</strong> At least 20 test student records across different grades and schools</li>
-                    <li><strong>Drivers:</strong> At least 10 test driver records with different routes</li>
+                    <li><strong>Drivers:</strong> At least 10 test driver records with different runs</li>
                     <li><strong>Vehicles:</strong> At least 15 test vehicles with varying statuses</li>
                     <li><strong>Incidents:</strong> Mix of student and driver incidents with varying severities</li>
-                    <li><strong>Routes:</strong> Multiple routes assigned to different drivers and vehicles</li>
+                    <li><strong>Runs:</strong> Multiple runs assigned to different drivers and vehicles</li>
                 </ul>
                 
                 <h3>Browser Support Matrix</h3>
@@ -1104,7 +1104,7 @@
                         <li>Type partial student name (e.g., "Sara")</li>
                         <li>Verify autocomplete suggestions appear</li>
                         <li>Click on a student from the list</li>
-                        <li>Verify student details populate: Student ID, photo, grade, school, bus, route</li>
+                        <li>Verify student details populate: Student ID, photo, grade, school, bus, run</li>
                     </ol>
                     
                     <div class="expected-results">
@@ -1116,7 +1116,7 @@
                             <li>Selecting a student populates all fields</li>
                             <li>Student photo displays in rounded frame</li>
                             <li>Student ID field becomes disabled/read-only</li>
-                            <li>Bus and route fields auto-populate</li>
+                            <li>Bus and run fields auto-populate</li>
                         </ul>
                     </div>
                     
@@ -1347,7 +1347,7 @@
                     <ol>
                         <li>Navigate to Students page</li>
                         <li>Verify students table displays</li>
-                        <li>Verify all columns are present: Photo, Student Name, ID, Grade, School, Bus, Route, Actions</li>
+                        <li>Verify all columns are present: Photo, Student Name, ID, Grade, School, Bus, Run, Actions</li>
                     </ol>
                     
                     <div class="expected-results">
@@ -1414,7 +1414,7 @@
                     <h5>Test Steps:</h5>
                     <ol>
                         <li>Navigate to Drivers page</li>
-                        <li>Verify drivers table displays with columns: Photo, Name, Employee ID, Routes, Status, Actions</li>
+                        <li>Verify drivers table displays with columns: Photo, Name, Employee ID, Runs, Status, Actions</li>
                     </ol>
                     
                     <div class="expected-results">
@@ -1423,7 +1423,7 @@
                             <li>All drivers display in table</li>
                             <li>Driver photos show correctly</li>
                             <li>Employee IDs are formatted properly</li>
-                            <li>Routes list displays</li>
+                            <li>Runs list displays</li>
                             <li>Status indicators show correctly</li>
                         </ul>
                     </div>
@@ -1446,7 +1446,7 @@
                     <ol>
                         <li>Navigate to Vehicles page</li>
                         <li>Verify vehicles display</li>
-                        <li>Check vehicle information shows: Vehicle number, Type, Status, Route assignment, Actions</li>
+                        <li>Check vehicle information shows: Vehicle number, Type, Status, Run assignment, Actions</li>
                     </ol>
                     
                     <div class="expected-results">

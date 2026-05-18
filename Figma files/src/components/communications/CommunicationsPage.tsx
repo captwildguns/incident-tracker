@@ -1,26 +1,23 @@
 import { useState, useRef, useEffect } from 'react';
 import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent, defineButtonComponent, defineTextFieldComponent } from '@tylertech/forge';
+import {
+  defineCardComponent,
+  defineButtonComponent,
+  defineTextFieldComponent,
+  defineBadgeComponent,
+  defineIconComponent,
+} from '@tylertech/forge';
 defineCardComponent();
 defineButtonComponent();
 defineTextFieldComponent();
+defineBadgeComponent();
+defineIconComponent();
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
-import { Badge } from '../ui/badge';
 import { Separator } from '../ui/separator';
 import { ScrollArea } from '../ui/scroll-area';
-import {
-  MessageSquare,
-  Send,
-  Search,
-  Filter,
-  CheckCheck,
-  Clock,
-  Mail,
-  User,
-  AlertCircle,
-} from 'lucide-react';
 import { Alert, AlertDescription } from '../ui/alert';
+import { ForgeMultiSelect } from '../ui/forge-multiselect';
 
 interface Message {
   id: string;
@@ -55,8 +52,8 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-03-15',
     student: 'Sarah Mitchell',
     studentId: 'STU-2891',
-    incidentType: 'Seat Refusal',
-    driver: 'Michael Chen',
+    incidentType: 'Safety Violation',
+    driver: 'John Chen',
     bus: 'Bus 12',
     route: 'Meyers Middle AM - Yellow',
     severity: 'Medium',
@@ -67,7 +64,7 @@ const mockCommunications: IncidentCommunication[] = [
     messages: [
       {
         id: 'msg-1',
-        sender: 'Michael Chen',
+        sender: 'John Chen',
         senderRole: 'driver',
         content: 'Student Sarah Mitchell refused to stay seated during the route. This happened multiple times between stops 3 and 7. I gave her two verbal warnings.',
         timestamp: '2025-03-15 08:30 AM',
@@ -83,7 +80,7 @@ const mockCommunications: IncidentCommunication[] = [
       },
       {
         id: 'msg-3',
-        sender: 'Michael Chen',
+        sender: 'John Chen',
         senderRole: 'driver',
         content: 'She was trying to talk to friends in the back. When I asked her to sit down, she complied briefly but stood up again after a few minutes.',
         timestamp: '2025-03-15 10:45 AM',
@@ -96,7 +93,7 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-03-15',
     student: 'Marcus Johnson',
     studentId: 'STU-3421',
-    incidentType: 'Emergency Exit Misuse',
+    incidentType: 'Safety Violation',
     driver: 'Lisa Anderson',
     bus: 'Bus 8',
     route: 'Washington High PM - Wolf Rd',
@@ -137,7 +134,7 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-03-14',
     student: 'Emma Rodriguez',
     studentId: 'STU-1956',
-    incidentType: 'Taunting/Bullying',
+    incidentType: 'Harassment / Bullying',
     driver: 'David Park',
     bus: 'Bus 15',
     route: 'Jefferson Middle AM - Blue',
@@ -178,8 +175,8 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-03-14',
     student: 'James Thompson',
     studentId: 'STU-4782',
-    incidentType: 'Vandalism',
-    driver: 'Michael Chen',
+    incidentType: 'Property Damage',
+    driver: 'John Chen',
     bus: 'Bus 12',
     route: 'Meyers Middle AM - Yellow',
     severity: 'Low',
@@ -190,7 +187,7 @@ const mockCommunications: IncidentCommunication[] = [
     messages: [
       {
         id: 'msg-10',
-        sender: 'Michael Chen',
+        sender: 'John Chen',
         senderRole: 'driver',
         content: 'Found a torn seat cushion in row 5. James was sitting there and admitted to picking at it. The damage requires replacement.',
         timestamp: '2025-03-14 2:15 PM',
@@ -206,7 +203,7 @@ const mockCommunications: IncidentCommunication[] = [
       },
       {
         id: 'msg-12',
-        sender: 'Michael Chen',
+        sender: 'John Chen',
         senderRole: 'driver',
         content: 'Maintenance said approximately $75 for the seat cushion replacement. James was apologetic.',
         timestamp: '2025-03-14 3:00 PM',
@@ -325,7 +322,7 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-03-12',
     student: 'James Patterson',
     studentId: 'STU-3567',
-    incidentType: 'Verbal Abuse toward Driver',
+    incidentType: 'Driver Non-Compliance',
     driver: 'Susan Kim',
     bus: 'Bus 12',
     route: 'Adams Middle PM - Orange',
@@ -366,7 +363,7 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-03-13',
     student: 'Aiden Brooks',
     studentId: 'STU-4219',
-    incidentType: 'Eating/Drinking Violation',
+    incidentType: 'Safety Violation',
     driver: 'Carlos Rodriguez',
     bus: 'Bus 18',
     route: 'Kennedy Elementary AM - Purple',
@@ -448,7 +445,7 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-03-11',
     student: 'Ethan Murphy',
     studentId: 'STU-8901',
-    incidentType: 'Throwing Objects',
+    incidentType: 'Physical Altercation',
     driver: 'Lisa Anderson',
     bus: 'Bus 8',
     route: 'Washington High PM - Wolf Rd',
@@ -490,7 +487,7 @@ const mockCommunications: IncidentCommunication[] = [
     student: 'Mia Thompson',
     studentId: 'STU-5634',
     incidentType: 'Inappropriate Language',
-    driver: 'Michael Chen',
+    driver: 'John Chen',
     bus: 'Bus 12',
     route: 'Meyers Middle AM - Yellow',
     severity: 'Low',
@@ -501,7 +498,7 @@ const mockCommunications: IncidentCommunication[] = [
     messages: [
       {
         id: 'msg-34',
-        sender: 'Michael Chen',
+        sender: 'John Chen',
         senderRole: 'driver',
         content: 'Mia used inappropriate language (curse words) in conversation with friends. Loud enough that younger students could hear.',
         timestamp: '2025-03-10 3:10 PM',
@@ -517,7 +514,7 @@ const mockCommunications: IncidentCommunication[] = [
       },
       {
         id: 'msg-36',
-        sender: 'Michael Chen',
+        sender: 'John Chen',
         senderRole: 'driver',
         content: 'Yes, I reminded her this is a school environment and that language is not acceptable. She apologized and watched her language for the rest of the route.',
         timestamp: '2025-03-10 3:45 PM',
@@ -571,7 +568,7 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-02-24',
     student: 'Charlotte Anderson',
     studentId: 'STU-4561',
-    incidentType: 'Vandalism',
+    incidentType: 'Property Damage',
     driver: 'David Park',
     bus: 'Bus 15',
     route: 'Jefferson Middle AM - Blue',
@@ -653,7 +650,7 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-02-19',
     student: 'Mia Jackson',
     studentId: 'STU-6783',
-    incidentType: 'Disruptive Volume',
+    incidentType: 'Disruptive Behavior',
     driver: 'Robert Martinez',
     bus: 'Bus 9',
     route: 'Lincoln Elementary AM - Green',
@@ -686,8 +683,8 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-02-15',
     student: 'Lucas Harris',
     studentId: 'STU-7894',
-    incidentType: 'Emergency Exit Misuse',
-    driver: 'Michael Chen',
+    incidentType: 'Safety Violation',
+    driver: 'John Chen',
     bus: 'Bus 12',
     route: 'Meyers Middle AM - Yellow',
     severity: 'High',
@@ -698,7 +695,7 @@ const mockCommunications: IncidentCommunication[] = [
     messages: [
       {
         id: 'msg-48',
-        sender: 'Michael Chen',
+        sender: 'John Chen',
         senderRole: 'driver',
         content: 'Lucas was tampering with emergency exit door mechanism. Caught him trying to flip the release handle. This is extremely dangerous.',
         timestamp: '2025-02-15 9:15 AM',
@@ -714,7 +711,7 @@ const mockCommunications: IncidentCommunication[] = [
       },
       {
         id: 'msg-50',
-        sender: 'Michael Chen',
+        sender: 'John Chen',
         senderRole: 'driver',
         content: 'Written statement submitted. Parent meeting held, student suspended for 5 days. Student must attend safety training before returning.',
         timestamp: '2025-02-15 10:30 AM',
@@ -727,7 +724,7 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-02-12',
     student: 'Harper Clark',
     studentId: 'STU-8905',
-    incidentType: 'Eating/Drinking Violation',
+    incidentType: 'Safety Violation',
     driver: 'David Park',
     bus: 'Bus 15',
     route: 'Jefferson Middle AM - Blue',
@@ -768,7 +765,7 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-02-10',
     student: 'Benjamin Lewis',
     studentId: 'STU-9016',
-    incidentType: 'Seat Refusal',
+    incidentType: 'Safety Violation',
     driver: 'Lisa Anderson',
     bus: 'Bus 8',
     route: 'Washington High PM - Wolf Rd',
@@ -801,7 +798,7 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-02-07',
     student: 'Amelia Robinson',
     studentId: 'STU-1127',
-    incidentType: 'Window Misuse',
+    incidentType: 'Safety Violation',
     driver: 'Robert Martinez',
     bus: 'Bus 9',
     route: 'Lincoln Elementary AM - Green',
@@ -842,8 +839,8 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-02-05',
     student: 'Henry Walker',
     studentId: 'STU-2238',
-    incidentType: 'Offensive Language',
-    driver: 'Michael Chen',
+    incidentType: 'Disruptive Behavior',
+    driver: 'John Chen',
     bus: 'Bus 12',
     route: 'Meyers Middle AM - Yellow',
     severity: 'High',
@@ -854,7 +851,7 @@ const mockCommunications: IncidentCommunication[] = [
     messages: [
       {
         id: 'msg-59',
-        sender: 'Michael Chen',
+        sender: 'John Chen',
         senderRole: 'driver',
         content: 'Henry was directing profanity directly at me when I asked him to sit down. This is disrespectful and creates hostile environment.',
         timestamp: '2025-02-05 9:15 AM',
@@ -870,7 +867,7 @@ const mockCommunications: IncidentCommunication[] = [
       },
       {
         id: 'msg-61',
-        sender: 'Michael Chen',
+        sender: 'John Chen',
         senderRole: 'driver',
         content: 'Parent conference held. Student issued formal apology and suspended for 5 days. Student seems to understand the gravity of the situation.',
         timestamp: '2025-02-05 10:00 AM',
@@ -883,7 +880,7 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-02-03',
     student: 'Evelyn Hall',
     studentId: 'STU-3349',
-    incidentType: 'Taunting/Bullying',
+    incidentType: 'Harassment / Bullying',
     driver: 'David Park',
     bus: 'Bus 15',
     route: 'Jefferson Middle AM - Blue',
@@ -924,7 +921,7 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-01-31',
     student: 'Alexander Young',
     studentId: 'STU-4450',
-    incidentType: 'Vandalism',
+    incidentType: 'Property Damage',
     driver: 'Lisa Anderson',
     bus: 'Bus 8',
     route: 'Washington High PM - Wolf Rd',
@@ -965,7 +962,7 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-01-28',
     student: 'Abigail King',
     studentId: 'STU-5561',
-    incidentType: 'Disruptive Volume',
+    incidentType: 'Disruptive Behavior',
     driver: 'Robert Martinez',
     bus: 'Bus 9',
     route: 'Lincoln Elementary AM - Green',
@@ -1007,7 +1004,7 @@ const mockCommunications: IncidentCommunication[] = [
     student: 'Daniel Wright',
     studentId: 'STU-6672',
     incidentType: 'Physical Altercation',
-    driver: 'Michael Chen',
+    driver: 'John Chen',
     bus: 'Bus 12',
     route: 'Meyers Middle AM - Yellow',
     severity: 'High',
@@ -1018,7 +1015,7 @@ const mockCommunications: IncidentCommunication[] = [
     messages: [
       {
         id: 'msg-71',
-        sender: 'Michael Chen',
+        sender: 'John Chen',
         senderRole: 'driver',
         content: 'Daniel kicked another student during an argument. Had to stop bus immediately. Victim has bruising.',
         timestamp: '2025-01-24 9:00 AM',
@@ -1034,7 +1031,7 @@ const mockCommunications: IncidentCommunication[] = [
       },
       {
         id: 'msg-73',
-        sender: 'Michael Chen',
+        sender: 'John Chen',
         senderRole: 'driver',
         content: 'Both families met with principal. Daniel suspended for 10 days. Victim\'s family satisfied with resolution. Both students counseled.',
         timestamp: '2025-01-24 10:15 AM',
@@ -1047,7 +1044,7 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-01-21',
     student: 'Emily Scott',
     studentId: 'STU-7783',
-    incidentType: 'Eating/Drinking Violation',
+    incidentType: 'Safety Violation',
     driver: 'David Park',
     bus: 'Bus 15',
     route: 'Jefferson Middle AM - Blue',
@@ -1080,7 +1077,7 @@ const mockCommunications: IncidentCommunication[] = [
     incidentDate: '2025-01-17',
     student: 'Matthew Green',
     studentId: 'STU-8894',
-    incidentType: 'Seat Refusal',
+    incidentType: 'Safety Violation',
     driver: 'Lisa Anderson',
     bus: 'Bus 8',
     route: 'Washington High PM - Wolf Rd',
@@ -1126,7 +1123,7 @@ interface CommunicationsPageProps {
 
 // Map bus numbers to known drivers for new conversations
 const busDriverMap: Record<string, string> = {
-  'Bus 12': 'Michael Chen',
+  'Bus 12': 'John Chen',
   'Bus 15': 'David Park',
   'Bus 14': 'Robert Thompson',
   'Bus 8': 'Lisa Anderson',
@@ -1180,7 +1177,7 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
     initialIncident
   );
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [messageText, setMessageText] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -1205,10 +1202,10 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
       comm.student.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesStatus =
-      statusFilter === 'all' ||
-      statusFilter === 'unread'
-        ? statusFilter !== 'unread' || comm.unreadMessages > 0
-        : comm.status === statusFilter;
+      statusFilter.length === 0 ||
+      statusFilter.some(s =>
+        s === 'unread' ? comm.unreadMessages > 0 : comm.status === s
+      );
 
     return matchesSearch && matchesStatus;
   });
@@ -1252,40 +1249,33 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
     setTimeout(() => setShowSuccess(false), 3000);
   };
 
-  const getSeverityColor = (severity: string) => {
+  const severityTheme = (severity: string): string => {
     switch (severity) {
-      case 'High':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'Medium':
-        return 'bg-amber-100 text-amber-800 border-amber-200';
-      case 'Low':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'Critical': return 'danger';
+      case 'High': return 'error';
+      case 'Medium': return 'warning';
+      case 'Low': return 'info';
+      default: return 'default';
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const statusTheme = (status: string): string => {
     switch (status) {
-      case 'resolved':
-        return 'bg-green-100 text-green-800 border-green-200';
-      case 'in-progress':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'pending':
-        return 'bg-amber-100 text-amber-800 border-amber-200';
-      default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+      case 'resolved': return 'success';
+      case 'in-progress': return 'info-primary';
+      case 'pending': return 'warning';
+      default: return 'default';
     }
   };
 
   const getMessageStatusIcon = (status: string) => {
     switch (status) {
       case 'read':
-        return <CheckCheck className="h-3 w-3 text-blue-600" />;
+        return <forge-icon name="check_circle" style={{ fontSize: '12px', color: '#2563eb' }}></forge-icon>;
       case 'delivered':
-        return <CheckCheck className="h-3 w-3 text-gray-400" />;
+        return <forge-icon name="check_circle" style={{ fontSize: '12px', color: '#9ca3af' }}></forge-icon>;
       case 'sent':
-        return <Clock className="h-3 w-3 text-gray-400" />;
+        return <forge-icon name="access_time" style={{ fontSize: '12px', color: '#9ca3af' }}></forge-icon>;
       default:
         return null;
     }
@@ -1295,7 +1285,7 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
     <div className="p-6 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-gray-900 mb-2">Driver Communications</h1>
+        <h1 className="text-gray-900 mb-2">Communications</h1>
         <p className="text-muted-foreground">
           Communicate with drivers about incident reports and follow-ups
         </p>
@@ -1307,7 +1297,7 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
           <ForgeCard>
             <div style={{ padding: 'var(--forge-spacing-medium)', paddingBottom: 'var(--forge-spacing-small)' }}>
               <h3 className="forge-typography--heading4 flex items-center gap-2">
-                <MessageSquare className="h-5 w-5" />
+                <forge-icon name="chat" style={{ fontSize: '20px' }}></forge-icon>
                 Active Communications
               </h3>
               <p className="forge-typography--body2" style={{ color: 'var(--forge-theme-text-medium)' }}>Select an incident to view conversation</p>
@@ -1316,7 +1306,7 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
               {/* Search and Filters */}
               <div className="px-4 pb-4 space-y-3">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <forge-icon name="search" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '16px', color: 'var(--forge-theme-text-medium)', pointerEvents: 'none' }}></forge-icon>
                   {/* @ts-ignore */}
                   <forge-text-field>
                     <input
@@ -1330,20 +1320,20 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-muted-foreground" />
-                  {/* @ts-ignore */}
-                  <forge-text-field>
-                    <select
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
-                      style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
-                    >
-                      <option value="all">All Status</option>
-                      <option value="unread">Unread</option>
-                      <option value="in-progress">In Progress</option>
-                      <option value="resolved">Resolved</option>
-                    </select>
-                  </forge-text-field>
+                  <forge-icon name="filter_list" style={{ fontSize: '16px', color: 'var(--forge-theme-text-medium)' }}></forge-icon>
+                  <div style={{ flex: 1 }}>
+                    <ForgeMultiSelect
+                      options={[
+                        { value: 'unread', label: 'Unread' },
+                        { value: 'in-progress', label: 'In Progress' },
+                        { value: 'resolved', label: 'Resolved' },
+                      ]}
+                      selected={statusFilter}
+                      onChange={setStatusFilter}
+                      placeholder="Status"
+                      allLabel="All Status"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -1371,16 +1361,16 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
                         {comm.student} • {comm.driver}
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <Badge variant="outline" className={getSeverityColor(comm.severity)}>
+                        <forge-badge theme={severityTheme(comm.severity)} strong>
                           {comm.severity}
-                        </Badge>
-                        <Badge variant="outline" className={getStatusColor(comm.status)}>
+                        </forge-badge>
+                        <forge-badge theme={statusTheme(comm.status)}>
                           {comm.status}
-                        </Badge>
+                        </forge-badge>
                         {comm.unreadMessages > 0 && (
-                          <Badge className="bg-blue-600 text-white">
+                          <forge-badge theme="info-primary" strong>
                             {comm.unreadMessages} new
-                          </Badge>
+                          </forge-badge>
                         )}
                       </div>
                     </button>
@@ -1406,9 +1396,9 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
                         {selectedIncident.incidentType} • {selectedIncident.incidentDate}
                       </p>
                     </div>
-                    <Badge variant="outline" className={getStatusColor(selectedIncident.status)}>
+                    <forge-badge theme={statusTheme(selectedIncident.status)}>
                       {selectedIncident.status}
-                    </Badge>
+                    </forge-badge>
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3 pt-3 border-t">
@@ -1425,7 +1415,7 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
                       <p className="mt-0.5">{selectedIncident.bus}</p>
                     </div>
                     <div>
-                      <Label className="text-muted-foreground">Route</Label>
+                      <Label className="text-muted-foreground">Run</Label>
                       <p className="mt-0.5">{selectedIncident.route}</p>
                     </div>
                   </div>
@@ -1438,7 +1428,7 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
                   <div className="space-y-4 p-4">
                     {selectedIncident.messages.length === 0 && (
                       <div className="flex flex-col items-center justify-center py-12 text-center">
-                        <MessageSquare className="h-10 w-10 text-muted-foreground mb-3" />
+                        <forge-icon name="chat" style={{ fontSize: '40px', color: 'var(--forge-theme-text-medium)', marginBottom: '12px' }}></forge-icon>
                         <p style={{ fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)', fontSize: 'var(--forge-font-size-base)', marginBottom: 'var(--forge-spacing-xxsmall)' }}>
                           New Conversation
                         </p>
@@ -1464,9 +1454,9 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
                           >
                             <div className="flex items-center gap-2 mb-2">
                               {isCoordinator ? (
-                                <User className="h-4 w-4" />
+                                <forge-icon name="person" style={{ fontSize: '16px' }}></forge-icon>
                               ) : (
-                                <Mail className="h-4 w-4" />
+                                <forge-icon name="email" style={{ fontSize: '16px' }}></forge-icon>
                               )}
                               <span className="font-medium">{message.sender}</span>
                               <span
@@ -1499,7 +1489,7 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
                 <div style={{ padding: 'var(--forge-spacing-small)' }}>
                   {showSuccess && (
                     <Alert className="mb-3 bg-green-50 border-green-200">
-                      <CheckCheck className="h-4 w-4 text-green-600" />
+                      <forge-icon name="check_circle" style={{ fontSize: '16px', color: '#16a34a' }}></forge-icon>
                       <AlertDescription className="text-green-800">
                         Message sent successfully to {selectedIncident.driver}
                       </AlertDescription>
@@ -1531,7 +1521,7 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
                           letterSpacing: '0.0125em',
                         }}
                       >
-                        <Send className="h-4 w-4" />
+                        <forge-icon slot="start" name="send"></forge-icon>
                         Send Message
                       </button>
                     </div>
@@ -1542,7 +1532,7 @@ export function CommunicationsPage({ initialIncidentId, initialIncidentData }: C
           ) : (
             <ForgeCard className="h-full flex items-center justify-center">
               <div className="text-center" style={{ padding: 'var(--forge-spacing-xlarge) var(--forge-spacing-medium)' }}>
-                <MessageSquare className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <forge-icon name="chat" style={{ fontSize: '48px', color: 'var(--forge-theme-text-medium)', margin: '0 auto 16px', display: 'block' }}></forge-icon>
                 <h3 className="forge-typography--heading4 mb-2">No Conversation Selected</h3>
                 <p className="forge-typography--body2" style={{ color: 'var(--forge-theme-text-medium)' }}>
                   Select an incident from the list to view and manage driver communications

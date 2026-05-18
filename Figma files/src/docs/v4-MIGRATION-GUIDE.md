@@ -66,7 +66,7 @@ Version 250 introduces completely redesigned incident creation forms with suppor
     school: string;
     photoUrl: string;
     bus: string;
-    route: string;
+    run: string;
   };
   description: string;            // Detailed incident description
   location: {                     // GPS coordinates
@@ -78,7 +78,7 @@ Version 250 introduces completely redesigned incident creation forms with suppor
   date: string;
   time: string;
   bus: string;
-  route: string;
+  run: string;
   driver: string;
 }
 ```
@@ -88,7 +88,7 @@ Version 250 introduces completely redesigned incident creation forms with suppor
 **Features:**
 - Driver search with employee information
 - Same categorized incident type selector
-- Vehicle and route information capture
+- Vehicle and run information capture
 - Location mapping
 - File attachments
 - Automatic workflow assignment
@@ -103,7 +103,7 @@ Version 250 introduces completely redesigned incident creation forms with suppor
     name: string;
     employeeId: string;
     photoUrl: string;
-    routes: string[];
+    runs: string[];
   };
   description: string;
   location: {
@@ -114,7 +114,7 @@ Version 250 introduces completely redesigned incident creation forms with suppor
   date: string;
   time: string;
   vehicle: string;
-  route: string;
+  run: string;
 }
 ```
 
@@ -416,7 +416,7 @@ The Incidents page (`/components/incidents/IncidentsPage.tsx`) has been enhanced
 4. Type (categorized)
 5. Description (truncated)
 6. Bus Number
-7. Route
+7. Run
 8. Driver Name
 9. Severity Badge (color-coded)
 10. Status Badge
@@ -445,7 +445,7 @@ const mockIncidents = [
     type: string;            // Incident type
     description: string;     // Full description
     bus: string;             // e.g., 'Bus 12'
-    route: string;           // Route name
+    run: string;           // Run name
     driver: string;          // Driver name
     severity: 'Low' | 'Medium' | 'High';
     status: 'Open' | 'In Progress' | 'Closed';
@@ -585,7 +585,7 @@ Advanced search functionality has been implemented across Drivers and Vehicles p
 - Phone Number
 - Email
 - Assigned Vehicle
-- Primary Route
+- Primary Run
 - License Number
 - Status
 
@@ -601,7 +601,7 @@ Advanced search functionality has been implemented across Drivers and Vehicles p
 <div className="relative">
   <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
   <Input
-    placeholder="Search drivers by name, ID, route, vehicle..."
+    placeholder="Search drivers by name, ID, run, vehicle..."
     value={searchTerm}
     onChange={(e) => setSearchTerm(e.target.value)}
     style={{
@@ -636,7 +636,7 @@ Advanced search functionality has been implemented across Drivers and Vehicles p
 - Make
 - Model
 - Driver Name
-- Primary Route
+- Primary Run
 - GPS Hardware ID
 - Status
 
@@ -644,7 +644,7 @@ Advanced search functionality has been implemented across Drivers and Vehicles p
 - Real-time filtering
 - VIN lookup
 - License plate search
-- Route search
+- Run search
 - Driver assignment search
 
 **Filter Options:**

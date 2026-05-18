@@ -43,7 +43,7 @@ const mockNotifications: Notification[] = [
     id: 'notif-1',
     type: 'driver-response',
     title: 'Driver Response Received',
-    description: 'Michael Chen replied to INC-2025-0042 (Sarah Mitchell - Seat Refusal)',
+    description: 'John Chen replied to INC-2025-0042 (Sarah Mitchell - Seat Refusal)',
     timestamp: '10 mins ago',
     isRead: false,
     severity: 'Medium',
@@ -140,6 +140,7 @@ export function NotificationsDropdown({ onNavigateToCommunication }: Notificatio
 
   const getSeverityColor = (severity?: string) => {
     switch (severity) {
+      case 'Critical': return 'var(--forge-theme-critical)';
       case 'High': return 'var(--forge-theme-error)';
       case 'Medium': return 'var(--forge-theme-warning)';
       case 'Low': return 'var(--forge-theme-info)';
@@ -204,7 +205,7 @@ export function NotificationsDropdown({ onNavigateToCommunication }: Notificatio
               right: '0',
               zIndex: 50,
               width: '384px',
-              backgroundColor: 'var(--forge-theme-surface)',
+              backgroundColor: '#ffffff',
               borderRadius: 'var(--forge-shape-large)',
               boxShadow: 'var(--forge-elevation-8)',
               overflow: 'hidden',
@@ -214,10 +215,10 @@ export function NotificationsDropdown({ onNavigateToCommunication }: Notificatio
             {/* Header */}
             <div style={{
               padding: 'var(--forge-spacing-medium)',
-              borderBottom: '1px solid var(--forge-theme-outline)',
+              borderBottom: '1px solid #e2e8f0',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--forge-spacing-xsmall)' }}>
-                <h3 className="forge-typography--heading4" style={{ margin: 0 }}>Notifications</h3>
+                <h3 className="forge-typography--heading4" style={{ margin: 0, color: '#0f172a' }}>Notifications</h3>
                 {unreadCount > 0 && (
                   <ForgeBadge theme="error">{unreadCount} New</ForgeBadge>
                 )}
@@ -247,7 +248,7 @@ export function NotificationsDropdown({ onNavigateToCommunication }: Notificatio
                         width: '100%',
                         textAlign: 'left',
                         padding: 'var(--forge-spacing-medium)',
-                        backgroundColor: notification.isRead ? 'transparent' : 'var(--forge-theme-primary-container-minimum)',
+                        backgroundColor: notification.isRead ? '#ffffff' : '#f1f5f9',
                         cursor: notification.actionable ? 'pointer' : 'default',
                         border: 'none',
                       }}
@@ -258,23 +259,23 @@ export function NotificationsDropdown({ onNavigateToCommunication }: Notificatio
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 'var(--forge-spacing-xsmall)', marginBottom: '4px' }}>
-                            <span className="forge-typography--body2" style={{ fontWeight: notification.isRead ? 400 : 600, color: 'var(--forge-theme-text-high)' }}>
+                            <span className="forge-typography--body2" style={{ fontWeight: notification.isRead ? 400 : 600, color: '#0f172a' }}>
                               {notification.title}
                             </span>
                             {!notification.isRead && (
-                              <div style={{ width: '8px', height: '8px', borderRadius: 'var(--forge-shape-full)', backgroundColor: 'var(--forge-theme-tertiary)', flexShrink: 0, marginTop: '4px' }} />
+                              <div style={{ width: '8px', height: '8px', borderRadius: 'var(--forge-shape-full)', backgroundColor: '#4A6FA5', flexShrink: 0, marginTop: '4px' }} />
                             )}
                           </div>
-                          <p className="forge-typography--label1" style={{ margin: '0 0 var(--forge-spacing-xsmall)', color: 'var(--forge-theme-text-medium)', lineHeight: 1.4 }}>
+                          <p className="forge-typography--label1" style={{ margin: '0 0 var(--forge-spacing-xsmall)', color: '#334155', lineHeight: 1.4 }}>
                             {notification.description}
                           </p>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span className="forge-typography--label1" style={{ color: 'var(--forge-theme-text-low)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <span className="forge-typography--label1" style={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
                               <Clock className="h-3 w-3" />
                               {notification.timestamp}
                             </span>
                             {notification.actionable && (
-                              <span className="forge-typography--label1" style={{ color: 'var(--forge-theme-tertiary)', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <span className="forge-typography--label1" style={{ color: '#4A6FA5', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
                                 View <ArrowRight className="h-3 w-3" />
                               </span>
                             )}

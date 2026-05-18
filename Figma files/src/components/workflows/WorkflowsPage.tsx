@@ -1,42 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent, defineButtonComponent, defineTextFieldComponent, defineDialogComponent } from '@tylertech/forge';
+import {
+  defineCardComponent,
+  defineButtonComponent,
+  defineTextFieldComponent,
+  defineDialogComponent,
+  defineBadgeComponent,
+  defineTooltipComponent,
+  defineIconComponent,
+} from '@tylertech/forge';
 defineCardComponent();
 defineButtonComponent();
 defineTextFieldComponent();
 defineDialogComponent();
+defineBadgeComponent();
+defineTooltipComponent();
+defineIconComponent();
 import { Label } from '../ui/label';
-import { Badge } from '../ui/badge';
 import { Textarea } from '../ui/textarea';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '../ui/tooltip';
-import {
-  Plus,
-  Edit,
-  Trash2,
-  Copy,
-  CheckCircle,
-  Circle,
-  ArrowRight,
-  Settings,
-  AlertTriangle,
-  FileText,
-  Users,
-  Clock,
-  Mail,
-  UserCheck,
-  Zap,
-  GitBranch,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
 import { workflows as importedWorkflows, Workflow, WorkflowStep } from '../../data/workflows';
 import { INCIDENT_TYPES, INCIDENT_CATEGORIES } from '../incidents/IncidentTypes';
-import { toast } from 'sonner';
 import { WorkflowStepLibrary, WorkflowStepTemplate } from './WorkflowStepLibrary';
 import { StepTemplateManager } from './StepTemplateManager';
 import { ForgeMultiSelect } from '../ui/forge-multiselect';
@@ -109,8 +92,7 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
     workflows.flatMap((w: any) => w.incidentTypes || [])
   );
 
-  // Filter out the default workflow (General Incident Review) from the displayed list
-  const customWorkflows = workflows.filter((w) => w.id !== 'WF-DEFAULT');
+  const customWorkflows = workflows;
 
   const filteredWorkflows = customWorkflows.filter((workflow) => {
     const matchesSearch =
@@ -130,7 +112,7 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
   });
 
   // Pagination state
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Pagination calculations
@@ -259,7 +241,7 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
               transition: 'all 0.2s',
             }}
           >
-            <GitBranch className="h-4 w-4 inline mr-2" />
+            <forge-icon name="account_tree" style={{ fontSize: '16px', display: 'inline-block', verticalAlign: 'middle', marginRight: '8px' }}></forge-icon>
             Workflows
           </button>
           <button
@@ -277,7 +259,7 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
               transition: 'all 0.2s',
             }}
           >
-            <FileText className="h-4 w-4 inline mr-2" />
+            <forge-icon name="description" style={{ fontSize: '16px', display: 'inline-block', verticalAlign: 'middle', marginRight: '8px' }}></forge-icon>
             Step Templates
           </button>
         </div>
@@ -298,7 +280,7 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
             <ForgeCard>
               <div style={{ padding: 'var(--forge-spacing-medium)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)' }}>
-                  <FileText className="h-8 w-8" style={{ color: 'var(--brand-blue-dark)' }} />
+                  <forge-icon name="description" style={{ fontSize: '32px', color: 'var(--brand-blue-dark)' }}></forge-icon>
                   <div>
                     <div
                       style={{
@@ -319,7 +301,7 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
             <ForgeCard>
               <div style={{ padding: 'var(--forge-spacing-medium)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)' }}>
-                  <CheckCircle className="h-8 w-8" style={{ color: 'var(--brand-olive-medium)' }} />
+                  <forge-icon name="check_circle" style={{ fontSize: '32px', color: 'var(--brand-olive-medium)' }}></forge-icon>
                   <div>
                     <div
                       style={{
@@ -383,7 +365,7 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                 />
 
                 <ForgeButton onClick={() => setIsCreateDialogOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
+                  <forge-icon slot="start" name="add"></forge-icon>
                   Create Workflow
                 </ForgeButton>
               </div>
@@ -410,10 +392,7 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                     {paginatedWorkflows.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="forge-table-cell" style={{ padding: 'var(--forge-spacing-xlarge)', textAlign: 'center' }}>
-                          <AlertTriangle
-                            className="h-12 w-12"
-                            style={{ color: 'var(--muted-foreground)', margin: '0 auto var(--forge-spacing-medium)' }}
-                          />
+                          <forge-icon name="warning" style={{ fontSize: '48px', color: 'var(--muted-foreground)', margin: '0 auto var(--forge-spacing-medium)', display: 'block' }}></forge-icon>
                           <p style={{ fontSize: 'var(--text-lg)', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)' }}>
                             No workflows found matching your criteria
                           </p>
@@ -437,37 +416,20 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                             </div>
                           </td>
                           <td className="forge-table-cell">
-                            <Badge variant="outline" style={{ fontFamily: 'var(--forge-font-family)' }}>{workflow.category}</Badge>
+                            <forge-badge theme="default">{workflow.category}</forge-badge>
                           </td>
                           <td className="forge-table-cell">
-                            <Badge
-                              style={{
-                                background: workflow.active ? 'var(--brand-olive-medium)' : 'var(--muted)',
-                                color: workflow.active ? 'white' : 'var(--muted-foreground)',
-                                fontFamily: 'var(--forge-font-family)',
-                              }}
-                            >
+                            <forge-badge theme={workflow.active ? 'success' : 'default'}>
                               {workflow.active ? 'Active' : 'Inactive'}
-                            </Badge>
+                            </forge-badge>
                           </td>
                           <td className="forge-table-cell">
-                            <Badge
-                              variant="outline"
-                              style={{
-                                fontSize: 'var(--text-xs)',
-                                fontFamily: 'var(--forge-font-family)',
-                                background:
-                                  workflow.severity === 'Critical'
-                                    ? 'rgba(176, 0, 32, 0.1)'
-                                    : workflow.severity === 'High'
-                                    ? 'rgba(255, 193, 7, 0.1)'
-                                    : workflow.severity === 'Medium'
-                                    ? 'rgba(63, 81, 181, 0.1)'
-                                    : 'rgba(159, 168, 112, 0.15)',
-                              }}
+                            <forge-badge
+                              theme={workflow.severity === 'Critical' ? 'danger' : workflow.severity === 'High' ? 'error' : workflow.severity === 'Medium' ? 'warning' : 'info'}
+                              strong
                             >
                               {workflow.severity}
-                            </Badge>
+                            </forge-badge>
                           </td>
                           <td className="forge-table-cell" style={{ textAlign: 'center', fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}>
                             {workflow.steps.length}
@@ -477,70 +439,38 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                           </td>
                           <td className="forge-table-cell" style={{ textAlign: 'right' }}>
                             <div style={{ display: 'flex', gap: 'var(--forge-spacing-xxsmall)', justifyContent: 'flex-end' }}>
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <button
-                                      onClick={() => handleOpenBuilder(workflow)}
-                                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px', color: 'var(--forge-text-secondary, #6b7280)', display: 'inline-flex', alignItems: 'center' }}
-                                    >
-                                      <Settings className="h-4 w-4" />
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Edit workflow</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <button
-                                      onClick={() => handleDuplicateWorkflow(workflow)}
-                                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px', color: 'var(--forge-text-secondary, #6b7280)', display: 'inline-flex', alignItems: 'center' }}
-                                    >
-                                      <Copy className="h-4 w-4" />
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Duplicate workflow</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <button
-                                      onClick={() => handleToggleActive(workflow.id)}
-                                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px', color: 'var(--forge-text-secondary, #6b7280)', display: 'inline-flex', alignItems: 'center' }}
-                                    >
-                                      {workflow.active ? (
-                                        <Circle className="h-4 w-4" />
-                                      ) : (
-                                        <CheckCircle className="h-4 w-4" />
-                                      )}
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>{workflow.active ? 'Set to Inactive' : 'Set to Active'}</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
-                              <TooltipProvider>
-                                <Tooltip>
-                                  <TooltipTrigger asChild>
-                                    <button
-                                      onClick={() => handleDeleteWorkflow(workflow.id)}
-                                      style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px', color: 'var(--destructive)', display: 'inline-flex', alignItems: 'center' }}
-                                    >
-                                      <Trash2 className="h-4 w-4" />
-                                    </button>
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>Delete workflow</p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </TooltipProvider>
+                              <button
+                                onClick={() => handleOpenBuilder(workflow)}
+                                title="Edit workflow"
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px', color: 'var(--forge-text-secondary, #6b7280)', display: 'inline-flex', alignItems: 'center' }}
+                              >
+                                <forge-icon name="settings" style={{ fontSize: '16px' }}></forge-icon>
+                              </button>
+                              <button
+                                onClick={() => handleDuplicateWorkflow(workflow)}
+                                title="Duplicate workflow"
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px', color: 'var(--forge-text-secondary, #6b7280)', display: 'inline-flex', alignItems: 'center' }}
+                              >
+                                <forge-icon name="content_copy" style={{ fontSize: '16px' }}></forge-icon>
+                              </button>
+                              <button
+                                onClick={() => handleToggleActive(workflow.id)}
+                                title={workflow.active ? 'Set to Inactive' : 'Set to Active'}
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px', color: 'var(--forge-text-secondary, #6b7280)', display: 'inline-flex', alignItems: 'center' }}
+                              >
+                                {workflow.active ? (
+                                  <forge-icon name="radio_button_unchecked" style={{ fontSize: '16px' }}></forge-icon>
+                                ) : (
+                                  <forge-icon name="check_circle" style={{ fontSize: '16px' }}></forge-icon>
+                                )}
+                              </button>
+                              <button
+                                onClick={() => handleDeleteWorkflow(workflow.id)}
+                                title="Delete workflow"
+                                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', borderRadius: '4px', color: 'var(--destructive)', display: 'inline-flex', alignItems: 'center' }}
+                              >
+                                <forge-icon name="delete" style={{ fontSize: '16px' }}></forge-icon>
+                              </button>
                             </div>
                           </td>
                         </tr>
@@ -554,15 +484,15 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
               {filteredWorkflows.length > 0 && (
                 <div className="flex items-center justify-between" style={{ padding: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--border)' }}>
                   <div className="flex items-center" style={{ gap: 'var(--forge-spacing-small)' }}>
-                    <span style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)' }}>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)', whiteSpace: 'nowrap' }}>
                       Showing {startIndex + 1}&ndash;{Math.min(startIndex + rowsPerPage, filteredWorkflows.length)} of {filteredWorkflows.length} workflows
                     </span>
-                    {rowsPerPage === 10 && filteredWorkflows.length > 10 && (
+                    {rowsPerPage === 5 && filteredWorkflows.length > 5 && (
                       <ForgeButton
                         variant="outlined"
-                        size="sm"
+                        dense
                         onClick={() => { setRowsPerPage(25); setCurrentPage(1); }}
-                        style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}
+                        style={{ fontSize: '0.75rem', fontFamily: 'var(--forge-font-family)' }}
                       >
                         Show 25
                       </ForgeButton>
@@ -570,11 +500,11 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                     {rowsPerPage === 25 && (
                       <ForgeButton
                         variant="outlined"
-                        size="sm"
-                        onClick={() => { setRowsPerPage(10); setCurrentPage(1); }}
-                        style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}
+                        dense
+                        onClick={() => { setRowsPerPage(5); setCurrentPage(1); }}
+                        style={{ fontSize: '0.75rem', fontFamily: 'var(--forge-font-family)' }}
                       >
-                        Show 10
+                        Show 5
                       </ForgeButton>
                     )}
                   </div>
@@ -588,15 +518,20 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                         onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                         style={{ padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)' }}
                       >
-                        <ChevronLeft className="h-4 w-4" />
+                        <forge-icon name="chevron_left" style={{ fontSize: '18px' }}></forge-icon>
                       </ForgeButton>
                       {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
                         <ForgeButton
                           key={page}
                           variant={page === currentPage ? 'raised' : 'outlined'}
-                          size="sm"
+                          dense
                           onClick={() => setCurrentPage(page)}
-                          style={{ minWidth: '32px', padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)', fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}
+                          style={{
+                            ['--forge-button-min-width' as any]: '24px',
+                            ['--forge-button-padding-inline' as any]: '6px',
+                            fontSize: '0.75rem',
+                            fontFamily: 'var(--forge-font-family)',
+                          }}
                         >
                           {page}
                         </ForgeButton>
@@ -608,7 +543,7 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                         onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                         style={{ padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-xsmall)' }}
                       >
-                        <ChevronRight className="h-4 w-4" />
+                        <forge-icon name="chevron_right" style={{ fontSize: '18px' }}></forge-icon>
                       </ForgeButton>
                     </div>
                   )}
@@ -718,7 +653,7 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                     const unlinkedCount = INCIDENT_TYPES.filter(t => !linkedIncidentTypeLabels.has(t.label) && !linkedIncidentTypeLabels.has(t.id)).length;
                     return unlinkedCount > 0 ? (
                       <p style={{ fontSize: 'var(--text-xs)', color: 'var(--brand-olive-dark)', marginBottom: 'var(--forge-spacing-small)', fontFamily: 'var(--forge-font-family)', display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-xxsmall)' }}>
-                        <AlertTriangle size={12} />
+                        <forge-icon name="warning" style={{ fontSize: '12px' }}></forge-icon>
                         {unlinkedCount} incident type{unlinkedCount > 1 ? 's' : ''} available (not yet linked to a workflow). Linked types are greyed out.
                       </p>
                     ) : (
@@ -780,19 +715,16 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                         border: '1px solid var(--border)',
                       }}>
                         <div style={{ display: 'flex', gap: 'var(--forge-spacing-xsmall)', marginBottom: 'var(--forge-spacing-xxsmall)', flexWrap: 'wrap' }}>
-                          <Badge variant="outline" style={{
-                            background: selectedType.applicableTo === 'student' ? 'rgba(74, 111, 165, 0.10)' : selectedType.applicableTo === 'driver' ? 'rgba(159, 168, 112, 0.15)' : 'rgba(63, 81, 181, 0.10)',
-                            fontSize: 'var(--text-xs)',
-                          }}>
+                          <forge-badge theme={selectedType.applicableTo === 'student' ? 'info-primary' : selectedType.applicableTo === 'driver' ? 'success' : 'default'}>
                             {selectedType.applicableTo === 'student' ? 'Student' : selectedType.applicableTo === 'driver' ? 'Driver' : 'Both'}
-                          </Badge>
-                          <Badge variant="outline" style={{ fontSize: 'var(--text-xs)' }}>{selectedType.category}</Badge>
-                          <Badge variant="outline" style={{
-                            fontSize: 'var(--text-xs)',
-                            background: selectedType.defaultSeverity === 'High' ? 'rgba(176, 0, 32, 0.08)' : selectedType.defaultSeverity === 'Medium' ? 'rgba(255, 193, 7, 0.12)' : 'rgba(159, 168, 112, 0.15)',
-                          }}>
+                          </forge-badge>
+                          <forge-badge theme="default">{selectedType.category}</forge-badge>
+                          <forge-badge
+                            theme={selectedType.defaultSeverity === 'Critical' ? 'danger' : selectedType.defaultSeverity === 'High' ? 'error' : selectedType.defaultSeverity === 'Medium' ? 'warning' : 'info'}
+                            strong
+                          >
                             {selectedType.defaultSeverity}
-                          </Badge>
+                          </forge-badge>
                         </div>
                         <p style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', margin: 0 }}>
                           {selectedType.description}
@@ -848,7 +780,7 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                     }}
                     style={{ width: '100%' }}
                   >
-                    <Settings className="h-4 w-4 mr-2" />
+                    <forge-icon slot="start" name="settings"></forge-icon>
                     Open Advanced Workflow Builder
                   </ForgeButton>
                 </div>

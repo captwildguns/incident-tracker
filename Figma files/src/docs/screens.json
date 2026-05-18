@@ -257,7 +257,7 @@
         {"name": "student", "type": "string + avatar", "sortable": true},
         {"name": "driver", "type": "string", "sortable": true},
         {"name": "bus", "type": "string", "sortable": true},
-        {"name": "route", "type": "string", "sortable": true},
+        {"name": "run", "type": "string", "sortable": true},
         {"name": "type", "type": "string + badge", "sortable": true},
         {"name": "severity", "type": "enum + badge", "sortable": true},
         {"name": "status", "type": "enum + badge", "sortable": true},
@@ -495,7 +495,7 @@
         {"name": "grade", "type": "string", "sortable": true},
         {"name": "school", "type": "string", "sortable": true},
         {"name": "bus", "type": "string", "sortable": true},
-        {"name": "route", "type": "string", "sortable": true},
+        {"name": "run", "type": "string", "sortable": true},
         {"name": "incidentCount", "type": "integer", "sortable": true},
         {"name": "lastIncident", "type": "date YYYY-MM-DD", "sortable": true}
       ]
@@ -515,7 +515,7 @@
           "label": "Search",
           "type": "text input",
           "required": false,
-          "validation": "max 200 chars; searches name, employeeId, route",
+          "validation": "max 200 chars; searches name, employeeId, run",
           "source": "user-entered",
           "representativeExample": "Chen"
         },

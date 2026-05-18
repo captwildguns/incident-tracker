@@ -26,7 +26,7 @@
 | Vehicle ID | string link | Yes |
 | Details | string + bus photo | Yes |
 | Driver | string | Yes |
-| Primary Route | string | Yes |
+| Primary Run | string | Yes |
 | Status | enum + badge | Yes |
 | Maintenance | string + icon | Yes |
 | Incidents | integer + trend | Yes |

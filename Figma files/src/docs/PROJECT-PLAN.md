@@ -30,7 +30,7 @@ The Student Transportation Incident Tracker exists as a fully functional front-e
 |------|-----------------|
 | Replace mock data with real persistence | All CRUD operations persist to database |
 | Secure multi-user access | Users can only access data/actions for their role |
-| Reliable incident workflow | Incidents auto-route correctly 100% of the time |
+| Reliable incident workflow | Incidents auto-run correctly 100% of the time |
 | Real-time communications | Driver messages delivered within 5 seconds |
 | Production uptime | 99.5% availability in first 90 days |
 | User adoption | 80% of target users actively using within 30 days of launch |
@@ -220,7 +220,7 @@ The Student Transportation Incident Tracker exists as a fully functional front-e
 
 **Deliverables:**
 - Fully connected frontend application
-- Authentication flow with role-based route guards
+- Authentication flow with role-based run guards
 - Real-time dashboard and messaging
 - Frontend test suite
 

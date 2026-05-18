@@ -27,7 +27,7 @@
 | Grade | string | Yes |
 | School | string | Yes |
 | Bus | string | Yes |
-| Route | string | Yes |
+| Run | string | Yes |
 | Incidents | integer | Yes |
 | Last Incident | date | Yes |
 
@@ -42,5 +42,5 @@ NOTE: Sample rows removed. See field definitions.
 | grade | read-only string | Grade format | `8th Grade` |
 | school | read-only string | max 100 chars | `Lincoln Middle School` |
 | bus | read-only string | Vehicle format | `Bus 12` |
-| route | read-only string | max 100 chars | `Meyers Middle AM - Yellow` |
+| run | read-only string | max 100 chars | `Meyers Middle AM - Yellow` |
 | incidentCount | read-only integer | >= 0 | `1` |

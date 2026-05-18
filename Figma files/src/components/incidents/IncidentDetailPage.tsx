@@ -15,7 +15,6 @@ import { getCommunicationsByIncidentId, type Message } from '../communications/C
 import { CurrentStepActionCard } from './CurrentStepActionCard';
 import { DocumentsViewer } from './DocumentsViewer';
 import { PhotosViewer } from './PhotosViewer';
-import { DefaultWorkflowComponent } from './DefaultWorkflowComponent';
 
 interface IncidentDetailPageProps {
   incident: any;
@@ -110,8 +109,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
     }
   };
 
-  // Handler for DefaultWorkflowComponent step updates
-  const handleDefaultWorkflowStepUpdate = (stepId: string, status: string, comments?: string, followUpAction?: string) => {
+  const handleWorkflowStepUpdate = (stepId: string, status: string, comments?: string, followUpAction?: string) => {
     const stepIndex = workflowSteps.findIndex(step => step.id === stepId);
     if (stepIndex === -1) return;
 
@@ -173,7 +171,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
     
     // If this is an approval step, automatically add approval info to the comment
     if (isApproval) {
-      const approvalInfo = `Approved by Current User on ${now.toLocaleDateString()}`;
+      const approvalInfo = `Approved by Current User on ${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}-${now.getFullYear()}`;
       comment = comment 
         ? `${comment}\n\n${approvalInfo}` 
         : approvalInfo;
@@ -181,7 +179,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
     
     // If this is the last step, automatically add workflow completion info
     if (isLastStep) {
-      const completionInfo = `Workflow completed by Current User on ${now.toLocaleDateString()}`;
+      const completionInfo = `Workflow completed by Current User on ${(now.getMonth()+1).toString().padStart(2,'0')}-${now.getDate().toString().padStart(2,'0')}-${now.getFullYear()}`;
       comment = comment 
         ? `${comment}\n\n${completionInfo}` 
         : completionInfo;
@@ -317,7 +315,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 'var(--forge-spacing-small)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)' }}>
             <h1 style={{ margin: 0 }}>{incident.id}</h1>
-            <Badge variant={incident.severity === 'High' ? 'destructive' : incident.severity === 'Medium' ? 'secondary' : 'outline'}>
+            <Badge variant={incident.severity === 'Critical' || incident.severity === 'High' ? 'destructive' : incident.severity === 'Medium' ? 'secondary' : 'outline'} style={incident.severity === 'Critical' ? { background: 'var(--forge-theme-critical)', color: '#fff', borderColor: 'var(--forge-theme-critical)' } : undefined}>
               {incident.severity}
             </Badge>
             <Badge>{incident.status}</Badge>
@@ -374,7 +372,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
         </div>
         
         <p style={{ margin: 0, color: 'var(--muted-foreground)' }}>
-          {incident.type} • {incident.date}
+          {incident.type} • {incident.date.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$2-$3-$1')}
         </p>
       </div>
 
@@ -536,23 +534,50 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                   </h3>
                 </div>
                 <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
+                  {incident.involvedStudents && incident.involvedStudents.length > 1 && (
+                    <div style={{ marginBottom: 'var(--forge-spacing-large)', paddingBottom: 'var(--forge-spacing-medium)', borderBottom: '1px solid var(--border)' }}>
+                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '8px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Involved Students ({incident.involvedStudents.length})
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-xsmall)' }}>
+                        {incident.involvedStudents.map((s: any, i: number) => (
+                          <div key={i} className="flex items-center gap-3" style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-small)', background: 'var(--forge-theme-surface-container-minimum)', borderRadius: '4px' }}>
+                            <div style={{ flex: 1, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)', fontWeight: 'var(--font-weight-medium)' }}>
+                              {s.name} <span style={{ color: 'var(--muted-foreground)', fontWeight: 400 }}>({s.studentId})</span>
+                            </div>
+                            <forge-badge theme="default">{s.role}</forge-badge>
+                            <forge-badge
+                              theme={s.severity === 'Critical' ? 'danger' : s.severity === 'High' ? 'error' : s.severity === 'Medium' ? 'warning' : 'info'}
+                              strong
+                            >
+                              {s.severity}
+                            </forge-badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                    <div>
-                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Student
-                      </div>
-                      <div style={{ fontWeight: 'var(--font-weight-medium)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>
-                        {incident.student}
-                      </div>
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Student ID
-                      </div>
-                      <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>
-                        {incident.studentId}
-                      </div>
-                    </div>
+                    {(!incident.involvedStudents || incident.involvedStudents.length <= 1) && (
+                      <>
+                        <div>
+                          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            Student
+                          </div>
+                          <div style={{ fontWeight: 'var(--font-weight-medium)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>
+                            {incident.student}
+                          </div>
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            Student ID
+                          </div>
+                          <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>
+                            {incident.studentId}
+                          </div>
+                        </div>
+                      </>
+                    )}
                     <div>
                       <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         Type
@@ -565,9 +590,9 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                       <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         Severity
                       </div>
-                      <Badge 
-                        variant={incident.severity === 'High' ? 'destructive' : incident.severity === 'Medium' ? 'secondary' : 'outline'}
-                        style={{ fontFamily: 'Roboto, sans-serif' }}
+                      <Badge
+                        variant={incident.severity === 'Critical' || incident.severity === 'High' ? 'destructive' : incident.severity === 'Medium' ? 'secondary' : 'outline'}
+                        style={incident.severity === 'Critical' ? { background: 'var(--forge-theme-critical)', color: '#fff', borderColor: 'var(--forge-theme-critical)', fontFamily: 'Roboto, sans-serif' } : { fontFamily: 'Roboto, sans-serif' }}
                       >
                         {incident.severity}
                       </Badge>
@@ -582,7 +607,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                     </div>
                     <div>
                       <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Route
+                        Run
                       </div>
                       <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>
                         {incident.route}
@@ -724,18 +749,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
         {/* Workflow Tab */}
         {activeTab === 'workflow' && incident.workflow && (
           <div>
-            {/* Check if this is the default workflow */}
-            {incident.workflow.id === 'WF-DEFAULT' ? (
-              <DefaultWorkflowComponent
-                workflow={{
-                  ...incident.workflow,
-                  steps: workflowSteps
-                }}
-                incidentId={incident.id}
-                onUpdateStep={handleDefaultWorkflowStepUpdate}
-              />
-            ) : (
-              <>
+            <>
                 <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', marginBottom: 'var(--forge-spacing-large)' }}>
                   <div style={{ padding: 'var(--forge-spacing-medium)' }}>
                     <div className="flex items-center justify-between">
@@ -746,30 +760,6 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                             {incident.workflow.description}
                           </p>
                         </div>
-                    <Badge
-                      variant="outline"
-                      style={{
-                        background: workflowActive ? 'rgba(91, 139, 184, 0.1)' : 'rgba(123, 132, 88, 0.1)',
-                        color: workflowActive ? 'var(--brand-blue-dark)' : 'var(--brand-olive-dark)',
-                        border: `1px solid ${workflowActive ? 'var(--brand-blue-medium)' : 'var(--brand-olive-dark)'}`,
-                        fontSize: 'var(--text-xs)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 'var(--forge-spacing-xsmall)',
-                      }}
-                    >
-                      {workflowActive ? (
-                        <>
-                          <Play className="h-3 w-3" />
-                          Active
-                        </>
-                      ) : (
-                        <>
-                          <Pause className="h-3 w-3" />
-                          Completed
-                        </>
-                      )}
-                    </Badge>
                   </div>
                   <Badge
                     style={{
@@ -1331,19 +1321,11 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                                 alignItems: 'center',
                               }}
                             >
-                              <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--forge-spacing-small)', fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
-                                <div>
-                                  <div style={{ marginBottom: '2px' }}>Assigned Role</div>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    <Users className="h-3 w-3" style={{ color: 'var(--brand-blue-medium)' }} />
-                                    <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--forge-font-weight-medium)', color: 'var(--foreground)' }}>{step.assignedRole}</span>
-                                  </div>
-                                </div>
-                                <div>
-                                  <div style={{ marginBottom: '2px' }}>Trigger Type</div>
-                                  <Badge variant="outline" style={{ fontSize: 'var(--text-xs)', height: 'auto', padding: '2px 6px' }}>
-                                    {step.trigger?.type || 'manual'}
-                                  </Badge>
+                              <div style={{ flex: 1, fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
+                                <div style={{ marginBottom: '2px' }}>Assigned Role</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  <Users className="h-3 w-3" style={{ color: 'var(--brand-blue-medium)' }} />
+                                  <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--forge-font-weight-medium)', color: 'var(--foreground)' }}>{step.assignedRole}</span>
                                 </div>
                               </div>
                               <button
@@ -1390,23 +1372,13 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                               }}
                               onClick={(e) => e.stopPropagation()}
                             >
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '4px' }}>
-                                    Assigned Role
-                                  </div>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-xsmall)' }}>
-                                    <Users className="h-4 w-4" style={{ color: 'var(--brand-blue-medium)' }} />
-                                    <span style={{ fontSize: 'var(--text-sm)' }}>{step.assignedRole}</span>
-                                  </div>
+                              <div>
+                                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '4px' }}>
+                                  Assigned Role
                                 </div>
-                                <div>
-                                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '4px' }}>
-                                    Trigger Type
-                                  </div>
-                                  <Badge variant="outline" style={{ fontSize: 'var(--text-xs)' }}>
-                                    {step.trigger?.type || 'manual'}
-                                  </Badge>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-xsmall)' }}>
+                                  <Users className="h-4 w-4" style={{ color: 'var(--brand-blue-medium)' }} />
+                                  <span style={{ fontSize: 'var(--text-sm)' }}>{step.assignedRole}</span>
                                 </div>
                               </div>
 
@@ -1563,9 +1535,8 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
               </div>
             </div>
             </>
-          )}
-        </div>
-      )}
+          </div>
+        )}
 
         {/* History Tab */}
         {activeTab === 'history' && (

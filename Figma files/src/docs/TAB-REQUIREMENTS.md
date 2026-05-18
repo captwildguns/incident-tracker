@@ -30,7 +30,7 @@ Personalized command center for Safety Coordinators and Supervisors. Provides at
 
 #### 1.1 My Incidents Section
 - **REQ-DASH-001:** Display the top 3 highest-priority incidents assigned to the logged-in user, sorted by priority then age.
-- **REQ-DASH-002:** Each incident card shall display: Incident ID, student name, priority badge (Critical/High/Medium/Low), incident type badge, bus/route, time reported, and reason summary.
+- **REQ-DASH-002:** Each incident card shall display: Incident ID, student name, priority badge (Critical/High/Medium/Low), incident type badge, bus/run, time reported, and reason summary.
 - **REQ-DASH-003:** Each incident card shall provide quick action buttons: View, Message Driver, and Mark In Progress.
 - **REQ-DASH-004:** "View All My Incidents" button shall navigate to the Incidents page filtered to the current user's assignments.
 - **REQ-DASH-005:** Clicking the incident card body shall navigate to the Incident Detail page.
@@ -79,7 +79,7 @@ Central hub for tracking, filtering, and managing all student transportation inc
 - **REQ-INC-011:** Each card shall show the current count and contextual description.
 
 #### 2.3 Search and Filtering
-- **REQ-INC-020:** Provide a search bar with autocomplete that searches across incident ID, student name, vehicle number, and route.
+- **REQ-INC-020:** Provide a search bar with autocomplete that searches across incident ID, student name, vehicle number, and run.
 - **REQ-INC-021:** Provide a Status filter dropdown supporting: Open, In Progress, Closed, and Cancelled.
 - **REQ-INC-022:** Provide a Type filter dropdown supporting all incident type categories.
 - **REQ-INC-023:** Provide an Assigned To filter dropdown with all staff members.
@@ -88,7 +88,7 @@ Central hub for tracking, filtering, and managing all student transportation inc
 - **REQ-INC-026:** Filters shall support pre-applied state when navigating from other pages (e.g., Dashboard stat cards).
 
 #### 2.4 Incidents Table
-- **REQ-INC-030:** Display a sortable table with columns: Incident ID, Date, Student, Type, Vehicle/Route, Severity, Status, Workflow Step, and Assigned To.
+- **REQ-INC-030:** Display a sortable table with columns: Incident ID, Date, Student, Type, Vehicle/Run, Severity, Status, Workflow Step, and Assigned To.
 - **REQ-INC-031:** All columns shall be sortable in ascending and descending order.
 - **REQ-INC-032:** Clicking a row shall navigate to the Incident Detail page.
 - **REQ-INC-033:** Incidents with active communications shall display a message icon linking to the Communications page.
@@ -100,7 +100,7 @@ Central hub for tracking, filtering, and managing all student transportation inc
 #### 2.6 New Incident Form
 - **REQ-INC-050:** The form shall support two incident categories: Student and Driver.
 - **REQ-INC-051:** Provide student/driver lookup with autocomplete, displaying name, ID, grade/employee ID, and school/assignment.
-- **REQ-INC-052:** Capture: Incident Type, Location, Address (with autocomplete), Vehicle Number, Run/Route, Severity (Low/Medium/High), and Description.
+- **REQ-INC-052:** Capture: Incident Type, Location, Address (with autocomplete), Vehicle Number, Run/Run, Severity (Low/Medium/High), and Description.
 - **REQ-INC-053:** Allow marking whether a witness was present and capturing the witness name.
 - **REQ-INC-054:** Allow marking whether a parent/guardian was notified.
 - **REQ-INC-055:** Capture immediate action taken as free-text.
@@ -154,7 +154,7 @@ Manage driver profiles, track certifications and performance, and monitor driver
 - **REQ-DRV-001:** Display 4 summary cards: Total Drivers, Active Drivers, Expiring Certifications, and Average Performance Score.
 
 #### 4.2 Search and Filtering
-- **REQ-DRV-010:** Provide a search bar that searches by driver name, employee ID, vehicle, or route.
+- **REQ-DRV-010:** Provide a search bar that searches by driver name, employee ID, vehicle, or run.
 - **REQ-DRV-011:** Provide a Status filter dropdown supporting: Active and Inactive.
 - **REQ-DRV-012:** Provide a Years of Service filter with ranges: 1-5, 6-10, 11-15, 16-20, and 20+.
 
@@ -168,7 +168,7 @@ Manage driver profiles, track certifications and performance, and monitor driver
 - **REQ-DRV-030:** Display full driver profile: name, employee ID, contact information, hire date, years of service, status.
 - **REQ-DRV-031:** Display license information: type, number, expiration date, endorsements.
 - **REQ-DRV-032:** Display certifications with status and expiration dates.
-- **REQ-DRV-033:** Display assigned vehicle and route.
+- **REQ-DRV-033:** Display assigned vehicle and run.
 - **REQ-DRV-034:** Display performance metrics: performance score, on-time percentage, safety rating.
 - **REQ-DRV-035:** Display medical exam expiry date with status indicators.
 
@@ -188,12 +188,12 @@ Fleet management view for tracking vehicle inventory, maintenance status, and in
 - **REQ-VEH-001:** Display 4 summary cards: Total Vehicles, Active Vehicles, Maintenance Alerts, and Average Incidents per Vehicle.
 
 #### 5.2 Search and Filtering
-- **REQ-VEH-010:** Provide a search bar that searches by vehicle ID, name, driver, route, make, or model.
+- **REQ-VEH-010:** Provide a search bar that searches by vehicle ID, name, driver, run, make, or model.
 - **REQ-VEH-011:** Provide a Status filter dropdown supporting: All, Active, Maintenance, and Inactive.
 - **REQ-VEH-012:** Provide a Maintenance filter dropdown supporting: All, Excellent, Good, Needs Attention, and In Repair.
 
 #### 5.3 Vehicles Table
-- **REQ-VEH-020:** Display a sortable table with columns: Vehicle ID, Details (make/model/year), Assigned Driver, Primary Route, Current Mileage, Incident Count, and Status.
+- **REQ-VEH-020:** Display a sortable table with columns: Vehicle ID, Details (make/model/year), Assigned Driver, Primary Run, Current Mileage, Incident Count, and Status.
 - **REQ-VEH-021:** All columns shall be sortable in ascending and descending order.
 - **REQ-VEH-022:** Clicking a vehicle row shall open a Vehicle Detail dialog.
 - **REQ-VEH-023:** Provide pagination controls supporting 10 and 25 rows per page.
@@ -201,7 +201,7 @@ Fleet management view for tracking vehicle inventory, maintenance status, and in
 #### 5.4 Vehicle Detail Dialog
 - **REQ-VEH-030:** Display full vehicle profile: ID, name, make, model, year, VIN, license plate.
 - **REQ-VEH-031:** Display operational data: capacity, current mileage, hourmeter readings.
-- **REQ-VEH-032:** Display assignment details: assigned driver, primary route, garage.
+- **REQ-VEH-032:** Display assignment details: assigned driver, primary run, garage.
 - **REQ-VEH-033:** Display maintenance status with condition indicators.
 - **REQ-VEH-034:** Display inspection dates and compliance information.
 - **REQ-VEH-035:** Display GPS hardware ID and AVL integration status.
@@ -265,7 +265,7 @@ Generate and view pre-configured reports for incident analytics, compliance trac
 - **REQ-RPT-021:** Show incident volume trends, type distribution, and severity breakdown.
 
 #### 7.4 Filters
-- **REQ-RPT-030:** Support filtering by date range, incident types, routes, severity levels, and status.
+- **REQ-RPT-030:** Support filtering by date range, incident types, runs, severity levels, and status.
 
 ---
 

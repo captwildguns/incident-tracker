@@ -26,7 +26,7 @@
 | Name + Employee ID | string + avatar | Yes |
 | Contact | string (phone) | Yes |
 | Assigned Vehicle | string | Yes |
-| Primary Route | string | Yes |
+| Primary Run | string | Yes |
 | Status | enum + badge | Yes |
 | Safety Rating | string + badge | Yes |
 

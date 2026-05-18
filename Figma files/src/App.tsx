@@ -248,6 +248,7 @@ export default function App() {
         currentPage={currentPage}
         onNavigate={navigateToPage}
         onNavigateToCommunication={navigateToCommunication}
+        onNavigateToIncidentDetail={navigateToIncidentDetail}
       >
         {renderPage()}
       </AppLayout>

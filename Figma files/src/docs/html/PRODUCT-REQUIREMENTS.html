@@ -435,7 +435,7 @@
                         <p><strong>Acceptance Criteria:</strong></p>
                         <ul>
                             <li>Display all students in table with photos</li>
-                            <li>Show student ID, name, grade, school, contact, route, incident count, last incident</li>
+                            <li>Show student ID, name, grade, school, contact, run, incident count, last incident</li>
                             <li>Photos display as circular avatars (40px)</li>
                             <li>"Active" badge appears for students with open incidents</li>
                             <li>Default sort by name (alphabetical)</li>
@@ -451,7 +451,7 @@
                             <li>Enter text in search bar</li>
                             <li>Select grade level filter</li>
                             <li>Select school filter</li>
-                            <li>Select route filter</li>
+                            <li>Select run filter</li>
                         </ul>
                     </div>
 
@@ -463,7 +463,7 @@
                         <ul>
                             <li>View profile information (name, ID, grade, school, DOB, age)</li>
                             <li>See contact information (parent phone, email, emergency contact)</li>
-                            <li>Review transportation details (route, bus, driver, pickup/dropoff)</li>
+                            <li>Review transportation details (run, bus, driver, pickup/dropoff)</li>
                             <li>View medical information (conditions, allergies, medications)</li>
                             <li>Review complete incident history in timeline</li>
                         </ul>
@@ -513,7 +513,7 @@
                         <p><strong>Acceptance Criteria:</strong></p>
                         <ul>
                             <li>Display all vehicles in table with photos</li>
-                            <li>Show vehicle ID, details, driver, route, status, maintenance, incidents, mileage</li>
+                            <li>Show vehicle ID, details, driver, run, status, maintenance, incidents, mileage</li>
                             <li>Vehicle photos display as circular avatars showing actual bus model</li>
                             <li>Maintenance condition shows icon and color coding</li>
                             <li>Incident count includes trend indicator (up/down arrow)</li>
@@ -534,7 +534,7 @@
                             <li>View basic information (ID, name, status, license, make, model, year, VIN)</li>
                             <li>See GPS & AVL configuration (GPS hardware ID, TYD AVL integration status)</li>
                             <li>Review garage assignments (default garage, mid-day garage)</li>
-                            <li>View assignment information (driver, routes, incident count)</li>
+                            <li>View assignment information (driver, runs, incident count)</li>
                             <li>Review maintenance & inspection data</li>
                         </ul>
                     </div>
@@ -587,7 +587,7 @@
                         <p><strong>Acceptance Criteria:</strong></p>
                         <ul>
                             <li>Display all drivers in table with photos</li>
-                            <li>Show driver ID, name (with photo), contact, assigned vehicle, route, status, safety rating</li>
+                            <li>Show driver ID, name (with photo), contact, assigned vehicle, run, status, safety rating</li>
                             <li>Driver photos display as circular avatars (40px)</li>
                             <li>Safety rating shows as numeric value out of 5.0</li>
                             <li>Color coding for safety rating based on performance</li>
@@ -624,7 +624,7 @@
 
                     <div class="user-story">
                         <h5>5.6 Manage Driver Assignments</h5>
-                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to view and update driver assignments so that I can optimize route coverage.</p>
+                        <p class="story-text">As a <strong>Transportation Director</strong>, I want to view and update driver assignments so that I can optimize run coverage.</p>
                     </div>
 
                     <div class="warning-box">
@@ -919,7 +919,7 @@
 
                     <div class="user-story">
                         <h5>9.1 Create New Incident Report</h5>
-                        <p class="story-text">As a <strong>Driver</strong>, I want to report an incident that occurred on my route so that safety coordinators are aware and can take appropriate action.</p>
+                        <p class="story-text">As a <strong>Driver</strong>, I want to report an incident that occurred on my run so that safety coordinators are aware and can take appropriate action.</p>
                         
                         <p><strong>Key Interactions:</strong></p>
                         <ul>
@@ -1042,7 +1042,7 @@
                         <p><strong>Acceptance Criteria:</strong></p>
                         <ul>
                             <li>Search box accessible from all pages</li>
-                            <li>Searches across: Incident IDs, student names, driver names, vehicle numbers, routes</li>
+                            <li>Searches across: Incident IDs, student names, driver names, vehicle numbers, runs</li>
                             <li>Results grouped by entity type</li>
                             <li>Shows top 5 results per category</li>
                             <li>Real-time search with debounce</li>
