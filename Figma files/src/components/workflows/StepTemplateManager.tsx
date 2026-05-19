@@ -66,13 +66,10 @@ const iconOptions = [
   { name: 'Archive', icon: Archive },
 ];
 
-const categoryOptions: Array<'Communication' | 'Documentation' | 'Investigation' | 'Intervention' | 'Administrative' | 'Follow-up'> = [
-  'Communication',
-  'Documentation',
-  'Investigation',
-  'Intervention',
-  'Administrative',
-  'Follow-up',
+const categoryOptions: Array<'Notification' | 'Review & Action' | 'Close Out'> = [
+  'Notification',
+  'Review & Action',
+  'Close Out',
 ];
 
 const roleOptions = [
@@ -101,7 +98,7 @@ export function StepTemplateManager({
   const [newTemplate, setNewTemplate] = useState({
     name: '',
     description: '',
-    category: 'Communication' as WorkflowStepTemplate['category'],
+    category: 'Notification' as WorkflowStepTemplate['category'],
     icon: 'Phone',
     defaultRole: 'Safety Coordinator',
     defaultDuration: '30 minutes',
@@ -122,7 +119,7 @@ export function StepTemplateManager({
   const [editForm, setEditForm] = useState({
     name: '',
     description: '',
-    category: 'Communication' as WorkflowStepTemplate['category'],
+    category: 'Notification' as WorkflowStepTemplate['category'],
     icon: 'Phone',
     defaultRole: 'Safety Coordinator',
     defaultDuration: '30 minutes',
@@ -179,17 +176,11 @@ export function StepTemplateManager({
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'Communication':
+      case 'Notification':
         return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'Documentation':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'Investigation':
+      case 'Review & Action':
         return 'bg-orange-100 text-orange-800 border-orange-200';
-      case 'Intervention':
-        return 'bg-red-100 text-red-800 border-red-200';
-      case 'Administrative':
-        return 'bg-gray-100 text-gray-800 border-gray-200';
-      case 'Follow-up':
+      case 'Close Out':
         return 'bg-green-100 text-green-800 border-green-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
@@ -246,7 +237,7 @@ export function StepTemplateManager({
     setNewTemplate({
       name: '',
       description: '',
-      category: 'Communication',
+      category: 'Notification',
       icon: 'Phone',
       defaultRole: 'Safety Coordinator',
       defaultDuration: '30 minutes',
