@@ -832,7 +832,7 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
             <h3 className="forge-typography--heading4" style={{ fontSize: '1rem' }}>Incidents by Vehicle</h3>
           </div>
           <div style={{ paddingTop: 0 }}>
-            <CustomHorizontalBarChart data={incidentsByVehicleData} />
+            <CustomHorizontalBarChart data={incidentsByVehicleData.slice(0, 6)} />
           </div>
         </ForgeCard>
 
