@@ -762,7 +762,7 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
       )}
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4" style={{ marginBottom: 'var(--forge-spacing-large)' }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" style={{ marginBottom: 'var(--forge-spacing-large)' }}>
         <ForgeCard
           style={{ boxShadow: 'var(--forge-elevation-1)', cursor: 'pointer' }}
           className="hover:shadow-lg transition-shadow"
