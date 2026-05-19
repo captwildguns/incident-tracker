@@ -81,10 +81,9 @@ export function HelpPage() {
                   to capture, manage, and communicate about incidents that occur during bus transportation.
                   Built on the <strong>Tyler Forge 3.x</strong> design system and integrated into Student Transportation
                   (powered by Traversa), the system helps safety coordinators, supervisors, and administrators track
-                  both <strong>student behavioral incidents</strong> and <strong>driver operational/safety incidents</strong> across
-                  10 categories and 47 specific types, manage multi-step workflows, communicate with drivers,
-                  monitor fleet vehicles, administer email templates and user roles, and generate reports for
-                  analysis and compliance.
+                  <strong> student behavioral incidents</strong> across 5 types, manage multi-step workflows,
+                  communicate with drivers, monitor fleet vehicles, administer email templates and user roles,
+                  and generate reports for analysis and compliance.
                 </p>
               </div>
 
@@ -141,7 +140,7 @@ export function HelpPage() {
                       <h4 className="m-0" style={{ fontFamily: 'var(--forge-font-family)' }}>Incident Management</h4>
                     </div>
                     <p className="text-muted-foreground" style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}>
-                      Create, edit, filter, and track 29 student and 18 driver incident types across 10 categories with visual bus seat selection, photo/document attachments, and full audit history.
+                      Create, edit, filter, and track student incidents across 5 types: Disruptive Behavior, Safety Violation, Physical Altercation, Property Damage, and Weapon / Prohibited Items. Includes visual bus seat selection, photo/document attachments, and full audit history.
                     </p>
                   </div>
 
@@ -211,7 +210,7 @@ export function HelpPage() {
                       <h4 className="m-0" style={{ fontFamily: 'var(--forge-font-family)' }}>Workflow System</h4>
                     </div>
                     <p className="text-muted-foreground" style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}>
-                      17 pre-configured workflows (WF-001 &ndash; WF-019 + WF-DEFAULT) with two-pass auto-assignment, manual step progression, role-based assignments, approval gates, configurable email notifications, and full audit trail.
+                      5 pre-configured workflows — one per incident type — with auto-assignment, manual step progression, role-based assignments, approval gates, configurable email notifications, and full audit trail.
                     </p>
                   </div>
 
@@ -221,7 +220,7 @@ export function HelpPage() {
                       <h4 className="m-0" style={{ fontFamily: 'var(--forge-font-family)' }}>Administration</h4>
                     </div>
                     <p className="text-muted-foreground" style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}>
-                      Manage user roles (7 types), email notification templates (10 system defaults with variable placeholders), and all 47 incident types with full CRUD operations.
+                      Manage user roles (7 types), 3 email notification templates with variable placeholders, and incident types with full CRUD operations.
                     </p>
                   </div>
                 </div>
@@ -254,36 +253,30 @@ export function HelpPage() {
                     <div>
                       <h4 className="mb-2">Summary Statistics (KPI Cards)</h4>
                       <ul className="ml-5 space-y-1">
-                        <li><strong>Total Incidents:</strong> All incidents for the selected time period</li>
-                        <li><strong>Active Incidents:</strong> Count currently in review or pending status</li>
-                        <li><strong>Students w/ Incidents:</strong> Dynamic count of distinct students who have at least one incident</li>
-                        <li><strong>Avg. Response Time:</strong> Average hours to first response (clickable for breakdown)</li>
+                        <li><strong>Critical Incidents:</strong> Count of incidents flagged as critical severity</li>
+                        <li><strong>Open Incidents:</strong> Incidents currently open and in progress</li>
+                        <li><strong>Students w/ Incidents:</strong> Distinct count of students with at least one incident</li>
+                        <li><strong>Incidents This Week:</strong> Total incidents logged in the current week</li>
                       </ul>
                     </div>
                     <div>
                       <h4 className="mb-2">My Incidents Section</h4>
                       <p className="mb-2">
-                        Shows only incidents assigned to you. Each triage card displays the incident ID, student/driver info, severity badge, current status, and age. Cards update their badge when you mark an incident as in-progress.
+                        Shows incidents assigned to you. Each card displays the student name, priority badge, incident type, vehicle, time, and a brief reason. Quick action buttons let you View the incident, send a Message, or Mark In Progress without leaving the dashboard.
                       </p>
                     </div>
                     <div>
-                      <h4 className="mb-2">Needs Attention Queue</h4>
-                      <p>
-                        Priority-sorted list of your oldest unresolved items requiring action, ensuring nothing falls through the cracks.
-                      </p>
-                    </div>
-                    <div>
-                      <h4 className="mb-2">Trend Charts</h4>
+                      <h4 className="mb-2">Charts</h4>
                       <ul className="ml-5 space-y-1">
-                        <li><strong>Incidents by Type:</strong> Bar chart showing distribution across categories</li>
-                        <li><strong>Monthly Trends:</strong> Line chart of incident volume over time</li>
-                        <li><strong>Severity Breakdown:</strong> Pie chart of high/medium/low proportions</li>
+                        <li><strong>Incidents by Type:</strong> Pie chart showing distribution across the 5 incident types</li>
+                        <li><strong>Incidents by Vehicle:</strong> Horizontal bar chart of the top 6 buses by incident count</li>
+                        <li><strong>Incidents by Day:</strong> Vertical bar chart showing incident volume by day of the week</li>
                       </ul>
                     </div>
                     <div>
                       <h4 className="mb-2">Active Incidents Table</h4>
                       <p>
-                        Table rows are optionally clickable, navigating directly to the incident detail page. Table headers use the Forge font family for consistency.
+                        Displays the most recent open incidents. Click any row to navigate directly to the incident detail page.
                       </p>
                     </div>
                   </AccordionContent>
@@ -303,28 +296,15 @@ export function HelpPage() {
                     </p>
 
                     <div>
-                      <h4 className="mb-2">Incident Categories &amp; Types</h4>
-                      <p className="mb-2">
-                        The system tracks <strong>47 incident types</strong> across two main categories:
-                      </p>
-                      <div className="mb-3">
-                        <p className="mb-1"><strong>Student Incidents across 5 types:</strong></p>
-                        <ul className="ml-5 space-y-1">
-                          <li><strong>Disruptive Behavior:</strong> Offensive language, excessive noise, harassment, bullying, refusal of driver directives, or any disruptive conduct on the bus</li>
-                          <li><strong>Safety Violation:</strong> Seat or seatbelt refusal, unsafe movement, window misuse, emergency exit misuse, wrong stop exit, or eating/drinking on the bus</li>
-                          <li><strong>Physical Altercation:</strong> Fighting, physical assault, throwing objects, or verbal/physical threats directed toward another student or any person on the bus</li>
-                          <li><strong>Property Damage:</strong> Vandalism or damage to the bus, equipment, or personal belongings requiring restitution</li>
-                          <li><strong>Weapon / Prohibited Items:</strong> Possession of a weapon, weapon-like object, tobacco, vaping devices, illegal substances, or any other prohibited materials on the bus</li>
-                        </ul>
-                      </div>
-                      <div>
-                        <p className="mb-1"><strong>Driver Incidents (18 types) across 3 categories:</strong></p>
-                        <ul className="ml-5 space-y-1">
-                          <li><strong>Driver Operational:</strong> Late Arrival, Run Deviation, Missed Stop, Policy Violation, Communication Issue</li>
-                          <li><strong>Driver Safety:</strong> Unsafe Driving, Distracted Driving, Equipment Safety Violation, Loading/Unloading Safety Issue</li>
-                          <li><strong>Vehicle Incident:</strong> Vehicle Accident, Vehicle Bumping/Light Contact, Collision with Object, Collision with Vehicle, Backing Incident, Mirror Strike, Property Damage, Mechanical Failure, Vehicle Breakdown</li>
-                        </ul>
-                      </div>
+                      <h4 className="mb-2">Incident Types</h4>
+                      <p className="mb-2">The system tracks <strong>5 student incident types:</strong></p>
+                      <ul className="ml-5 space-y-1">
+                        <li><strong>Disruptive Behavior:</strong> Offensive language, excessive noise, harassment, bullying, refusal of driver directives, or any disruptive conduct on the bus</li>
+                        <li><strong>Safety Violation:</strong> Seat or seatbelt refusal, unsafe movement, window misuse, emergency exit misuse, wrong stop exit, or eating/drinking on the bus</li>
+                        <li><strong>Physical Altercation:</strong> Fighting, physical assault, throwing objects, or verbal/physical threats directed toward another student or any person on the bus</li>
+                        <li><strong>Property Damage:</strong> Vandalism or damage to the bus, equipment, or personal belongings requiring restitution</li>
+                        <li><strong>Weapon / Prohibited Items:</strong> Possession of a weapon, weapon-like object, tobacco, vaping devices, illegal substances, or any other prohibited materials on the bus</li>
+                      </ul>
                     </div>
 
                     <div>
@@ -332,22 +312,21 @@ export function HelpPage() {
                       <ol className="ml-5 space-y-1">
                         <li>Click <strong>&ldquo;+ New Incident&rdquo;</strong> on the Incidents page</li>
                         <li>Select <strong>Student Incident</strong> or <strong>Driver Incident</strong> using the toggle</li>
-                        <li>Complete required fields (marked with red asterisks)</li>
-                        <li>For student incidents: select student, choose type/severity, use the visual bus diagram to mark the seat location, add description and witnesses</li>
-                        <li>For driver incidents: select driver, choose type/severity, enter description, add vehicle and route details</li>
+                        <li>Complete required fields</li>
+                        <li>For student incidents: select student, choose one of the 5 types and severity, use the visual bus diagram to mark the seat location, add description and witnesses</li>
+                        <li>For driver incidents: select driver, enter description, add vehicle and route details</li>
                         <li>Click <strong>&ldquo;Save Incident&rdquo;</strong> &mdash; the system automatically assigns the matching workflow</li>
                       </ol>
                     </div>
 
                     <div>
-                      <h4 className="mb-2">Filtering &amp; Pagination</h4>
+                      <h4 className="mb-2">Filtering &amp; Search</h4>
                       <ul className="ml-5 space-y-1">
-                        <li><strong>Category Toggle:</strong> Student Incidents, Driver Incidents, or All</li>
-                        <li><strong>Search:</strong> By ID, student name, driver name, or description</li>
-                        <li><strong>Status:</strong> Pending, In Review, Resolved, Closed</li>
-                        <li><strong>Severity:</strong> High, Medium, Low</li>
-                        <li><strong>Type:</strong> Any of the 47 incident types</li>
-                        <li><strong>Date Range:</strong> Filter by incident date</li>
+                        <li><strong>Search:</strong> By student name, vehicle, or run</li>
+                        <li><strong>Status:</strong> Open, In Progress, Closed, Cancelled</li>
+                        <li><strong>Severity:</strong> Critical, High, Medium, Low</li>
+                        <li><strong>Type:</strong> Any of the 5 incident types</li>
+                        <li><strong>Assigned To:</strong> Filter by coordinator</li>
                         <li><strong>Pagination:</strong> Navigate through large result sets with page controls</li>
                       </ul>
                     </div>
@@ -383,19 +362,14 @@ export function HelpPage() {
                   </AccordionTrigger>
                   <AccordionContent className="space-y-4 text-foreground" style={{ fontFamily: 'var(--forge-font-family)' }}>
                     <p>
-                      The Workflow System provides structured, multi-step incident response processes. <strong>17 pre-configured workflows</strong> cover all 47 incident types, with a default catch-all for any unmatched types.
+                      The Workflow System provides structured, multi-step incident response processes. <strong>5 pre-configured workflows</strong> cover all student incident types — one per type — and are automatically assigned when an incident is created.
                     </p>
 
                     <div>
                       <h4 className="mb-2">How Workflows Are Assigned</h4>
                       <p className="mb-2">
-                        When an incident is created, the system uses a <strong>two-pass matching strategy</strong>:
+                        When an incident is created, the system automatically matches the workflow to the incident type. Severity is used as a secondary signal but the primary match is always by incident type — ensuring every student incident gets the correct process immediately.
                       </p>
-                      <ol className="ml-5 space-y-1">
-                        <li><strong>Pass 1:</strong> Exact match on both incident type AND severity level</li>
-                        <li><strong>Pass 2:</strong> If no severity match, match on incident type alone (severity is informational)</li>
-                        <li><strong>Fallback:</strong> If no specific workflow matches, the <strong>General Incident Review</strong> (WF-DEFAULT) is assigned</li>
-                      </ol>
                     </div>
 
                     <div>
@@ -441,9 +415,9 @@ export function HelpPage() {
                         <li>Navigate to the <strong>Workflows</strong> page</li>
                         <li>Click <strong>&ldquo;+ Create New Workflow&rdquo;</strong></li>
                         <li>Enter workflow name and description</li>
-                        <li>Select a <strong>specific incident type</strong> from the full list (grouped by student vs. driver categories)</li>
-                        <li>Severity auto-populates from the incident type&rsquo;s default (single value, not multi-select)</li>
-                        <li>Add steps from the step library (condensed cards) or create custom steps</li>
+                        <li>Select a <strong>specific incident type</strong> from the 5 available types</li>
+                        <li>Choose a severity level</li>
+                        <li>Add steps from the step library (8 templates across 3 categories: Notification, Review &amp; Action, Close Out) or create custom steps</li>
                         <li>Configure each step&rsquo;s notifications and approvals using the gear icon</li>
                         <li>Save as draft or activate immediately</li>
                       </ol>
@@ -452,7 +426,7 @@ export function HelpPage() {
                     <div>
                       <h4 className="mb-2">Workflow Notifications &amp; Email Templates</h4>
                       <p className="mb-2">
-                        Each workflow step can be configured to send email notifications using one of the <strong>10 system email templates</strong>:
+                        Each workflow step can be configured to send email notifications using one of the <strong>3 system email templates</strong>:
                       </p>
                       <ul className="ml-5 space-y-1">
                         <li><strong>Urgent Action Required</strong> &mdash; High-priority alerts for critical steps</li>
@@ -679,24 +653,22 @@ export function HelpPage() {
 
                     <div>
                       <h4 className="mb-2">Email Templates Tab</h4>
-                      <p className="mb-2">Manage notification email templates used by workflow step notifications:</p>
+                      <p className="mb-2">Manage the 3 notification email templates used by workflow steps:</p>
                       <ul className="ml-5 space-y-1">
-                        <li><strong>3 System-Default Templates:</strong> Urgent Action Required, Approval Request, Parent/Guardian Notification</li>
+                        <li><strong>Templates:</strong> Urgent Action Required, Approval Request, Parent/Guardian Notification — displayed as expandable cards</li>
                         <li><strong>Variable Placeholders:</strong> Templates use {`{{variable_name}}`} syntax (e.g., {`{{recipient_name}}`}, {`{{incident_id}}`}, {`{{step_name}}`}) that are populated when emails are sent</li>
-                        <li><strong>Template Categories:</strong> Notification, Approval</li>
-                        <li><strong>Actions:</strong> Create new template, edit, duplicate, preview, delete</li>
+                        <li><strong>Actions per template:</strong> Edit, duplicate, preview, delete</li>
                         <li><strong>Workflow Integration:</strong> Templates selected here appear in the Configure Step &rarr; Notifications &rarr; Email Template dropdown when building workflows</li>
                       </ul>
                     </div>
 
                     <div>
                       <h4 className="mb-2">Incident Types Tab</h4>
-                      <p className="mb-2">Full CRUD management for all 47 incident types:</p>
+                      <p className="mb-2">View and manage incident types:</p>
                       <ul className="ml-5 space-y-1">
-                        <li><strong>KPI Summary Cards:</strong> Total Types, Student Types (29), Driver Types (18), Categories (10)</li>
-                        <li><strong>Type Table:</strong> ID, Label, Category, Description, Default Severity, Applies To</li>
+                        <li><strong>Type Table:</strong> Label, Category, Applies To, Default Severity, Linked Workflow, Actions</li>
                         <li><strong>Search &amp; Filter:</strong> Search by name/description; filter by category and &ldquo;Applies To&rdquo;</li>
-                        <li><strong>Add/Edit Dialog:</strong> Configure label, category, description, default severity, and <strong>Applies To</strong> (only &ldquo;Student&rdquo; or &ldquo;Driver&rdquo; &mdash; &ldquo;Both&rdquo; is not an option)</li>
+                        <li><strong>Add/Edit Dialog:</strong> Configure label, category, description, default severity, and <strong>Applies To</strong> (Student or Driver)</li>
                         <li><strong>Delete:</strong> Remove custom incident types (system defaults are protected)</li>
                       </ul>
                     </div>
@@ -719,22 +691,22 @@ export function HelpPage() {
                       <h4 className="mb-2">Notification Types</h4>
                       <ul className="ml-5 space-y-1">
                         <li><strong>New Incident Assigned:</strong> When an incident is assigned to you</li>
-                        <li><strong>Workflow Step Assigned:</strong> When a step is assigned to your role</li>
-                        <li><strong>Approval Requested:</strong> When your approval is needed</li>
-                        <li><strong>Step Completed:</strong> When previous step completes and yours is next</li>
-                        <li><strong>Incident Status Change:</strong> When incidents you track change status</li>
-                        <li><strong>High Severity Alert:</strong> Immediate notification for high-severity incidents</li>
-                        <li><strong>Overdue Items:</strong> Steps or communications past deadline</li>
-                        <li><strong>Driver Communication:</strong> Delivery confirmations and acknowledgments</li>
+                        <li><strong>Workflow Step Assigned:</strong> When a workflow step is assigned to your role</li>
+                        <li><strong>New Message:</strong> When a driver communication arrives</li>
+                        <li><strong>Severity Escalated:</strong> When an incident severity is raised</li>
+                        <li><strong>Workflow Step Completed:</strong> When a step you&rsquo;re tracking is finished</li>
+                        <li><strong>Incident Unassigned:</strong> When an incident you own becomes unassigned</li>
+                        <li><strong>Critical Incident Created:</strong> Immediate alert when a critical-severity incident is logged</li>
                       </ul>
                     </div>
                     <div>
                       <h4 className="mb-2">Accessing Notifications</h4>
                       <ul className="ml-5 space-y-1">
-                        <li>Click the bell icon in the top-right omnibar</li>
-                        <li>Red badge shows count of unread notifications</li>
+                        <li>Click the bell icon in the top-right header</li>
+                        <li>Badge color indicates highest priority: red for critical/high, orange for medium, gray for low</li>
+                        <li>Notifications are grouped by day (Today, Yesterday, or date)</li>
                         <li>Click any notification to navigate to the related record</li>
-                        <li>Mark individual items as read or use &ldquo;Mark All as Read&rdquo;</li>
+                        <li>Use &ldquo;Mark All as Read&rdquo; to clear the badge</li>
                       </ul>
                     </div>
                   </AccordionContent>
@@ -776,12 +748,9 @@ export function HelpPage() {
                   <AccordionTrigger style={{ fontFamily: 'var(--forge-font-family)' }}>What&rsquo;s the difference between &ldquo;Student&rdquo; and &ldquo;Driver&rdquo; incident types?</AccordionTrigger>
                   <AccordionContent className="text-foreground" style={{ fontFamily: 'var(--forge-font-family)' }}>
                     <ul className="ml-5 space-y-2">
-                      <li><strong>Student Incidents (5 types):</strong> Behavioral, safety, or other issues involving students during transportation. Types are: Disruptive Behavior, Safety Violation, Physical Altercation, Property Damage, and Weapon / Prohibited Items.</li>
-                      <li><strong>Driver Incidents (18 types):</strong> Operational, safety, and vehicle events involving bus drivers. Categories include Driver Operational, Driver Safety, and Vehicle Incident.</li>
+                      <li><strong>Student Incidents (5 types):</strong> Behavioral or safety issues involving students during transportation &mdash; Disruptive Behavior, Safety Violation, Physical Altercation, Property Damage, and Weapon / Prohibited Items. Each has a dedicated workflow automatically assigned on creation.</li>
+                      <li><strong>Driver Incidents:</strong> Operational or safety events involving bus drivers. These can be logged using the Driver Incident option in the new incident form.</li>
                     </ul>
-                    <p className="mt-2">
-                      Each incident type is assigned to exactly one category (&ldquo;Student&rdquo; or &ldquo;Driver&rdquo;). The &ldquo;Applies To&rdquo; field in Admin does not offer a &ldquo;Both&rdquo; option; each type belongs to one category.
-                    </p>
                   </AccordionContent>
                 </AccordionItem>
 
@@ -818,15 +787,7 @@ export function HelpPage() {
                 <AccordionItem value="faq-5">
                   <AccordionTrigger style={{ fontFamily: 'var(--forge-font-family)' }}>How are workflows assigned to incidents?</AccordionTrigger>
                   <AccordionContent className="text-foreground" style={{ fontFamily: 'var(--forge-font-family)' }}>
-                    <p className="mb-2">The system uses a <strong>two-pass matching strategy</strong>:</p>
-                    <ol className="ml-5 space-y-1">
-                      <li><strong>Pass 1 (exact):</strong> Match on both incident type AND severity level</li>
-                      <li><strong>Pass 2 (type-only):</strong> If no severity match, match on incident type alone</li>
-                      <li><strong>Fallback:</strong> If no specific workflow matches, &ldquo;General Incident Review&rdquo; (WF-DEFAULT) is assigned</li>
-                    </ol>
-                    <p className="mt-2">
-                      You can see the assigned workflow on the incident detail page&rsquo;s Overview and Workflow tabs.
-                    </p>
+                    <p className="mb-2">When an incident is created, the system matches the workflow to the <strong>incident type</strong>. Since there is one workflow per student incident type, every student incident is guaranteed a matching workflow automatically. You can see the assigned workflow on the incident detail page&rsquo;s Overview and Workflow tabs.</p>
                   </AccordionContent>
                 </AccordionItem>
 
@@ -866,10 +827,10 @@ export function HelpPage() {
                     <p className="mb-2">Yes! Navigate to the Workflows page and click &ldquo;+ Create New Workflow&rdquo;:</p>
                     <ol className="ml-5 space-y-1">
                       <li>Enter name and description</li>
-                      <li>Select a <strong>specific incident type</strong> from the full list of 47 types (grouped by student vs. driver)</li>
-                      <li>Choose a severity level (auto-populated from the selected incident type&rsquo;s default severity)</li>
-                      <li>Add steps from the step library (simplified cards with name, description, and add button) or create custom steps</li>
-                      <li>Configure email notifications per step (using Admin email templates)</li>
+                      <li>Select one of the 5 incident types</li>
+                      <li>Choose a severity level</li>
+                      <li>Add steps from the step library (8 templates: 3 Notification, 3 Review &amp; Action, 1 Close Out, 1 Fleet / Repair) or create custom steps</li>
+                      <li>Configure email notifications per step (using the 3 Admin email templates)</li>
                       <li>Save and activate</li>
                     </ol>
                     <p className="mt-2">
@@ -884,15 +845,14 @@ export function HelpPage() {
                   <AccordionContent className="text-foreground" style={{ fontFamily: 'var(--forge-font-family)' }}>
                     <p className="mb-2">Go to <strong>Admin &rarr; Email Templates</strong> tab:</p>
                     <ul className="ml-5 space-y-1">
-                      <li>The system includes <strong>10 pre-built templates</strong> covering all workflow notification scenarios</li>
-                      <li>Click any template to edit its subject, body, and variable placeholders</li>
+                      <li>The system includes <strong>3 templates</strong>: Urgent Action Required, Approval Request, and Parent/Guardian Notification</li>
+                      <li>Click any template card to expand and edit its subject, body, and variable placeholders</li>
                       <li>Use <strong>&ldquo;Duplicate&rdquo;</strong> to create a copy of an existing template for customization</li>
                       <li>Click <strong>&ldquo;Preview&rdquo;</strong> to see how the template looks with sample data</li>
-                      <li>Create entirely new templates with the &ldquo;+ Create Template&rdquo; button</li>
                       <li>Templates use {`{{variable_name}}`} placeholders (e.g., {`{{recipient_name}}`}, {`{{incident_id}}`}) that are automatically replaced when emails are sent</li>
                     </ul>
                     <p className="mt-2">
-                      Templates you create or edit here are immediately available in the Configure Step &rarr; Notifications &rarr; Email Template dropdown when building workflows.
+                      Templates are immediately available in the Configure Step &rarr; Notifications &rarr; Email Template dropdown when building workflows.
                     </p>
                   </AccordionContent>
                 </AccordionItem>
