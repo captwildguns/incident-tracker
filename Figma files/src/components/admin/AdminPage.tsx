@@ -757,41 +757,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
       {/* ══════════════════════════════════════════════════════════════════════ */}
       {activeSection === 'templates' && (
         <div>
-          {/* Toolbar */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--forge-spacing-medium)', flexWrap: 'wrap', gap: 'var(--forge-spacing-small)' }}>
-            <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', alignItems: 'center', flexWrap: 'wrap' }}>
-              <div style={{ position: 'relative' }}>
-                <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', zIndex: 1 }} />
-                {/* @ts-ignore */}
-                <forge-text-field>
-                  <input
-                    type="text"
-                    value={templateSearch}
-                    onChange={(e) => setTemplateSearch(e.target.value)}
-                    placeholder="Search templates..."
-                    style={{ paddingLeft: '2rem', width: '260px', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}
-                  />
-                {/* @ts-ignore */}
-                </forge-text-field>
-              </div>
-              <ForgeMultiSelect
-                selected={templateCategoryFilter}
-                onChange={setTemplateCategoryFilter}
-                options={[
-                  { value: 'Notification', label: 'Notification' },
-                  { value: 'Approval', label: 'Approval' },
-                ]}
-                placeholder="All Categories"
-                allLabel="All Categories"
-                width="200px"
-              />
-            </div>
-            <ForgeButton onClick={openAddTemplate} style={{ fontFamily: 'var(--forge-font-family)' }}>
-              <Plus size={16} style={{ marginRight: '6px' }} />
-              Create Template
-            </ForgeButton>
-          </div>
-
           {/* Template Cards */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-small)' }}>
             {filteredTemplates.length === 0 && (
