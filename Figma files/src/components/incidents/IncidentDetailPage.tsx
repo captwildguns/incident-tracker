@@ -534,16 +534,17 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                   </h3>
                 </div>
                 <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-                  {incident.involvedStudents && incident.involvedStudents.length > 1 && (
+                  {incident.involvedStudents?.length > 0 ? (
                     <div style={{ marginBottom: 'var(--forge-spacing-large)', paddingBottom: 'var(--forge-spacing-medium)', borderBottom: '1px solid var(--border)' }}>
                       <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '8px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         Involved Students ({incident.involvedStudents.length})
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-xsmall)' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                         {incident.involvedStudents.map((s: any, i: number) => (
-                          <div key={i} className="flex items-center gap-3" style={{ padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-small)', background: 'var(--forge-theme-surface-container-minimum)', borderRadius: '4px' }}>
-                            <div style={{ flex: 1, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)', fontWeight: 'var(--font-weight-medium)' }}>
-                              {s.name} <span style={{ color: 'var(--muted-foreground)', fontWeight: 400 }}>({s.studentId})</span>
+                          <div key={i} style={{ padding: '8px 12px', background: 'var(--forge-theme-surface-container-minimum)', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontWeight: 'var(--font-weight-medium)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)' }}>{s.name}</div>
+                              <div style={{ color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)' }}>{s.studentId}</div>
                             </div>
                             <forge-badge theme="default">{s.role}</forge-badge>
                             <forge-badge
@@ -552,13 +553,22 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                             >
                               {s.severity}
                             </forge-badge>
+                            {s.parentNotified !== undefined && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif', color: s.parentNotified ? '#16a34a' : '#94a3b8', flexShrink: 0 }}>
+                                {s.parentNotified
+                                  ? <CheckCircle2 size={13} />
+                                  : <Clock size={13} />
+                                }
+                                <span>{s.parentNotified ? 'Parent notified' : 'Parent pending'}</span>
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
                     </div>
-                  )}
+                  ) : null}
                   <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                    {(!incident.involvedStudents || incident.involvedStudents.length <= 1) && (
+                    {(!incident.involvedStudents || incident.involvedStudents.length === 0) && (
                       <>
                         <div>
                           <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
