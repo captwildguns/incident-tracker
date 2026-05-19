@@ -473,9 +473,7 @@ export function HelpPage() {
                       <ul className="ml-5 space-y-1">
                         <li><strong>Urgent Action Required</strong> &mdash; High-priority alerts for critical steps</li>
                         <li><strong>Approval Request</strong> &mdash; Sent to approvers when approval is needed</li>
-                        <li><strong>Custom Template</strong> &mdash; Blank customizable template</li>
                         <li><strong>Parent/Guardian Notification</strong> &mdash; Tailored for parent communication about student incidents</li>
-                        <li><strong>Escalation Notice</strong> &mdash; For repeated offenses and progressive discipline</li>
                       </ul>
                       <p className="mt-2" style={{ fontStyle: 'italic', fontSize: 'var(--text-sm)' }}>
                         Templates are managed in Administration &rarr; Email Templates. Each template supports {`{{variable}}`} placeholders that are populated at send time.
@@ -699,9 +697,9 @@ export function HelpPage() {
                       <h4 className="mb-2">Email Templates Tab</h4>
                       <p className="mb-2">Manage notification email templates used by workflow step notifications:</p>
                       <ul className="ml-5 space-y-1">
-                        <li><strong>5 System-Default Templates:</strong> Urgent Action Required, Approval Request, Custom Template, Parent/Guardian Notification, Escalation Notice</li>
+                        <li><strong>3 System-Default Templates:</strong> Urgent Action Required, Approval Request, Parent/Guardian Notification</li>
                         <li><strong>Variable Placeholders:</strong> Templates use {`{{variable_name}}`} syntax (e.g., {`{{recipient_name}}`}, {`{{incident_id}}`}, {`{{step_name}}`}) that are populated when emails are sent</li>
-                        <li><strong>Template Categories:</strong> Notification, Approval, Escalation, Completion, Custom</li>
+                        <li><strong>Template Categories:</strong> Notification, Approval</li>
                         <li><strong>Actions:</strong> Create new template, edit, duplicate, preview, delete</li>
                         <li><strong>Workflow Integration:</strong> Templates selected here appear in the Configure Step &rarr; Notifications &rarr; Email Template dropdown when building workflows</li>
                       </ul>

@@ -181,8 +181,6 @@ function categoryBadgeStyle(cat: string): React.CSSProperties {
   const map: Record<string, { bg: string; border: string; color: string }> = {
     Notification: { bg: 'rgba(74, 111, 165, 0.10)', border: 'var(--brand-blue-medium)', color: 'var(--brand-blue-dark)' },
     Approval: { bg: 'rgba(255, 193, 7, 0.12)', border: 'var(--secondary)', color: '#8B6914' },
-    Escalation: { bg: 'rgba(176, 0, 32, 0.08)', border: 'var(--destructive)', color: 'var(--destructive)' },
-    Custom: { bg: 'rgba(63, 81, 181, 0.10)', border: 'var(--primary)', color: 'var(--primary)' },
   };
   const c = map[cat] || { bg: 'var(--muted)', border: 'var(--border)', color: 'var(--foreground)' };
   return {
@@ -237,7 +235,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
     description: '',
     subject: '',
     body: '',
-    category: 'Custom',
+    category: 'Notification',
     variables: [],
   });
   const [expandedTemplateId, setExpandedTemplateId] = useState<string | null>(null);
@@ -782,8 +780,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                 options={[
                   { value: 'Notification', label: 'Notification' },
                   { value: 'Approval', label: 'Approval' },
-                  { value: 'Escalation', label: 'Escalation' },
-                  { value: 'Custom', label: 'Custom' },
                 ]}
                 placeholder="All Categories"
                 allLabel="All Categories"
@@ -1121,8 +1117,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                   >
                     <option value="Notification">Notification</option>
                     <option value="Approval">Approval</option>
-                    <option value="Escalation">Escalation</option>
-                    <option value="Custom">Custom</option>
                   </select>
                 {/* @ts-ignore */}
                 </forge-text-field>
