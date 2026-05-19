@@ -111,9 +111,9 @@ export const mockIncidents = [
     createdBy: 'Lisa Anderson',
     assignedTo: 'Sarah Williams',
     involvedStudents: [
-      { studentId: 'STU-9783', name: 'Kayla Bailey', role: 'Instigator', severity: 'High', parentNotified: true },
-      { studentId: 'STU-1956', name: 'Emma Rodriguez', role: 'Victim', severity: 'Medium', parentNotified: true },
-      { studentId: 'STU-5349', name: 'Alexis Morgan', role: 'Participant', severity: 'Medium', parentNotified: false },
+      { studentId: 'STU-9783', name: 'Kayla Bailey', role: 'Instigator', severity: 'High', parentNotified: true, description: 'Verbally mocked Emma\'s appearance and encouraged others to exclude her from the seating area. Incident reported by driver after observing repeated targeted comments.', actionTaken: 'Verbal warning issued. Parent contacted by phone. Written behavior contract discussed.', notes: 'Second harassment-related incident this semester. Escalation to administration recommended if behavior continues.' },
+      { studentId: 'STU-1956', name: 'Emma Rodriguez', role: 'Victim', severity: 'Medium', parentNotified: true, description: 'Targeted by Kayla\'s remarks about appearance and intentionally excluded from peer group seating. Visibly distressed when driver intervened.', actionTaken: 'Check-in conversation with driver. Offered seat change. Parent notified and expressed concern.', notes: 'Student requested seat reassignment for remainder of route.' },
+      { studentId: 'STU-5349', name: 'Alexis Morgan', role: 'Participant', severity: 'Medium', parentNotified: false, description: 'Joined in excluding Emma from the seating group; did not initiate but laughed and participated in exclusionary behavior.', actionTaken: 'Verbal warning issued. Parent contact pending.', notes: '' },
     ],
     documents: [
       {
@@ -164,8 +164,8 @@ export const mockIncidents = [
     createdBy: 'Jennifer Martinez',
     assignedTo: 'Sarah Williams',
     involvedStudents: [
-      { studentId: 'STU-7561', name: 'Brianna Cooper', role: 'Instigator', severity: 'High', parentNotified: true },
-      { studentId: 'STU-2016', name: 'Andrew Rogers', role: 'Victim', severity: 'Medium', parentNotified: true },
+      { studentId: 'STU-7561', name: 'Brianna Cooper', role: 'Instigator', severity: 'High', parentNotified: true, description: 'Struck Andrew Rogers across the shoulder with her backpack after an argument over seating. Action appeared intentional based on driver\'s account.', actionTaken: 'Removed from bus pending review. Parent contacted same day. 3-day bus suspension issued.', notes: 'No prior incidents on record. Parent cooperative during contact.' },
+      { studentId: 'STU-2016', name: 'Andrew Rogers', role: 'Victim', severity: 'Medium', parentNotified: true, description: 'Struck on shoulder and upper back by Brianna\'s backpack. Reported minor pain but declined nurse referral.', actionTaken: 'Parent contacted and informed of incident. Offered seat change on return route.', notes: 'Student indicated incident was unprovoked.' },
     ],
     photos: [
       {
@@ -344,9 +344,9 @@ export const mockIncidents = [
     createdBy: 'Robert Thompson',
     assignedTo: 'Sarah Williams',
     involvedStudents: [
-      { studentId: 'STU-1905', name: 'Hannah Morris', role: 'Instigator', severity: 'Medium', parentNotified: true },
-      { studentId: 'STU-3127', name: 'Samantha Reed', role: 'Victim', severity: 'Low', parentNotified: true },
-      { studentId: 'STU-6450', name: 'Dylan Bell', role: 'Bystander', severity: 'Low', parentNotified: false },
+      { studentId: 'STU-1905', name: 'Hannah Morris', role: 'Instigator', severity: 'Medium', parentNotified: true, description: 'Repeatedly made comments mocking Samantha\'s clothing and lunch items over multiple route days. Driver confirmed pattern of behavior.', actionTaken: 'Verbal warning issued. Parent notified by phone.', notes: 'Pattern of repeated behavior noted. Monitor closely.' },
+      { studentId: 'STU-3127', name: 'Samantha Reed', role: 'Victim', severity: 'Low', parentNotified: true, description: 'Recipient of repeated mocking comments from Hannah. Did not engage or retaliate. Appeared withdrawn during final incidents.', actionTaken: 'Counselor referral suggested. Parent notified.', notes: 'Parent expressed concern about ongoing nature; requested follow-up.' },
+      { studentId: 'STU-6450', name: 'Dylan Bell', role: 'Bystander', severity: 'Low', parentNotified: false, description: 'Present during multiple incidents but did not participate. Did not intervene or report.', actionTaken: 'No formal action taken. Bystander awareness discussion encouraged.', notes: '' },
     ],
   },
   {
@@ -364,8 +364,8 @@ export const mockIncidents = [
     createdBy: 'John Chen',
     assignedTo: 'Sarah Williams',
     involvedStudents: [
-      { studentId: 'STU-9894', name: 'Tyler Stewart', role: 'Instigator', severity: 'High', parentNotified: true },
-      { studentId: 'STU-1894', name: 'Justin Rivera', role: 'Victim', severity: 'Medium', parentNotified: true },
+      { studentId: 'STU-9894', name: 'Tyler Stewart', role: 'Instigator', severity: 'High', parentNotified: true, description: 'Grabbed Justin by the arm and pushed him into the seat during a verbal argument. Driver intervened immediately.', actionTaken: 'Removed from bus pending review. Parent contacted same day. 2-day bus suspension issued.', notes: 'Tyler stated argument was over a prior dispute from school. Administration notified.' },
+      { studentId: 'STU-1894', name: 'Justin Rivera', role: 'Victim', severity: 'Medium', parentNotified: true, description: 'Grabbed and pushed by Tyler during heated argument. Sustained minor bruising on arm. Did not retaliate.', actionTaken: 'Parent notified. Minor injury documented. Nurse evaluation recommended.', notes: 'Student requested seat moved away from Tyler on all future routes.' },
     ],
     photos: [
       {
