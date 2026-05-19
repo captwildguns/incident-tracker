@@ -308,15 +308,13 @@ export function HelpPage() {
                         The system tracks <strong>47 incident types</strong> across two main categories:
                       </p>
                       <div className="mb-3">
-                        <p className="mb-1"><strong>Student Incidents (29 types) across 7 categories:</strong></p>
+                        <p className="mb-1"><strong>Student Incidents across 5 types:</strong></p>
                         <ul className="ml-5 space-y-1">
-                          <li><strong>Behavioral:</strong> Offensive Language, Student Harassment, Taunting/Bullying, Unwanted Physical Contact, Inappropriate Affection, Disruptive Volume, Repeated Misconduct</li>
-                          <li><strong>Safety Violation:</strong> Seat Refusal, Seatbelt Refusal, Unsafe Movement, Window Misuse, Emergency Exit Misuse, Wrong Stop Exit, Eating/Drinking Violation</li>
-                          <li><strong>Aggression/Violence:</strong> Threatening Behavior, Physical Altercation, Physical Assault, Throwing Objects</li>
-                          <li><strong>Driver Defiance:</strong> Driver Defiance, Driver Harassment, Driver Threat, Verbal Abuse toward Driver</li>
-                          <li><strong>Property Damage:</strong> Vandalism</li>
-                          <li><strong>Prohibited Items:</strong> Tobacco/Vaping, Harmful Items, Weapon Possession, Illegal Substances, Inappropriate Material</li>
-                          <li><strong>Privacy Violation:</strong> Unauthorized Recording</li>
+                          <li><strong>Disruptive Behavior:</strong> Offensive language, excessive noise, harassment, bullying, refusal of driver directives, or any disruptive conduct on the bus</li>
+                          <li><strong>Safety Violation:</strong> Seat or seatbelt refusal, unsafe movement, window misuse, emergency exit misuse, wrong stop exit, or eating/drinking on the bus</li>
+                          <li><strong>Physical Altercation:</strong> Fighting, physical assault, throwing objects, or verbal/physical threats directed toward another student or any person on the bus</li>
+                          <li><strong>Property Damage:</strong> Vandalism or damage to the bus, equipment, or personal belongings requiring restitution</li>
+                          <li><strong>Weapon / Prohibited Items:</strong> Possession of a weapon, weapon-like object, tobacco, vaping devices, illegal substances, or any other prohibited materials on the bus</li>
                         </ul>
                       </div>
                       <div>
@@ -403,25 +401,11 @@ export function HelpPage() {
                     <div>
                       <h4 className="mb-2">Pre-Configured Workflows</h4>
                       <ul className="ml-5 space-y-1">
-                        <li><strong>WF-001 Physical Altercation Response</strong> &mdash; Physical Altercation, Physical Assault, Throwing Objects</li>
-                        <li><strong>WF-002 Bullying &amp; Harassment Investigation</strong> &mdash; Taunting/Bullying, Student Harassment, Unwanted Physical Contact</li>
-                        <li><strong>WF-003 Seat &amp; Seatbelt Compliance</strong> &mdash; Seat Refusal, Seatbelt Refusal, Unsafe Movement, Window Misuse</li>
-                        <li><strong>WF-004 Offensive Language Protocol</strong> &mdash; Offensive Language</li>
-                        <li><strong>WF-005 Disruptive Behavior &ndash; Minor</strong> &mdash; Disruptive Volume, Inappropriate Affection</li>
-                        <li><strong>WF-006 Property Damage Investigation</strong> &mdash; Vandalism</li>
-                        <li><strong>WF-007 Food &amp; Beverage Violation</strong> &mdash; Eating/Drinking Violation</li>
-                        <li><strong>WF-008 Threatening Behavior Protocol</strong> &mdash; Threatening Behavior</li>
-                        <li><strong>WF-009 Emergency Safety Response</strong> &mdash; Emergency Exit Misuse, Wrong Stop Exit</li>
-                        <li><strong>WF-010 Driver Defiance &amp; Harassment Protocol</strong> &mdash; Driver Defiance, Driver Harassment, Driver Threat, Verbal Abuse toward Driver</li>
-                        <li><strong>WF-011 Prohibited Items Response</strong> &mdash; Tobacco/Vaping, Harmful Items, Illegal Substances, Inappropriate Material, Weapon Possession</li>
-                        <li><strong>WF-012 Privacy Violation Response</strong> &mdash; Unauthorized Recording</li>
-                        <li><strong>WF-014 Repeated Misconduct Escalation</strong> &mdash; Repeated Misconduct</li>
-                        <li><strong>WF-015 Driver Operational Review</strong> &mdash; Late Arrival, Run Deviation, Missed Stop, Policy Violation, Communication Issue</li>
-                        <li><strong>WF-016 Driver Safety Investigation</strong> &mdash; Unsafe Driving, Distracted Driving, Equipment Safety Violation, Loading/Unloading Safety Issue</li>
-                        <li><strong>WF-017 Vehicle Accident Response</strong> &mdash; Vehicle Accident, Collision with Vehicle</li>
-                        <li><strong>WF-018 Minor Vehicle Incident</strong> &mdash; Vehicle Bumping, Collision with Object, Backing Incident, Mirror Strike, Property Damage</li>
-                        <li><strong>WF-019 Vehicle Mechanical Response</strong> &mdash; Mechanical Failure, Vehicle Breakdown</li>
-                        <li><strong>WF-DEFAULT General Incident Review</strong> &mdash; Catch-all for any unmatched types</li>
+                        <li><strong>WF-001 Physical Altercation Response</strong> &mdash; Physical Altercation</li>
+                        <li><strong>WF-003 Safety Violation Response</strong> &mdash; Safety Violation</li>
+                        <li><strong>WF-005 Disruptive Behavior Response</strong> &mdash; Disruptive Behavior</li>
+                        <li><strong>WF-006 Property Damage Investigation</strong> &mdash; Property Damage</li>
+                        <li><strong>WF-011 Prohibited Items Response</strong> &mdash; Weapon / Prohibited Items</li>
                       </ul>
                     </div>
 
@@ -792,7 +776,7 @@ export function HelpPage() {
                   <AccordionTrigger style={{ fontFamily: 'var(--forge-font-family)' }}>What&rsquo;s the difference between &ldquo;Student&rdquo; and &ldquo;Driver&rdquo; incident types?</AccordionTrigger>
                   <AccordionContent className="text-foreground" style={{ fontFamily: 'var(--forge-font-family)' }}>
                     <ul className="ml-5 space-y-2">
-                      <li><strong>Student Incidents (29 types):</strong> Behavioral, safety, or other issues involving students during transportation. Categories include Behavioral, Safety Violation, Aggression/Violence, Driver Defiance, Property Damage, Prohibited Items, and Privacy Violation.</li>
+                      <li><strong>Student Incidents (5 types):</strong> Behavioral, safety, or other issues involving students during transportation. Types are: Disruptive Behavior, Safety Violation, Physical Altercation, Property Damage, and Weapon / Prohibited Items.</li>
                       <li><strong>Driver Incidents (18 types):</strong> Operational, safety, and vehicle events involving bus drivers. Categories include Driver Operational, Driver Safety, and Vehicle Incident.</li>
                     </ul>
                     <p className="mt-2">

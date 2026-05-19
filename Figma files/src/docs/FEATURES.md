@@ -2584,20 +2584,13 @@ interface EmailTemplate {
 ```
 
 ### Coverage Matrix
-The 10 templates cover all notification scenarios across the 17 workflows:
+The 3 templates cover notification scenarios across the 5 student incident workflows:
 
 | Template | Workflow Scenarios |
 |----------|-------------------|
-| Default Notification | Minor incidents (WF-005, WF-007), parent notifications for safety compliance (WF-003) |
-| Urgent Action Required | Safety coordinator alerts (WF-001, WF-008, WF-009, WF-011, WF-017, WF-019) |
-| Approval Request | Disciplinary reviews (WF-001, WF-002, WF-004, WF-006, WF-008, WF-010, WF-011, WF-014, WF-016, WF-017) |
-| Status Update | Any incident status change |
-| Completion Notice | Workflow completion for any incident |
-| Custom Template | User-created custom notifications |
-| Parent/Guardian Notification | 11+ workflows with dedicated parent notification steps |
-| Escalation Notice | WF-003 conditional escalation, WF-014 repeated misconduct |
-| Follow-up Reminder | WF-002 30-day follow-up, behavior plan reviews |
-| Corrective Action / Retraining | WF-015, WF-016, WF-018 driver corrective action steps |
+| Urgent Action Required | Safety coordinator alerts (WF-001, WF-011) |
+| Approval Request | Disciplinary reviews (WF-001, WF-006, WF-011) |
+| Parent/Guardian Notification | Parent notifications for all incident types (WF-001, WF-003, WF-005, WF-006, WF-011) |
 
 ---
 
