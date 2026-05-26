@@ -547,40 +547,58 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                         {incident.involvedStudents.map((s: any, i: number) => {
                           const isSelected = selectedStudentId === s.studentId;
                           return (
-                            <div
-                              key={i}
-                              onClick={() => setSelectedStudentId(s.studentId)}
-                              style={{
-                                padding: '8px 12px',
-                                borderRadius: '4px',
-                                border: `1px solid ${isSelected ? 'var(--brand-blue-medium)' : 'var(--border)'}`,
-                                background: isSelected ? 'rgba(91, 139, 184, 0.08)' : 'var(--forge-theme-surface-container-minimum)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                                cursor: 'pointer',
-                              }}
-                            >
-                              <div style={{ flex: 1 }}>
-                                <div style={{ fontWeight: 'var(--font-weight-medium)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)' }}>{s.name}</div>
-                                <div style={{ color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)' }}>{s.studentId}</div>
-                              </div>
-                              {/* @ts-ignore */}
-                              <forge-badge theme="default">{s.role}</forge-badge>
-                              {/* @ts-ignore */}
-                              <forge-badge
-                                theme={s.severity === 'Critical' ? 'danger' : s.severity === 'High' ? 'error' : s.severity === 'Medium' ? 'warning' : 'info'}
-                                strong
+                            <div key={i} style={{ borderRadius: '4px', overflow: 'hidden', border: `1px solid ${isSelected ? 'var(--brand-blue-medium)' : 'var(--border)'}` }}>
+                              {/* Summary row */}
+                              <div
+                                onClick={() => setSelectedStudentId(s.studentId)}
+                                style={{
+                                  padding: '8px 12px',
+                                  background: isSelected ? 'rgba(91, 139, 184, 0.08)' : 'var(--forge-theme-surface-container-minimum)',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px',
+                                  cursor: 'pointer',
+                                }}
                               >
-                                {s.severity}
-                              </forge-badge>
-                              {s.parentNotified !== undefined && (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif', color: s.parentNotified ? '#16a34a' : '#94a3b8', flexShrink: 0 }}>
-                                  {s.parentNotified ? <CheckCircle2 size={13} /> : <Clock size={13} />}
-                                  <span>{s.parentNotified ? 'Parent notified' : 'Parent pending'}</span>
+                                <div style={{ flex: 1 }}>
+                                  <div style={{ fontWeight: 'var(--font-weight-medium)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)' }}>{s.name}</div>
+                                  <div style={{ color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)' }}>{s.studentId}</div>
+                                </div>
+                                {/* @ts-ignore */}
+                                <forge-badge theme="default">{s.role}</forge-badge>
+                                {/* @ts-ignore */}
+                                <forge-badge theme={s.severity === 'Critical' ? 'danger' : s.severity === 'High' ? 'error' : s.severity === 'Medium' ? 'warning' : 'info'} strong>{s.severity}</forge-badge>
+                                {s.parentNotified !== undefined && (
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif', color: s.parentNotified ? '#16a34a' : '#94a3b8', flexShrink: 0 }}>
+                                    {s.parentNotified ? <CheckCircle2 size={13} /> : <Clock size={13} />}
+                                    <span>{s.parentNotified ? 'Parent notified' : 'Parent pending'}</span>
+                                  </div>
+                                )}
+                                <ChevronRight size={14} style={{ color: isSelected ? 'var(--brand-blue-medium)' : 'var(--muted-foreground)', flexShrink: 0, transform: isSelected ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }} />
+                              </div>
+                              {/* Selected student details — expand below the row */}
+                              {isSelected && (
+                                <div style={{ padding: '12px 16px', background: '#fff', borderTop: `1px solid var(--brand-blue-light, var(--border))`, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                  {s.description && (
+                                    <div>
+                                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Description</div>
+                                      <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5 }}>{s.description}</div>
+                                    </div>
+                                  )}
+                                  {s.actionTaken && (
+                                    <div>
+                                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Action Taken</div>
+                                      <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5 }}>{s.actionTaken}</div>
+                                    </div>
+                                  )}
+                                  {s.notes && (
+                                    <div>
+                                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Notes</div>
+                                      <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5, color: 'var(--muted-foreground)', fontStyle: 'italic' }}>{s.notes}</div>
+                                    </div>
+                                  )}
                                 </div>
                               )}
-                              <ChevronRight size={14} style={{ color: isSelected ? 'var(--brand-blue-medium)' : 'var(--muted-foreground)', flexShrink: 0 }} />
                             </div>
                           );
                         })}
@@ -672,54 +690,8 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
               </ForgeCard>
             </div>
 
-            {/* Right Column: Selected Student Details + Workflow */}
+            {/* Right Column: Workflow */}
             <div>
-              {/* Selected student details card */}
-              {incident.involvedStudents?.length > 0 && (() => {
-                const sel = incident.involvedStudents.find((s: any) => s.studentId === selectedStudentId);
-                if (!sel) return null;
-                return (
-                  <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', marginBottom: 'var(--forge-spacing-medium)' }}>
-                    <div style={{ padding: 'var(--forge-spacing-medium)' }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 'var(--forge-spacing-small)' }}>
-                        <div>
-                          <div style={{ fontWeight: 'var(--font-weight-medium)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>{sel.name}</div>
-                          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif' }}>{sel.studentId}</div>
-                        </div>
-                        <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                          {/* @ts-ignore */}
-                          <forge-badge theme="default">{sel.role}</forge-badge>
-                          {/* @ts-ignore */}
-                          <forge-badge theme={sel.severity === 'Critical' ? 'danger' : sel.severity === 'High' ? 'error' : sel.severity === 'Medium' ? 'warning' : 'info'} strong>{sel.severity}</forge-badge>
-                        </div>
-                      </div>
-                      {sel.description && (
-                        <div style={{ marginBottom: 10 }}>
-                          <div style={{ fontSize: 'var(--text-xs)', textTransform: 'uppercase', color: 'var(--muted-foreground)', letterSpacing: '0.5px', marginBottom: 4, fontFamily: 'Roboto, sans-serif' }}>Description</div>
-                          <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5 }}>{sel.description}</div>
-                        </div>
-                      )}
-                      {sel.actionTaken && (
-                        <div style={{ marginBottom: 10 }}>
-                          <div style={{ fontSize: 'var(--text-xs)', textTransform: 'uppercase', color: 'var(--muted-foreground)', letterSpacing: '0.5px', marginBottom: 4, fontFamily: 'Roboto, sans-serif' }}>Action Taken</div>
-                          <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5 }}>{sel.actionTaken}</div>
-                        </div>
-                      )}
-                      {sel.notes && (
-                        <div style={{ marginBottom: 10 }}>
-                          <div style={{ fontSize: 'var(--text-xs)', textTransform: 'uppercase', color: 'var(--muted-foreground)', letterSpacing: '0.5px', marginBottom: 4, fontFamily: 'Roboto, sans-serif' }}>Notes</div>
-                          <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5, color: 'var(--muted-foreground)', fontStyle: 'italic' }}>{sel.notes}</div>
-                        </div>
-                      )}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 'var(--text-xs)', color: sel.parentNotified ? '#16a34a' : '#94a3b8', fontFamily: 'Roboto, sans-serif', paddingTop: 8, borderTop: '1px solid var(--border)' }}>
-                        {sel.parentNotified ? <CheckCircle2 size={13} /> : <Clock size={13} />}
-                        <span>{sel.parentNotified ? 'Parent notified' : 'Parent notification pending'}</span>
-                      </div>
-                    </div>
-                  </ForgeCard>
-                );
-              })()}
-
               {/* Workflow card */}
               {resolvedWorkflow && currentStepIndex >= 0 ? (
                 <CurrentStepActionCard
