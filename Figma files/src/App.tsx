@@ -127,11 +127,7 @@ export default function App() {
     let enrichedIncident = incident;
     
     if (!incident.workflow && incident.type && incident.severity) {
-      // Get default workflow for fallback
-      const defaultWorkflow = workflows.find(w => w.id === 'WF-DEFAULT');
-      
-      // Assign workflow based on incident type and severity
-      const workflow = assignWorkflowToIncident(incident.type, incident.severity) || defaultWorkflow;
+      const workflow = assignWorkflowToIncident(incident.type, incident.severity);
       
       if (workflow) {
         // For open incidents, set appropriate step statuses

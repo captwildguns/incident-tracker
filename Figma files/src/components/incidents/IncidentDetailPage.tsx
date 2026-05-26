@@ -9,7 +9,7 @@ import { Textarea } from '../ui/textarea';
 import { ArrowLeft, MessageSquare, Edit, Camera, FileText, GitBranch, Clock, CheckCircle2, AlertCircle, Users, ChevronRight, MessageCircle, Play, Pause, Send, FileDown, Paperclip, ChevronLeft } from 'lucide-react';
 
 import { EditIncidentDialog } from './EditIncidentDialog';
-import { Workflow, WorkflowStep, isWorkflowActive } from '../../data/workflows';
+import { Workflow, WorkflowStep, isWorkflowActive, assignWorkflowToIncident } from '../../data/workflows';
 import { toast } from 'sonner';
 import { getCommunicationsByIncidentId, type Message } from '../communications/CommunicationsPage';
 import { CurrentStepActionCard } from './CurrentStepActionCard';
@@ -27,24 +27,20 @@ interface IncidentDetailPageProps {
 export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunication, allIncidents = [], onNavigateToIncident }: IncidentDetailPageProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'workflow' | 'history' | 'photos' | 'documents' | 'communications'>('overview');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const resolvedWorkflow = incident.workflow ?? assignWorkflowToIncident(incident.type, incident.severity) ?? null;
   const [selectedStepIndex, setSelectedStepIndex] = useState<number | null>(null);
-  const [workflowSteps, setWorkflowSteps] = useState<WorkflowStep[]>(incident.workflow?.steps || []);
+  const [workflowSteps, setWorkflowSteps] = useState<WorkflowStep[]>(resolvedWorkflow?.steps || []);
   const [hoveredStepIndex, setHoveredStepIndex] = useState<number | null>(null);
   const [stepComments, setStepComments] = useState<{ [key: number]: string }>({});
   const [workflowActive, setWorkflowActive] = useState<boolean>(
-    incident.workflow ? isWorkflowActive(incident.workflow) : false
+    resolvedWorkflow ? isWorkflowActive(resolvedWorkflow) : false
   );
   const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
   const [approvalStepIndex, setApprovalStepIndex] = useState<number | null>(null);
   const [approvalComment, setApprovalComment] = useState('');
-  const [expandedStudents, setExpandedStudents] = useState<Set<string>>(new Set());
-  const toggleStudentExpand = (studentId: string) => {
-    setExpandedStudents(prev => {
-      const next = new Set(prev);
-      if (next.has(studentId)) next.delete(studentId); else next.add(studentId);
-      return next;
-    });
-  };
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(
+    incident.involvedStudents?.[0]?.studentId ?? null
+  );
 
   // Forge dialog refs
   const editDialogRef = useRef<HTMLElement>(null);
@@ -427,10 +423,10 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
         >
           <GitBranch className="inline h-4 w-4 mr-2" />
           Workflow
-          {incident.workflow && (
-            <Badge 
-              variant="outline" 
-              style={{ 
+          {resolvedWorkflow && (
+            <Badge
+              variant="outline"
+              style={{
                 marginLeft: 'var(--forge-spacing-xsmall)',
                 background: progressPercentage === 100 ? 'var(--brand-olive-light)' : 'rgba(91, 139, 184, 0.1)',
                 color: progressPercentage === 100 ? 'var(--brand-olive-dark)' : 'var(--brand-blue-dark)',
@@ -549,59 +545,42 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                         {incident.involvedStudents.map((s: any, i: number) => {
-                          const isExpanded = expandedStudents.has(s.studentId);
-                          const hasDetails = s.description || s.actionTaken || s.notes;
+                          const isSelected = selectedStudentId === s.studentId;
                           return (
-                            <div key={i} style={{ borderRadius: '4px', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                              {/* Summary row */}
-                              <div
-                                onClick={() => hasDetails && toggleStudentExpand(s.studentId)}
-                                style={{ padding: '8px 12px', background: 'var(--forge-theme-surface-container-minimum)', display: 'flex', alignItems: 'center', gap: '8px', cursor: hasDetails ? 'pointer' : 'default' }}
-                              >
-                                <div style={{ flex: 1 }}>
-                                  <div style={{ fontWeight: 'var(--font-weight-medium)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)' }}>{s.name}</div>
-                                  <div style={{ color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)' }}>{s.studentId}</div>
-                                </div>
-                                <forge-badge theme="default">{s.role}</forge-badge>
-                                <forge-badge
-                                  theme={s.severity === 'Critical' ? 'danger' : s.severity === 'High' ? 'error' : s.severity === 'Medium' ? 'warning' : 'info'}
-                                  strong
-                                >
-                                  {s.severity}
-                                </forge-badge>
-                                {s.parentNotified !== undefined && (
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif', color: s.parentNotified ? '#16a34a' : '#94a3b8', flexShrink: 0 }}>
-                                    {s.parentNotified ? <CheckCircle2 size={13} /> : <Clock size={13} />}
-                                    <span>{s.parentNotified ? 'Parent notified' : 'Parent pending'}</span>
-                                  </div>
-                                )}
-                                {hasDetails && (
-                                  <ChevronRight size={14} style={{ color: 'var(--muted-foreground)', flexShrink: 0, transform: isExpanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }} />
-                                )}
+                            <div
+                              key={i}
+                              onClick={() => setSelectedStudentId(s.studentId)}
+                              style={{
+                                padding: '8px 12px',
+                                borderRadius: '4px',
+                                border: `1px solid ${isSelected ? 'var(--brand-blue-medium)' : 'var(--border)'}`,
+                                background: isSelected ? 'rgba(91, 139, 184, 0.08)' : 'var(--forge-theme-surface-container-minimum)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                cursor: 'pointer',
+                              }}
+                            >
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontWeight: 'var(--font-weight-medium)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)' }}>{s.name}</div>
+                                <div style={{ color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)' }}>{s.studentId}</div>
                               </div>
-                              {/* Expanded details */}
-                              {isExpanded && hasDetails && (
-                                <div style={{ padding: '12px 16px', background: '#fff', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                                  {s.description && (
-                                    <div>
-                                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Description</div>
-                                      <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5 }}>{s.description}</div>
-                                    </div>
-                                  )}
-                                  {s.actionTaken && (
-                                    <div>
-                                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Action Taken</div>
-                                      <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5 }}>{s.actionTaken}</div>
-                                    </div>
-                                  )}
-                                  {s.notes && (
-                                    <div>
-                                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Notes</div>
-                                      <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5, color: 'var(--muted-foreground)', fontStyle: 'italic' }}>{s.notes}</div>
-                                    </div>
-                                  )}
+                              {/* @ts-ignore */}
+                              <forge-badge theme="default">{s.role}</forge-badge>
+                              {/* @ts-ignore */}
+                              <forge-badge
+                                theme={s.severity === 'Critical' ? 'danger' : s.severity === 'High' ? 'error' : s.severity === 'Medium' ? 'warning' : 'info'}
+                                strong
+                              >
+                                {s.severity}
+                              </forge-badge>
+                              {s.parentNotified !== undefined && (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif', color: s.parentNotified ? '#16a34a' : '#94a3b8', flexShrink: 0 }}>
+                                  {s.parentNotified ? <CheckCircle2 size={13} /> : <Clock size={13} />}
+                                  <span>{s.parentNotified ? 'Parent notified' : 'Parent pending'}</span>
                                 </div>
                               )}
+                              <ChevronRight size={14} style={{ color: isSelected ? 'var(--brand-blue-medium)' : 'var(--muted-foreground)', flexShrink: 0 }} />
                             </div>
                           );
                         })}
@@ -693,9 +672,56 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
               </ForgeCard>
             </div>
 
-            {/* Current Step Action Card - Right Column */}
+            {/* Right Column: Selected Student Details + Workflow */}
             <div>
-              {incident.workflow && currentStepIndex >= 0 ? (
+              {/* Selected student details card */}
+              {incident.involvedStudents?.length > 0 && (() => {
+                const sel = incident.involvedStudents.find((s: any) => s.studentId === selectedStudentId);
+                if (!sel) return null;
+                return (
+                  <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', marginBottom: 'var(--forge-spacing-medium)' }}>
+                    <div style={{ padding: 'var(--forge-spacing-medium)' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 'var(--forge-spacing-small)' }}>
+                        <div>
+                          <div style={{ fontWeight: 'var(--font-weight-medium)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>{sel.name}</div>
+                          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif' }}>{sel.studentId}</div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                          {/* @ts-ignore */}
+                          <forge-badge theme="default">{sel.role}</forge-badge>
+                          {/* @ts-ignore */}
+                          <forge-badge theme={sel.severity === 'Critical' ? 'danger' : sel.severity === 'High' ? 'error' : sel.severity === 'Medium' ? 'warning' : 'info'} strong>{sel.severity}</forge-badge>
+                        </div>
+                      </div>
+                      {sel.description && (
+                        <div style={{ marginBottom: 10 }}>
+                          <div style={{ fontSize: 'var(--text-xs)', textTransform: 'uppercase', color: 'var(--muted-foreground)', letterSpacing: '0.5px', marginBottom: 4, fontFamily: 'Roboto, sans-serif' }}>Description</div>
+                          <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5 }}>{sel.description}</div>
+                        </div>
+                      )}
+                      {sel.actionTaken && (
+                        <div style={{ marginBottom: 10 }}>
+                          <div style={{ fontSize: 'var(--text-xs)', textTransform: 'uppercase', color: 'var(--muted-foreground)', letterSpacing: '0.5px', marginBottom: 4, fontFamily: 'Roboto, sans-serif' }}>Action Taken</div>
+                          <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5 }}>{sel.actionTaken}</div>
+                        </div>
+                      )}
+                      {sel.notes && (
+                        <div style={{ marginBottom: 10 }}>
+                          <div style={{ fontSize: 'var(--text-xs)', textTransform: 'uppercase', color: 'var(--muted-foreground)', letterSpacing: '0.5px', marginBottom: 4, fontFamily: 'Roboto, sans-serif' }}>Notes</div>
+                          <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5, color: 'var(--muted-foreground)', fontStyle: 'italic' }}>{sel.notes}</div>
+                        </div>
+                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 'var(--text-xs)', color: sel.parentNotified ? '#16a34a' : '#94a3b8', fontFamily: 'Roboto, sans-serif', paddingTop: 8, borderTop: '1px solid var(--border)' }}>
+                        {sel.parentNotified ? <CheckCircle2 size={13} /> : <Clock size={13} />}
+                        <span>{sel.parentNotified ? 'Parent notified' : 'Parent notification pending'}</span>
+                      </div>
+                    </div>
+                  </ForgeCard>
+                );
+              })()}
+
+              {/* Workflow card */}
+              {resolvedWorkflow && currentStepIndex >= 0 ? (
                 <CurrentStepActionCard
                   step={workflowSteps[currentStepIndex]}
                   stepNumber={currentStepIndex + 1}
@@ -705,30 +731,23 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                   progressPercentage={progressPercentage}
                 />
               ) : (
-                incident.workflow && (
+                resolvedWorkflow && (
                   <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
                     <div style={{ padding: 'var(--forge-spacing-medium)' }}>
                       <h3 className="forge-typography--heading4" style={{ fontSize: 'var(--text-lg)', fontFamily: 'Roboto, sans-serif' }}>Workflow Progress</h3>
                     </div>
                     <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
                       <div style={{ textAlign: 'center', marginBottom: 'var(--forge-spacing-medium)' }}>
-                        <div 
-                          style={{ 
-                            width: '120px', 
-                            height: '120px', 
+                        <div
+                          style={{
+                            width: '120px',
+                            height: '120px',
                             margin: '0 auto',
                             position: 'relative',
                           }}
                         >
                           <svg width="120" height="120" style={{ transform: 'rotate(-90deg)' }}>
-                            <circle
-                              cx="60"
-                              cy="60"
-                              r="52"
-                              fill="none"
-                              stroke="var(--muted)"
-                              strokeWidth="8"
-                            />
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--muted)" strokeWidth="8" />
                             <circle
                               cx="60"
                               cy="60"
@@ -742,11 +761,11 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                               style={{ transition: 'stroke-dashoffset 0.5s ease' }}
                             />
                           </svg>
-                          <div 
-                            style={{ 
-                              position: 'absolute', 
-                              top: '50%', 
-                              left: '50%', 
+                          <div
+                            style={{
+                              position: 'absolute',
+                              top: '50%',
+                              left: '50%',
                               transform: 'translate(-50%, -50%)',
                               textAlign: 'center',
                             }}
@@ -760,13 +779,13 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                           </div>
                         </div>
                       </div>
-                      
+
                       <div style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-small)', fontFamily: 'Roboto, sans-serif', textAlign: 'center' }}>
-                        {incident.workflow.name}
+                        {resolvedWorkflow.name}
                       </div>
-                      
-                      <div style={{ 
-                        padding: 'var(--forge-spacing-medium)', 
+
+                      <div style={{
+                        padding: 'var(--forge-spacing-medium)',
                         background: 'rgba(159, 168, 112, 0.15)',
                         borderRadius: 'var(--forge-radius-small)',
                         marginBottom: 'var(--forge-spacing-medium)',
@@ -779,8 +798,8 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                           This workflow has been fully processed
                         </div>
                       </div>
-                      
-                      <ForgeButton 
+
+                      <ForgeButton
                         className="w-full"
                         variant="outline"
                         onClick={() => setActiveTab('workflow')}
@@ -798,7 +817,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
         )}
 
         {/* Workflow Tab */}
-        {activeTab === 'workflow' && incident.workflow && (
+        {activeTab === 'workflow' && resolvedWorkflow && (
           <div>
             <>
                 <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', marginBottom: 'var(--forge-spacing-large)' }}>
@@ -806,9 +825,9 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div>
-                          <h3 className="forge-typography--heading4">{incident.workflow.name}</h3>
+                          <h3 className="forge-typography--heading4">{resolvedWorkflow.name}</h3>
                           <p style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)', margin: 0, marginTop: '4px' }}>
-                            {incident.workflow.description}
+                            {resolvedWorkflow.description}
                           </p>
                         </div>
                   </div>
@@ -1655,7 +1674,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                   </div>
 
                   {/* Event 2 */}
-                  {incident.workflow && (
+                  {resolvedWorkflow && (
                     <div style={{ position: 'relative' }}>
                       <div 
                         style={{
@@ -1692,7 +1711,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-xsmall)', marginTop: '4px' }}>
                           <GitBranch className="h-3 w-3" style={{ color: 'var(--brand-blue-medium)' }} />
                           <span style={{ fontSize: 'var(--text-sm)' }}>
-                            {incident.workflow.name}
+                            {resolvedWorkflow.name}
                           </span>
                         </div>
                       </div>
@@ -1700,7 +1719,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                   )}
 
                   {/* Workflow Step Completions */}
-                  {incident.workflow && incident.workflow.steps
+                  {resolvedWorkflow && workflowSteps
                     .filter((step: any) => step.status === 'Completed' && step.completedDate && step.completedBy)
                     .sort((a: any, b: any) => a.order - b.order)
                     .map((step: any) => (
@@ -1787,7 +1806,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                         <Badge>{incident.status}</Badge>
                       </div>
                       <p style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)', margin: 0 }}>
-                        {incident.workflow 
+                        {resolvedWorkflow
                           ? `Workflow in progress: ${completedSteps} of ${totalSteps} steps completed`
                           : 'No workflow assigned'
                         }
