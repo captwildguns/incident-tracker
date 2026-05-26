@@ -83,7 +83,7 @@ export const mockStudents = [
       {
         id: 'INC-2024-0388',
         date: '2024-12-05',
-        type: 'Taunting/Bullying',
+        type: 'Disruptive Behavior',
         severity: 'High',
         status: 'In Progress',
         role: 'Victim',
@@ -126,7 +126,7 @@ export const mockStudents = [
       {
         id: 'INC-2025-0040',
         date: '2025-03-14',
-        type: 'Taunting/Bullying',
+        type: 'Disruptive Behavior',
         severity: 'High',
         status: 'Open',
         description: 'Verbal altercation with another student',
@@ -147,7 +147,7 @@ export const mockStudents = [
       {
         id: 'INC-2025-0039',
         date: '2025-03-14',
-        type: 'Vandalism',
+        type: 'Property Damage',
         severity: 'Low',
         status: 'Closed',
         description: 'Seat cushion torn - monetary restitution required',
@@ -294,7 +294,7 @@ export const mockStudents = [
       {
         id: 'INC-2025-0032',
         date: '2025-02-28',
-        type: 'Taunting/Bullying',
+        type: 'Disruptive Behavior',
         severity: 'High',
         status: 'Closed',
         description: 'Continued verbal harassment of younger student',
@@ -336,7 +336,7 @@ export const mockStudents = [
       {
         id: 'INC-2025-0030',
         date: '2025-02-24',
-        type: 'Vandalism',
+        type: 'Property Damage',
         severity: 'Medium',
         status: 'Closed',
         description: 'Writing on seat backs with permanent marker',
@@ -504,7 +504,7 @@ export const mockStudents = [
       {
         id: 'INC-2025-0022',
         date: '2025-02-03',
-        type: 'Taunting/Bullying',
+        type: 'Disruptive Behavior',
         severity: 'Medium',
         status: 'Closed',
         description: 'Name-calling and mocking another student',
@@ -525,7 +525,7 @@ export const mockStudents = [
       {
         id: 'INC-2025-0021',
         date: '2025-01-31',
-        type: 'Vandalism',
+        type: 'Property Damage',
         severity: 'Medium',
         status: 'Closed',
         description: 'Scratching window with metal object',
@@ -688,7 +688,7 @@ export const mockStudents = [
       {
         id: 'INC-2025-0045',
         date: '2025-03-15',
-        type: 'Taunting/Bullying',
+        type: 'Disruptive Behavior',
         severity: 'High',
         status: 'In Progress',
         description: 'Repeatedly teasing younger student about appearance',
@@ -709,7 +709,7 @@ export const mockStudents = [
       {
         id: 'INC-2025-0046',
         date: '2025-03-14',
-        type: 'Vandalism',
+        type: 'Property Damage',
         severity: 'Medium',
         status: 'In Progress',
         description: 'Carved initials into seat back',
@@ -864,7 +864,7 @@ export const mockStudents = [
       {
         id: 'INC-2025-0053',
         date: '2025-03-07',
-        type: 'Taunting/Bullying',
+        type: 'Disruptive Behavior',
         severity: 'Medium',
         status: 'In Progress',
         description: 'Making fun of another student repeatedly',
@@ -906,7 +906,7 @@ export const mockStudents = [
       {
         id: 'INC-2025-0055',
         date: '2025-03-05',
-        type: 'Vandalism',
+        type: 'Property Damage',
         severity: 'Medium',
         status: 'Open',
         description: 'Drew on window with marker',
@@ -1048,7 +1048,7 @@ export const mockStudents = [
       {
         id: 'INC-2025-0061',
         date: '2025-02-27',
-        type: 'Taunting/Bullying',
+        type: 'Disruptive Behavior',
         severity: 'High',
         status: 'Open',
         description: 'Spreading rumors and excluding another student',
@@ -1101,7 +1101,7 @@ export const mockStudents = [
       {
         id: 'INC-2025-0008',
         date: '2024-11-20',
-        type: 'Vandalism',
+        type: 'Property Damage',
         severity: 'Medium',
         status: 'Closed',
         description: 'Damage to bus seat',
