@@ -550,7 +550,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                             <div key={i} style={{ borderRadius: '4px', overflow: 'hidden', border: `1px solid ${isSelected ? 'var(--brand-blue-medium)' : 'var(--border)'}` }}>
                               {/* Summary row */}
                               <div
-                                onClick={() => setSelectedStudentId(s.studentId)}
+                                onClick={() => setSelectedStudentId(isSelected ? null : s.studentId)}
                                 style={{
                                   padding: '8px 12px',
                                   background: isSelected ? 'rgba(91, 139, 184, 0.08)' : 'var(--forge-theme-surface-container-minimum)',
