@@ -488,16 +488,45 @@ export const workflows: Workflow[] = [
 // WORKFLOW ASSIGNMENT & HELPER FUNCTIONS
 // ─────────────────────────────────────────────
 
+// Maps legacy/pre-consolidation incident type labels to the current 5 canonical types
+const LEGACY_TYPE_MAP: Record<string, string> = {
+  'Harassment / Bullying': 'Disruptive Behavior',
+  'Offensive Language': 'Disruptive Behavior',
+  'Excessive Noise / Disruption': 'Disruptive Behavior',
+  'Defiance of Driver': 'Disruptive Behavior',
+  'Unauthorized Device Usage': 'Disruptive Behavior',
+  'Seat / Seatbelt Refusal': 'Safety Violation',
+  'Unsafe Movement': 'Safety Violation',
+  'Window Misuse': 'Safety Violation',
+  'Emergency Exit Misuse': 'Safety Violation',
+  'Wrong Stop Exit': 'Safety Violation',
+  'Eating / Drinking': 'Safety Violation',
+  'Physical Assault': 'Physical Altercation',
+  'Fighting': 'Physical Altercation',
+  'Throwing Objects': 'Physical Altercation',
+  'Verbal Threats': 'Physical Altercation',
+  'Vandalism': 'Property Damage',
+  'Bus Damage': 'Property Damage',
+  'Personal Property Damage': 'Property Damage',
+  'Weapon Possession': 'Weapon / Prohibited Items',
+  'Prohibited Items': 'Weapon / Prohibited Items',
+  'Tobacco / Vaping': 'Weapon / Prohibited Items',
+  'Illegal Substances': 'Weapon / Prohibited Items',
+};
+
 // Function to automatically assign workflow based on incident type and severity
 export function assignWorkflowToIncident(incidentType: string, severity: string): Workflow | null {
   // Normalise severity to title-case so callers can pass "low", "Low", "LOW", etc.
   const normSeverity = severity.charAt(0).toUpperCase() + severity.slice(1).toLowerCase();
 
+  // Normalise legacy type names to the current canonical 5
+  const normType = LEGACY_TYPE_MAP[incidentType] ?? incidentType;
+
   // 1. Try exact match on type AND severity (ideal path)
   let matchingWorkflow = workflows.find(
     (workflow) =>
       workflow.isActive &&
-      workflow.incidentTypes.includes(incidentType) &&
+      workflow.incidentTypes.includes(normType) &&
       workflow.severityLevels.includes(normSeverity)
   );
 
@@ -507,7 +536,7 @@ export function assignWorkflowToIncident(incidentType: string, severity: string)
     matchingWorkflow = workflows.find(
       (workflow) =>
         workflow.isActive &&
-        workflow.incidentTypes.includes(incidentType)
+        workflow.incidentTypes.includes(normType)
     );
   }
 

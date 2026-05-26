@@ -788,6 +788,19 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
           </div>
         )}
 
+        {/* Workflow Tab — empty state when no workflow resolved */}
+        {activeTab === 'workflow' && !resolvedWorkflow && (
+          <div style={{ textAlign: 'center', padding: 'var(--forge-spacing-xxlarge)', color: 'var(--muted-foreground)' }}>
+            <GitBranch className="h-12 w-12 mx-auto mb-4 opacity-40" />
+            <p style={{ fontSize: 'var(--text-base)', fontFamily: 'Roboto, sans-serif', marginBottom: 8 }}>
+              No workflow has been assigned to this incident.
+            </p>
+            <p style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif' }}>
+              Incident type <strong>{incident.type}</strong> does not match a configured workflow.
+            </p>
+          </div>
+        )}
+
         {/* Workflow Tab */}
         {activeTab === 'workflow' && resolvedWorkflow && (
           <div>
