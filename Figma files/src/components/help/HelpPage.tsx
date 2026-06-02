@@ -562,28 +562,15 @@ export function HelpPage() {
                   </AccordionTrigger>
                   <AccordionContent className="space-y-4 text-foreground" style={{ fontFamily: 'var(--forge-font-family)' }}>
                     <p>
-                      The Reports page provides quick pre-configured reports and a custom report builder.
+                      The Reports page provides four pre-configured quick reports. Click <strong>View Report</strong> on any card to preview the data, then download it.
                     </p>
                     <div>
                       <h4 className="mb-2">Quick Reports</h4>
-                      <p className="mb-2">Four pre-configured report cards ready to preview and download:</p>
                       <ul className="ml-5 space-y-1">
                         <li><strong>Monthly Summary</strong> — Incident statistics and trends for the current month</li>
                         <li><strong>Yearly Summary</strong> — Annual incident totals broken down by school term (Fall, Spring, Summer)</li>
                         <li><strong>High &amp; Critical Incidents</strong> — All High and Critical severity incidents requiring immediate attention</li>
                         <li><strong>Open Incidents Report</strong> — All currently open incidents requiring action</li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="mb-2">Custom Report Builder</h4>
-                      <p className="mb-2">Build a filtered incidents report using these controls:</p>
-                      <ul className="ml-5 space-y-1">
-                        <li><strong>Date Range</strong> — Filter by time period</li>
-                        <li><strong>Incident Types</strong> — Select one or more of the 5 types</li>
-                        <li><strong>Run</strong> — Filter by vehicle run</li>
-                        <li><strong>Severity</strong> — Critical, High, Medium, Low</li>
-                        <li><strong>Status</strong> — Open, In Progress, Closed, etc.</li>
-                        <li><strong>Format</strong> — Export as PDF, Excel, or CSV</li>
                       </ul>
                     </div>
                   </AccordionContent>
