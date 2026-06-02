@@ -9,8 +9,10 @@ import {
   defineListComponent,
   defineListItemComponent,
   defineDividerComponent,
+  defineMenuComponent,
   IconRegistry,
 } from '@tylertech/forge';
+import { ForgeMenu } from '@tylertech/forge-react';
 import {
   tylIconMenu,
   tylIconHome,
@@ -77,6 +79,7 @@ defineAvatarComponent();
 defineListComponent();
 defineListItemComponent();
 defineDividerComponent();
+defineMenuComponent();
 
 // Register Tyler icons
 IconRegistry.define([
@@ -103,6 +106,7 @@ interface AppLayoutProps {
   onNavigate: (page: string) => void;
   onNavigateToCommunication?: (incidentId: string, incidentData?: any) => void;
   onNavigateToIncidentDetail?: (incident: any) => void;
+  onLogout?: () => void;
 }
 
 const navItems = [
@@ -117,7 +121,7 @@ const navItems = [
   { id: 'admin', label: 'Admin', forgeIcon: 'settings' },
 ];
 
-export function AppLayout({ children, currentPage, onNavigate, onNavigateToCommunication, onNavigateToIncidentDetail }: AppLayoutProps) {
+export function AppLayout({ children, currentPage, onNavigate, onNavigateToCommunication, onNavigateToIncidentDetail, onLogout }: AppLayoutProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const drawerRef = useRef<HTMLElement>(null);
 
@@ -241,7 +245,17 @@ export function AppLayout({ children, currentPage, onNavigate, onNavigateToCommu
             >
               <forge-icon name="help_outline"></forge-icon>
             </forge-icon-button>
-            <forge-avatar text="SW" style={{ '--forge-avatar-background': 'var(--brand-olive-dark)', '--forge-avatar-color': 'white', '--forge-avatar-size': '32px' } as any}></forge-avatar>
+            <ForgeMenu
+              placement="bottom-end"
+              options={[{ label: 'Log Out', value: 'logout', icon: 'exit_to_app' }]}
+              on-forge-menu-select={(evt: any) => {
+                if (evt.detail?.value === 'logout') onLogout?.();
+              }}
+            >
+              <button style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }} aria-label="User menu">
+                <forge-avatar text="SW" style={{ '--forge-avatar-background': 'var(--brand-olive-dark)', '--forge-avatar-color': 'white', '--forge-avatar-size': '32px' } as any}></forge-avatar>
+              </button>
+            </ForgeMenu>
           </div>
         </forge-app-bar>
       </div>

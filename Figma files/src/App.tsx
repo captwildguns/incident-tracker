@@ -234,6 +234,11 @@ export default function App() {
     }
   };
 
+  const handleLogout = () => {
+    sessionStorage.removeItem('site-auth');
+    setAuthenticated(false);
+  };
+
   if (!authenticated) {
     return <PasswordGate onUnlock={() => setAuthenticated(true)} />;
   }
@@ -245,6 +250,7 @@ export default function App() {
         onNavigate={navigateToPage}
         onNavigateToCommunication={navigateToCommunication}
         onNavigateToIncidentDetail={navigateToIncidentDetail}
+        onLogout={handleLogout}
       >
         {renderPage()}
       </AppLayout>
