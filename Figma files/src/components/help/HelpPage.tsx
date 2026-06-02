@@ -90,10 +90,9 @@ export function HelpPage() {
                 <ul className="space-y-2 ml-5 text-foreground" style={{ fontFamily: 'var(--forge-font-family)' }}>
                   <li><strong>Hamburger Menu:</strong> Click the menu icon in the top-left to open the slide-out navigation panel with your profile and all application areas</li>
                   <li><strong>Top Navigation Tabs:</strong> Quick access to Dashboard, Incidents, Students, Drivers, Vehicles, Communications, Reports, Workflows, and Admin</li>
-                  <li><strong>Help Icon (?):</strong> Located in the top-right omnibar, click to access this Help &amp; Support page</li>
-                  <li><strong>Notifications Bell:</strong> View system notifications and alerts requiring your attention</li>
-                  <li><strong>Profile Menu:</strong> Click your name/avatar in the top-right to access settings and sign out</li>
-                  <li><strong>Global Search:</strong> Search bar in the top-right for quick access to students, incidents, and data</li>
+                  <li><strong>Help Icon (?):</strong> Located in the top-right app bar, click to access this Help &amp; Support page</li>
+                  <li><strong>Profile Menu:</strong> Click the avatar in the top-right to log out</li>
+                  <li><strong>Global Search:</strong> Search bar in the top-center of the app bar for quick access to incidents, students, drivers, vehicles, and communications</li>
                 </ul>
               </div>
 
@@ -293,13 +292,12 @@ export function HelpPage() {
 
                     <div>
                       <h4 className="mb-2">Creating a New Incident</h4>
+                      <p className="mb-2">Click <strong>&ldquo;+ New Incident&rdquo;</strong> on the Incidents page to open the 4-step wizard:</p>
                       <ol className="ml-5 space-y-1">
-                        <li>Click <strong>&ldquo;+ New Incident&rdquo;</strong> on the Incidents page</li>
-                        <li>Select <strong>Student Incident</strong> or <strong>Driver Incident</strong> using the toggle</li>
-                        <li>Complete required fields</li>
-                        <li>For student incidents: select student, choose one of the 5 types and severity, use the visual bus diagram to mark the seat location, add description and witnesses</li>
-                        <li>For driver incidents: select driver, enter description, add vehicle and route details</li>
-                        <li>Click <strong>&ldquo;Save Incident&rdquo;</strong> &mdash; the system automatically assigns the matching workflow</li>
+                        <li><strong>Step 1 — Involved Students:</strong> Search for and add all students involved. A linked incident record will be created for each student.</li>
+                        <li><strong>Step 2 — Incident Details:</strong> Enter the shared details that apply to all students — incident type (one of 5), severity, description, location, and any supporting documents.</li>
+                        <li><strong>Step 3 — Per-Student Details:</strong> Customize details for each individual student, including their role, specific actions taken, and notes.</li>
+                        <li><strong>Step 4 — Review &amp; Submit:</strong> Review all entered information, then click <strong>&ldquo;Submit&rdquo;</strong> to create the incident records. The system automatically assigns the matching workflow based on incident type.</li>
                       </ol>
                     </div>
 
@@ -319,10 +317,10 @@ export function HelpPage() {
                       <h4 className="mb-2">Incident Detail Page</h4>
                       <p className="mb-2">Click any incident row or ID to open the full detail page with these tabs:</p>
                       <ul className="ml-5 space-y-1">
-                        <li><strong>Overview:</strong> Complete incident info, student/driver profile, severity, assigned coordinator, and workflow status widget</li>
+                        <li><strong>Overview:</strong> Complete incident info, student profile, severity, assigned coordinator, and workflow status widget</li>
                         <li><strong>Workflow:</strong> Step-by-step progress with &ldquo;Complete this step&rdquo; buttons, role assignments, approval gates, and timestamps</li>
                         <li><strong>Communications:</strong> All messages related to this incident</li>
-                        <li><strong>Documents &amp; Photos:</strong> Attached evidence, photos, and documentation</li>
+                        <li><strong>Documents:</strong> Attached evidence and documentation</li>
                         <li><strong>History:</strong> Full audit trail with chronological timeline of all activities</li>
                       </ul>
                     </div>
@@ -729,11 +727,15 @@ export function HelpPage() {
                 </AccordionItem>
 
                 <AccordionItem value="faq-2">
-                  <AccordionTrigger style={{ fontFamily: 'var(--forge-font-family)' }}>What&rsquo;s the difference between &ldquo;Student&rdquo; and &ldquo;Driver&rdquo; incident types?</AccordionTrigger>
+                  <AccordionTrigger style={{ fontFamily: 'var(--forge-font-family)' }}>What are the 5 incident types?</AccordionTrigger>
                   <AccordionContent className="text-foreground" style={{ fontFamily: 'var(--forge-font-family)' }}>
+                    <p className="mb-2">The system tracks 5 student behavioral incident types. Each type has a dedicated workflow automatically assigned on creation:</p>
                     <ul className="ml-5 space-y-2">
-                      <li><strong>Student Incidents (5 types):</strong> Behavioral or safety issues involving students during transportation &mdash; Disruptive Behavior, Safety Violation, Physical Altercation, Property Damage, and Weapon / Prohibited Items. Each has a dedicated workflow automatically assigned on creation.</li>
-                      <li><strong>Driver Incidents:</strong> Operational or safety events involving bus drivers. These can be logged using the Driver Incident option in the new incident form.</li>
+                      <li><strong>Disruptive Behavior:</strong> Offensive language, excessive noise, harassment, bullying, refusal of driver directives, or any disruptive conduct on the bus</li>
+                      <li><strong>Safety Violation:</strong> Seat or seatbelt refusal, unsafe movement, window misuse, emergency exit misuse, wrong stop exit, or eating/drinking on the bus</li>
+                      <li><strong>Physical Altercation:</strong> Fighting, hitting, pushing, or any physical contact between students or toward the driver</li>
+                      <li><strong>Property Damage:</strong> Vandalism or damage to the bus, another student&rsquo;s belongings, or district property</li>
+                      <li><strong>Weapon / Prohibited Items:</strong> Possession of weapons, dangerous objects, or prohibited substances on the bus</li>
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
