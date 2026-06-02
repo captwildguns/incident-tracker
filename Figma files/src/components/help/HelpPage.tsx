@@ -810,7 +810,7 @@ export function HelpPage() {
                       <li>Set the label, category, description, and default severity</li>
                       <li>Edit existing types by clicking the edit icon on any row</li>
                       <li>Delete custom types (system defaults are protected)</li>
-                      <li>Use search and category/applicableTo filters to find specific types</li>
+                      <li>Use the search field or category filter to find specific types</li>
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
