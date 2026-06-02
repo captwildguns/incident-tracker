@@ -21,12 +21,11 @@ const currentUser = {
 };
 
 const incidentTypeData = [
-  { name: 'Behavioral', value: 35, fill: '#4A6FA5' },
+  { name: 'Disruptive Behavior', value: 47, fill: '#4A6FA5' },
   { name: 'Safety Violation', value: 22, fill: '#5B8BB8' },
-  { name: 'Aggression/Violence', value: 18, fill: '#8B9264' },
-  { name: 'Driver Non-Compliance', value: 12, fill: '#9FA870' },
+  { name: 'Physical Altercation', value: 18, fill: '#8B9264' },
   { name: 'Property Damage', value: 8, fill: '#6B9BC5' },
-  { name: 'Prohibited Items', value: 5, fill: '#7B8458' },
+  { name: 'Weapon / Prohibited Items', value: 5, fill: '#7B8458' },
 ];
 
 const incidentsByVehicleData = [
@@ -269,7 +268,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0061',
     student: 'Kayla Bailey',
-    type: 'Harassment / Bullying',
+    type: 'Disruptive Behavior',
     bus: 'Bus 8',
     reason: 'High severity - bullying behavior requires intervention',
     priority: 'high',
@@ -281,7 +280,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0045',
     student: 'Grace Phillips',
-    type: 'Harassment / Bullying',
+    type: 'Disruptive Behavior',
     bus: 'Bus 9',
     reason: 'High severity - ongoing bullying of younger student',
     priority: 'high',
@@ -341,7 +340,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0053',
     student: 'Hannah Morris',
-    type: 'Harassment / Bullying',
+    type: 'Disruptive Behavior',
     bus: 'Bus 14',
     reason: 'In Progress - awaiting parent meeting follow-up',
     priority: 'medium',
@@ -365,7 +364,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0035',
     student: 'James Patterson',
-    type: 'Driver Non-Compliance',
+    type: 'Disruptive Behavior',
     bus: 'Bus 12',
     reason: 'Overdue - incident reported 24+ hours ago',
     priority: 'medium',
@@ -389,7 +388,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0038',
     student: 'Tyler Washington',
-    type: 'Weapon Possession',
+    type: 'Weapon / Prohibited Items',
     bus: 'Bus 22',
     reason: 'Critical incident - no action taken in 4 hours',
     priority: 'critical',
@@ -401,7 +400,7 @@ const needsAttention = [
   {
     id: 'INC-2025-0040',
     student: 'Emma Rodriguez',
-    type: 'Harassment / Bullying',
+    type: 'Disruptive Behavior',
     bus: 'Bus 15',
     reason: 'Driver awaiting response - 2 unread messages',
     priority: 'high',
@@ -451,7 +450,7 @@ const unansweredCommunications = [
     incidentId: 'INC-2025-0040',
     student: 'Emma Rodriguez',
     driver: 'David Park',
-    type: 'Harassment / Bullying',
+    type: 'Disruptive Behavior',
     lastMessage: 'Yes, I separated them and had Emma sit closer to the front. She stopped the verbal taunting but gave dirty looks. I think this needs parent involvement.',
     timeSent: 'Yesterday 4:30 PM',
     severity: 'High',

@@ -77,13 +77,7 @@ export function HelpPage() {
               <div>
                 <h3 className="mb-3" style={{ fontFamily: 'var(--forge-font-family)' }}>Overview</h3>
                 <p className="text-foreground leading-relaxed" style={{ fontFamily: 'var(--forge-font-family)' }}>
-                  The Incident Tracker is a comprehensive application designed for Student Transportation departments
-                  to capture, manage, and communicate about incidents that occur during bus transportation.
-                  Built on the <strong>Tyler Forge 3.x</strong> design system and integrated into Student Transportation
-                  (powered by Traversa), the system helps safety coordinators, supervisors, and administrators track
-                  <strong> student behavioral incidents</strong> across 5 types, manage multi-step workflows,
-                  communicate with drivers, monitor fleet vehicles, administer email templates and user roles,
-                  and generate reports for analysis and compliance.
+                  The Incident Tracker is an application designed for Student Transportation departments to capture, manage, and communicate about incidents that occur during daily operations. The Tyler Tech Incident Tracker is integrated into Student Transportation to leverage student, vehicle, and driver data. The application helps safety coordinators, supervisors, and administrators track student behavioral incidents across 5 types, manage multi-step workflows, communicate with drivers, administer email templates and user roles, and generate reports for analysis and compliance.
                 </p>
               </div>
 
