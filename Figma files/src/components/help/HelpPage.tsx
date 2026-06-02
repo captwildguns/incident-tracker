@@ -516,9 +516,7 @@ export function HelpPage() {
                         <li><strong>Vehicle ID:</strong> Clickable unique identifier</li>
                         <li><strong>Details:</strong> Bus name, year, make, model</li>
                         <li><strong>Assigned Driver:</strong> Current assignment</li>
-                        <li><strong>Primary Run:</strong> Main run with icon</li>
                         <li><strong>Status:</strong> Active, Inactive, or Maintenance</li>
-                        <li><strong>Maintenance Status:</strong> Excellent, Good, Needs Attention, In Repair (color-coded badges)</li>
                         <li><strong>Incidents:</strong> Count with trend indicator</li>
                         <li><strong>Mileage:</strong> Current odometer reading</li>
                       </ul>
