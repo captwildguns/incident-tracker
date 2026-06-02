@@ -562,35 +562,29 @@ export function HelpPage() {
                   </AccordionTrigger>
                   <AccordionContent className="space-y-4 text-foreground" style={{ fontFamily: 'var(--forge-font-family)' }}>
                     <p>
-                      The Reports page provides quick reports, a custom report builder, and a Weekly Trends Analysis dashboard.
+                      The Reports page provides quick pre-configured reports and a custom report builder.
                     </p>
                     <div>
                       <h4 className="mb-2">Quick Reports</h4>
+                      <p className="mb-2">Four pre-configured report cards ready to preview and download:</p>
                       <ul className="ml-5 space-y-1">
-                        <li>All Open Incidents</li>
-                        <li>High Severity Incidents</li>
-                        <li>Incidents This Month</li>
-                        <li>Incidents by Student</li>
-                        <li>Incidents by Driver (with enriched driver names for student incidents)</li>
-                        <li>Incidents by Run</li>
-                        <li>Resolution Time Report</li>
-                        <li>Monthly Summary</li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="mb-2">Weekly Trends Analysis</h4>
-                      <p className="mb-2">Dashboard view with:</p>
-                      <ul className="ml-5 space-y-1">
-                        <li>Week-over-week comparison metrics (current week, last week, high severity trends, 4-week average)</li>
-                        <li>Weekly Incident Trend line chart</li>
-                        <li>Top 5 incident types with progress bars</li>
-                        <li>Severity Distribution by Week stacked bar chart</li>
-                        <li>Key Insights section with automated analysis</li>
+                        <li><strong>Monthly Summary</strong> — Incident statistics and trends for the current month</li>
+                        <li><strong>Yearly Summary</strong> — Annual incident totals broken down by school term (Fall, Spring, Summer)</li>
+                        <li><strong>High &amp; Critical Incidents</strong> — All High and Critical severity incidents requiring immediate attention</li>
+                        <li><strong>Open Incidents Report</strong> — All currently open incidents requiring action</li>
                       </ul>
                     </div>
                     <div>
                       <h4 className="mb-2">Custom Report Builder</h4>
-                      <p>Select data fields, apply filters (using ForgeMultiSelect dropdowns), group by dimension, sort, preview, and export as CSV or PDF.</p>
+                      <p className="mb-2">Build a filtered incidents report using these controls:</p>
+                      <ul className="ml-5 space-y-1">
+                        <li><strong>Date Range</strong> — Filter by time period</li>
+                        <li><strong>Incident Types</strong> — Select one or more of the 5 types</li>
+                        <li><strong>Run</strong> — Filter by vehicle run</li>
+                        <li><strong>Severity</strong> — Critical, High, Medium, Low</li>
+                        <li><strong>Status</strong> — Open, In Progress, Closed, etc.</li>
+                        <li><strong>Format</strong> — Export as PDF, Excel, or CSV</li>
+                      </ul>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -609,14 +603,13 @@ export function HelpPage() {
                     </p>
 
                     <div>
-                      <h4 className="mb-2">User Roles Tab</h4>
+                      <h4 className="mb-2">Incident Tracker Roles Tab</h4>
                       <p className="mb-2">Full CRUD management of system users and their role assignments:</p>
                       <ul className="ml-5 space-y-1">
-                        <li><strong>KPI Summary Cards:</strong> Total Users, Active Users, Roles in Use, and per-role counts</li>
-                        <li><strong>User Table:</strong> ID, Name, Email, Roles (multi-select), Status, Last Login</li>
+                        <li><strong>User Table:</strong> Name, Email, Roles, Status, Last Login</li>
                         <li><strong>Search &amp; Filter:</strong> Search by name/email; filter by role</li>
                         <li><strong>Actions:</strong> Add new user, edit user, delete user</li>
-                        <li><strong>7 Roles:</strong> Safety Coordinator, Administrator, School Principal, Driver, Fleet Manager, Nurse, Mechanic</li>
+                        <li><strong>7 Roles:</strong> Driver, Safety Coordinator, Administrator, Fleet Manager, Mechanic, School Principal, Nurse</li>
                       </ul>
                     </div>
 
