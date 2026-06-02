@@ -247,7 +247,7 @@ export function AppLayout({ children, currentPage, onNavigate, onNavigateToCommu
             </forge-icon-button>
             <ForgeMenu
               placement="bottom-end"
-              options={[{ label: 'Log Out', value: 'logout', icon: 'exit_to_app' }]}
+              options={[{ label: 'Log Out', value: 'logout' }]}
               on-forge-menu-select={(evt: any) => {
                 if (evt.detail?.value === 'logout') onLogout?.();
               }}
