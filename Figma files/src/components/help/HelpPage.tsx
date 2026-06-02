@@ -674,7 +674,7 @@ export function HelpPage() {
                     <ol className="ml-5 space-y-1">
                       <li>Click the incident row to open its detail page</li>
                       <li>Click the &ldquo;Edit&rdquo; button</li>
-                      <li>Change the status dropdown (Pending, In Review, Resolved, Closed)</li>
+                      <li>Change the status dropdown (Open, In Progress, Closed, Cancelled)</li>
                       <li>Add notes about the change</li>
                       <li>Click &ldquo;Save Changes&rdquo;</li>
                     </ol>
@@ -699,13 +699,15 @@ export function HelpPage() {
                 </AccordionItem>
 
                 <AccordionItem value="faq-3">
-                  <AccordionTrigger style={{ fontFamily: 'var(--forge-font-family)' }}>What&rsquo;s the difference between &ldquo;Resolved&rdquo; and &ldquo;Closed&rdquo;?</AccordionTrigger>
+                  <AccordionTrigger style={{ fontFamily: 'var(--forge-font-family)' }}>What are the incident status values?</AccordionTrigger>
                   <AccordionContent className="text-foreground" style={{ fontFamily: 'var(--forge-font-family)' }}>
                     <ul className="ml-5 space-y-1">
-                      <li><strong>Resolved:</strong> Actions have been taken but the incident may still need monitoring or follow-up. Remains active in some reports.</li>
-                      <li><strong>Closed:</strong> Completely finalized with no further action. Archived from active counts but still searchable for historical analysis.</li>
+                      <li><strong>Open:</strong> Newly created, awaiting action.</li>
+                      <li><strong>In Progress:</strong> Actively being worked — workflow steps are underway.</li>
+                      <li><strong>Closed:</strong> Fully resolved with no further action needed. Still searchable for historical analysis.</li>
+                      <li><strong>Cancelled:</strong> Incident was voided or entered in error.</li>
                     </ul>
-                    <p className="mt-2">General workflow: Pending &rarr; In Review &rarr; Resolved &rarr; Closed</p>
+                    <p className="mt-2">Typical flow: Open &rarr; In Progress &rarr; Closed</p>
                   </AccordionContent>
                 </AccordionItem>
 
@@ -717,7 +719,7 @@ export function HelpPage() {
                       A workflow is a structured, step-by-step process that guides you through incident response according to district policies. Instead of remembering all the steps manually, the workflow:
                     </p>
                     <ul className="ml-5 space-y-1">
-                      <li>Automatically assigns the right process based on incident type and severity (two-pass matching)</li>
+                      <li>Automatically assigns the right process based on incident type</li>
                       <li>Tells you exactly what to do at each step with clear instructions</li>
                       <li>Assigns responsibility to specific roles</li>
                       <li>Enforces approval gates for critical decisions</li>
@@ -818,13 +820,12 @@ export function HelpPage() {
                 <AccordionItem value="faq-11">
                   <AccordionTrigger style={{ fontFamily: 'var(--forge-font-family)' }}>How do I manage user roles?</AccordionTrigger>
                   <AccordionContent className="text-foreground" style={{ fontFamily: 'var(--forge-font-family)' }}>
-                    <p className="mb-2">Go to <strong>Admin &rarr; User Roles</strong> tab:</p>
+                    <p className="mb-2">Go to <strong>Admin &rarr; Incident Tracker Roles</strong> tab:</p>
                     <ul className="ml-5 space-y-1">
                       <li>View all users with their assigned roles, status, and last login</li>
                       <li>Click <strong>&ldquo;+ Add User&rdquo;</strong> to create a new user record</li>
-                      <li>Assign one or more of the 7 roles: Safety Coordinator, Administrator, School Principal, Driver, Fleet Manager, Nurse, Mechanic</li>
+                      <li>Assign one or more of the 7 roles: Driver, Safety Coordinator, Administrator, Fleet Manager, Mechanic, School Principal, Nurse</li>
                       <li>Edit user details or toggle Active/Inactive status</li>
-                      <li>Use the KPI cards to see total users, active count, and per-role breakdowns</li>
                       <li>Search by name/email and filter by role</li>
                     </ul>
                   </AccordionContent>
@@ -835,11 +836,9 @@ export function HelpPage() {
                   <AccordionTrigger style={{ fontFamily: 'var(--forge-font-family)' }}>How do I know if a driver has read my communication?</AccordionTrigger>
                   <AccordionContent className="text-foreground" style={{ fontFamily: 'var(--forge-font-family)' }}>
                     <ul className="ml-5 space-y-1">
-                      <li>The status badge changes from &ldquo;Sent&rdquo; (gray) to &ldquo;Acknowledged&rdquo; (green)</li>
-                      <li>Simulated delivered/read status indicators show delivery progress</li>
-                      <li>You receive a notification when acknowledgment is received</li>
-                      <li>Communications past deadline show in red with an alert icon</li>
-                      <li>Filter by &ldquo;Pending&rdquo; or &ldquo;Unread&rdquo; to see items awaiting response</li>
+                      <li>Each message shows a status indicator: <strong>Sent</strong>, <strong>Delivered</strong>, or <strong>Read</strong></li>
+                      <li>Use the <strong>Unread</strong> filter in the left sidebar to surface conversations with unread messages</li>
+                      <li>Conversations are also filterable by <strong>In Progress</strong> or <strong>Resolved</strong> status</li>
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
@@ -850,28 +849,23 @@ export function HelpPage() {
                   <AccordionContent className="text-foreground" style={{ fontFamily: 'var(--forge-font-family)' }}>
                     <ul className="ml-5 space-y-1">
                       <li><strong>CSV Export:</strong> Available on Incidents, Students, Vehicles, and Drivers pages via the Export dropdown</li>
-                      <li><strong>PDF Reports:</strong> Generate formatted reports from the Reports page</li>
-                      <li><strong>Custom Reports:</strong> Use the report builder to select fields, filters, and grouping before export</li>
+                      <li><strong>PDF Reports:</strong> Generate and download one of the 4 pre-configured reports from the Reports page</li>
                     </ul>
-                    <p className="mt-2">
-                      All exports respect your current filter selections.
-                    </p>
                   </AccordionContent>
                 </AccordionItem>
 
                 <AccordionItem value="faq-14">
-                  <AccordionTrigger style={{ fontFamily: 'var(--forge-font-family)' }}>How do I use the seat selection when creating a student incident?</AccordionTrigger>
+                  <AccordionTrigger style={{ fontFamily: 'var(--forge-font-family)' }}>How do I specify where the incident occurred?</AccordionTrigger>
                   <AccordionContent className="text-foreground" style={{ fontFamily: 'var(--forge-font-family)' }}>
-                    <ol className="ml-5 space-y-1">
-                      <li>In the new incident form, scroll to the &ldquo;Incident Location&rdquo; section</li>
-                      <li>Click on a seat in the visual bus diagram &mdash; it turns red when selected</li>
-                      <li>The seat number is automatically recorded</li>
-                      <li>Click a different seat to change the selection</li>
-                      <li>The diagram shows driver position and emergency exits for reference</li>
-                    </ol>
-                    <p className="mt-2">
-                      This helps identify incident location patterns (e.g., frequent back-seat incidents) and supports seating interventions.
-                    </p>
+                    <p className="mb-2">In Step 2 of the new incident form, select from the <strong>Location</strong> dropdown:</p>
+                    <ul className="ml-5 space-y-1">
+                      <li><strong>On Vehicle</strong> — incident occurred while riding the bus</li>
+                      <li><strong>At Vehicle Stop</strong> — incident at a bus stop</li>
+                      <li><strong>Loading/Unloading</strong> — incident during boarding or exit</li>
+                      <li><strong>Layover Location</strong> — incident at a staging or layover area</li>
+                      <li><strong>Other</strong> — any other location</li>
+                    </ul>
+                    <p className="mt-2">You can also optionally select the vehicle and run associated with the incident.</p>
                   </AccordionContent>
                 </AccordionItem>
 
@@ -896,11 +890,9 @@ export function HelpPage() {
                   <AccordionContent className="text-foreground" style={{ fontFamily: 'var(--forge-font-family)' }}>
                     <p className="mb-2">The <strong>History tab</strong> on the incident detail page provides a complete audit trail:</p>
                     <ul className="ml-5 space-y-1">
-                      <li>Chronological timeline of all activities (most recent first)</li>
-                      <li>Workflow steps with &ldquo;Completed by [User] on MM/DD/YYYY, HH:MM AM/PM&rdquo;</li>
-                      <li>Status changes, communications, photos, and approvals</li>
-                      <li>Filter by activity type (workflow steps only, communications, etc.)</li>
-                      <li>Export complete history as PDF for compliance records</li>
+                      <li>Chronological timeline of all activities</li>
+                      <li>Workflow steps showing &ldquo;Completed by [User] on [date]&rdquo; with comments</li>
+                      <li>Status changes, workflow assignments, and approval events</li>
                     </ul>
                   </AccordionContent>
                 </AccordionItem>
