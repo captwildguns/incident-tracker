@@ -160,16 +160,6 @@ export function HelpPage() {
 
                   <div style={featureCard}>
                     <div className="flex items-center gap-2 mb-2">
-                      <Bus className="h-5 w-5 text-primary" />
-                      <h4 className="m-0" style={{ fontFamily: 'var(--forge-font-family)' }}>Fleet Management</h4>
-                    </div>
-                    <p className="text-muted-foreground" style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}>
-                      Monitor vehicles with visual bus icons matching make/model, track maintenance, GPS/AVL, and view detailed vehicle specifications.
-                    </p>
-                  </div>
-
-                  <div style={featureCard}>
-                    <div className="flex items-center gap-2 mb-2">
                       <UserCircle className="h-5 w-5 text-primary" />
                       <h4 className="m-0" style={{ fontFamily: 'var(--forge-font-family)' }}>Driver Management</h4>
                     </div>
