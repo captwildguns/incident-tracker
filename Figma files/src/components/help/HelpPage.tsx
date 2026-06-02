@@ -173,7 +173,7 @@ export function HelpPage() {
                       <h4 className="m-0" style={{ fontFamily: 'var(--forge-font-family)' }}>Reports &amp; Analytics</h4>
                     </div>
                     <p className="text-muted-foreground" style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)' }}>
-                      8 quick reports, custom report builder with filters and grouping, Weekly Trends Analysis dashboard, and CSV/PDF export.
+                      4 pre-configured quick reports — Monthly Summary, Yearly Summary, High &amp; Critical Incidents, and Open Incidents Report. Click View Report to preview and download.
                     </p>
                   </div>
 
@@ -386,7 +386,7 @@ export function HelpPage() {
                       </p>
                       <ul className="ml-5 space-y-1">
                         <li><strong>General Tab:</strong> Step name, description, assigned role, estimated duration, and required/optional toggle</li>
-                        <li><strong>Notifications Tab:</strong> Toggle notify-on-start, notify-on-complete, notify-assignee, and notify-approvers. Select an <strong>email template</strong> from the 10 system templates defined in Admin &rarr; Email Templates. Add additional recipient email addresses. Select roles to notify.</li>
+                        <li><strong>Notifications Tab:</strong> Toggle notify-on-start, notify-on-complete, notify-assignee, and notify-approvers. Select an <strong>email template</strong> from the 3 system templates defined in Admin &rarr; Email Templates. Add additional recipient email addresses. Select roles to notify.</li>
                         <li><strong>Approvals Tab:</strong> Enable/disable approval requirement and select approver roles</li>
                       </ul>
                     </div>
@@ -449,15 +449,15 @@ export function HelpPage() {
                     <div>
                       <h4 className="mb-2">Filtering Students</h4>
                       <ul className="ml-5 space-y-1">
-                        <li><strong>Search:</strong> By name, ID, or school</li>
-                        <li><strong>Grade Filter:</strong> Specific grade levels</li>
-                        <li><strong>School Filter:</strong> Specific schools</li>
-                        <li><strong>Incident Count:</strong> 0, 1-3, 4-6, 7+</li>
+                        <li><strong>Search:</strong> By student name, ID, or school</li>
+                        <li><strong>Grade Filter:</strong> Filter by specific grade levels</li>
+                        <li><strong>School Filter:</strong> Filter by specific schools</li>
+                        <li><strong>Active Incidents:</strong> Checkbox to show only students with open incidents</li>
                       </ul>
                     </div>
                     <div>
                       <h4 className="mb-2">Student Detail</h4>
-                      <p>Click a student ID to view their full profile: basic information, transportation details, incident summary with severity breakdown, chronological incident history with links to each incident, and pattern analysis visualization.</p>
+                      <p>Click a student row to open their profile: name, grade, school, last incident date, and a chronological history of all incidents with severity badges and role chips.</p>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
@@ -475,24 +475,15 @@ export function HelpPage() {
                       The Communications page manages all incident-linked messaging between safety coordinators and bus drivers.
                     </p>
                     <div>
-                      <h4 className="mb-2">Creating a Communication</h4>
-                      <ol className="ml-5 space-y-1">
-                        <li>Click &ldquo;+ New Communication&rdquo;</li>
-                        <li>Select driver and related incident</li>
-                        <li>Choose communication type (Incident Follow-up, Acknowledgment Required, Training/Reminder, General Info)</li>
-                        <li>Choose delivery method (Email, In-Person, Phone Call, Written Notice)</li>
-                        <li>Enter message content and set priority</li>
-                        <li>Click &ldquo;Send Communication&rdquo;</li>
-                      </ol>
+                      <h4 className="mb-2">Using the Chat Interface</h4>
+                      <p className="mb-2">Select a conversation from the left sidebar to open the message thread. Type your message in the composition area at the bottom and click Send. New conversations are created automatically when a communication is initiated from an incident&rsquo;s Communications tab.</p>
                     </div>
                     <div>
-                      <h4 className="mb-2">Tracking &amp; Filtering</h4>
+                      <h4 className="mb-2">Search &amp; Filtering</h4>
                       <ul className="ml-5 space-y-1">
-                        <li><strong>Status Badges:</strong> Sent (gray), Acknowledged (green), Pending (yellow)</li>
-                        <li><strong>Delivery Tracking:</strong> Simulated delivered/read status indicators</li>
-                        <li><strong>Unread Filter:</strong> Quickly find unread communications</li>
-                        <li><strong>Search:</strong> By driver name, incident ID, or message content</li>
-                        <li><strong>Filter by:</strong> Status, type, delivery method, date range</li>
+                        <li><strong>Search:</strong> By driver name, incident ID, or student name</li>
+                        <li><strong>Status Filter:</strong> Unread, In Progress, Resolved</li>
+                        <li><strong>Message status indicators:</strong> Sent, Delivered, Read per message</li>
                       </ul>
                     </div>
                   </AccordionContent>
@@ -782,7 +773,7 @@ export function HelpPage() {
                       <li>Enter name and description</li>
                       <li>Select one of the 5 incident types</li>
                       <li>Choose a severity level</li>
-                      <li>Add steps from the step library (8 templates: 3 Notification, 3 Review &amp; Action, 1 Close Out, 1 Fleet / Repair) or create custom steps</li>
+                      <li>Add steps from the step library (8 templates across 3 categories: Notification, Review &amp; Action, Close Out) or create custom steps</li>
                       <li>Configure email notifications per step (using the 3 Admin email templates)</li>
                       <li>Save and activate</li>
                     </ol>
