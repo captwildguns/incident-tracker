@@ -521,10 +521,6 @@ export function HelpPage() {
                         <li><strong>Mileage:</strong> Current odometer reading</li>
                       </ul>
                     </div>
-                    <div>
-                      <h4 className="mb-2">Vehicle Detail</h4>
-                      <p>Click any vehicle to view: accurate bus icon for the make/model (Blue Bird Vision, IC Bus CE, Thomas C2/HDX, Blue Bird All American), specifications, GPS/AVL configuration, garage assignments, maintenance &amp; inspection records, and incident history.</p>
-                    </div>
                   </AccordionContent>
                 </AccordionItem>
 
@@ -544,21 +540,14 @@ export function HelpPage() {
                       <h4 className="mb-2">Driver List View</h4>
                       <ul className="ml-5 space-y-1">
                         <li><strong>Driver ID:</strong> Clickable identifier</li>
-                        <li><strong>Name, Status, Vehicle, Run, Certifications, Incidents, Communications</strong></li>
+                        <li><strong>Name, Status, Vehicle, Incidents, Communications</strong></li>
                       </ul>
                     </div>
                     <div>
                       <h4 className="mb-2">Certification Tracking</h4>
                       <ul className="ml-5 space-y-1">
                         <li>CDL expiration: 90-day warning (yellow), expired (red)</li>
-                        <li>Medical card: 60-day warning</li>
-                        <li>Background check: 5-year cycle</li>
-                        <li>Filter by: All Valid, Expiring Soon, Has Expired</li>
                       </ul>
-                    </div>
-                    <div>
-                      <h4 className="mb-2">Driver Detail</h4>
-                      <p>Full profile with certifications, assigned vehicle and routes, performance metrics (years of service, incident count, communication count, safety rating), recent incidents, and communication history.</p>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
