@@ -251,7 +251,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   const [incidentTypes, setIncidentTypes] = useState<IncidentType[]>([...SEED_INCIDENT_TYPES]);
   const [itSearch, setItSearch] = useState('');
   const [itCategoryFilter, setItCategoryFilter] = useState<string[]>([]);
-  const [itAppliesFilter, setItAppliesFilter] = useState<string[]>([]);
   const [isItDialogOpen, setIsItDialogOpen] = useState(false);
   const [editingIt, setEditingIt] = useState<IncidentType | null>(null);
   const [itForm, setItForm] = useState<Omit<IncidentType, 'id'>>({
@@ -465,8 +464,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
       t.description.toLowerCase().includes(itSearch.toLowerCase()) ||
       t.id.toLowerCase().includes(itSearch.toLowerCase());
     const matchesCat = itCategoryFilter.length === 0 || itCategoryFilter.includes(t.category);
-    const matchesApplies = itAppliesFilter.length === 0 || itAppliesFilter.includes(t.applicableTo);
-    return matchesSearch && matchesCat && matchesApplies;
+    return matchesSearch && matchesCat;
   });
 
   // Find linked workflow for an incident type label
@@ -1425,7 +1423,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                   <tr>
                     <th className="forge-table-cell forge-table-cell--header">Label</th>
                     <th className="forge-table-cell forge-table-cell--header">Category</th>
-                    <th className="forge-table-cell forge-table-cell--header">Applies To</th>
                     <th className="forge-table-cell forge-table-cell--header">Severity</th>
                     <th className="forge-table-cell forge-table-cell--header">Linked Workflow</th>
                     <th className="forge-table-cell forge-table-cell--header">Description</th>
@@ -1442,16 +1439,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                       <td className="forge-table-cell">
                         {/* @ts-ignore */}
                         <forge-badge theme="default" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)' }}>{it.category}</forge-badge>
-                      </td>
-                      <td className="forge-table-cell">
-                        {/* @ts-ignore */}
-                        <forge-badge
-                          theme={it.applicableTo === 'student' ? 'info' : it.applicableTo === 'driver' ? 'default' : 'info-primary'}
-                          style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)' }}
-                        >
-                          {it.applicableTo === 'student' ? 'Student' : it.applicableTo === 'driver' ? 'Driver' : 'Both'}
-                        {/* @ts-ignore */}
-                        </forge-badge>
                       </td>
                       <td className="forge-table-cell">
                         {/* @ts-ignore */}
@@ -1510,7 +1497,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                   ))}
                   {filteredIncidentTypes.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="forge-table-cell" style={{ textAlign: 'center', padding: 'var(--forge-spacing-xlarge)', color: 'var(--muted-foreground)' }}>
+                      <td colSpan={6} className="forge-table-cell" style={{ textAlign: 'center', padding: 'var(--forge-spacing-xlarge)', color: 'var(--muted-foreground)' }}>
                         No incident types match your search criteria.
                       </td>
                     </tr>
@@ -1567,30 +1554,22 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
               />
             </div>
 
-            {/* Category + Applies To row */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--forge-spacing-medium)' }}>
-              <div>
-                <div style={labelStyle}>Category <span style={{ color: 'var(--destructive)' }}>*</span></div>
-                {/* @ts-ignore */}
-                <forge-text-field style={inputWrapperStyle}>
-                  <select
-                    value={itForm.category}
-                    onChange={(e) => setItForm({ ...itForm, category: e.target.value })}
-                    style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', width: '100%' }}
-                  >
-                    {allItCategories.map((cat) => (
-                      <option key={cat} value={cat}>{cat}</option>
-                    ))}
-                  </select>
-                {/* @ts-ignore */}
-                </forge-text-field>
-              </div>
-              <div>
-                <div style={labelStyle}>Applies To</div>
-                <div style={{ ...selectStyle, display: 'flex', alignItems: 'center', background: 'var(--muted)', color: 'var(--muted-foreground)', cursor: 'not-allowed' }}>
-                  Student
-                </div>
-              </div>
+            {/* Category */}
+            <div>
+              <div style={labelStyle}>Category <span style={{ color: 'var(--destructive)' }}>*</span></div>
+              {/* @ts-ignore */}
+              <forge-text-field style={inputWrapperStyle}>
+                <select
+                  value={itForm.category}
+                  onChange={(e) => setItForm({ ...itForm, category: e.target.value })}
+                  style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', width: '100%' }}
+                >
+                  {allItCategories.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              {/* @ts-ignore */}
+              </forge-text-field>
             </div>
 
             {/* Default Severity */}

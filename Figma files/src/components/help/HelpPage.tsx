@@ -606,9 +606,9 @@ export function HelpPage() {
                       <h4 className="mb-2">Incident Types Tab</h4>
                       <p className="mb-2">View and manage incident types:</p>
                       <ul className="ml-5 space-y-1">
-                        <li><strong>Type Table:</strong> Label, Category, Applies To, Default Severity, Linked Workflow, Actions</li>
-                        <li><strong>Search &amp; Filter:</strong> Search by name/description; filter by category and &ldquo;Applies To&rdquo;</li>
-                        <li><strong>Add/Edit Dialog:</strong> Configure label, category, description, default severity, and <strong>Applies To</strong> (Student or Driver)</li>
+                        <li><strong>Type Table:</strong> Label, Category, Default Severity, Linked Workflow, Description, Actions</li>
+                        <li><strong>Search &amp; Filter:</strong> Search by name/description; filter by category</li>
+                        <li><strong>Add/Edit Dialog:</strong> Configure label, category, description, and default severity</li>
                         <li><strong>Delete:</strong> Remove custom incident types (system defaults are protected)</li>
                       </ul>
                     </div>
@@ -808,7 +808,6 @@ export function HelpPage() {
                     <ul className="ml-5 space-y-1">
                       <li>Click <strong>&ldquo;+ Add Incident Type&rdquo;</strong> to create a new type</li>
                       <li>Set the label, category, description, and default severity</li>
-                      <li>Select <strong>&ldquo;Applies To&rdquo;</strong>: choose &ldquo;Student&rdquo; or &ldquo;Driver&rdquo; (there is no &ldquo;Both&rdquo; option)</li>
                       <li>Edit existing types by clicking the edit icon on any row</li>
                       <li>Delete custom types (system defaults are protected)</li>
                       <li>Use search and category/applicableTo filters to find specific types</li>
