@@ -195,117 +195,104 @@ function categoryBadgeStyle(cat: string): React.CSSProperties {
 
 // ─── Permission Groups ────────────────────────────────────────────────────────
 
-type CrudKey = 'create' | 'read' | 'update' | 'delete';
+type PermCol = 'read' | 'add' | 'edit' | 'delete';
 
-interface ResourcePermission {
-  resourceId: string;
-  create: boolean;
+interface PermArea {
+  id: string;
+  label: string;
   read: boolean;
-  update: boolean;
+  add: boolean;
+  edit: boolean;
   delete: boolean;
 }
 
-const RESOURCES = [
-  { id: 'incidents',      label: 'Incidents' },
-  { id: 'workflows',      label: 'Workflows' },
-  { id: 'communications', label: 'Communications' },
-  { id: 'reports',        label: 'Reports' },
-  { id: 'administration', label: 'Administration' },
+interface PermTabData { tabId: string; areas: PermArea[]; }
+
+const PERM_TAB_DEFS: { id: string; label: string; areas: string[] }[] = [
+  { id: 'general',        label: 'General',        areas: ['My Incidents', 'All Incidents'] },
+  { id: 'workflows',      label: 'Workflows',       areas: ['Workflows', 'Workflow Steps', 'Approvals'] },
+  { id: 'communications', label: 'Communications',  areas: ['Messages', 'Notifications'] },
+  { id: 'reports',        label: 'Reports',         areas: ['Quick Reports', 'Data Export'] },
+  { id: 'administration', label: 'Administration',  areas: ['Users', 'Incident Types', 'Workflow Templates', 'Email Templates', 'Permission Groups'] },
 ];
 
-const CRUD_COLS: { key: CrudKey; label: string }[] = [
-  { key: 'create', label: 'Create' },
+const PERM_COLS: { key: PermCol; label: string }[] = [
   { key: 'read',   label: 'Read' },
-  { key: 'update', label: 'Update' },
+  { key: 'add',    label: 'Add' },
+  { key: 'edit',   label: 'Edit' },
   { key: 'delete', label: 'Delete' },
 ];
 
 const GROUP_COLORS = ['#4A6FA5', '#3F51B5', '#7B8458', '#607D8B', '#F59E0B', '#EF4444', '#10B981', '#8B5CF6'];
 
-const TOTAL_PERMS = RESOURCES.length * CRUD_COLS.length;
-
-function countPerms(rps: ResourcePermission[]) {
-  return rps.reduce((n, r) => n + (r.create ? 1 : 0) + (r.read ? 1 : 0) + (r.update ? 1 : 0) + (r.delete ? 1 : 0), 0);
-}
-
-function makeResourcePermissions(overrides: Partial<Record<string, Partial<Record<CrudKey, boolean>>>> = {}): ResourcePermission[] {
-  return RESOURCES.map(r => ({
-    resourceId: r.id,
-    create: overrides[r.id]?.create ?? false,
-    read:   overrides[r.id]?.read   ?? false,
-    update: overrides[r.id]?.update ?? false,
-    delete: overrides[r.id]?.delete ?? false,
+function makeTabs(overrides: Partial<Record<string, Partial<Record<string, Partial<Record<PermCol, boolean>>>>>> = {}): PermTabData[] {
+  return PERM_TAB_DEFS.map(t => ({
+    tabId: t.id,
+    areas: t.areas.map(label => {
+      const o = overrides[t.id]?.[label] ?? {};
+      return { id: label.toLowerCase().replace(/\s+/g, '-'), label, read: o.read ?? false, add: o.add ?? false, edit: o.edit ?? false, delete: o.delete ?? false };
+    }),
   }));
 }
 
-interface PermissionGroup {
-  id: string;
-  name: string;
-  description: string;
-  color: string;
-  active: boolean;
-  permissions: ResourcePermission[];
+function countGroupPerms(tabs: PermTabData[]) {
+  return tabs.reduce((n, t) => n + t.areas.reduce((m, a) => m + (a.read?1:0) + (a.add?1:0) + (a.edit?1:0) + (a.delete?1:0), 0), 0);
 }
+const TOTAL_GROUP_PERMS = PERM_TAB_DEFS.reduce((n, t) => n + t.areas.length * 4, 0);
+
+interface PermissionGroup { id: string; name: string; description: string; color: string; active: boolean; tabs: PermTabData[]; }
+
+const ALL_ON = { read: true, add: true, edit: true, delete: true };
 
 const INITIAL_GROUPS: PermissionGroup[] = [
   {
-    id: 'G-001', name: 'Administrator',
+    id: 'G-001', name: 'Administrator', color: '#3F51B5', active: true,
     description: 'Full access to all incident management features and administrative controls.',
-    color: '#3F51B5', active: true,
-    permissions: makeResourcePermissions({
-      incidents:      { create: true, read: true, update: true, delete: true },
-      workflows:      { create: true, read: true, update: true, delete: true },
-      communications: { create: true, read: true, update: true, delete: true },
-      reports:        { create: true, read: true, update: true, delete: true },
-      administration: { create: true, read: true, update: true, delete: true },
+    tabs: makeTabs({
+      general:        { 'My Incidents': ALL_ON, 'All Incidents': ALL_ON },
+      workflows:      { 'Workflows': ALL_ON, 'Workflow Steps': ALL_ON, 'Approvals': ALL_ON },
+      communications: { 'Messages': ALL_ON, 'Notifications': ALL_ON },
+      reports:        { 'Quick Reports': ALL_ON, 'Data Export': ALL_ON },
+      administration: { 'Users': ALL_ON, 'Incident Types': ALL_ON, 'Workflow Templates': ALL_ON, 'Email Templates': ALL_ON, 'Permission Groups': ALL_ON },
     }),
   },
   {
-    id: 'G-002', name: 'Safety Coordinator',
+    id: 'G-002', name: 'Safety Coordinator', color: '#7B8458', active: true,
     description: 'Manages incidents end-to-end including workflows, communications, and reporting.',
-    color: '#7B8458', active: true,
-    permissions: makeResourcePermissions({
-      incidents:      { create: true, read: true, update: true, delete: false },
-      workflows:      { create: true, read: true, update: true, delete: false },
-      communications: { create: true, read: true, update: false, delete: false },
-      reports:        { create: false, read: true, update: false, delete: false },
-      administration: { create: false, read: false, update: false, delete: false },
+    tabs: makeTabs({
+      general:        { 'My Incidents': { read: true, add: true, edit: true }, 'All Incidents': { read: true, add: true, edit: true } },
+      workflows:      { 'Workflows': { read: true, add: true, edit: true }, 'Workflow Steps': { read: true, add: true, edit: true }, 'Approvals': { read: true, add: true, edit: true } },
+      communications: { 'Messages': { read: true, add: true }, 'Notifications': { read: true } },
+      reports:        { 'Quick Reports': { read: true }, 'Data Export': { read: true } },
     }),
   },
   {
-    id: 'G-003', name: 'Driver',
+    id: 'G-003', name: 'Driver', color: '#4A6FA5', active: true,
     description: 'Can create and view own incidents and participate in assigned workflow steps.',
-    color: '#4A6FA5', active: true,
-    permissions: makeResourcePermissions({
-      incidents:      { create: true, read: true, update: false, delete: false },
-      workflows:      { create: false, read: true, update: false, delete: false },
-      communications: { create: true, read: true, update: false, delete: false },
-      reports:        { create: false, read: false, update: false, delete: false },
-      administration: { create: false, read: false, update: false, delete: false },
+    tabs: makeTabs({
+      general:        { 'My Incidents': { read: true, add: true } },
+      workflows:      { 'Workflows': { read: true }, 'Workflow Steps': { read: true, edit: true } },
+      communications: { 'Messages': { read: true, add: true }, 'Notifications': { read: true } },
     }),
   },
   {
-    id: 'G-004', name: 'Fleet Manager',
+    id: 'G-004', name: 'Fleet Manager', color: '#607D8B', active: true,
     description: 'Read-only access to all incidents with reporting capabilities.',
-    color: '#607D8B', active: true,
-    permissions: makeResourcePermissions({
-      incidents:      { create: true, read: true, update: false, delete: false },
-      workflows:      { create: false, read: true, update: false, delete: false },
-      communications: { create: false, read: true, update: false, delete: false },
-      reports:        { create: false, read: true, update: false, delete: false },
-      administration: { create: false, read: false, update: false, delete: false },
+    tabs: makeTabs({
+      general:        { 'My Incidents': { read: true, add: true }, 'All Incidents': { read: true } },
+      workflows:      { 'Workflows': { read: true }, 'Workflow Steps': { read: true } },
+      communications: { 'Messages': { read: true }, 'Notifications': { read: true } },
+      reports:        { 'Quick Reports': { read: true }, 'Data Export': { read: true } },
     }),
   },
   {
-    id: 'G-005', name: 'School Principal',
+    id: 'G-005', name: 'School Principal', color: '#F59E0B', active: true,
     description: 'View-only access to all incidents with communication capability.',
-    color: '#F59E0B', active: true,
-    permissions: makeResourcePermissions({
-      incidents:      { create: false, read: true, update: false, delete: false },
-      workflows:      { create: false, read: true, update: false, delete: false },
-      communications: { create: true,  read: true, update: false, delete: false },
-      reports:        { create: false, read: true, update: false, delete: false },
-      administration: { create: false, read: false, update: false, delete: false },
+    tabs: makeTabs({
+      general:        { 'All Incidents': { read: true } },
+      workflows:      { 'Workflows': { read: true } },
+      communications: { 'Messages': { read: true, add: true }, 'Notifications': { read: true } },
+      reports:        { 'Quick Reports': { read: true } },
     }),
   },
 ];
@@ -403,12 +390,13 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   });
 
   // ─── Permission Groups State ─────────────────────────────────────────────────
-  const [groups, setGroups] = useState<PermissionGroup[]>(INITIAL_GROUPS.map(g => ({ ...g, permissions: [...g.permissions] })));
+  const [groups, setGroups] = useState<PermissionGroup[]>(INITIAL_GROUPS.map(g => ({ ...g, tabs: g.tabs.map(t => ({ ...t, areas: t.areas.map(a => ({ ...a })) })) })));
   const [groupSearch, setGroupSearch] = useState('');
-  const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
+  const [permView, setPermView] = useState<'list' | 'edit'>('list');
   const [editingGroup, setEditingGroup] = useState<PermissionGroup | null>(null);
+  const [permActiveTab, setPermActiveTab] = useState('general');
   const [groupForm, setGroupForm] = useState<Omit<PermissionGroup, 'id'>>({
-    name: '', description: '', color: GROUP_COLORS[0], active: true, permissions: makeResourcePermissions(),
+    name: '', description: '', color: GROUP_COLORS[0], active: true, tabs: makeTabs(),
   });
 
   // ─── Workflows State (for incident type linking) ────────────────────────────
@@ -423,7 +411,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   const templateDialogRef = useRef<HTMLElement>(null);
   const previewDialogRef = useRef<HTMLElement>(null);
   const itDialogRef = useRef<HTMLElement>(null);
-  const groupDialogRef = useRef<HTMLElement>(null);
 
   // User Dialog sync
   useEffect(() => { const el = userDialogRef.current as any; if (!el) return; el.open = isUserDialogOpen; }, [isUserDialogOpen]);
@@ -461,8 +448,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   // Incident Type Dialog sync
   useEffect(() => { const el = itDialogRef.current as any; if (!el) return; el.open = isItDialogOpen; }, [isItDialogOpen]);
   useEffect(() => { const el = itDialogRef.current as any; if (!el) return; const handler = () => setIsItDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
-  useEffect(() => { const el = groupDialogRef.current as any; if (!el) return; el.open = isGroupDialogOpen; }, [isGroupDialogOpen]);
-  useEffect(() => { const el = groupDialogRef.current as any; if (!el) return; const handler = () => setIsGroupDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
 
   // ─── User Helpers ────────────────────────────────────────────────────────────
 
@@ -757,14 +742,16 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
 
   const openAddGroup = () => {
     setEditingGroup(null);
-    setGroupForm({ name: '', description: '', color: GROUP_COLORS[0], active: true, permissions: makeResourcePermissions() });
-    setIsGroupDialogOpen(true);
+    setGroupForm({ name: '', description: '', color: GROUP_COLORS[0], active: true, tabs: makeTabs() });
+    setPermActiveTab('general');
+    setPermView('edit');
   };
 
   const openEditGroup = (g: PermissionGroup) => {
     setEditingGroup(g);
-    setGroupForm({ name: g.name, description: g.description, color: g.color, active: g.active, permissions: [...g.permissions] });
-    setIsGroupDialogOpen(true);
+    setGroupForm({ name: g.name, description: g.description, color: g.color, active: g.active, tabs: g.tabs.map(t => ({ ...t, areas: t.areas.map(a => ({ ...a })) })) });
+    setPermActiveTab('general');
+    setPermView('edit');
   };
 
   const saveGroup = () => {
@@ -774,17 +761,18 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
     } else {
       setGroups([...groups, { id: `G-${String(groups.length + 1).padStart(3, '0')}`, ...groupForm }]);
     }
-    setIsGroupDialogOpen(false);
+    setPermView('list');
   };
 
   const deleteGroup = (id: string) => setGroups(groups.filter(g => g.id !== id));
 
-  const toggleResourcePermission = (resourceId: string, key: CrudKey) => {
+  const toggleAreaPerm = (areaId: string, key: PermCol) => {
     setGroupForm(prev => ({
       ...prev,
-      permissions: prev.permissions.map(rp =>
-        rp.resourceId === resourceId ? { ...rp, [key]: !rp[key] } : rp
-      ),
+      tabs: prev.tabs.map(t => ({
+        ...t,
+        areas: t.areas.map(a => a.id === areaId ? { ...a, [key]: !a[key] } : a),
+      })),
     }));
   };
 
@@ -1985,21 +1973,14 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
       {/* ══════════════════════════════════════════════════════════════════════ */}
       {/* PERMISSIONS SECTION                                                   */}
       {/* ══════════════════════════════════════════════════════════════════════ */}
-      {activeSection === 'permissions' && (
+      {activeSection === 'permissions' && permView === 'list' && (
         <div>
-          {/* Toolbar */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--forge-spacing-medium)', flexWrap: 'wrap', gap: 'var(--forge-spacing-small)' }}>
             <div style={{ position: 'relative' }}>
               <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', zIndex: 1 }} />
               {/* @ts-ignore */}
               <forge-text-field>
-                <input
-                  type="text"
-                  value={groupSearch}
-                  onChange={(e) => setGroupSearch(e.target.value)}
-                  placeholder="Search groups..."
-                  style={{ paddingLeft: '2rem', width: '260px', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}
-                />
+                <input type="text" value={groupSearch} onChange={(e) => setGroupSearch(e.target.value)} placeholder="Search groups..." style={{ paddingLeft: '2rem', width: '260px', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }} />
               {/* @ts-ignore */}
               </forge-text-field>
             </div>
@@ -2008,8 +1989,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
               Add Group
             </ForgeButton>
           </div>
-
-          {/* Groups table */}
           <div style={cardStyle}>
             <div style={{ overflowX: 'auto' }}>
               <table className="forge-table">
@@ -2038,7 +2017,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                       <td className="forge-table-cell">
                         {/* @ts-ignore */}
                         <forge-badge theme="default" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)' }}>
-                          {countPerms(g.permissions)} of {TOTAL_PERMS}
+                          {countGroupPerms(g.tabs)} of {TOTAL_GROUP_PERMS}
                         {/* @ts-ignore */}
                         </forge-badge>
                       </td>
@@ -2048,8 +2027,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                       <td className="forge-table-cell" style={{ textAlign: 'right' }}>
                         <div style={{ display: 'flex', gap: 'var(--forge-spacing-xxsmall)', justifyContent: 'flex-end' }}>
                           <ForgeButton variant="outlined" onClick={() => openEditGroup(g)} style={{ fontFamily: 'var(--forge-font-family)' }}>
-                            <Pencil size={14} style={{ marginRight: 4 }} />
-                            Edit
+                            <Pencil size={14} style={{ marginRight: 4 }} />Edit
                           </ForgeButton>
                           <ForgeButton variant="outlined" onClick={() => deleteGroup(g.id)} style={{ fontFamily: 'var(--forge-font-family)', color: 'var(--destructive)', borderColor: 'var(--destructive)' }}>
                             <Trash2 size={14} />
@@ -2059,11 +2037,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                     </tr>
                   ))}
                   {filteredGroups.length === 0 && (
-                    <tr>
-                      <td colSpan={5} style={{ padding: 'var(--forge-spacing-large)', textAlign: 'center', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}>
-                        No groups found
-                      </td>
-                    </tr>
+                    <tr><td colSpan={5} style={{ padding: 'var(--forge-spacing-large)', textAlign: 'center', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}>No groups found</td></tr>
                   )}
                 </tbody>
               </table>
@@ -2075,94 +2049,100 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
         </div>
       )}
 
-      {/* ── Group Dialog ─────────────────────────────────────────────────────── */}
-      {/* @ts-ignore */}
-      <forge-dialog ref={groupDialogRef} style={{ '--forge-dialog-max-width': '660px' }}>
-        <div style={{ padding: 'var(--forge-spacing-large)', display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-medium)', maxHeight: '85vh', overflowY: 'auto' }}>
-          <h2 style={{ ...sectionHeaderStyle, margin: 0 }}>{editingGroup ? 'Edit Group' : 'Add Group'}</h2>
-
-          {/* Name */}
+      {/* ── Group Editor (inline, ST-style) ──────────────────────────────────── */}
+      {activeSection === 'permissions' && permView === 'edit' && (() => {
+        const activeTabData = groupForm.tabs.find(t => t.tabId === permActiveTab);
+        const activeTabIdx = PERM_TAB_DEFS.findIndex(t => t.id === permActiveTab);
+        return (
           <div>
-            <div style={labelStyle}>Name <span style={{ color: 'var(--destructive)' }}>*</span></div>
-            {/* @ts-ignore */}
-            <forge-text-field style={inputWrapperStyle}>
-              <input type="text" value={groupForm.name} onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })} placeholder="e.g., Safety Coordinator" style={{ fontFamily: 'var(--forge-font-family)' }} />
-            {/* @ts-ignore */}
-            </forge-text-field>
-          </div>
+            {/* Back */}
+            <button onClick={() => setPermView('list')} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', fontWeight: 500, padding: 0, marginBottom: 'var(--forge-spacing-medium)' }}>
+              ← Back to Groups
+            </button>
 
-          {/* Description */}
-          <div>
-            <div style={labelStyle}>Description</div>
-            <Textarea value={groupForm.description} onChange={(e) => setGroupForm({ ...groupForm, description: e.target.value })} placeholder="Brief description of this group's role..." rows={2} style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }} />
-          </div>
-
-          {/* Color + Active */}
-          <div style={{ display: 'flex', gap: 'var(--forge-spacing-xlarge)', alignItems: 'center' }}>
-            <div>
-              <div style={labelStyle}>Color</div>
-              <div style={{ display: 'flex', gap: 'var(--forge-spacing-xxsmall)', marginTop: 'var(--forge-spacing-xxsmall)' }}>
-                {GROUP_COLORS.map(c => (
-                  <button key={c} onClick={() => setGroupForm({ ...groupForm, color: c })} style={{
-                    width: 24, height: 24, borderRadius: '50%', background: c, border: 'none', cursor: 'pointer',
-                    boxShadow: groupForm.color === c ? `0 0 0 2px #fff, 0 0 0 4px ${c}` : 'none',
-                  }} />
-                ))}
+            {/* Group info bar */}
+            <div style={{ ...cardStyle, marginBottom: 0, borderBottomLeftRadius: 0, borderBottomRightRadius: 0, display: 'flex', gap: 'var(--forge-spacing-large)', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+              <div style={{ flex: '0 0 200px' }}>
+                <div style={labelStyle}>Name <span style={{ color: 'var(--destructive)' }}>*</span></div>
+                {/* @ts-ignore */}
+                <forge-text-field style={inputWrapperStyle}>
+                  <input type="text" value={groupForm.name} onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })} placeholder="Group name" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }} />
+                {/* @ts-ignore */}
+                </forge-text-field>
               </div>
-            </div>
-            <div>
-              <div style={labelStyle}>Active</div>
-              <div style={{ marginTop: 'var(--forge-spacing-xxsmall)' }}>
-                <PermToggle checked={groupForm.active} onChange={() => setGroupForm({ ...groupForm, active: !groupForm.active })} />
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <div style={labelStyle}>Description</div>
+                {/* @ts-ignore */}
+                <forge-text-field style={inputWrapperStyle}>
+                  <input type="text" value={groupForm.description} onChange={(e) => setGroupForm({ ...groupForm, description: e.target.value })} placeholder="Brief description" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }} />
+                {/* @ts-ignore */}
+                </forge-text-field>
               </div>
-            </div>
-          </div>
-
-          {/* Permissions matrix — traversa style: resources × CRUD */}
-          <div>
-            <div style={{ ...labelStyle, marginBottom: 'var(--forge-spacing-small)' }}>Permissions</div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--forge-font-family)' }}>
-              <thead>
-                <tr style={{ borderBottom: '2px solid var(--border)' }}>
-                  <th style={{ ...tableHeaderCellStyle, borderBottom: 'none', textAlign: 'left', paddingLeft: 'var(--forge-spacing-small)' }}>Resource</th>
-                  {CRUD_COLS.map(c => (
-                    <th key={c.key} style={{ ...tableHeaderCellStyle, borderBottom: 'none', textAlign: 'center', width: 72 }}>{c.label}</th>
+              <div>
+                <div style={labelStyle}>Color</div>
+                <div style={{ display: 'flex', gap: 'var(--forge-spacing-xxsmall)', marginTop: 'var(--forge-spacing-xxsmall)' }}>
+                  {GROUP_COLORS.map(c => (
+                    <button key={c} onClick={() => setGroupForm({ ...groupForm, color: c })} style={{ width: 20, height: 20, borderRadius: '50%', background: c, border: 'none', cursor: 'pointer', boxShadow: groupForm.color === c ? `0 0 0 2px #fff, 0 0 0 3px ${c}` : 'none' }} />
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {groupForm.permissions.map((rp, idx) => {
-                  const resource = RESOURCES.find(r => r.id === rp.resourceId)!;
-                  return (
-                    <tr key={rp.resourceId} style={{ borderBottom: idx < groupForm.permissions.length - 1 ? '1px solid var(--forge-color-border-subtle)' : 'none' }}>
-                      <td style={{ padding: '8px var(--forge-spacing-small)', fontSize: 'var(--text-sm)', color: 'var(--foreground)' }}>{resource.label}</td>
-                      {CRUD_COLS.map(c => (
-                        <td key={c.key} style={{ textAlign: 'center', padding: '8px' }}>
+                </div>
+              </div>
+              <div>
+                <div style={labelStyle}>Active</div>
+                <div style={{ marginTop: 'var(--forge-spacing-xxsmall)' }}>
+                  <PermToggle checked={groupForm.active} onChange={() => setGroupForm({ ...groupForm, active: !groupForm.active })} />
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', marginLeft: 'auto' }}>
+                <ForgeButton variant="outlined" onClick={() => setPermView('list')} style={{ fontFamily: 'var(--forge-font-family)' }}>Cancel</ForgeButton>
+                <ForgeButton onClick={saveGroup} disabled={!groupForm.name} style={{ fontFamily: 'var(--forge-font-family)' }}>
+                  {editingGroup ? 'Save Changes' : 'Add Group'}
+                </ForgeButton>
+              </div>
+            </div>
+
+            {/* Permission tabs */}
+            {/* @ts-ignore */}
+            <forge-tab-bar active-tab={activeTabIdx} style={{ borderBottom: '1px solid var(--border)', background: 'var(--card)' }}>
+              {PERM_TAB_DEFS.map(t => (
+                // @ts-ignore
+                <forge-tab key={t.id} onClick={() => setPermActiveTab(t.id)}>{t.label}{/* @ts-ignore */}</forge-tab>
+              ))}
+            {/* @ts-ignore */}
+            </forge-tab-bar>
+
+            {/* Permission grid — ST style */}
+            <div style={{ ...cardStyle, borderTopLeftRadius: 0, borderTopRightRadius: 0, borderTop: 'none', padding: 0, overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--forge-font-family)', fontSize: 13 }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid #d0d7e2', background: '#f8fafc' }}>
+                    <th style={{ textAlign: 'left', padding: '8px 14px', fontSize: 12, fontWeight: 600, color: 'var(--muted-foreground)', width: '40%' }}>Area</th>
+                    {PERM_COLS.map(c => (
+                      <th key={c.key} style={{ textAlign: 'center', padding: '8px 14px', fontSize: 12, fontWeight: 600, color: 'var(--muted-foreground)', width: '15%' }}>{c.label}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {activeTabData?.areas.map((area, idx) => (
+                    <tr key={area.id} style={{ background: idx % 2 === 0 ? '#ffffff' : '#f0f5fb', borderBottom: '1px solid #e8edf4' }}>
+                      <td style={{ padding: '7px 14px', color: 'var(--foreground)' }}>{area.label}</td>
+                      {PERM_COLS.map(c => (
+                        <td key={c.key} style={{ textAlign: 'center', padding: '7px 14px' }}>
                           <input
                             type="checkbox"
-                            checked={rp[c.key]}
-                            onChange={() => toggleResourcePermission(rp.resourceId, c.key)}
-                            style={{ cursor: 'pointer', accentColor: 'var(--primary)', width: 14, height: 14, transform: 'scale(1.2)' }}
+                            checked={area[c.key]}
+                            onChange={() => toggleAreaPerm(area.id, c.key)}
+                            style={{ cursor: 'pointer', accentColor: '#3B5EA6', width: 14, height: 14, transform: 'scale(1.15)' }}
                           />
                         </td>
                       ))}
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-
-          {/* Actions */}
-          <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', justifyContent: 'flex-end' }}>
-            <ForgeButton variant="outlined" onClick={() => setIsGroupDialogOpen(false)} style={{ fontFamily: 'var(--forge-font-family)' }}>Cancel</ForgeButton>
-            <ForgeButton onClick={saveGroup} disabled={!groupForm.name} style={{ fontFamily: 'var(--forge-font-family)' }}>
-              {editingGroup ? 'Save Changes' : 'Add Group'}
-            </ForgeButton>
-          </div>
-        </div>
-      {/* @ts-ignore */}
-      </forge-dialog>
+        );
+      })()}
     </div>
   );
 }
