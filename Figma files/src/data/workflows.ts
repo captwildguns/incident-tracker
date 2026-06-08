@@ -398,7 +398,7 @@ export const workflows: Workflow[] = [
     name: 'Prohibited Items Response',
     description: 'Workflow for handling possession of prohibited items including tobacco, harmful items, illegal substances, and inappropriate materials',
     incidentTypes: ['Weapon / Prohibited Items'],
-    severityLevels: ['Medium', 'High'],
+    severityLevels: ['Medium', 'High', 'Critical'],
     isActive: true,
     createdBy: 'Sarah Williams',
     createdDate: '2025-02-28',

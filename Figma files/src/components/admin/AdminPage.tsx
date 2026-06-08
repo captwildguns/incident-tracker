@@ -25,6 +25,7 @@ import {
   AlertTriangle,
   GitBranch,
   ExternalLink,
+  Lock,
 } from 'lucide-react';
 import {
   INCIDENT_TYPES as SEED_INCIDENT_TYPES,
@@ -192,6 +193,51 @@ function categoryBadgeStyle(cat: string): React.CSSProperties {
   };
 }
 
+// ─── Permissions ─────────────────────────────────────────────────────────────
+
+type ReadScope = 'none' | 'own' | 'all';
+
+interface PermissionSet {
+  role: string;
+  create: boolean;
+  read: ReadScope;
+  update: boolean;
+  delete: boolean;
+}
+
+const INITIAL_PERMISSIONS: PermissionSet[] = [
+  { role: 'Driver',            create: true,  read: 'own', update: false, delete: false },
+  { role: 'Safety Coordinator',create: true,  read: 'all', update: true,  delete: false },
+  { role: 'Administrator',     create: true,  read: 'all', update: true,  delete: true  },
+  { role: 'Fleet Manager',     create: true,  read: 'all', update: true,  delete: false },
+  { role: 'Mechanic',          create: false, read: 'own', update: false, delete: false },
+  { role: 'School Principal',  create: false, read: 'all', update: false, delete: false },
+  { role: 'Nurse',             create: false, read: 'own', update: false, delete: false },
+];
+
+function PermToggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
+  return (
+    <button
+      onClick={onChange}
+      aria-pressed={checked}
+      style={{
+        width: 40, height: 22, borderRadius: 11,
+        background: checked ? 'var(--primary)' : '#94a3b8',
+        border: 'none', cursor: 'pointer', position: 'relative',
+        transition: 'background 0.15s', flexShrink: 0,
+        outline: 'none',
+      }}
+    >
+      <span style={{
+        position: 'absolute', top: 3, left: checked ? 21 : 3,
+        width: 16, height: 16, borderRadius: '50%',
+        background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+        transition: 'left 0.15s', display: 'block',
+      }} />
+    </button>
+  );
+}
+
 // ═════════════════════════════════════════════════════════════════════════════
 // COMPONENT
 // ═════════════════════════════════════════════════════════════════════════════
@@ -202,7 +248,7 @@ interface AdminPageProps {
 
 export function AdminPage({ onNavigate }: AdminPageProps) {
   // ─── Tab State ──────────────────────────────────────────────────────────────
-  const [activeSection, setActiveSection] = useState<'users' | 'templates' | 'incidentTypes'>('users');
+  const [activeSection, setActiveSection] = useState<'users' | 'templates' | 'incidentTypes' | 'permissions'>('users');
 
   // ─── Users State ─────────────────────────────────────────────────────────────
   const [users, setUsers] = useState<UserRecord[]>(INITIAL_USERS);
@@ -260,6 +306,9 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
     defaultSeverity: 'Medium',
     applicableTo: 'student',
   });
+
+  // ─── Permissions State ──────────────────────────────────────────────────────
+  const [permissions, setPermissions] = useState<PermissionSet[]>([...INITIAL_PERMISSIONS]);
 
   // ─── Workflows State (for incident type linking) ────────────────────────────
   const [workflowsList, setWorkflowsList] = useState<Workflow[]>([...SEED_WORKFLOWS]);
@@ -609,14 +658,14 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
           </h1>
         </div>
         <p style={{ ...mutedTextStyle, marginTop: 'var(--forge-spacing-xxsmall)' }}>
-          Manage user roles, incident types, and email notification templates for the Incident Tracker system.
+          Manage user roles, incident types, email notification templates, and role-based permissions for the Incident Tracker system.
         </p>
       </div>
 
       {/* Section Tabs */}
       {/* @ts-ignore */}
       <forge-tab-bar
-        active-tab={activeSection === 'users' ? 0 : activeSection === 'templates' ? 1 : 2}
+        active-tab={activeSection === 'users' ? 0 : activeSection === 'templates' ? 1 : activeSection === 'incidentTypes' ? 2 : 3}
         style={{ marginBottom: 'var(--forge-spacing-large)' }}
       >
         {/* @ts-ignore */}
@@ -635,6 +684,12 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
         <forge-tab onClick={() => setActiveSection('incidentTypes')}>
           <forge-icon name="warning" slot="leading"></forge-icon>
           Incident Types
+        {/* @ts-ignore */}
+        </forge-tab>
+        {/* @ts-ignore */}
+        <forge-tab onClick={() => setActiveSection('permissions')}>
+          <forge-icon name="lock" slot="leading"></forge-icon>
+          Permissions
         {/* @ts-ignore */}
         </forge-tab>
       {/* @ts-ignore */}
@@ -1781,6 +1836,123 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
         </div>
       {/* @ts-ignore */}
       </forge-dialog>
+
+      {/* ══════════════════════════════════════════════════════════════════════ */}
+      {/* PERMISSIONS SECTION                                                   */}
+      {/* ══════════════════════════════════════════════════════════════════════ */}
+      {activeSection === 'permissions' && (
+        <div>
+          {/* Info banner */}
+          <div style={{
+            background: 'rgba(74, 111, 165, 0.08)',
+            border: '1px solid var(--brand-blue-medium)',
+            borderRadius: 'var(--forge-radius-medium)',
+            padding: 'var(--forge-spacing-medium)',
+            marginBottom: 'var(--forge-spacing-medium)',
+            display: 'flex', gap: 'var(--forge-spacing-small)', alignItems: 'flex-start',
+          }}>
+            <Lock size={16} style={{ color: 'var(--brand-blue-dark)', flexShrink: 0, marginTop: 2 }} />
+            <p style={{ ...mutedTextStyle, margin: 0 }}>
+              Permissions control what each role can do with incident records. Changes apply system-wide to all users assigned that role. <strong style={{ color: 'var(--foreground)' }}>Read: Own Incidents</strong> restricts visibility to incidents the user created or is assigned to. <strong style={{ color: 'var(--foreground)' }}>Read: All Incidents</strong> grants full visibility across the system.
+            </p>
+          </div>
+
+          {/* Permissions matrix */}
+          <div style={cardStyle}>
+            {/* Header row */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '180px 1fr 160px 1fr 1fr',
+              gap: 'var(--forge-spacing-medium)',
+              padding: 'var(--forge-spacing-small) var(--forge-spacing-medium)',
+              borderBottom: '2px solid var(--border)',
+              alignItems: 'center',
+            }}>
+              {(['Role', 'Create', 'Read Access', 'Update', 'Delete'] as const).map((h, i) => (
+                <span key={h} style={{
+                  fontSize: 'var(--text-sm)',
+                  fontFamily: 'var(--forge-font-family)',
+                  fontWeight: 'var(--forge-font-weight-medium)',
+                  color: 'var(--muted-foreground)',
+                  textAlign: i === 0 ? 'left' : 'center',
+                  display: 'block',
+                }}>
+                  {h}
+                </span>
+              ))}
+            </div>
+
+            {/* Permission rows */}
+            {permissions.map((p, idx) => (
+              <div key={p.role} style={{
+                display: 'grid',
+                gridTemplateColumns: '180px 1fr 160px 1fr 1fr',
+                gap: 'var(--forge-spacing-medium)',
+                padding: 'var(--forge-spacing-small) var(--forge-spacing-medium)',
+                borderBottom: idx < permissions.length - 1 ? '1px solid var(--forge-color-border-subtle)' : 'none',
+                alignItems: 'center',
+              }}>
+                {/* Role */}
+                <div>
+                  {/* @ts-ignore */}
+                  <forge-badge style={{ ...roleBadgeStyle(p.role), border: `1px solid` }}>{p.role}</forge-badge>
+                </div>
+
+                {/* Create */}
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <PermToggle
+                    checked={p.create}
+                    onChange={() => setPermissions(prev => prev.map(r => r.role === p.role ? { ...r, create: !r.create } : r))}
+                  />
+                </div>
+
+                {/* Read scope */}
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <select
+                    value={p.read}
+                    onChange={(e) => setPermissions(prev => prev.map(r => r.role === p.role ? { ...r, read: e.target.value as ReadScope } : r))}
+                    style={{ ...selectStyle, width: '140px', fontSize: 'var(--text-sm)', padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-small)' }}
+                  >
+                    <option value="none">No Access</option>
+                    <option value="own">Own Incidents</option>
+                    <option value="all">All Incidents</option>
+                  </select>
+                </div>
+
+                {/* Update */}
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <PermToggle
+                    checked={p.update}
+                    onChange={() => setPermissions(prev => prev.map(r => r.role === p.role ? { ...r, update: !r.update } : r))}
+                  />
+                </div>
+
+                {/* Delete */}
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                  <PermToggle
+                    checked={p.delete}
+                    onChange={() => setPermissions(prev => prev.map(r => r.role === p.role ? { ...r, delete: !r.delete } : r))}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Footer actions */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--forge-spacing-small)', marginTop: 'var(--forge-spacing-medium)' }}>
+            <ForgeButton
+              variant="outlined"
+              onClick={() => setPermissions(INITIAL_PERMISSIONS.map(p => ({ ...p })))}
+              style={{ fontFamily: 'var(--forge-font-family)' }}
+            >
+              Reset to Defaults
+            </ForgeButton>
+            <ForgeButton style={{ fontFamily: 'var(--forge-font-family)' }}>
+              Save Changes
+            </ForgeButton>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

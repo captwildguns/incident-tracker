@@ -55,7 +55,7 @@ export const INCIDENT_TYPES: IncidentType[] = [
     label: 'Weapon / Prohibited Items',
     category: INCIDENT_CATEGORIES.PROHIBITED,
     description: 'Possession of a weapon, weapon-like object, tobacco, vaping devices, illegal substances, or any other prohibited materials on the bus',
-    defaultSeverity: 'High',
+    defaultSeverity: 'Critical',
     applicableTo: 'student',
   },
 ];
