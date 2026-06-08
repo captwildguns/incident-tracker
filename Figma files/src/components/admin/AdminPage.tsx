@@ -688,7 +688,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
         </forge-tab>
         {/* @ts-ignore */}
         <forge-tab onClick={() => setActiveSection('permissions')}>
-          <forge-icon name="lock" slot="leading"></forge-icon>
+          <forge-icon name="shield" slot="leading"></forge-icon>
           Permissions
         {/* @ts-ignore */}
         </forge-tab>
