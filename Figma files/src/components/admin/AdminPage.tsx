@@ -193,26 +193,84 @@ function categoryBadgeStyle(cat: string): React.CSSProperties {
   };
 }
 
-// ─── Permissions ─────────────────────────────────────────────────────────────
+// ─── Permission Groups ────────────────────────────────────────────────────────
 
-type ReadScope = 'none' | 'own' | 'all';
+type PermissionId =
+  | 'incident_create' | 'incident_read_own' | 'incident_read_all'
+  | 'incident_update' | 'incident_delete'
+  | 'workflow_start' | 'workflow_complete_steps' | 'workflow_approve_steps' | 'workflow_reassign'
+  | 'comms_send' | 'comms_view_all'
+  | 'reports_view' | 'reports_export'
+  | 'admin_users' | 'admin_incident_types' | 'admin_workflows' | 'admin_email_templates' | 'admin_permissions';
 
-interface PermissionSet {
-  role: string;
-  create: boolean;
-  read: ReadScope;
-  update: boolean;
-  delete: boolean;
+interface PermissionDef { id: PermissionId; label: string; category: string; }
+
+const PERMISSION_DEFS: PermissionDef[] = [
+  { id: 'incident_create',         label: 'Create Incidents',        category: 'Incident Management' },
+  { id: 'incident_read_own',       label: 'View Own Incidents',      category: 'Incident Management' },
+  { id: 'incident_read_all',       label: 'View All Incidents',      category: 'Incident Management' },
+  { id: 'incident_update',         label: 'Update Incidents',        category: 'Incident Management' },
+  { id: 'incident_delete',         label: 'Delete Incidents',        category: 'Incident Management' },
+  { id: 'workflow_start',          label: 'Start Workflows',         category: 'Workflow' },
+  { id: 'workflow_complete_steps', label: 'Complete Workflow Steps', category: 'Workflow' },
+  { id: 'workflow_approve_steps',  label: 'Approve Workflow Steps',  category: 'Workflow' },
+  { id: 'workflow_reassign',       label: 'Reassign Workflow Steps', category: 'Workflow' },
+  { id: 'comms_send',              label: 'Send Messages',           category: 'Communications' },
+  { id: 'comms_view_all',          label: 'View All Messages',       category: 'Communications' },
+  { id: 'reports_view',            label: 'View Reports',            category: 'Reports' },
+  { id: 'reports_export',          label: 'Export Reports',          category: 'Reports' },
+  { id: 'admin_users',             label: 'Manage Users',            category: 'Administration' },
+  { id: 'admin_incident_types',    label: 'Manage Incident Types',   category: 'Administration' },
+  { id: 'admin_workflows',         label: 'Manage Workflows',        category: 'Administration' },
+  { id: 'admin_email_templates',   label: 'Manage Email Templates',  category: 'Administration' },
+  { id: 'admin_permissions',       label: 'Manage Permissions',      category: 'Administration' },
+];
+
+const PERM_CATEGORIES = ['Incident Management', 'Workflow', 'Communications', 'Reports', 'Administration'] as const;
+const GROUP_COLORS = ['#4A6FA5', '#3F51B5', '#7B8458', '#607D8B', '#F59E0B', '#EF4444', '#10B981', '#8B5CF6'];
+
+interface PermissionGroup {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  active: boolean;
+  permissions: PermissionId[];
 }
 
-const INITIAL_PERMISSIONS: PermissionSet[] = [
-  { role: 'Driver',            create: true,  read: 'own', update: false, delete: false },
-  { role: 'Safety Coordinator',create: true,  read: 'all', update: true,  delete: false },
-  { role: 'Administrator',     create: true,  read: 'all', update: true,  delete: true  },
-  { role: 'Fleet Manager',     create: true,  read: 'all', update: false, delete: false },
-  { role: 'Mechanic',          create: false, read: 'own', update: false, delete: false },
-  { role: 'School Principal',  create: false, read: 'all', update: false, delete: false },
-  { role: 'Nurse',             create: false, read: 'own', update: false, delete: false },
+const ALL_PERM_IDS = PERMISSION_DEFS.map(p => p.id);
+
+const INITIAL_GROUPS: PermissionGroup[] = [
+  {
+    id: 'G-001', name: 'Administrator',
+    description: 'Full access to all incident management features and administrative controls.',
+    color: '#3F51B5', active: true,
+    permissions: [...ALL_PERM_IDS],
+  },
+  {
+    id: 'G-002', name: 'Safety Coordinator',
+    description: 'Manages incidents end-to-end including workflows, communications, and reporting.',
+    color: '#7B8458', active: true,
+    permissions: ['incident_create','incident_read_all','incident_update','workflow_start','workflow_complete_steps','workflow_approve_steps','workflow_reassign','comms_send','comms_view_all','reports_view','reports_export'],
+  },
+  {
+    id: 'G-003', name: 'Driver',
+    description: 'Can create and view own incidents and participate in assigned workflow steps.',
+    color: '#4A6FA5', active: true,
+    permissions: ['incident_create','incident_read_own','workflow_start','workflow_complete_steps','comms_send'],
+  },
+  {
+    id: 'G-004', name: 'Fleet Manager',
+    description: 'Read-only access to all incidents with reporting capabilities.',
+    color: '#607D8B', active: true,
+    permissions: ['incident_create','incident_read_all','reports_view','reports_export'],
+  },
+  {
+    id: 'G-005', name: 'School Principal',
+    description: 'View-only access to all incidents with communication capability.',
+    color: '#F59E0B', active: true,
+    permissions: ['incident_read_all','comms_send','comms_view_all','reports_view'],
+  },
 ];
 
 function PermToggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
@@ -307,8 +365,14 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
     applicableTo: 'student',
   });
 
-  // ─── Permissions State ──────────────────────────────────────────────────────
-  const [permissions, setPermissions] = useState<PermissionSet[]>([...INITIAL_PERMISSIONS]);
+  // ─── Permission Groups State ─────────────────────────────────────────────────
+  const [groups, setGroups] = useState<PermissionGroup[]>(INITIAL_GROUPS.map(g => ({ ...g, permissions: [...g.permissions] })));
+  const [groupSearch, setGroupSearch] = useState('');
+  const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
+  const [editingGroup, setEditingGroup] = useState<PermissionGroup | null>(null);
+  const [groupForm, setGroupForm] = useState<Omit<PermissionGroup, 'id'>>({
+    name: '', description: '', color: GROUP_COLORS[0], active: true, permissions: [],
+  });
 
   // ─── Workflows State (for incident type linking) ────────────────────────────
   const [workflowsList, setWorkflowsList] = useState<Workflow[]>([...SEED_WORKFLOWS]);
@@ -322,6 +386,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   const templateDialogRef = useRef<HTMLElement>(null);
   const previewDialogRef = useRef<HTMLElement>(null);
   const itDialogRef = useRef<HTMLElement>(null);
+  const groupDialogRef = useRef<HTMLElement>(null);
 
   // User Dialog sync
   useEffect(() => { const el = userDialogRef.current as any; if (!el) return; el.open = isUserDialogOpen; }, [isUserDialogOpen]);
@@ -359,6 +424,8 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   // Incident Type Dialog sync
   useEffect(() => { const el = itDialogRef.current as any; if (!el) return; el.open = isItDialogOpen; }, [isItDialogOpen]);
   useEffect(() => { const el = itDialogRef.current as any; if (!el) return; const handler = () => setIsItDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
+  useEffect(() => { const el = groupDialogRef.current as any; if (!el) return; el.open = isGroupDialogOpen; }, [isGroupDialogOpen]);
+  useEffect(() => { const el = groupDialogRef.current as any; if (!el) return; const handler = () => setIsGroupDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
 
   // ─── User Helpers ────────────────────────────────────────────────────────────
 
@@ -642,6 +709,47 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
 
   const studentItCount = incidentTypes.filter((t) => t.applicableTo === 'student' || t.applicableTo === 'both').length;
   const driverItCount = incidentTypes.filter((t) => t.applicableTo === 'driver' || t.applicableTo === 'both').length;
+
+  // ─── Permission Group Helpers ────────────────────────────────────────────────
+
+  const filteredGroups = groups.filter(g =>
+    !groupSearch ||
+    g.name.toLowerCase().includes(groupSearch.toLowerCase()) ||
+    g.description.toLowerCase().includes(groupSearch.toLowerCase())
+  );
+
+  const openAddGroup = () => {
+    setEditingGroup(null);
+    setGroupForm({ name: '', description: '', color: GROUP_COLORS[0], active: true, permissions: [] });
+    setIsGroupDialogOpen(true);
+  };
+
+  const openEditGroup = (g: PermissionGroup) => {
+    setEditingGroup(g);
+    setGroupForm({ name: g.name, description: g.description, color: g.color, active: g.active, permissions: [...g.permissions] });
+    setIsGroupDialogOpen(true);
+  };
+
+  const saveGroup = () => {
+    if (!groupForm.name) return;
+    if (editingGroup) {
+      setGroups(groups.map(g => g.id === editingGroup.id ? { ...g, ...groupForm } : g));
+    } else {
+      setGroups([...groups, { id: `G-${String(groups.length + 1).padStart(3, '0')}`, ...groupForm }]);
+    }
+    setIsGroupDialogOpen(false);
+  };
+
+  const deleteGroup = (id: string) => setGroups(groups.filter(g => g.id !== id));
+
+  const toggleGroupPermission = (permId: PermissionId) => {
+    setGroupForm(prev => ({
+      ...prev,
+      permissions: prev.permissions.includes(permId)
+        ? prev.permissions.filter(p => p !== permId)
+        : [...prev.permissions, permId],
+    }));
+  };
 
   // ═════════════════════════════════════════════════════════════════════════════
   // RENDER
@@ -1842,109 +1950,190 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
       {/* ══════════════════════════════════════════════════════════════════════ */}
       {activeSection === 'permissions' && (
         <div>
-          {/* Info banner */}
-          <div style={{
-            background: 'rgba(74, 111, 165, 0.08)',
-            border: '1px solid var(--brand-blue-medium)',
-            borderRadius: 'var(--forge-radius-medium)',
-            padding: 'var(--forge-spacing-medium)',
-            marginBottom: 'var(--forge-spacing-medium)',
-            display: 'flex', gap: 'var(--forge-spacing-small)', alignItems: 'flex-start',
-          }}>
-            <Lock size={16} style={{ color: 'var(--brand-blue-dark)', flexShrink: 0, marginTop: 2 }} />
-            <p style={{ ...mutedTextStyle, margin: 0 }}>
-              Permissions control what each role can do with incident records. Changes apply system-wide to all users assigned that role. <strong style={{ color: 'var(--foreground)' }}>Read: Own Incidents</strong> restricts visibility to incidents the user created or is assigned to. <strong style={{ color: 'var(--foreground)' }}>Read: All Incidents</strong> grants full visibility across the system.
-            </p>
-          </div>
-
-          {/* Permissions matrix */}
-          <div style={cardStyle}>
-            {/* Header row */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: '180px 1fr 160px 1fr 1fr',
-              gap: 'var(--forge-spacing-medium)',
-              padding: 'var(--forge-spacing-small) var(--forge-spacing-medium)',
-              borderBottom: '2px solid var(--border)',
-              alignItems: 'center',
-            }}>
-              {(['Role', 'Create', 'Read Access', 'Update', 'Delete'] as const).map((h, i) => (
-                <span key={h} style={{
-                  fontSize: 'var(--text-sm)',
-                  fontFamily: 'var(--forge-font-family)',
-                  fontWeight: 'var(--forge-font-weight-medium)',
-                  color: 'var(--muted-foreground)',
-                  textAlign: i === 0 ? 'left' : 'center',
-                  display: 'block',
-                }}>
-                  {h}
-                </span>
-              ))}
+          {/* Toolbar */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--forge-spacing-medium)', flexWrap: 'wrap', gap: 'var(--forge-spacing-small)' }}>
+            <div style={{ position: 'relative' }}>
+              <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', zIndex: 1 }} />
+              {/* @ts-ignore */}
+              <forge-text-field>
+                <input
+                  type="text"
+                  value={groupSearch}
+                  onChange={(e) => setGroupSearch(e.target.value)}
+                  placeholder="Search groups..."
+                  style={{ paddingLeft: '2rem', width: '260px', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}
+                />
+              {/* @ts-ignore */}
+              </forge-text-field>
             </div>
-
-            {/* Permission rows */}
-            {permissions.map((p, idx) => (
-              <div key={p.role} style={{
-                display: 'grid',
-                gridTemplateColumns: '180px 1fr 160px 1fr 1fr',
-                gap: 'var(--forge-spacing-medium)',
-                padding: 'var(--forge-spacing-small) var(--forge-spacing-medium)',
-                borderBottom: idx < permissions.length - 1 ? '1px solid var(--forge-color-border-subtle)' : 'none',
-                alignItems: 'center',
-              }}>
-                {/* Role */}
-                <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)', color: 'var(--foreground)' }}>
-                  {p.role}
-                </div>
-
-                {/* Create */}
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <PermToggle
-                    checked={p.create}
-                    onChange={() => setPermissions(prev => prev.map(r => r.role === p.role ? { ...r, create: !r.create } : r))}
-                  />
-                </div>
-
-                {/* Read scope */}
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <select
-                    value={p.read}
-                    onChange={(e) => setPermissions(prev => prev.map(r => r.role === p.role ? { ...r, read: e.target.value as ReadScope } : r))}
-                    style={{ ...selectStyle, width: '140px', fontSize: 'var(--text-sm)', padding: 'var(--forge-spacing-xxsmall) var(--forge-spacing-small)' }}
-                  >
-                    <option value="none">No Access</option>
-                    <option value="own">Own Incidents</option>
-                    <option value="all">All Incidents</option>
-                  </select>
-                </div>
-
-                {/* Update */}
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <PermToggle
-                    checked={p.update}
-                    onChange={() => setPermissions(prev => prev.map(r => r.role === p.role ? { ...r, update: !r.update } : r))}
-                  />
-                </div>
-
-                {/* Delete */}
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <PermToggle
-                    checked={p.delete}
-                    onChange={() => setPermissions(prev => prev.map(r => r.role === p.role ? { ...r, delete: !r.delete } : r))}
-                  />
-                </div>
-              </div>
-            ))}
+            <ForgeButton onClick={openAddGroup} style={{ fontFamily: 'var(--forge-font-family)' }}>
+              <Plus size={16} style={{ marginRight: '6px' }} />
+              Add Group
+            </ForgeButton>
           </div>
 
-          {/* Footer actions */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'var(--forge-spacing-medium)' }}>
-            <ForgeButton style={{ fontFamily: 'var(--forge-font-family)' }}>
-              Save Changes
-            </ForgeButton>
+          {/* Groups table */}
+          <div style={cardStyle}>
+            <div style={{ overflowX: 'auto' }}>
+              <table className="forge-table">
+                <thead>
+                  <tr>
+                    <th className="forge-table-cell forge-table-cell--header">Group</th>
+                    <th className="forge-table-cell forge-table-cell--header">Description</th>
+                    <th className="forge-table-cell forge-table-cell--header">Permissions</th>
+                    <th className="forge-table-cell forge-table-cell--header">Active</th>
+                    <th className="forge-table-cell forge-table-cell--header" style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredGroups.map(g => (
+                    <tr key={g.id} className="forge-table-row">
+                      <td className="forge-table-cell">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)' }}>
+                          <span style={{ width: 12, height: 12, borderRadius: '50%', background: g.color, flexShrink: 0, display: 'inline-block' }} />
+                          <span style={{ fontWeight: 'var(--forge-font-weight-medium)', fontFamily: 'var(--forge-font-family)' }}>{g.name}</span>
+                        </div>
+                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)', marginLeft: 20 }}>{g.id}</div>
+                      </td>
+                      <td className="forge-table-cell" style={{ maxWidth: 320 }}>
+                        <span style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)' }}>{g.description}</span>
+                      </td>
+                      <td className="forge-table-cell">
+                        {/* @ts-ignore */}
+                        <forge-badge theme="default" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)' }}>
+                          {g.permissions.length} of {PERMISSION_DEFS.length}
+                        {/* @ts-ignore */}
+                        </forge-badge>
+                      </td>
+                      <td className="forge-table-cell">
+                        <PermToggle checked={g.active} onChange={() => setGroups(groups.map(r => r.id === g.id ? { ...r, active: !r.active } : r))} />
+                      </td>
+                      <td className="forge-table-cell" style={{ textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: 'var(--forge-spacing-xxsmall)', justifyContent: 'flex-end' }}>
+                          <ForgeButton variant="outlined" onClick={() => openEditGroup(g)} style={{ fontFamily: 'var(--forge-font-family)' }}>
+                            <Pencil size={14} style={{ marginRight: 4 }} />
+                            Edit
+                          </ForgeButton>
+                          <ForgeButton variant="outlined" onClick={() => deleteGroup(g.id)} style={{ fontFamily: 'var(--forge-font-family)', color: 'var(--destructive)', borderColor: 'var(--destructive)' }}>
+                            <Trash2 size={14} />
+                          </ForgeButton>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                  {filteredGroups.length === 0 && (
+                    <tr>
+                      <td colSpan={5} style={{ padding: 'var(--forge-spacing-large)', textAlign: 'center', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}>
+                        No groups found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div style={{ padding: 'var(--forge-spacing-small) var(--forge-spacing-medium)', color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)', borderTop: '1px solid var(--border)' }}>
+              Showing {filteredGroups.length} of {groups.length} groups
+            </div>
           </div>
         </div>
       )}
+
+      {/* ── Group Dialog ─────────────────────────────────────────────────────── */}
+      {/* @ts-ignore */}
+      <forge-dialog ref={groupDialogRef} style={{ '--forge-dialog-max-width': '660px' }}>
+        <div style={{ padding: 'var(--forge-spacing-large)', display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-medium)', maxHeight: '85vh', overflowY: 'auto' }}>
+          <h2 style={{ ...sectionHeaderStyle, margin: 0 }}>{editingGroup ? 'Edit Group' : 'Add Group'}</h2>
+
+          {/* Name */}
+          <div>
+            <div style={labelStyle}>Name <span style={{ color: 'var(--destructive)' }}>*</span></div>
+            {/* @ts-ignore */}
+            <forge-text-field style={inputWrapperStyle}>
+              <input type="text" value={groupForm.name} onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })} placeholder="e.g., Safety Coordinator" style={{ fontFamily: 'var(--forge-font-family)' }} />
+            {/* @ts-ignore */}
+            </forge-text-field>
+          </div>
+
+          {/* Description */}
+          <div>
+            <div style={labelStyle}>Description</div>
+            <Textarea value={groupForm.description} onChange={(e) => setGroupForm({ ...groupForm, description: e.target.value })} placeholder="Brief description of this group's role..." rows={2} style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }} />
+          </div>
+
+          {/* Color + Active */}
+          <div style={{ display: 'flex', gap: 'var(--forge-spacing-xlarge)', alignItems: 'center' }}>
+            <div>
+              <div style={labelStyle}>Color</div>
+              <div style={{ display: 'flex', gap: 'var(--forge-spacing-xxsmall)', marginTop: 'var(--forge-spacing-xxsmall)' }}>
+                {GROUP_COLORS.map(c => (
+                  <button key={c} onClick={() => setGroupForm({ ...groupForm, color: c })} style={{
+                    width: 24, height: 24, borderRadius: '50%', background: c, border: 'none', cursor: 'pointer',
+                    boxShadow: groupForm.color === c ? `0 0 0 2px #fff, 0 0 0 4px ${c}` : 'none',
+                  }} />
+                ))}
+              </div>
+            </div>
+            <div>
+              <div style={labelStyle}>Active</div>
+              <div style={{ marginTop: 'var(--forge-spacing-xxsmall)' }}>
+                <PermToggle checked={groupForm.active} onChange={() => setGroupForm({ ...groupForm, active: !groupForm.active })} />
+              </div>
+            </div>
+          </div>
+
+          {/* Permissions by category */}
+          <div>
+            <div style={{ ...labelStyle, marginBottom: 'var(--forge-spacing-small)' }}>Permissions</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--forge-spacing-small)' }}>
+              {PERM_CATEGORIES.map(cat => {
+                const catPerms = PERMISSION_DEFS.filter(p => p.category === cat);
+                const allSelected = catPerms.every(p => groupForm.permissions.includes(p.id));
+                return (
+                  <div key={cat} style={{ background: 'var(--input-background)', borderRadius: 'var(--forge-radius-medium)', border: '1px solid var(--forge-color-border-subtle)', padding: 'var(--forge-spacing-small)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--forge-spacing-xxsmall)', paddingBottom: 'var(--forge-spacing-xxsmall)', borderBottom: '1px solid var(--forge-color-border-subtle)' }}>
+                      <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--forge-font-weight-medium)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{cat}</span>
+                      <button
+                        onClick={() => {
+                          const ids = catPerms.map(p => p.id);
+                          setGroupForm(prev => ({
+                            ...prev,
+                            permissions: allSelected
+                              ? prev.permissions.filter(p => !ids.includes(p as PermissionId))
+                              : [...new Set([...prev.permissions, ...ids])],
+                          }));
+                        }}
+                        style={{ fontSize: 'var(--text-xs)', fontFamily: 'var(--forge-font-family)', color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                      >
+                        {allSelected ? 'Clear' : 'All'}
+                      </button>
+                    </div>
+                    {catPerms.map(perm => (
+                      <label key={perm.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-xxsmall)', padding: '3px 0', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={groupForm.permissions.includes(perm.id)}
+                          onChange={() => toggleGroupPermission(perm.id)}
+                          style={{ cursor: 'pointer', accentColor: 'var(--primary)', width: 14, height: 14, flexShrink: 0 }}
+                        />
+                        <span style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--foreground)' }}>{perm.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', justifyContent: 'flex-end' }}>
+            <ForgeButton variant="outlined" onClick={() => setIsGroupDialogOpen(false)} style={{ fontFamily: 'var(--forge-font-family)' }}>Cancel</ForgeButton>
+            <ForgeButton onClick={saveGroup} disabled={!groupForm.name} style={{ fontFamily: 'var(--forge-font-family)' }}>
+              {editingGroup ? 'Save Changes' : 'Add Group'}
+            </ForgeButton>
+          </div>
+        </div>
+      {/* @ts-ignore */}
+      </forge-dialog>
     </div>
   );
 }
