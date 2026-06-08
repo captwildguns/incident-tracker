@@ -209,7 +209,7 @@ const INITIAL_PERMISSIONS: PermissionSet[] = [
   { role: 'Driver',            create: true,  read: 'own', update: false, delete: false },
   { role: 'Safety Coordinator',create: true,  read: 'all', update: true,  delete: false },
   { role: 'Administrator',     create: true,  read: 'all', update: true,  delete: true  },
-  { role: 'Fleet Manager',     create: true,  read: 'all', update: true,  delete: false },
+  { role: 'Fleet Manager',     create: true,  read: 'all', update: false, delete: false },
   { role: 'Mechanic',          create: false, read: 'own', update: false, delete: false },
   { role: 'School Principal',  create: false, read: 'all', update: false, delete: false },
   { role: 'Nurse',             create: false, read: 'own', update: false, delete: false },
