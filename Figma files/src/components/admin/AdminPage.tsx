@@ -1938,14 +1938,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
           </div>
 
           {/* Footer actions */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--forge-spacing-small)', marginTop: 'var(--forge-spacing-medium)' }}>
-            <ForgeButton
-              variant="outlined"
-              onClick={() => setPermissions(INITIAL_PERMISSIONS.map(p => ({ ...p })))}
-              style={{ fontFamily: 'var(--forge-font-family)' }}
-            >
-              Reset to Defaults
-            </ForgeButton>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 'var(--forge-spacing-medium)' }}>
             <ForgeButton style={{ fontFamily: 'var(--forge-font-family)' }}>
               Save Changes
             </ForgeButton>
