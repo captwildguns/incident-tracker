@@ -1893,9 +1893,8 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                 alignItems: 'center',
               }}>
                 {/* Role */}
-                <div>
-                  {/* @ts-ignore */}
-                  <forge-badge style={{ ...roleBadgeStyle(p.role), border: `1px solid` }}>{p.role}</forge-badge>
+                <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)', color: 'var(--foreground)' }}>
+                  {p.role}
                 </div>
 
                 {/* Create */}
