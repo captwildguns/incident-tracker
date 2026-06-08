@@ -195,39 +195,48 @@ function categoryBadgeStyle(cat: string): React.CSSProperties {
 
 // ─── Permission Groups ────────────────────────────────────────────────────────
 
-type PermissionId =
-  | 'incident_create' | 'incident_read_own' | 'incident_read_all'
-  | 'incident_update' | 'incident_delete'
-  | 'workflow_start' | 'workflow_complete_steps' | 'workflow_approve_steps' | 'workflow_reassign'
-  | 'comms_send' | 'comms_view_all'
-  | 'reports_view' | 'reports_export'
-  | 'admin_users' | 'admin_incident_types' | 'admin_workflows' | 'admin_email_templates' | 'admin_permissions';
+type CrudKey = 'create' | 'read' | 'update' | 'delete';
 
-interface PermissionDef { id: PermissionId; label: string; category: string; }
+interface ResourcePermission {
+  resourceId: string;
+  create: boolean;
+  read: boolean;
+  update: boolean;
+  delete: boolean;
+}
 
-const PERMISSION_DEFS: PermissionDef[] = [
-  { id: 'incident_create',         label: 'Create Incidents',        category: 'Incident Management' },
-  { id: 'incident_read_own',       label: 'View Own Incidents',      category: 'Incident Management' },
-  { id: 'incident_read_all',       label: 'View All Incidents',      category: 'Incident Management' },
-  { id: 'incident_update',         label: 'Update Incidents',        category: 'Incident Management' },
-  { id: 'incident_delete',         label: 'Delete Incidents',        category: 'Incident Management' },
-  { id: 'workflow_start',          label: 'Start Workflows',         category: 'Workflow' },
-  { id: 'workflow_complete_steps', label: 'Complete Workflow Steps', category: 'Workflow' },
-  { id: 'workflow_approve_steps',  label: 'Approve Workflow Steps',  category: 'Workflow' },
-  { id: 'workflow_reassign',       label: 'Reassign Workflow Steps', category: 'Workflow' },
-  { id: 'comms_send',              label: 'Send Messages',           category: 'Communications' },
-  { id: 'comms_view_all',          label: 'View All Messages',       category: 'Communications' },
-  { id: 'reports_view',            label: 'View Reports',            category: 'Reports' },
-  { id: 'reports_export',          label: 'Export Reports',          category: 'Reports' },
-  { id: 'admin_users',             label: 'Manage Users',            category: 'Administration' },
-  { id: 'admin_incident_types',    label: 'Manage Incident Types',   category: 'Administration' },
-  { id: 'admin_workflows',         label: 'Manage Workflows',        category: 'Administration' },
-  { id: 'admin_email_templates',   label: 'Manage Email Templates',  category: 'Administration' },
-  { id: 'admin_permissions',       label: 'Manage Permissions',      category: 'Administration' },
+const RESOURCES = [
+  { id: 'incidents',      label: 'Incidents' },
+  { id: 'workflows',      label: 'Workflows' },
+  { id: 'communications', label: 'Communications' },
+  { id: 'reports',        label: 'Reports' },
+  { id: 'administration', label: 'Administration' },
 ];
 
-const PERM_CATEGORIES = ['Incident Management', 'Workflow', 'Communications', 'Reports', 'Administration'] as const;
+const CRUD_COLS: { key: CrudKey; label: string }[] = [
+  { key: 'create', label: 'Create' },
+  { key: 'read',   label: 'Read' },
+  { key: 'update', label: 'Update' },
+  { key: 'delete', label: 'Delete' },
+];
+
 const GROUP_COLORS = ['#4A6FA5', '#3F51B5', '#7B8458', '#607D8B', '#F59E0B', '#EF4444', '#10B981', '#8B5CF6'];
+
+const TOTAL_PERMS = RESOURCES.length * CRUD_COLS.length;
+
+function countPerms(rps: ResourcePermission[]) {
+  return rps.reduce((n, r) => n + (r.create ? 1 : 0) + (r.read ? 1 : 0) + (r.update ? 1 : 0) + (r.delete ? 1 : 0), 0);
+}
+
+function makeResourcePermissions(overrides: Partial<Record<string, Partial<Record<CrudKey, boolean>>>> = {}): ResourcePermission[] {
+  return RESOURCES.map(r => ({
+    resourceId: r.id,
+    create: overrides[r.id]?.create ?? false,
+    read:   overrides[r.id]?.read   ?? false,
+    update: overrides[r.id]?.update ?? false,
+    delete: overrides[r.id]?.delete ?? false,
+  }));
+}
 
 interface PermissionGroup {
   id: string;
@@ -235,41 +244,69 @@ interface PermissionGroup {
   description: string;
   color: string;
   active: boolean;
-  permissions: PermissionId[];
+  permissions: ResourcePermission[];
 }
-
-const ALL_PERM_IDS = PERMISSION_DEFS.map(p => p.id);
 
 const INITIAL_GROUPS: PermissionGroup[] = [
   {
     id: 'G-001', name: 'Administrator',
     description: 'Full access to all incident management features and administrative controls.',
     color: '#3F51B5', active: true,
-    permissions: [...ALL_PERM_IDS],
+    permissions: makeResourcePermissions({
+      incidents:      { create: true, read: true, update: true, delete: true },
+      workflows:      { create: true, read: true, update: true, delete: true },
+      communications: { create: true, read: true, update: true, delete: true },
+      reports:        { create: true, read: true, update: true, delete: true },
+      administration: { create: true, read: true, update: true, delete: true },
+    }),
   },
   {
     id: 'G-002', name: 'Safety Coordinator',
     description: 'Manages incidents end-to-end including workflows, communications, and reporting.',
     color: '#7B8458', active: true,
-    permissions: ['incident_create','incident_read_all','incident_update','workflow_start','workflow_complete_steps','workflow_approve_steps','workflow_reassign','comms_send','comms_view_all','reports_view','reports_export'],
+    permissions: makeResourcePermissions({
+      incidents:      { create: true, read: true, update: true, delete: false },
+      workflows:      { create: true, read: true, update: true, delete: false },
+      communications: { create: true, read: true, update: false, delete: false },
+      reports:        { create: false, read: true, update: false, delete: false },
+      administration: { create: false, read: false, update: false, delete: false },
+    }),
   },
   {
     id: 'G-003', name: 'Driver',
     description: 'Can create and view own incidents and participate in assigned workflow steps.',
     color: '#4A6FA5', active: true,
-    permissions: ['incident_create','incident_read_own','workflow_start','workflow_complete_steps','comms_send'],
+    permissions: makeResourcePermissions({
+      incidents:      { create: true, read: true, update: false, delete: false },
+      workflows:      { create: false, read: true, update: false, delete: false },
+      communications: { create: true, read: true, update: false, delete: false },
+      reports:        { create: false, read: false, update: false, delete: false },
+      administration: { create: false, read: false, update: false, delete: false },
+    }),
   },
   {
     id: 'G-004', name: 'Fleet Manager',
     description: 'Read-only access to all incidents with reporting capabilities.',
     color: '#607D8B', active: true,
-    permissions: ['incident_create','incident_read_all','reports_view','reports_export'],
+    permissions: makeResourcePermissions({
+      incidents:      { create: true, read: true, update: false, delete: false },
+      workflows:      { create: false, read: true, update: false, delete: false },
+      communications: { create: false, read: true, update: false, delete: false },
+      reports:        { create: false, read: true, update: false, delete: false },
+      administration: { create: false, read: false, update: false, delete: false },
+    }),
   },
   {
     id: 'G-005', name: 'School Principal',
     description: 'View-only access to all incidents with communication capability.',
     color: '#F59E0B', active: true,
-    permissions: ['incident_read_all','comms_send','comms_view_all','reports_view'],
+    permissions: makeResourcePermissions({
+      incidents:      { create: false, read: true, update: false, delete: false },
+      workflows:      { create: false, read: true, update: false, delete: false },
+      communications: { create: true,  read: true, update: false, delete: false },
+      reports:        { create: false, read: true, update: false, delete: false },
+      administration: { create: false, read: false, update: false, delete: false },
+    }),
   },
 ];
 
@@ -371,7 +408,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
   const [editingGroup, setEditingGroup] = useState<PermissionGroup | null>(null);
   const [groupForm, setGroupForm] = useState<Omit<PermissionGroup, 'id'>>({
-    name: '', description: '', color: GROUP_COLORS[0], active: true, permissions: [],
+    name: '', description: '', color: GROUP_COLORS[0], active: true, permissions: makeResourcePermissions(),
   });
 
   // ─── Workflows State (for incident type linking) ────────────────────────────
@@ -720,7 +757,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
 
   const openAddGroup = () => {
     setEditingGroup(null);
-    setGroupForm({ name: '', description: '', color: GROUP_COLORS[0], active: true, permissions: [] });
+    setGroupForm({ name: '', description: '', color: GROUP_COLORS[0], active: true, permissions: makeResourcePermissions() });
     setIsGroupDialogOpen(true);
   };
 
@@ -742,12 +779,12 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
 
   const deleteGroup = (id: string) => setGroups(groups.filter(g => g.id !== id));
 
-  const toggleGroupPermission = (permId: PermissionId) => {
+  const toggleResourcePermission = (resourceId: string, key: CrudKey) => {
     setGroupForm(prev => ({
       ...prev,
-      permissions: prev.permissions.includes(permId)
-        ? prev.permissions.filter(p => p !== permId)
-        : [...prev.permissions, permId],
+      permissions: prev.permissions.map(rp =>
+        rp.resourceId === resourceId ? { ...rp, [key]: !rp[key] } : rp
+      ),
     }));
   };
 
@@ -2001,7 +2038,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                       <td className="forge-table-cell">
                         {/* @ts-ignore */}
                         <forge-badge theme="default" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)' }}>
-                          {g.permissions.length} of {PERMISSION_DEFS.length}
+                          {countPerms(g.permissions)} of {TOTAL_PERMS}
                         {/* @ts-ignore */}
                         </forge-badge>
                       </td>
@@ -2081,47 +2118,39 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
             </div>
           </div>
 
-          {/* Permissions by category */}
+          {/* Permissions matrix — traversa style: resources × CRUD */}
           <div>
             <div style={{ ...labelStyle, marginBottom: 'var(--forge-spacing-small)' }}>Permissions</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--forge-spacing-small)' }}>
-              {PERM_CATEGORIES.map(cat => {
-                const catPerms = PERMISSION_DEFS.filter(p => p.category === cat);
-                const allSelected = catPerms.every(p => groupForm.permissions.includes(p.id));
-                return (
-                  <div key={cat} style={{ background: 'var(--input-background)', borderRadius: 'var(--forge-radius-medium)', border: '1px solid var(--forge-color-border-subtle)', padding: 'var(--forge-spacing-small)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--forge-spacing-xxsmall)', paddingBottom: 'var(--forge-spacing-xxsmall)', borderBottom: '1px solid var(--forge-color-border-subtle)' }}>
-                      <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--forge-font-weight-medium)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{cat}</span>
-                      <button
-                        onClick={() => {
-                          const ids = catPerms.map(p => p.id);
-                          setGroupForm(prev => ({
-                            ...prev,
-                            permissions: allSelected
-                              ? prev.permissions.filter(p => !ids.includes(p as PermissionId))
-                              : [...new Set([...prev.permissions, ...ids])],
-                          }));
-                        }}
-                        style={{ fontSize: 'var(--text-xs)', fontFamily: 'var(--forge-font-family)', color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
-                      >
-                        {allSelected ? 'Clear' : 'All'}
-                      </button>
-                    </div>
-                    {catPerms.map(perm => (
-                      <label key={perm.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-xxsmall)', padding: '3px 0', cursor: 'pointer' }}>
-                        <input
-                          type="checkbox"
-                          checked={groupForm.permissions.includes(perm.id)}
-                          onChange={() => toggleGroupPermission(perm.id)}
-                          style={{ cursor: 'pointer', accentColor: 'var(--primary)', width: 14, height: 14, flexShrink: 0 }}
-                        />
-                        <span style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--foreground)' }}>{perm.label}</span>
-                      </label>
-                    ))}
-                  </div>
-                );
-              })}
-            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--forge-font-family)' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid var(--border)' }}>
+                  <th style={{ ...tableHeaderCellStyle, borderBottom: 'none', textAlign: 'left', paddingLeft: 'var(--forge-spacing-small)' }}>Resource</th>
+                  {CRUD_COLS.map(c => (
+                    <th key={c.key} style={{ ...tableHeaderCellStyle, borderBottom: 'none', textAlign: 'center', width: 72 }}>{c.label}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {groupForm.permissions.map((rp, idx) => {
+                  const resource = RESOURCES.find(r => r.id === rp.resourceId)!;
+                  return (
+                    <tr key={rp.resourceId} style={{ borderBottom: idx < groupForm.permissions.length - 1 ? '1px solid var(--forge-color-border-subtle)' : 'none' }}>
+                      <td style={{ padding: '8px var(--forge-spacing-small)', fontSize: 'var(--text-sm)', color: 'var(--foreground)' }}>{resource.label}</td>
+                      {CRUD_COLS.map(c => (
+                        <td key={c.key} style={{ textAlign: 'center', padding: '8px' }}>
+                          <input
+                            type="checkbox"
+                            checked={rp[c.key]}
+                            onChange={() => toggleResourcePermission(rp.resourceId, c.key)}
+                            style={{ cursor: 'pointer', accentColor: 'var(--primary)', width: 14, height: 14, transform: 'scale(1.2)' }}
+                          />
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
 
           {/* Actions */}
