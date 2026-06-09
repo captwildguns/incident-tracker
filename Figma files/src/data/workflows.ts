@@ -19,7 +19,7 @@ export interface WorkflowStep {
     notifyOnComplete: boolean;
     notifyAssignee: boolean;
     notifyApprovers: boolean;
-    notifyRoles?: string[]; // Roles to notify
+    notifyGroups?: string[]; // Roles to notify
     additionalRecipients: string[]; // Email addresses for custom recipients
     emailTemplate?: string;
   };

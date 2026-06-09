@@ -118,7 +118,7 @@ export function WorkflowBuilderPage({ onNavigate, selectedWorkflow }: WorkflowBu
     required: true,
   });
 
-  const roles = [
+  const groups = [
     'Driver',
     'Safety Coordinator',
     'Administrator',
@@ -584,7 +584,7 @@ export function WorkflowBuilderPage({ onNavigate, selectedWorkflow }: WorkflowBu
                     id: Date.now().toString(),
                     name: template.name,
                     description: template.description,
-                    assignedRole: template.defaultRole,
+                    assignedRole: template.defaultGroup,
                     estimatedDuration: template.defaultDuration,
                     required: true,
                     order: steps.length + 1,
@@ -644,11 +644,11 @@ export function WorkflowBuilderPage({ onNavigate, selectedWorkflow }: WorkflowBu
                 </div>
 
                 <div>
-                  <Label htmlFor="step-role" style={{ fontSize: 'var(--text-sm)' }}>
-                    Assigned Role
+                  <Label htmlFor="step-group" style={{ fontSize: 'var(--text-sm)' }}>
+                    Assigned Group
                   </Label>
                   <select
-                    id="step-role"
+                    id="step-group"
                     value={newStep.assignedRole}
                     onChange={(e) => setNewStep({ ...newStep, assignedRole: e.target.value })}
                     style={{
@@ -661,9 +661,9 @@ export function WorkflowBuilderPage({ onNavigate, selectedWorkflow }: WorkflowBu
                       background: 'var(--input-background)',
                     }}
                   >
-                    {roles.map((role) => (
-                      <option key={role} value={role}>
-                        {role}
+                    {groups.map((group) => (
+                      <option key={group} value={group}>
+                        {group}
                       </option>
                     ))}
                   </select>

@@ -15,7 +15,6 @@ import {
   Pencil,
   Trash2,
   Search,
-  UserPlus,
   X,
   Copy,
   Eye,
@@ -35,59 +34,6 @@ import {
 import { EmailTemplate, INITIAL_EMAIL_TEMPLATES } from '../../data/email-templates';
 import { ForgeMultiSelect } from '../ui/forge-multiselect';
 import { workflows as SEED_WORKFLOWS, Workflow } from '../../data/workflows';
-
-// ─── Mock Student Transportation users (stand-in for real ST directory) ──────
-const ST_USERS = [
-  { id: 'ST-1001', firstName: 'Angela', lastName: 'Brooks', email: 'angela.brooks@district.edu', title: 'Transportation Director', department: 'Student Transportation' },
-  { id: 'ST-1002', firstName: 'Carlos', lastName: 'Medina', email: 'carlos.medina@district.edu', title: 'Safety Coordinator', department: 'Student Transportation' },
-  { id: 'ST-1003', firstName: 'Denise', lastName: 'Harmon', email: 'denise.harmon@district.edu', title: 'Fleet Manager', department: 'Student Transportation' },
-  { id: 'ST-1004', firstName: 'Frank', lastName: 'Okafor', email: 'frank.okafor@district.edu', title: 'Bus Driver', department: 'Student Transportation' },
-  { id: 'ST-1005', firstName: 'Gloria', lastName: 'Patel', email: 'gloria.patel@district.edu', title: 'Bus Driver', department: 'Student Transportation' },
-  { id: 'ST-1006', firstName: 'Henry', lastName: 'Lawson', email: 'henry.lawson@district.edu', title: 'Mechanic', department: 'Student Transportation' },
-  { id: 'ST-1007', firstName: 'Iris', lastName: 'Nguyen', email: 'iris.nguyen@district.edu', title: 'School Nurse', department: 'Health Services' },
-  { id: 'ST-1008', firstName: 'Jerome', lastName: 'Wallace', email: 'jerome.wallace@district.edu', title: 'School Principal', department: 'Lincoln Middle School' },
-  { id: 'ST-1009', firstName: 'Karen', lastName: 'Singh', email: 'karen.singh@district.edu', title: 'Administrator', department: 'District Office' },
-  { id: 'ST-1010', firstName: 'Luis', lastName: 'Torres', email: 'luis.torres@district.edu', title: 'Bus Driver', department: 'Student Transportation' },
-  { id: 'ST-1011', firstName: 'Megan', lastName: 'Ford', email: 'megan.ford@district.edu', title: 'Safety Coordinator', department: 'Student Transportation' },
-  { id: 'ST-1012', firstName: 'Nathan', lastName: 'Kim', email: 'nathan.kim@district.edu', title: 'Fleet Manager', department: 'Student Transportation' },
-];
-
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-interface UserRecord {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  roles: string[];
-  status: 'Active' | 'Inactive';
-  lastLogin?: string;
-}
-
-// ─── Roles ───────────────────────────────────────────────────────────────────
-
-const AVAILABLE_ROLES = [
-  'Driver',
-  'Safety Coordinator',
-  'Administrator',
-  'Fleet Manager',
-  'Mechanic',
-  'School Principal',
-  'Nurse',
-];
-
-// ─── Seed Data ───────────────────────────────────────────────────────────────
-
-const INITIAL_USERS: UserRecord[] = [
-  { id: 'U-001', firstName: 'Sarah', lastName: 'Williams', email: 'sarah.williams@district.edu', roles: ['Safety Coordinator', 'Administrator'], status: 'Active', lastLogin: '2026-03-17 08:22 AM' },
-  { id: 'U-002', firstName: 'James', lastName: 'Rodriguez', email: 'james.rodriguez@district.edu', roles: ['Driver'], status: 'Active', lastLogin: '2026-03-17 06:45 AM' },
-  { id: 'U-003', firstName: 'Patricia', lastName: 'Chen', email: 'patricia.chen@district.edu', roles: ['Fleet Manager'], status: 'Active', lastLogin: '2026-03-16 04:30 PM' },
-  { id: 'U-004', firstName: 'Michael', lastName: 'Thompson', email: 'michael.thompson@district.edu', roles: ['Driver'], status: 'Active', lastLogin: '2026-03-17 06:30 AM' },
-  { id: 'U-005', firstName: 'Lisa', lastName: 'Nguyen', email: 'lisa.nguyen@district.edu', roles: ['School Principal'], status: 'Active', lastLogin: '2026-03-16 03:15 PM' },
-  { id: 'U-006', firstName: 'Robert', lastName: 'Garcia', email: 'robert.garcia@district.edu', roles: ['Mechanic'], status: 'Active', lastLogin: '2026-03-15 02:00 PM' },
-  { id: 'U-007', firstName: 'Emily', lastName: 'Davis', email: 'emily.davis@district.edu', roles: ['Nurse'], status: 'Active', lastLogin: '2026-03-17 07:50 AM' },
-  { id: 'U-008', firstName: 'David', lastName: 'Martinez', email: 'david.martinez@district.edu', roles: ['Driver', 'Mechanic'], status: 'Inactive', lastLogin: '2026-02-28 11:00 AM' },
-];
 
 const INITIAL_TEMPLATES: EmailTemplate[] = INITIAL_EMAIL_TEMPLATES;
 
@@ -155,27 +101,6 @@ const tableCellStyle: React.CSSProperties = {
   borderBottom: '1px solid var(--forge-color-border-subtle)',
   verticalAlign: 'middle',
 };
-
-// ─── Role Badge Color Helper ─────────────────────────────────────────────────
-
-function roleBadgeStyle(role: string): React.CSSProperties {
-  const map: Record<string, { bg: string; border: string }> = {
-    Driver: { bg: 'rgba(74, 111, 165, 0.10)', border: 'var(--brand-blue-medium)' },
-    'Safety Coordinator': { bg: 'rgba(159, 168, 112, 0.15)', border: 'var(--brand-olive-medium)' },
-    Administrator: { bg: 'rgba(63, 81, 181, 0.10)', border: 'var(--primary)' },
-    'Fleet Manager': { bg: 'rgba(74, 111, 165, 0.10)', border: 'var(--brand-blue-dark)' },
-    Mechanic: { bg: 'rgba(0,0,0,0.06)', border: 'var(--muted-foreground)' },
-    'School Principal': { bg: 'rgba(255, 193, 7, 0.12)', border: 'var(--secondary)' },
-    Nurse: { bg: 'rgba(176, 0, 32, 0.08)', border: 'var(--destructive)' },
-  };
-  const c = map[role] || { bg: 'var(--muted)', border: 'var(--border)' };
-  return {
-    background: c.bg,
-    borderColor: c.border,
-    fontSize: 'var(--text-xs)',
-    fontFamily: 'var(--forge-font-family)',
-  };
-}
 
 // Category color helper
 function categoryBadgeStyle(cat: string): React.CSSProperties {
@@ -330,25 +255,7 @@ interface AdminPageProps {
 
 export function AdminPage({ onNavigate }: AdminPageProps) {
   // ─── Tab State ──────────────────────────────────────────────────────────────
-  const [activeSection, setActiveSection] = useState<'users' | 'templates' | 'incidentTypes' | 'permissions'>('users');
-
-  // ─── Users State ─────────────────────────────────────────────────────────────
-  const [users, setUsers] = useState<UserRecord[]>(INITIAL_USERS);
-  const [userSearch, setUserSearch] = useState('');
-  const [userRoleFilter, setUserRoleFilter] = useState<string[]>([]);
-  const [isUserDialogOpen, setIsUserDialogOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<UserRecord | null>(null);
-  const [stUserSearch, setStUserSearch] = useState('');
-  const [stUserSearchOpen, setStUserSearchOpen] = useState(false);
-  const [selectedStUser, setSelectedStUser] = useState<typeof ST_USERS[0] | null>(null);
-  const stUserSearchRef = useRef<HTMLDivElement>(null);
-  const [userForm, setUserForm] = useState<Omit<UserRecord, 'id' | 'lastLogin'>>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    roles: [],
-    status: 'Active',
-  });
+  const [activeSection, setActiveSection] = useState<'templates' | 'incidentTypes' | 'permissions'>('templates');
 
   // ─── Templates State ─────────────────────────────────────────────────────────
   const [templates, setTemplates] = useState<EmailTemplate[]>(INITIAL_TEMPLATES);
@@ -407,14 +314,9 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   const [newWorkflowDesc, setNewWorkflowDesc] = useState('');
 
   // ─── Dialog Refs & Effects ─────────────────────────────────────────────────
-  const userDialogRef = useRef<HTMLElement>(null);
   const templateDialogRef = useRef<HTMLElement>(null);
   const previewDialogRef = useRef<HTMLElement>(null);
   const itDialogRef = useRef<HTMLElement>(null);
-
-  // User Dialog sync
-  useEffect(() => { const el = userDialogRef.current as any; if (!el) return; el.open = isUserDialogOpen; }, [isUserDialogOpen]);
-  useEffect(() => { const el = userDialogRef.current as any; if (!el) return; const handler = () => setIsUserDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
 
   // Variable popover click-outside
   useEffect(() => {
@@ -423,15 +325,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
         setVarPopoverOpen(false);
         setVarSearch('');
       }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  // ST user search click-outside
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (stUserSearchRef.current && !stUserSearchRef.current.contains(e.target as Node)) setStUserSearchOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
@@ -448,61 +341,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   // Incident Type Dialog sync
   useEffect(() => { const el = itDialogRef.current as any; if (!el) return; el.open = isItDialogOpen; }, [isItDialogOpen]);
   useEffect(() => { const el = itDialogRef.current as any; if (!el) return; const handler = () => setIsItDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
-
-  // ─── User Helpers ────────────────────────────────────────────────────────────
-
-  const filteredUsers = users.filter((u) => {
-    const matchesSearch =
-      !userSearch ||
-      `${u.firstName} ${u.lastName}`.toLowerCase().includes(userSearch.toLowerCase()) ||
-      u.email.toLowerCase().includes(userSearch.toLowerCase());
-    const matchesRole = userRoleFilter.length === 0 || u.roles.some(r => userRoleFilter.includes(r));
-    return matchesSearch && matchesRole;
-  });
-
-  const openAddUser = () => {
-    setEditingUser(null);
-    setUserForm({ firstName: '', lastName: '', email: '', roles: [], status: 'Active' });
-    setStUserSearch('');
-    setSelectedStUser(null);
-    setStUserSearchOpen(false);
-    setIsUserDialogOpen(true);
-  };
-
-  const openEditUser = (user: UserRecord) => {
-    setEditingUser(user);
-    setUserForm({ firstName: user.firstName, lastName: user.lastName, email: user.email, roles: [...user.roles], status: user.status });
-    setStUserSearch(`${user.firstName} ${user.lastName}`);
-    setSelectedStUser(null);
-    setStUserSearchOpen(false);
-    setIsUserDialogOpen(true);
-  };
-
-  const saveUser = () => {
-    if (!userForm.firstName || !userForm.lastName || !userForm.email || userForm.roles.length === 0) return;
-    if (editingUser) {
-      setUsers(users.map((u) => (u.id === editingUser.id ? { ...u, ...userForm } : u)));
-    } else {
-      const newUser: UserRecord = {
-        id: `U-${String(users.length + 1).padStart(3, '0')}`,
-        ...userForm,
-        lastLogin: undefined,
-      };
-      setUsers([...users, newUser]);
-    }
-    setIsUserDialogOpen(false);
-  };
-
-  const deleteUser = (id: string) => {
-    setUsers(users.filter((u) => u.id !== id));
-  };
-
-  const toggleFormRole = (role: string) => {
-    setUserForm((prev) => ({
-      ...prev,
-      roles: prev.roles.includes(role) ? prev.roles.filter((r) => r !== role) : [...prev.roles, role],
-    }));
-  };
 
   // ─── Template Helpers ────────────────────────────────────────────────────────
 
@@ -791,22 +629,16 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
           </h1>
         </div>
         <p style={{ ...mutedTextStyle, marginTop: 'var(--forge-spacing-xxsmall)' }}>
-          Manage user roles, incident types, email notification templates, and role-based permissions for the Incident Tracker system.
+          Manage incident types, email notification templates, and permission groups for the Incident Tracker system.
         </p>
       </div>
 
       {/* Section Tabs */}
       {/* @ts-ignore */}
       <forge-tab-bar
-        active-tab={activeSection === 'users' ? 0 : activeSection === 'templates' ? 1 : activeSection === 'incidentTypes' ? 2 : 3}
+        active-tab={activeSection === 'templates' ? 0 : activeSection === 'incidentTypes' ? 1 : 2}
         style={{ marginBottom: 'var(--forge-spacing-large)' }}
       >
-        {/* @ts-ignore */}
-        <forge-tab onClick={() => setActiveSection('users')}>
-          <forge-icon name="people" slot="leading"></forge-icon>
-          Incident Tracker Roles
-        {/* @ts-ignore */}
-        </forge-tab>
         {/* @ts-ignore */}
         <forge-tab onClick={() => setActiveSection('templates')}>
           <forge-icon name="email" slot="leading"></forge-icon>
@@ -827,116 +659,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
         </forge-tab>
       {/* @ts-ignore */}
       </forge-tab-bar>
-
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* USER ROLES SECTION                                                    */}
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      {activeSection === 'users' && (
-        <div>
-          {/* Toolbar */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--forge-spacing-medium)', flexWrap: 'wrap', gap: 'var(--forge-spacing-small)' }}>
-            <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', alignItems: 'center', flexWrap: 'wrap' }}>
-              {/* Search */}
-              <div style={{ position: 'relative' }}>
-                <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', zIndex: 1 }} />
-                {/* @ts-ignore */}
-                <forge-text-field>
-                  <input
-                    type="text"
-                    value={userSearch}
-                    onChange={(e) => setUserSearch(e.target.value)}
-                    placeholder="Search users..."
-                    style={{ paddingLeft: '2rem', width: '260px', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}
-                  />
-                {/* @ts-ignore */}
-                </forge-text-field>
-              </div>
-              {/* Role Filter */}
-              <ForgeMultiSelect
-                selected={userRoleFilter}
-                onChange={setUserRoleFilter}
-                options={AVAILABLE_ROLES.map((r) => ({ value: r, label: r }))}
-                placeholder="All Roles"
-                allLabel="All Roles"
-                width="200px"
-              />
-            </div>
-            <ForgeButton onClick={openAddUser} style={{ fontFamily: 'var(--forge-font-family)' }}>
-              <UserPlus size={16} style={{ marginRight: '6px' }} />
-              Add User
-            </ForgeButton>
-          </div>
-
-          {/* Users Table */}
-          <div style={cardStyle}>
-            <div style={{ overflowX: 'auto' }}>
-              <table className="forge-table">
-                <thead>
-                  <tr>
-                    <th className="forge-table-cell forge-table-cell--header">Name</th>
-                    <th className="forge-table-cell forge-table-cell--header">Email</th>
-                    <th className="forge-table-cell forge-table-cell--header">Roles</th>
-                    <th className="forge-table-cell forge-table-cell--header">Status</th>
-                    <th className="forge-table-cell forge-table-cell--header">Last Login</th>
-                    <th className="forge-table-cell forge-table-cell--header" style={{ textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="forge-table-cell" style={{ textAlign: 'center', padding: 'var(--forge-spacing-xlarge)', color: 'var(--muted-foreground)' }}>
-                        No users found matching your criteria.
-                      </td>
-                    </tr>
-                  )}
-                  {filteredUsers.map((user) => (
-                    <tr
-                      key={user.id}
-                      className="forge-table-row"
-                    >
-                      <td className="forge-table-cell">
-                        <div style={{ fontWeight: 'var(--forge-font-weight-medium)' }}>{user.firstName} {user.lastName}</div>
-                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)' }}>{user.id}</div>
-                      </td>
-                      <td className="forge-table-cell">{user.email}</td>
-                      <td className="forge-table-cell">
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--forge-spacing-xxsmall)' }}>
-                          {user.roles.map((role) => (
-                            // @ts-ignore
-                            <forge-badge key={role} theme="default" style={roleBadgeStyle(role)}>{role}</forge-badge>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="forge-table-cell">
-                        {/* @ts-ignore */}
-                        <forge-badge
-                          theme={user.status === 'Active' ? 'success' : 'default'}
-                        >
-                          {user.status}
-                        {/* @ts-ignore */}
-                        </forge-badge>
-                      </td>
-                      <td className="forge-table-cell" style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>
-                        {user.lastLogin || '—'}
-                      </td>
-                      <td className="forge-table-cell" style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: 'var(--forge-spacing-xxsmall)', justifyContent: 'flex-end' }}>
-                          <ForgeButton variant="flat" size="sm" onClick={() => openEditUser(user)} title="Edit user">
-                            <Pencil size={14} />
-                          </ForgeButton>
-                          <ForgeButton variant="flat" size="sm" onClick={() => deleteUser(user.id)} title="Delete user" style={{ color: 'var(--destructive)' }}>
-                            <Trash2 size={14} />
-                          </ForgeButton>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ══════════════════════════════════════════════════════════════════════ */}
       {/* EMAIL TEMPLATES SECTION                                               */}
@@ -1037,193 +759,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
           </div>
         </div>
       )}
-
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* USER DIALOG                                                           */}
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* @ts-ignore */}
-      <forge-dialog ref={userDialogRef} style={{ '--forge-dialog-width': '560px' }}>
-        <div style={{ fontFamily: 'var(--forge-font-family)', padding: 'var(--forge-spacing-large)' }}>
-          <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
-            <h2 style={{ fontSize: 'var(--text-2xl)', fontFamily: 'var(--forge-font-family)', fontWeight: 'var(--forge-font-weight-medium)', margin: 0 }}>
-              {editingUser ? 'Edit User' : 'Add User'}
-            </h2>
-            <p style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)', margin: 'var(--forge-spacing-xxsmall) 0 0 0' }}>
-              {editingUser ? 'Update user information and role assignments.' : 'Create a new user and assign roles.'}
-            </p>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-medium)' }}>
-            {/* ST User Search */}
-            <div>
-              <Label style={labelStyle}>Student Transportation User *</Label>
-              <p style={{ fontSize: 'var(--text-xs)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)', margin: '2px 0 6px' }}>
-                Search and select an existing Student Transportation user to grant Incident Tracker access.
-              </p>
-              <div className="relative" ref={stUserSearchRef}>
-                {/* @ts-ignore */}
-                <forge-text-field style={inputWrapperStyle}>
-                  <input
-                    type="text"
-                    value={stUserSearch}
-                    onChange={(e) => {
-                      setStUserSearch(e.target.value);
-                      setStUserSearchOpen(true);
-                      if (!e.target.value) {
-                        setSelectedStUser(null);
-                        setUserForm(f => ({ ...f, firstName: '', lastName: '', email: '' }));
-                      }
-                    }}
-                    onFocus={() => setStUserSearchOpen(true)}
-                    placeholder="Search by name or email..."
-                    style={{ fontFamily: 'var(--forge-font-family)' }}
-                    readOnly={!!selectedStUser && !editingUser}
-                  />
-                {/* @ts-ignore */}
-                </forge-text-field>
-                {stUserSearchOpen && !selectedStUser && (
-                  <div style={{ position: 'absolute', zIndex: 50, width: '100%', marginTop: 4, background: '#fff', border: '1px solid var(--border)', borderRadius: 'var(--forge-radius-medium)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', maxHeight: 260, overflowY: 'auto' }}>
-                    {ST_USERS.filter(u =>
-                      !stUserSearch ||
-                      `${u.firstName} ${u.lastName}`.toLowerCase().includes(stUserSearch.toLowerCase()) ||
-                      u.email.toLowerCase().includes(stUserSearch.toLowerCase()) ||
-                      u.title.toLowerCase().includes(stUserSearch.toLowerCase())
-                    ).filter(u => !users.some(existing => existing.email === u.email))
-                    .map(u => (
-                      <button
-                        key={u.id}
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedStUser(u);
-                          setStUserSearch(`${u.firstName} ${u.lastName}`);
-                          setUserForm(f => ({ ...f, firstName: u.firstName, lastName: u.lastName, email: u.email }));
-                          setStUserSearchOpen(false);
-                        }}
-                        style={{ display: 'flex', flexDirection: 'column', width: '100%', padding: '10px 14px', background: 'none', border: 'none', borderBottom: '1px solid var(--border)', cursor: 'pointer', textAlign: 'left' }}
-                        onMouseEnter={e => (e.currentTarget.style.background = 'var(--accent)')}
-                        onMouseLeave={e => (e.currentTarget.style.background = 'none')}
-                      >
-                        <span style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', fontWeight: 500 }}>
-                          {u.firstName} {u.lastName}
-                        </span>
-                        <span style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
-                          {u.title} · {u.department}
-                        </span>
-                        <span style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
-                          {u.email}
-                        </span>
-                      </button>
-                    ))}
-                    {ST_USERS.filter(u =>
-                      !stUserSearch ||
-                      `${u.firstName} ${u.lastName}`.toLowerCase().includes(stUserSearch.toLowerCase()) ||
-                      u.email.toLowerCase().includes(stUserSearch.toLowerCase())
-                    ).filter(u => !users.some(existing => existing.email === u.email)).length === 0 && (
-                      <div style={{ padding: '12px 14px', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>
-                        No matching users found.
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Selected user card */}
-              {selectedStUser && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8, padding: '10px 12px', background: '#EEF2F8', border: '1px solid #C5D2E8', borderRadius: 'var(--forge-radius-medium)' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', fontWeight: 500 }}>{selectedStUser.firstName} {selectedStUser.lastName}</div>
-                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>{selectedStUser.title} · {selectedStUser.department}</div>
-                    <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>{selectedStUser.email}</div>
-                  </div>
-                  <button type="button" onClick={() => { setSelectedStUser(null); setStUserSearch(''); setUserForm(f => ({ ...f, firstName: '', lastName: '', email: '' })); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)', padding: 0 }}>
-                    <X size={16} />
-                  </button>
-                </div>
-              )}
-
-              {/* Edit mode: show current user info read-only */}
-              {editingUser && !selectedStUser && (
-                <div style={{ marginTop: 8, padding: '10px 12px', background: 'var(--input-background)', border: '1px solid var(--border)', borderRadius: 'var(--forge-radius-medium)' }}>
-                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', fontWeight: 500 }}>{userForm.firstName} {userForm.lastName}</div>
-                  <div style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>{userForm.email}</div>
-                </div>
-              )}
-            </div>
-
-            {/* Status */}
-            <div>
-              <Label style={labelStyle}>Status</Label>
-              {/* @ts-ignore */}
-              <forge-text-field style={inputWrapperStyle}>
-                <select
-                  value={userForm.status}
-                  onChange={(e) => setUserForm({ ...userForm, status: e.target.value as 'Active' | 'Inactive' })}
-                  style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', width: '100%' }}
-                >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
-                </select>
-              {/* @ts-ignore */}
-              </forge-text-field>
-            </div>
-
-            {/* Roles */}
-            <div>
-              <Label style={labelStyle}>Assign Roles</Label>
-              <p style={{ ...mutedTextStyle, marginBottom: 'var(--forge-spacing-small)' }}>
-                Select one or more roles for this user.
-              </p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--forge-spacing-xsmall)' }}>
-                {AVAILABLE_ROLES.map((role) => {
-                  const isSelected = userForm.roles.includes(role);
-                  return (
-                    <button
-                      key={role}
-                      onClick={() => toggleFormRole(role)}
-                      style={{
-                        padding: 'var(--forge-spacing-xsmall) var(--forge-spacing-small)',
-                        borderRadius: 'var(--forge-radius-medium)',
-                        border: `1px solid ${isSelected ? 'var(--primary)' : 'var(--border)'}`,
-                        background: isSelected ? 'rgba(63, 81, 181, 0.10)' : 'var(--input-background)',
-                        color: isSelected ? 'var(--primary)' : 'var(--foreground)',
-                        cursor: 'pointer',
-                        fontSize: 'var(--text-sm)',
-                        fontFamily: 'var(--forge-font-family)',
-                        fontWeight: 'var(--forge-font-weight-medium)',
-                        transition: 'all 150ms',
-                      }}
-                    >
-                      {isSelected && <span style={{ marginRight: '4px' }}>&#10003;</span>}
-                      {role}
-                    </button>
-                  );
-                })}
-              </div>
-              {userForm.roles.length === 0 && (
-                <p style={{ fontSize: 'var(--text-xs)', fontFamily: 'var(--forge-font-family)', color: 'var(--destructive)', marginTop: 'var(--forge-spacing-xxsmall)' }}>
-                  At least one role is required.
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div style={{ display: 'flex', gap: 'var(--forge-spacing-medium)', marginTop: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--border)', paddingTop: 'var(--forge-spacing-medium)' }}>
-            <ForgeButton variant="outlined" onClick={() => setIsUserDialogOpen(false)} style={{ flex: 1, fontFamily: 'var(--forge-font-family)' }}>
-              Cancel
-            </ForgeButton>
-            <ForgeButton
-              onClick={saveUser}
-              disabled={!userForm.firstName || !userForm.lastName || !userForm.email || userForm.roles.length === 0}
-              style={{ flex: 1, fontFamily: 'var(--forge-font-family)' }}
-            >
-              {editingUser ? 'Save Changes' : 'Add User'}
-            </ForgeButton>
-          </div>
-        </div>
-      {/* @ts-ignore */}
-      </forge-dialog>
 
       {/* ══════════════════════════════════════════════════════════════════════ */}
       {/* TEMPLATE DIALOG                                                       */}

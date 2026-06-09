@@ -149,7 +149,7 @@ export function DefaultWorkflowComponent({ workflow, incidentId, onUpdateStep }:
                     
                     <div style={{ display: 'flex', gap: 'var(--forge-spacing-medium)', fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
                       <span style={{ fontFamily: 'Roboto, sans-serif' }}>
-                        <strong>Assigned:</strong> {step.assignedRole}
+                        <strong>Assigned Group:</strong> {step.assignedRole}
                       </span>
                       <span style={{ fontFamily: 'Roboto, sans-serif' }}>
                         <strong>Est. Duration:</strong> {step.estimatedDuration}

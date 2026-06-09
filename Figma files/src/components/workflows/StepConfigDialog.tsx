@@ -26,7 +26,7 @@ interface WorkflowStep {
     emailTiming: 'before' | 'after';
     notifyAssignee: boolean;
     notifyApprovers: boolean;
-    notifyRoles?: string[];
+    notifyGroups?: string[];
     additionalRecipients: string[];
     emailTemplate?: string;
   };
@@ -88,7 +88,7 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
   const [newRecipient, setNewRecipient] = useState('');
   const [newApprover, setNewApprover] = useState('');
 
-  const roles = [
+  const groups = [
     'Driver',
     'Safety Coordinator',
     'Administrator',
@@ -253,7 +253,7 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--forge-spacing-medium)' }}>
               <div>
                 <Label htmlFor="step-role" style={{ fontSize: 'var(--text-sm)' }}>
-                  Assigned Role
+                  Assigned Group
                 </Label>
                 <select
                   id="step-role"
@@ -269,9 +269,9 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
                     background: 'var(--input-background)',
                   }}
                 >
-                  {roles.map((role) => (
-                    <option key={role} value={role}>
-                      {role}
+                  {groups.map((group) => (
+                    <option key={group} value={group}>
+                      {group}
                     </option>
                   ))}
                 </select>
@@ -451,23 +451,23 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
                 Notify Roles
               </Label>
               <ForgeMultiSelect
-                options={roles.map((role) => ({ value: role, label: role }))}
-                selected={config.emailNotifications?.notifyRoles || []}
+                options={groups.map((group) => ({ value: group, label: group }))}
+                selected={config.emailNotifications?.notifyGroups || []}
                 onChange={(selected) =>
                   setConfig({
                     ...config,
                     emailNotifications: {
                       ...config.emailNotifications!,
-                      notifyRoles: selected,
+                      notifyGroups: selected,
                     },
                   })
                 }
-                placeholder="Select roles to notify..."
+                placeholder="Select groups to notify..."
                 allLabel="None selected"
                 width="100%"
               />
               <p style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginTop: 'var(--forge-spacing-xxsmall)', fontFamily: 'var(--forge-font-family)' }}>
-                Select one or more roles that should receive email notifications for this step
+                Select one or more groups that should receive email notifications for this step
               </p>
             </div>
 
@@ -546,7 +546,7 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
                     Designated Approvers
                   </Label>
                   <p style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)', marginBottom: 'var(--forge-spacing-small)' }}>
-                    Select the roles that can approve this step
+                    Select the groups that can approve this step
                   </p>
                   <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', marginBottom: 'var(--forge-spacing-small)' }}>
                     <select
@@ -561,12 +561,12 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
                         background: 'var(--input-background)',
                       }}
                     >
-                      <option value="">Select a role...</option>
-                      {roles
-                        .filter((role) => !(config.approvers || []).includes(role))
-                        .map((role) => (
-                          <option key={role} value={role}>
-                            {role}
+                      <option value="">Select a group...</option>
+                      {groups
+                        .filter((group) => !(config.approvers || []).includes(group))
+                        .map((group) => (
+                          <option key={group} value={group}>
+                            {group}
                           </option>
                         ))}
                     </select>

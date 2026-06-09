@@ -26,7 +26,7 @@ export interface WorkflowStepTemplate {
   description: string;
   category: 'Notification' | 'Review & Action' | 'Close Out';
   icon: any;
-  defaultRole: string;
+  defaultGroup: string;
   defaultDuration: string;
   requiresApproval: boolean;
   instructions?: string[];
@@ -46,7 +46,7 @@ export const workflowStepTemplates: WorkflowStepTemplate[] = [
     description: 'Contact parent or guardian to inform them of the incident and expected next steps',
     category: 'Notification',
     icon: Phone,
-    defaultRole: 'Safety Coordinator',
+    defaultGroup: 'Safety Coordinator',
     defaultDuration: '20 minutes',
     requiresApproval: false,
     emailNotifications: {
@@ -62,7 +62,7 @@ export const workflowStepTemplates: WorkflowStepTemplate[] = [
     description: 'Send urgent notification to safety coordinator with full incident details',
     category: 'Notification',
     icon: Bell,
-    defaultRole: 'Safety Coordinator',
+    defaultGroup: 'Safety Coordinator',
     defaultDuration: '15 minutes',
     requiresApproval: false,
     emailNotifications: {
@@ -78,7 +78,7 @@ export const workflowStepTemplates: WorkflowStepTemplate[] = [
     description: 'Notify school administrator or principal of the incident',
     category: 'Notification',
     icon: Mail,
-    defaultRole: 'School Principal',
+    defaultGroup: 'School Principal',
     defaultDuration: '20 minutes',
     requiresApproval: false,
     emailNotifications: {
@@ -96,7 +96,7 @@ export const workflowStepTemplates: WorkflowStepTemplate[] = [
     description: 'Photograph damage or relevant scene, document physical evidence',
     category: 'Review & Action',
     icon: Video,
-    defaultRole: 'Driver',
+    defaultGroup: 'Driver',
     defaultDuration: '20 minutes',
     requiresApproval: false,
     tags: ['photo', 'evidence', 'documentation', 'damage'],
@@ -107,7 +107,7 @@ export const workflowStepTemplates: WorkflowStepTemplate[] = [
     description: 'Administrator reviews incident and determines appropriate disciplinary action; requires approval before proceeding',
     category: 'Review & Action',
     icon: Shield,
-    defaultRole: 'Administrator',
+    defaultGroup: 'Administrator',
     defaultDuration: '1 hour',
     requiresApproval: true,
     emailNotifications: {
@@ -123,7 +123,7 @@ export const workflowStepTemplates: WorkflowStepTemplate[] = [
     description: 'File police report or coordinate with law enforcement for criminal incidents',
     category: 'Review & Action',
     icon: Shield,
-    defaultRole: 'Administrator',
+    defaultGroup: 'Administrator',
     defaultDuration: '1 hour',
     requiresApproval: true,
     emailNotifications: {
@@ -139,7 +139,7 @@ export const workflowStepTemplates: WorkflowStepTemplate[] = [
     description: 'Fleet manager assesses damage, provides repair estimate, and schedules vehicle repairs',
     category: 'Review & Action',
     icon: Settings,
-    defaultRole: 'Fleet Manager',
+    defaultGroup: 'Fleet Manager',
     defaultDuration: '2 hours',
     requiresApproval: false,
     tags: ['fleet', 'repair', 'vehicle', 'damage', 'maintenance'],
@@ -152,7 +152,7 @@ export const workflowStepTemplates: WorkflowStepTemplate[] = [
     description: 'Complete all incident documentation, finalize the record, and close the case',
     category: 'Close Out',
     icon: CheckCircle,
-    defaultRole: 'Safety Coordinator',
+    defaultGroup: 'Safety Coordinator',
     defaultDuration: '15 minutes',
     requiresApproval: false,
     emailNotifications: {
@@ -295,7 +295,7 @@ export function WorkflowStepLibrary({ onAddStep, selectedCategory, addedTemplate
               </p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '11px', color: 'var(--muted-foreground)' }}>
-                  {template.defaultRole} · {template.defaultDuration}
+                  {template.defaultGroup} · {template.defaultDuration}
                   {template.requiresApproval && ' · Requires Approval'}
                 </span>
                 <button

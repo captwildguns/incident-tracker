@@ -1377,7 +1377,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                               }}
                             >
                               <div style={{ flex: 1, fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
-                                <div style={{ marginBottom: '2px' }}>Assigned Role</div>
+                                <div style={{ marginBottom: '2px' }}>Assigned Group</div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                                   <Users className="h-3 w-3" style={{ color: 'var(--brand-blue-medium)' }} />
                                   <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'var(--forge-font-weight-medium)', color: 'var(--foreground)' }}>{step.assignedRole}</span>
@@ -1429,7 +1429,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                             >
                               <div>
                                 <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '4px' }}>
-                                  Assigned Role
+                                  Assigned Group
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-xsmall)' }}>
                                   <Users className="h-4 w-4" style={{ color: 'var(--brand-blue-medium)' }} />
