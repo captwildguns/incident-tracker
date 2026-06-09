@@ -680,14 +680,20 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                     </div>
                     <div>
                       <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Severity
+                        Incident Location
                       </div>
-                      <Badge
-                        variant={incident.severity === 'Critical' || incident.severity === 'High' ? 'destructive' : incident.severity === 'Medium' ? 'secondary' : 'outline'}
-                        style={incident.severity === 'Critical' ? { background: 'var(--forge-theme-critical)', color: '#fff', borderColor: 'var(--forge-theme-critical)', fontFamily: 'Roboto, sans-serif' } : { fontFamily: 'Roboto, sans-serif' }}
-                      >
-                        {incident.severity}
-                      </Badge>
+                      <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>
+                        {incident.location ? (
+                          <>
+                            {getLocationLabel(incident.location)}
+                            {incident.locationAddress && (
+                              <span style={{ marginLeft: 8, color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)' }}>
+                                — {incident.locationAddress}
+                              </span>
+                            )}
+                          </>
+                        ) : '—'}
+                      </div>
                     </div>
                     <div>
                       <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -721,21 +727,6 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                         {incident.assignedTo}
                       </div>
                     </div>
-                    {incident.location && (
-                      <div style={{ gridColumn: 'span 2' }}>
-                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          Incident Location
-                        </div>
-                        <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>
-                          {getLocationLabel(incident.location)}
-                          {incident.locationAddress && (
-                            <span style={{ marginLeft: 8, color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)' }}>
-                              — {incident.locationAddress}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
                   </div>
                   <div style={{ marginTop: 'var(--forge-spacing-large)', paddingTop: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--border)' }}>
                     <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
