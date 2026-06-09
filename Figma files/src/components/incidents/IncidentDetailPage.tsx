@@ -599,73 +599,57 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                   </h3>
                 </div>
                 <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-                  {incident.involvedStudents?.length > 0 ? (
-                    <div style={{ marginBottom: 'var(--forge-spacing-large)', paddingBottom: 'var(--forge-spacing-medium)', borderBottom: '1px solid var(--border)' }}>
-                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '8px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Involved Students ({incident.involvedStudents.length})
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                        {incident.involvedStudents.map((s: any, i: number) => {
-                          const isSelected = selectedStudentId === s.studentId;
-                          return (
-                            <div key={i} style={{ borderRadius: '4px', overflow: 'hidden', border: `1px solid ${isSelected ? 'var(--brand-blue-medium)' : 'var(--border)'}` }}>
-                              {/* Summary row */}
-                              <div
-                                onClick={() => setSelectedStudentId(isSelected ? null : s.studentId)}
-                                style={{
-                                  padding: '8px 12px',
-                                  background: isSelected ? 'rgba(91, 139, 184, 0.08)' : 'var(--forge-theme-surface-container-minimum)',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '8px',
-                                  cursor: 'pointer',
-                                }}
-                              >
-                                <div style={{ flex: 1 }}>
-                                  <div style={{ fontWeight: 'var(--font-weight-medium)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)' }}>{s.name}</div>
-                                  <div style={{ color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)' }}>{s.studentId}</div>
-                                </div>
-                                {/* @ts-ignore */}
-                                <forge-badge theme="default">{s.role}</forge-badge>
-                                {/* @ts-ignore */}
-                                <forge-badge theme={s.severity === 'Critical' ? 'danger' : s.severity === 'High' ? 'error' : s.severity === 'Medium' ? 'warning' : 'info'} strong>{s.severity}</forge-badge>
-                                {s.parentNotified !== undefined && (
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif', color: s.parentNotified ? '#16a34a' : '#94a3b8', flexShrink: 0 }}>
-                                    {s.parentNotified ? <CheckCircle2 size={13} /> : <Clock size={13} />}
-                                    <span>{s.parentNotified ? 'Parent notified' : 'Parent pending'}</span>
-                                  </div>
-                                )}
-                                <ChevronRight size={14} style={{ color: isSelected ? 'var(--brand-blue-medium)' : 'var(--muted-foreground)', flexShrink: 0, transform: isSelected ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }} />
-                              </div>
-                              {/* Selected student details — expand below the row */}
-                              {isSelected && (
-                                <div style={{ padding: '12px 16px', background: '#fff', borderTop: `1px solid var(--brand-blue-light, var(--border))`, display: 'flex', flexDirection: 'column', gap: 10 }}>
-                                  {s.description && (
-                                    <div>
-                                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Description</div>
-                                      <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5 }}>{s.description}</div>
-                                    </div>
-                                  )}
-                                  {s.actionTaken && (
-                                    <div>
-                                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Action Taken</div>
-                                      <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5 }}>{s.actionTaken}</div>
-                                    </div>
-                                  )}
-                                  {s.notes && (
-                                    <div>
-                                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Notes</div>
-                                      <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5, color: 'var(--muted-foreground)', fontStyle: 'italic' }}>{s.notes}</div>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
+                  {incident.involvedStudents?.length > 0 ? (() => {
+                    const s = incident.involvedStudents.find((s: any) => s.studentId === selectedStudentId);
+                    if (!s) return null;
+                    return (
+                      <div style={{ marginBottom: 'var(--forge-spacing-large)', paddingBottom: 'var(--forge-spacing-medium)', borderBottom: '1px solid var(--border)' }}>
+                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '8px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Student
+                        </div>
+                        <div style={{ borderRadius: '4px', overflow: 'hidden', border: '1px solid var(--brand-blue-medium)' }}>
+                          {/* Header row */}
+                          <div style={{ padding: '8px 12px', background: 'rgba(91, 139, 184, 0.08)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontWeight: 'var(--font-weight-medium)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)' }}>{s.name}</div>
+                              <div style={{ color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)' }}>{s.studentId}</div>
                             </div>
-                          );
-                        })}
+                            {/* @ts-ignore */}
+                            <forge-badge theme="default">{s.role}</forge-badge>
+                            {/* @ts-ignore */}
+                            <forge-badge theme={s.severity === 'Critical' ? 'danger' : s.severity === 'High' ? 'error' : s.severity === 'Medium' ? 'warning' : 'info'} strong>{s.severity}</forge-badge>
+                            {s.parentNotified !== undefined && (
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif', color: s.parentNotified ? '#16a34a' : '#94a3b8', flexShrink: 0 }}>
+                                {s.parentNotified ? <CheckCircle2 size={13} /> : <Clock size={13} />}
+                                <span>{s.parentNotified ? 'Parent notified' : 'Parent pending'}</span>
+                              </div>
+                            )}
+                          </div>
+                          {/* Details — always visible */}
+                          <div style={{ padding: '12px 16px', background: '#fff', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                            {s.description && (
+                              <div>
+                                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Description</div>
+                                <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5 }}>{s.description}</div>
+                              </div>
+                            )}
+                            {s.actionTaken && (
+                              <div>
+                                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Action Taken</div>
+                                <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5 }}>{s.actionTaken}</div>
+                              </div>
+                            )}
+                            {s.notes && (
+                              <div>
+                                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Notes</div>
+                                <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5, color: 'var(--muted-foreground)', fontStyle: 'italic' }}>{s.notes}</div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ) : null}
+                    );
+                  })() : null}
                   <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                     {(!incident.involvedStudents || incident.involvedStudents.length === 0) && (
                       <>
