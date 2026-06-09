@@ -24,7 +24,7 @@ import {
   AlertTriangle,
   GitBranch,
   ExternalLink,
-  Lock,
+
 } from 'lucide-react';
 import {
   INCIDENT_TYPES as SEED_INCIDENT_TYPES,
@@ -187,7 +187,7 @@ const ALL_COMBINED = [...ALL_AREAS, ...REPORT_AREAS];
 function makeAreas(overrides: Partial<Record<string, Partial<Record<PermCol, boolean>>>> = {}): PermArea[] {
   return ALL_COMBINED.map(a => {
     const o = overrides[a.id] ?? {};
-    return { id: a.id, label: a.label, read: o.read ?? false, add: o.add ?? false, edit: o.edit ?? false, delete: false };
+    return { id: a.id, label: a.label, read: o.read ?? false, add: o.add ?? false, edit: o.edit ?? false, delete: o.delete ?? false };
   });
 }
 
@@ -198,7 +198,10 @@ const INITIAL_GROUPS: PermissionGroup[] = [
   {
     id: 'G-001', name: 'Administrator', color: '#3F51B5', active: true,
     description: 'Full access to all incident management features and administrative controls.',
-    areas: makeAreas(ALL_COMBINED.reduce((acc, a) => ({ ...acc, [a.id]: { read: true, add: true, edit: true } }), {})),
+    areas: makeAreas({
+      ...ALL_AREAS.reduce((acc, a) => ({ ...acc, [a.id]: { read: true, add: true, edit: true, delete: true } }), {}),
+      ...REPORT_AREAS.reduce((acc, a) => ({ ...acc, [a.id]: { read: true } }), {}),
+    }),
     members: [
       { name: 'Sarah Williams',  email: 'sarah.williams@district.edu',  title: 'Transportation Director' },
       { name: 'Karen Singh',     email: 'karen.singh@district.edu',     title: 'District Administrator' },
@@ -1798,8 +1801,8 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                     {isReportTab
                       ? <th style={{ textAlign: 'right', padding: '6px 24px 6px 10px', fontWeight: 500, fontSize: 12, color: '#555' }}>Accessible</th>
                       : PERM_COLS.map(c => (
-                          <th key={c.key} style={{ textAlign: 'center', padding: '6px 10px', fontWeight: 500, fontSize: 12, color: c.key === 'delete' ? '#c0c8d4' : '#555', width: '11%' }}>
-                            {c.label}{c.key === 'delete' && <Lock size={9} style={{ marginLeft: 3, verticalAlign: 'middle', color: '#c0c8d4' }} />}
+                          <th key={c.key} style={{ textAlign: 'center', padding: '6px 10px', fontWeight: 500, fontSize: 12, color: '#555', width: '11%' }}>
+                            {c.label}
                           </th>
                         ))
                     }
@@ -1824,10 +1827,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                                 const st = getParentState(parent.children, c.key);
                                 return (
                                   <td key={c.key} style={{ textAlign: 'center', padding: '6px 10px' }}>
-                                    {c.key === 'delete'
-                                      ? <input type="checkbox" disabled checked={false} style={{ accentColor: '#586ab1', width: 14, height: 14, opacity: 0.25, cursor: 'not-allowed' }} />
-                                      : <IndeterminateCheckbox state={st} onChange={() => toggleParentPerm(parent.children, c.key)} />
-                                    }
+                                    <IndeterminateCheckbox state={st} onChange={() => toggleParentPerm(parent.children, c.key)} />
                                   </td>
                                 );
                               })
@@ -1845,7 +1845,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                                   </td>
                                 : PERM_COLS.map(c => (
                                     <td key={c.key} style={{ textAlign: 'center', padding: '5px 10px' }}>
-                                      <input type="checkbox" checked={area[c.key]} disabled={c.key === 'delete'} onChange={() => c.key !== 'delete' && toggleAreaPerm(area.id, c.key)} style={{ cursor: c.key === 'delete' ? 'not-allowed' : 'pointer', accentColor: '#586ab1', width: 14, height: 14, transform: 'scale(1.15)', opacity: c.key === 'delete' ? 0.25 : 1 }} />
+                                      <input type="checkbox" checked={area[c.key]} onChange={() => toggleAreaPerm(area.id, c.key)} style={{ cursor: 'pointer', accentColor: '#586ab1', width: 14, height: 14, transform: 'scale(1.15)' }} />
                                     </td>
                                   ))
                               }
