@@ -252,6 +252,22 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
     }
   };
 
+  const INCIDENT_LOCATION_LABELS: Record<string, string> = {
+    'on-bus': 'On Vehicle',
+    'bus-stop': 'At Vehicle Stop',
+    'loading': 'Loading/Unloading',
+    'school-campus': 'School Campus',
+    'parking-lot': 'Parking Lot',
+    'layover-location': 'Layover Location',
+    'garage': 'Garage',
+    'yard': 'Yard',
+    'maintenance-bay': 'Maintenance Bay',
+    'fuel-station': 'Fuel Station',
+    'wash-bay': 'Wash Bay',
+    'other': 'Other',
+  };
+  const getLocationLabel = (val: string) => INCIDENT_LOCATION_LABELS[val] ?? val;
+
   const getStepStatusColor = (status?: string) => {
     switch (status) {
       case 'Completed':
@@ -677,6 +693,21 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                         {incident.assignedTo}
                       </div>
                     </div>
+                    {incident.location && (
+                      <div style={{ gridColumn: 'span 2' }}>
+                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Incident Location
+                        </div>
+                        <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>
+                          {getLocationLabel(incident.location)}
+                          {incident.locationAddress && (
+                            <span style={{ marginLeft: 8, color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)' }}>
+                              — {incident.locationAddress}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div style={{ marginTop: 'var(--forge-spacing-large)', paddingTop: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--border)' }}>
                     <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -686,6 +717,54 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                       {incident.description}
                     </p>
                   </div>
+
+                  {/* Witnesses */}
+                  {incident.witnessPresent && (
+                    <div style={{ marginTop: 'var(--forge-spacing-large)', paddingTop: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--border)' }}>
+                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '8px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Witnesses
+                      </div>
+                      {incident.witnessNames && incident.witnessNames.length > 0 ? (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                          {incident.witnessNames.map((name: string, i: number) => (
+                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)' }}>
+                              <Users className="h-3.5 w-3.5" style={{ color: 'var(--brand-blue-medium)', flexShrink: 0 }} />
+                              {name}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>
+                          Witness(es) present — names not recorded
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Tags */}
+                  {incident.tags && incident.tags.length > 0 && (
+                    <div style={{ marginTop: 'var(--forge-spacing-large)', paddingTop: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--border)' }}>
+                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '8px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Tags
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                        {incident.tags.map((tag: string, i: number) => (
+                          <span key={i} style={{
+                            padding: '2px 10px',
+                            borderRadius: 12,
+                            fontSize: 'var(--text-xs)',
+                            fontFamily: 'Roboto, sans-serif',
+                            fontWeight: 500,
+                            background: 'rgba(91,139,184,0.1)',
+                            color: 'var(--brand-blue-dark)',
+                            border: '1px solid rgba(91,139,184,0.25)',
+                          }}>
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </ForgeCard>
             </div>

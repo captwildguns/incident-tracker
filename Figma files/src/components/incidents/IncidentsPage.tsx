@@ -62,6 +62,10 @@ export const mockIncidents = [
     status: 'Open',
     createdBy: 'Lisa Anderson',
     assignedTo: 'Sarah Williams',
+    location: 'bus-stop',
+    witnessPresent: true,
+    witnessNames: ['Officer J. Rodriguez (ACPD)', 'Dana Lee (Bus Aide)'],
+    tags: ['police-involved', 'weapon', 'parent-notified'],
     documents: [
       {
         id: 'doc-crit-1',
@@ -110,6 +114,9 @@ export const mockIncidents = [
     status: 'Open',
     createdBy: 'Lisa Anderson',
     assignedTo: 'Sarah Williams',
+    location: 'on-bus',
+    witnessPresent: false,
+    tags: ['harassment', 'bullying', 'repeat-offender'],
     involvedStudents: [
       { studentId: 'STU-9783', name: 'Kayla Bailey', role: 'Instigator', severity: 'High', parentNotified: true, description: 'Verbally mocked Emma\'s appearance and encouraged others to exclude her from the seating area. Incident reported by driver after observing repeated targeted comments.', actionTaken: 'Verbal warning issued. Parent contacted by phone. Written behavior contract discussed.', notes: 'Second harassment-related incident this semester. Escalation to administration recommended if behavior continues.' },
       { studentId: 'STU-1956', name: 'Emma Rodriguez', role: 'Victim', severity: 'Medium', parentNotified: true, description: 'Targeted by Kayla\'s remarks about appearance and intentionally excluded from peer group seating. Visibly distressed when driver intervened.', actionTaken: 'Check-in conversation with driver. Offered seat change. Parent notified and expressed concern.', notes: 'Student requested seat reassignment for remainder of route.' },
@@ -163,6 +170,10 @@ export const mockIncidents = [
     status: 'Open',
     createdBy: 'Jennifer Martinez',
     assignedTo: 'Sarah Williams',
+    location: 'on-bus',
+    witnessPresent: true,
+    witnessNames: ['Chris Park (STU-3890)', 'Jennifer Martinez (Driver)'],
+    tags: ['physical', 'bus-suspension'],
     involvedStudents: [
       { studentId: 'STU-7561', name: 'Brianna Cooper', role: 'Instigator', severity: 'High', parentNotified: true, description: 'Struck Andrew Rogers across the shoulder with her backpack after an argument over seating. Action appeared intentional based on driver\'s account.', actionTaken: 'Removed from bus pending review. Parent contacted same day. 3-day bus suspension issued.', notes: 'No prior incidents on record. Parent cooperative during contact.' },
       { studentId: 'STU-2016', name: 'Andrew Rogers', role: 'Victim', severity: 'Medium', parentNotified: true, description: 'Struck on shoulder and upper back by Brianna\'s backpack. Reported minor pain but declined nurse referral.', actionTaken: 'Parent contacted and informed of incident. Offered seat change on return route.', notes: 'Student indicated incident was unprovoked.' },
