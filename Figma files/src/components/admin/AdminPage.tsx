@@ -179,15 +179,92 @@ const REPORT_AREAS: { id: string; label: string }[] = [
 const PERM_TREE: Record<string, Array<{ id: string; label: string; children: string[] }>> = {
   general: [{ id: 'incident-tracker',         label: 'Incident Tracker', children: ALL_AREAS.map(a => a.id) }],
   report:  [{ id: 'incident-tracker-reports', label: 'Incident Tracker', children: REPORT_AREAS.map(r => r.id) }],
-  'trip-workflow': [], accounts: [], terms: [], schools: [], users: [],
+  'trip-workflow': [
+    { id: 'tw-cat-request',    label: 'Trip Request',        children: ['tw-enter-request','tw-enter-request-other','tw-cancel-request','tw-view-request','tw-edit-after-approval','tw-edit-after-schedule'] },
+    { id: 'tw-cat-approval',   label: 'Trip Approval',       children: ['tw-approve-deny','tw-approve-other','tw-bypass-approval','tw-view-approval'] },
+    { id: 'tw-cat-scheduling', label: 'Trip Scheduling',     children: ['tw-schedule-trip','tw-view-schedule'] },
+    { id: 'tw-cat-completion', label: 'Trip Completion',     children: ['tw-complete-trip','tw-view-completion'] },
+    { id: 'tw-cat-admin',      label: 'Trip Administration', children: ['tw-delete-trip','tw-all-accounts','tw-all-trips','tw-override-funds','tw-close-trip','tw-edit-closed','tw-attachments','tw-max-trips-day','tw-max-trips-type','tw-max-vehicles','tw-advance-cancel','tw-advance-request','tw-closed-datetime','tw-time-thresholds','tw-batch-cancel','tw-batch-close','tw-batch-delete'] },
+    { id: 'tw-cat-invoice',    label: 'Trip Invoice',        children: ['tw-enter-invoice','tw-view-invoice'] },
+    { id: 'tw-cat-estimate',   label: 'Trip Estimate',       children: ['tw-enter-estimate','tw-view-estimate'] },
+    { id: 'tw-cat-payment',    label: 'Trip Payment',        children: ['tw-enter-payment','tw-view-payment'] },
+  ],
+  accounts: [], terms: [], schools: [], users: [],
 };
 
-const ALL_COMBINED = [...ALL_AREAS, ...REPORT_AREAS];
+// Accounts tab — reference only
+const ACCOUNT_AREAS: { id: string; label: string }[] = [
+  { id: 'acct-default',    label: 'Default - Ungrouped Account' },
+  { id: 'acct-requesters', label: 'Trip Requesters - Ungrouped Account' },
+];
+
+// Trip Workflow tab — reference only, does not affect app behaviour
+const TRIP_WORKFLOW_AREAS: { id: string; label: string }[] = [
+  { id: 'tw-enter-request',       label: 'Enter a Trip Request' },
+  { id: 'tw-enter-request-other', label: 'Enter a Trip Request for another Requester' },
+  { id: 'tw-cancel-request',      label: 'Cancel a Trip Request' },
+  { id: 'tw-view-request',        label: 'View a Trip Request' },
+  { id: 'tw-edit-after-approval', label: 'Edit Request After Approval' },
+  { id: 'tw-edit-after-schedule', label: 'Edit Request After Schedule' },
+  { id: 'tw-approve-deny',        label: 'Approve or Deny Trip' },
+  { id: 'tw-approve-other',       label: 'Approve for Another User' },
+  { id: 'tw-bypass-approval',     label: 'Bypass Approval' },
+  { id: 'tw-view-approval',       label: 'View Approval Information' },
+  { id: 'tw-schedule-trip',       label: 'Schedule a Trip' },
+  { id: 'tw-view-schedule',       label: 'View Schedule Information' },
+  { id: 'tw-complete-trip',       label: 'Complete a Trip' },
+  { id: 'tw-view-completion',     label: 'View Completion Information' },
+  { id: 'tw-delete-trip',         label: 'Delete a Trip' },
+  { id: 'tw-all-accounts',        label: 'All Accounts Access' },
+  { id: 'tw-all-trips',           label: 'All Trips Access' },
+  { id: 'tw-override-funds',      label: 'Override Insufficient Funds' },
+  { id: 'tw-close-trip',          label: 'Close a Trip' },
+  { id: 'tw-edit-closed',         label: 'Edit a Trip After Closed' },
+  { id: 'tw-attachments',         label: 'Add/Remove Attachments' },
+  { id: 'tw-max-trips-day',       label: 'Override Maximum Number of Trips per Day' },
+  { id: 'tw-max-trips-type',      label: 'Override Maximum Number of Trips per Day per Trip Type' },
+  { id: 'tw-max-vehicles',        label: 'Override Maximum Number of Vehicles per Day' },
+  { id: 'tw-advance-cancel',      label: 'Override Advance Notice Of Trip Cancellations' },
+  { id: 'tw-advance-request',     label: 'Override Advance Notice Of Trip Requests' },
+  { id: 'tw-closed-datetime',     label: 'Override Closed Date/Times For Trips' },
+  { id: 'tw-time-thresholds',     label: 'Override Time Thresholds' },
+  { id: 'tw-batch-cancel',        label: 'Batch Cancel' },
+  { id: 'tw-batch-close',         label: 'Batch Close' },
+  { id: 'tw-batch-delete',        label: 'Batch Delete' },
+  { id: 'tw-enter-invoice',       label: 'Enter a Trip Invoice' },
+  { id: 'tw-view-invoice',        label: 'View a Trip Invoice' },
+  { id: 'tw-enter-estimate',      label: 'Enter a Trip Estimate' },
+  { id: 'tw-view-estimate',       label: 'View a Trip Estimate' },
+  { id: 'tw-enter-payment',       label: 'Enter a Trip Payment' },
+  { id: 'tw-view-payment',        label: 'View a Trip Payment' },
+];
+
+// Schools tab — reference only, uses schools from sample incident data
+const SCHOOL_AREAS: { id: string; label: string }[] = [
+  { id: 'sch-jefferson',  label: 'Jefferson Middle School' },
+  { id: 'sch-lincoln-e',  label: 'Lincoln Elementary' },
+  { id: 'sch-lincoln-m',  label: 'Lincoln Middle School' },
+  { id: 'sch-roosevelt',  label: 'Roosevelt High School' },
+  { id: 'sch-washington', label: 'Washington High School' },
+];
+
+// Terms tab — reference only
+const TERM_AREAS: { id: string; label: string; alwaysOn?: boolean }[] = [
+  { id: 'term-72cft',       label: '72 CFT SAP (transfers)' },
+  { id: 'term-default',     label: 'Default SAP (Default)', alwaysOn: true },
+  { id: 'term-edited',      label: 'Edited Schedules' },
+  { id: 'term-manual',      label: 'Manual Schedules' },
+  { id: 'term-smaller',     label: 'Smaller Student Count' },
+];
+
+const ALL_COMBINED = [...ALL_AREAS, ...REPORT_AREAS, ...TRIP_WORKFLOW_AREAS, ...ACCOUNT_AREAS, ...SCHOOL_AREAS, ...TERM_AREAS];
 
 function makeAreas(overrides: Partial<Record<string, Partial<Record<PermCol, boolean>>>> = {}): PermArea[] {
   return ALL_COMBINED.map(a => {
     const o = overrides[a.id] ?? {};
-    return { id: a.id, label: a.label, read: o.read ?? false, add: o.add ?? false, edit: o.edit ?? false, delete: o.delete ?? false };
+    // Default term is always enabled for all groups
+    const isDefaultTerm = a.id === 'term-default';
+    return { id: a.id, label: a.label, read: isDefaultTerm || (o.read ?? false), add: o.add ?? false, edit: o.edit ?? false, delete: o.delete ?? false };
   });
 }
 
@@ -201,6 +278,9 @@ const INITIAL_GROUPS: PermissionGroup[] = [
     areas: makeAreas({
       ...ALL_AREAS.reduce((acc, a) => ({ ...acc, [a.id]: { read: true, add: true, edit: true, delete: true } }), {}),
       ...REPORT_AREAS.reduce((acc, a) => ({ ...acc, [a.id]: { read: true } }), {}),
+      ...TRIP_WORKFLOW_AREAS.reduce((acc, a) => ({ ...acc, [a.id]: { read: true } }), {}),
+      ...SCHOOL_AREAS.reduce((acc, a) => ({ ...acc, [a.id]: { read: true } }), {}),
+      'term-72cft': { read: true }, 'term-default': { read: true },
     }),
     members: [
       { name: 'Sarah Williams',  email: 'sarah.williams@district.edu',  title: 'Transportation Director' },
@@ -1680,6 +1760,10 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
         const treeNodes = PERM_TREE[permActiveTab] || [];
         const isReportTab = permActiveTab === 'report';
         const isUsersTab = permActiveTab === 'users';
+        const isTripWorkflowTab = permActiveTab === 'trip-workflow';
+        const isAccountsTab = permActiveTab === 'accounts';
+        const isTermsTab = permActiveTab === 'terms';
+        const isSchoolsTab = permActiveTab === 'schools';
         return (
           <div style={{ fontFamily: 'Arial, Helvetica, sans-serif', color: '#333', fontSize: 13 }}>
 
@@ -1768,6 +1852,146 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                 ))}
               </div>
 
+              {/* Trip Workflow tab — left-checkbox layout, no column headers, reference only */}
+              {isTripWorkflowTab && (
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                  <tbody>
+                    {treeNodes.map((parent, pi) => {
+                      const isExpanded = expandedRows.has(parent.id);
+                      const childAreas = groupForm.areas.filter(a => parent.children.includes(a.id));
+                      return (
+                        <>
+                          <tr key={parent.id} style={{ background: pi % 2 === 0 ? '#EEF4FB' : '#ffffff', borderBottom: '1px solid #dde3ea' }}>
+                            <td onClick={() => toggleExpand(parent.id)} style={{ padding: '6px 10px', cursor: 'pointer', userSelect: 'none' }}>
+                              <span style={{ fontSize: 9, color: '#555', marginRight: 8, display: 'inline-block', transition: 'transform 0.1s', transform: isExpanded ? 'rotate(90deg)' : 'none' }}>▶</span>
+                              <span style={{ fontWeight: 500 }}>{parent.label}</span>
+                            </td>
+                          </tr>
+                          {isExpanded && childAreas.map((area, ci) => (
+                            <tr key={area.id} style={{ background: ci % 2 === 0 ? '#ffffff' : '#EEF4FB', borderBottom: '1px solid #eaecef' }}>
+                              <td style={{ padding: '5px 10px 5px 36px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                                <input type="checkbox" checked={area.read} onChange={() => toggleAreaPerm(area.id, 'read')}
+                                  style={{ cursor: 'pointer', accentColor: '#586ab1', width: 14, height: 14, flexShrink: 0 }} />
+                                <span style={{ color: '#444' }}>{area.label}</span>
+                              </td>
+                            </tr>
+                          ))}
+                        </>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+
+              {/* Accounts tab — Enable/Disable All buttons + flat permissions table, reference only */}
+              {isAccountsTab && (() => {
+                const acctAreas = groupForm.areas.filter(a => ACCOUNT_AREAS.some(ac => ac.id === a.id));
+                const allEnabled = acctAreas.every(a => a.read);
+                return (
+                  <div>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                      <button
+                        onClick={() => ACCOUNT_AREAS.forEach(ac => { if (!groupForm.areas.find(a => a.id === ac.id)?.read) toggleAreaPerm(ac.id, 'read'); })}
+                        style={{ background: '#586ab1', border: 'none', borderRadius: 3, padding: '6px 14px', color: '#fff', fontSize: 13, cursor: 'pointer' }}>
+                        Enable All Accounts
+                      </button>
+                      <button
+                        onClick={() => ACCOUNT_AREAS.forEach(ac => { if (groupForm.areas.find(a => a.id === ac.id)?.read) toggleAreaPerm(ac.id, 'read'); })}
+                        style={{ background: '#586ab1', border: 'none', borderRadius: 3, padding: '6px 14px', color: '#fff', fontSize: 13, cursor: 'pointer' }}>
+                        Disable All Accounts
+                      </button>
+                    </div>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid #c0c8d4' }}>
+                          <th style={{ textAlign: 'left', padding: '6px 10px', fontWeight: 500, fontSize: 12, color: '#555' }}>Account / Account Groups</th>
+                          <th style={{ textAlign: 'right', padding: '6px 24px 6px 10px', fontWeight: 500, fontSize: 12, color: '#555', width: 120 }}>Permissions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {acctAreas.map((area, idx) => (
+                          <tr key={area.id} style={{ background: idx % 2 === 0 ? '#ffffff' : '#EEF4FB', borderBottom: '1px solid #eaecef' }}>
+                            <td style={{ padding: '6px 10px', color: '#586ab1' }}>{area.label}</td>
+                            <td style={{ textAlign: 'right', padding: '6px 24px 6px 10px' }}>
+                              <input type="checkbox" checked={area.read} onChange={() => toggleAreaPerm(area.id, 'read')}
+                                style={{ cursor: 'pointer', accentColor: '#586ab1', width: 14, height: 14, transform: 'scale(1.15)' }} />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })()}
+
+              {/* Schools tab — Enable/Disable All + flat permissions table, reference only */}
+              {isSchoolsTab && (() => {
+                const schoolAreas = groupForm.areas.filter(a => SCHOOL_AREAS.some(s => s.id === a.id));
+                return (
+                  <div>
+                    <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                      <button
+                        onClick={() => SCHOOL_AREAS.forEach(s => { if (!groupForm.areas.find(a => a.id === s.id)?.read) toggleAreaPerm(s.id, 'read'); })}
+                        style={{ background: '#586ab1', border: 'none', borderRadius: 3, padding: '6px 14px', color: '#fff', fontSize: 13, cursor: 'pointer' }}>
+                        Enable All Schools
+                      </button>
+                      <button
+                        onClick={() => SCHOOL_AREAS.forEach(s => { if (groupForm.areas.find(a => a.id === s.id)?.read) toggleAreaPerm(s.id, 'read'); })}
+                        style={{ background: '#586ab1', border: 'none', borderRadius: 3, padding: '6px 14px', color: '#fff', fontSize: 13, cursor: 'pointer' }}>
+                        Disable All Schools
+                      </button>
+                    </div>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid #c0c8d4' }}>
+                          <th style={{ textAlign: 'left', padding: '6px 10px', fontWeight: 500, fontSize: 12, color: '#555' }}>Schools - Allow users to view students and runs associated with:</th>
+                          <th style={{ textAlign: 'right', padding: '6px 24px 6px 10px', fontWeight: 500, fontSize: 12, color: '#555', width: 120 }}>Permissions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {schoolAreas.map((area, idx) => (
+                          <tr key={area.id} style={{ background: idx % 2 === 0 ? '#ffffff' : '#EEF4FB', borderBottom: '1px solid #eaecef' }}>
+                            <td style={{ padding: '6px 10px', color: '#333' }}>{area.label}</td>
+                            <td style={{ textAlign: 'right', padding: '6px 24px 6px 10px' }}>
+                              <input type="checkbox" checked={area.read} onChange={() => toggleAreaPerm(area.id, 'read')}
+                                style={{ cursor: 'pointer', accentColor: '#586ab1', width: 14, height: 14, transform: 'scale(1.15)' }} />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })()}
+
+              {/* Terms tab — info banner + flat checkbox list, reference only */}
+              {isTermsTab && (
+                <div>
+                  <div style={{ background: '#eef4fb', border: '1px solid #c8d8ee', borderRadius: 3, padding: '8px 12px', marginBottom: 10, fontSize: 12, color: '#333', lineHeight: 1.5 }}>
+                    A Group always has permission for the default term. Select additional term permissions for this group.
+                  </div>
+                  <div style={{ border: '1px solid #c8d0d8', borderRadius: 2 }}>
+                    {TERM_AREAS.map((term, idx) => {
+                      const area = groupForm.areas.find(a => a.id === term.id);
+                      const isAlwaysOn = !!term.alwaysOn;
+                      const isChecked = isAlwaysOn || (area?.read ?? false);
+                      return (
+                        <div key={term.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '7px 12px', background: idx % 2 === 0 ? '#ffffff' : '#EEF4FB', borderBottom: idx < TERM_AREAS.length - 1 ? '1px solid #e8ecf0' : 'none' }}>
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            disabled={isAlwaysOn}
+                            onChange={() => !isAlwaysOn && area && toggleAreaPerm(area.id, 'read')}
+                            style={{ cursor: isAlwaysOn ? 'default' : 'pointer', accentColor: '#586ab1', width: 14, height: 14, transform: 'scale(1.15)', opacity: isAlwaysOn ? 0.5 : 1 }}
+                          />
+                          <span style={{ fontSize: 13, color: isAlwaysOn ? '#888' : '#333' }}>{term.label}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Users tab — member list */}
               {isUsersTab && (
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, marginTop: 0 }}>
@@ -1792,8 +2016,8 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                 </table>
               )}
 
-              {/* Permission grid — hidden on Users tab */}
-              {!isUsersTab && <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, marginTop: 0 }}>
+              {/* Permission grid — hidden on Users, Trip Workflow, Accounts, Terms, Schools tabs */}
+              {!isUsersTab && !isTripWorkflowTab && !isAccountsTab && !isTermsTab && !isSchoolsTab && <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, marginTop: 0 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #c0c8d4' }}>
                     <th style={{ width: 24, borderRight: '1px solid #dde3ea' }}></th>
@@ -1860,6 +2084,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                   )}
                 </tbody>
               </table>}
+
             </div>
 
             {/* Save / Cancel */}
