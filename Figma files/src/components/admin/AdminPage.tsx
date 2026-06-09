@@ -154,7 +154,7 @@ const GROUP_COLORS = ['#4A6FA5', '#3F51B5', '#7B8458', '#607D8B', '#F59E0B', '#E
 // General-tab areas — incidents, workflows, communications, admin
 const ALL_AREAS: { id: string; label: string }[] = [
   { id: 'my-incidents',        label: 'My Incidents' },
-  { id: 'all-incidents',       label: 'All Incidents' },
+  { id: 'all-incidents',       label: 'Student Incidents' },
   { id: 'workflows',           label: 'Workflows' },
   { id: 'workflow-steps',      label: 'Workflow Steps' },
   { id: 'approvals',           label: 'Approvals' },
