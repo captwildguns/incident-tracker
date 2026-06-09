@@ -356,6 +356,9 @@ const INITIAL_GROUPS: PermissionGroup[] = [
     areas: makeAreas({
       'all-incidents':        { read: true },
       'workflows':            { read: true },
+      'workflow-steps':       { read: true },
+      'approvals':            { read: true },
+      'workflow-templates':   { read: true },
       'messages':             { read: true, add: true },
       'notifications':        { read: true },
       'rpt-monthly-summary': { read: true },
