@@ -131,14 +131,15 @@ interface PermArea {
   delete: boolean;
 }
 
-interface PermTabData { tabId: string; areas: PermArea[]; }
-
-const PERM_TAB_DEFS: { id: string; label: string; areas: string[] }[] = [
-  { id: 'general',        label: 'General',        areas: ['My Incidents', 'All Incidents'] },
-  { id: 'workflows',      label: 'Workflows',       areas: ['Workflows', 'Workflow Steps', 'Approvals'] },
-  { id: 'communications', label: 'Communications',  areas: ['Messages', 'Notifications'] },
-  { id: 'reports',        label: 'Reports',         areas: ['Quick Reports', 'Data Export'] },
-  { id: 'administration', label: 'Administration',  areas: ['Users', 'Incident Types', 'Workflow Templates', 'Email Templates', 'Permission Groups'] },
+// ST-style tabs — Incident Tracker lives inside "General"
+const PERM_TAB_DEFS = [
+  { id: 'general',      label: 'General' },
+  { id: 'report',       label: 'Report' },
+  { id: 'trip-workflow', label: 'Trip Workflow' },
+  { id: 'accounts',     label: 'Accounts' },
+  { id: 'terms',        label: 'Terms' },
+  { id: 'schools',      label: 'Schools' },
+  { id: 'users',        label: 'Users' },
 ];
 
 const PERM_COLS: { key: PermCol; label: string }[] = [
@@ -150,85 +151,102 @@ const PERM_COLS: { key: PermCol; label: string }[] = [
 
 const GROUP_COLORS = ['#4A6FA5', '#3F51B5', '#7B8458', '#607D8B', '#F59E0B', '#EF4444', '#10B981', '#8B5CF6'];
 
-function makeTabs(overrides: Partial<Record<string, Partial<Record<string, Partial<Record<PermCol, boolean>>>>>> = {}): PermTabData[] {
-  return PERM_TAB_DEFS.map(t => ({
-    tabId: t.id,
-    areas: t.areas.map(label => {
-      const o = overrides[t.id]?.[label] ?? {};
-      return { id: label.toLowerCase().replace(/\s+/g, '-'), label, read: o.read ?? false, add: o.add ?? false, edit: o.edit ?? false, delete: o.delete ?? false };
-    }),
-  }));
+// All Incident Tracker sub-areas (flat list, used as children of the IT parent row)
+const ALL_AREAS: { id: string; label: string }[] = [
+  { id: 'my-incidents',        label: 'My Incidents' },
+  { id: 'all-incidents',       label: 'All Incidents' },
+  { id: 'workflows',           label: 'Workflows' },
+  { id: 'workflow-steps',      label: 'Workflow Steps' },
+  { id: 'approvals',           label: 'Approvals' },
+  { id: 'messages',            label: 'Messages' },
+  { id: 'notifications',       label: 'Notifications' },
+  { id: 'quick-reports',       label: 'Quick Reports' },
+  { id: 'data-export',         label: 'Data Export' },
+  { id: 'users-admin',         label: 'Users' },
+  { id: 'incident-types',      label: 'Incident Types' },
+  { id: 'workflow-templates',  label: 'Workflow Templates' },
+  { id: 'email-templates',     label: 'Email Templates' },
+  { id: 'permission-groups',   label: 'Permission Groups' },
+];
+
+// "Incident Tracker" sits in the General tab at the same level as ST modules
+const PERM_TREE: Record<string, Array<{ id: string; label: string; children: string[] }>> = {
+  general: [{ id: 'incident-tracker', label: 'Incident Tracker', children: ALL_AREAS.map(a => a.id) }],
+  report: [], 'trip-workflow': [], accounts: [], terms: [], schools: [], users: [],
+};
+
+function makeAreas(overrides: Partial<Record<string, Partial<Record<PermCol, boolean>>>> = {}): PermArea[] {
+  return ALL_AREAS.map(a => {
+    const o = overrides[a.id] ?? {};
+    return { id: a.id, label: a.label, read: o.read ?? false, add: o.add ?? false, edit: o.edit ?? false, delete: false };
+  });
 }
 
-function countGroupPerms(tabs: PermTabData[]) {
-  return tabs.reduce((n, t) => n + t.areas.reduce((m, a) => m + (a.read?1:0) + (a.add?1:0) + (a.edit?1:0) + (a.delete?1:0), 0), 0);
+function countGroupPerms(areas: PermArea[]) {
+  return areas.reduce((n, a) => n + (a.read?1:0) + (a.add?1:0) + (a.edit?1:0) + (a.delete?1:0), 0);
 }
-const TOTAL_GROUP_PERMS = PERM_TAB_DEFS.reduce((n, t) => n + t.areas.length * 4, 0);
+const TOTAL_GROUP_PERMS = ALL_AREAS.length * 3; // read + add + edit (delete always off)
 
-interface PermissionGroup { id: string; name: string; description: string; color: string; active: boolean; tabs: PermTabData[]; }
-
-const ALL_ON = { read: true, add: true, edit: true, delete: false };
+interface PermissionGroup { id: string; name: string; description: string; color: string; active: boolean; areas: PermArea[]; }
 
 const INITIAL_GROUPS: PermissionGroup[] = [
   {
     id: 'G-001', name: 'Administrator', color: '#3F51B5', active: true,
     description: 'Full access to all incident management features and administrative controls.',
-    tabs: makeTabs({
-      general:        { 'My Incidents': ALL_ON, 'All Incidents': ALL_ON },
-      workflows:      { 'Workflows': ALL_ON, 'Workflow Steps': ALL_ON, 'Approvals': ALL_ON },
-      communications: { 'Messages': ALL_ON, 'Notifications': ALL_ON },
-      reports:        { 'Quick Reports': ALL_ON, 'Data Export': ALL_ON },
-      administration: { 'Users': ALL_ON, 'Incident Types': ALL_ON, 'Workflow Templates': ALL_ON, 'Email Templates': ALL_ON, 'Permission Groups': ALL_ON },
-    }),
+    areas: makeAreas(ALL_AREAS.reduce((acc, a) => ({ ...acc, [a.id]: { read: true, add: true, edit: true } }), {})),
   },
   {
     id: 'G-002', name: 'Safety Coordinator', color: '#7B8458', active: true,
     description: 'Manages incidents end-to-end including workflows, communications, and reporting.',
-    tabs: makeTabs({
-      general:        { 'My Incidents': { read: true, add: true, edit: true }, 'All Incidents': { read: true, add: true, edit: true } },
-      workflows:      { 'Workflows': { read: true, add: true, edit: true }, 'Workflow Steps': { read: true, add: true, edit: true }, 'Approvals': { read: true, add: true, edit: true } },
-      communications: { 'Messages': { read: true, add: true }, 'Notifications': { read: true } },
-      reports:        { 'Quick Reports': { read: true }, 'Data Export': { read: true } },
+    areas: makeAreas({
+      'my-incidents':       { read: true, add: true, edit: true },
+      'all-incidents':      { read: true, add: true, edit: true },
+      'workflows':          { read: true, add: true, edit: true },
+      'workflow-steps':     { read: true, add: true, edit: true },
+      'approvals':          { read: true, add: true, edit: true },
+      'messages':           { read: true, add: true },
+      'notifications':      { read: true },
+      'quick-reports':      { read: true },
+      'data-export':        { read: true },
     }),
   },
   {
     id: 'G-003', name: 'Driver', color: '#4A6FA5', active: true,
     description: 'Can create and view own incidents and participate in assigned workflow steps.',
-    tabs: makeTabs({
-      general:        { 'My Incidents': { read: true, add: true } },
-      workflows:      { 'Workflows': { read: true }, 'Workflow Steps': { read: true, edit: true } },
-      communications: { 'Messages': { read: true, add: true }, 'Notifications': { read: true } },
+    areas: makeAreas({
+      'my-incidents':    { read: true, add: true },
+      'workflows':       { read: true },
+      'workflow-steps':  { read: true, edit: true },
+      'messages':        { read: true, add: true },
+      'notifications':   { read: true },
     }),
   },
   {
     id: 'G-004', name: 'Fleet Manager', color: '#607D8B', active: true,
     description: 'Read-only access to all incidents with reporting capabilities.',
-    tabs: makeTabs({
-      general:        { 'My Incidents': { read: true, add: true }, 'All Incidents': { read: true } },
-      workflows:      { 'Workflows': { read: true }, 'Workflow Steps': { read: true } },
-      communications: { 'Messages': { read: true }, 'Notifications': { read: true } },
-      reports:        { 'Quick Reports': { read: true }, 'Data Export': { read: true } },
+    areas: makeAreas({
+      'my-incidents':   { read: true, add: true },
+      'all-incidents':  { read: true },
+      'workflows':      { read: true },
+      'workflow-steps': { read: true },
+      'messages':       { read: true },
+      'notifications':  { read: true },
+      'quick-reports':  { read: true },
+      'data-export':    { read: true },
     }),
   },
   {
     id: 'G-005', name: 'School Principal', color: '#F59E0B', active: true,
     description: 'View-only access to all incidents with communication capability.',
-    tabs: makeTabs({
-      general:        { 'All Incidents': { read: true } },
-      workflows:      { 'Workflows': { read: true } },
-      communications: { 'Messages': { read: true, add: true }, 'Notifications': { read: true } },
-      reports:        { 'Quick Reports': { read: true } },
+    areas: makeAreas({
+      'all-incidents':  { read: true },
+      'workflows':      { read: true },
+      'messages':       { read: true, add: true },
+      'notifications':  { read: true },
+      'quick-reports':  { read: true },
     }),
   },
 ];
-
-const PERM_TREE: Record<string, Array<{ id: string; label: string; children: string[] }>> = {
-  general:        [{ id: 'par-incidents', label: 'Incidents',      children: ['my-incidents', 'all-incidents'] }],
-  workflows:      [{ id: 'par-workflows', label: 'Workflows',      children: ['workflows', 'workflow-steps', 'approvals'] }],
-  communications: [{ id: 'par-comms',    label: 'Communications', children: ['messages', 'notifications'] }],
-  reports:        [{ id: 'par-reports',  label: 'Reports',         children: ['quick-reports', 'data-export'] }],
-  administration: [{ id: 'par-admin',   label: 'Administration',  children: ['users', 'incident-types', 'workflow-templates', 'email-templates', 'permission-groups'] }],
-};
 
 function IndeterminateCheckbox({ state, onChange }: { state: 'checked' | 'indeterminate' | 'unchecked'; onChange: () => void }) {
   const iRef = useRef<HTMLInputElement>(null);
@@ -314,13 +332,13 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   });
 
   // ─── Permission Groups State ─────────────────────────────────────────────────
-  const [groups, setGroups] = useState<PermissionGroup[]>(INITIAL_GROUPS.map(g => ({ ...g, tabs: g.tabs.map(t => ({ ...t, areas: t.areas.map(a => ({ ...a })) })) })));
+  const [groups, setGroups] = useState<PermissionGroup[]>(INITIAL_GROUPS.map(g => ({ ...g, areas: g.areas.map(a => ({ ...a })) })));
   const [groupSearch, setGroupSearch] = useState('');
   const [permView, setPermView] = useState<'list' | 'edit'>('list');
   const [editingGroup, setEditingGroup] = useState<PermissionGroup | null>(null);
   const [permActiveTab, setPermActiveTab] = useState('general');
   const [groupForm, setGroupForm] = useState<Omit<PermissionGroup, 'id'>>({
-    name: '', description: '', color: GROUP_COLORS[0], active: true, tabs: makeTabs(),
+    name: '', description: '', color: GROUP_COLORS[0], active: true, areas: makeAreas(),
   });
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [isDefaultGroup, setIsDefaultGroup] = useState(false);
@@ -599,7 +617,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
 
   const openAddGroup = () => {
     setEditingGroup(null);
-    setGroupForm({ name: '', description: '', color: GROUP_COLORS[0], active: true, tabs: makeTabs() });
+    setGroupForm({ name: '', description: '', color: GROUP_COLORS[0], active: true, areas: makeAreas() });
     setPermActiveTab('general');
     setExpandedRows(new Set());
     setIsDefaultGroup(false);
@@ -608,7 +626,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
 
   const openEditGroup = (g: PermissionGroup) => {
     setEditingGroup(g);
-    setGroupForm({ name: g.name, description: g.description, color: g.color, active: g.active, tabs: g.tabs.map(t => ({ ...t, areas: t.areas.map(a => ({ ...a })) })) });
+    setGroupForm({ name: g.name, description: g.description, color: g.color, active: g.active, areas: g.areas.map(a => ({ ...a })) });
     setPermActiveTab('general');
     setExpandedRows(new Set());
     setIsDefaultGroup(false);
@@ -630,33 +648,23 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   const toggleAreaPerm = (areaId: string, key: PermCol) => {
     setGroupForm(prev => ({
       ...prev,
-      tabs: prev.tabs.map(t => ({
-        ...t,
-        areas: t.areas.map(a => a.id === areaId ? { ...a, [key]: !a[key] } : a),
-      })),
+      areas: prev.areas.map(a => a.id === areaId ? { ...a, [key]: !a[key] } : a),
     }));
   };
 
-  const getParentState = (tabId: string, childIds: string[], col: PermCol): 'checked' | 'indeterminate' | 'unchecked' => {
-    const tabData = groupForm.tabs.find(t => t.tabId === tabId);
-    if (!tabData) return 'unchecked';
-    const children = tabData.areas.filter(a => childIds.includes(a.id));
+  const getParentState = (childIds: string[], col: PermCol): 'checked' | 'indeterminate' | 'unchecked' => {
+    const children = groupForm.areas.filter(a => childIds.includes(a.id));
     const n = children.filter(a => a[col]).length;
     if (n === 0) return 'unchecked';
     if (n === children.length) return 'checked';
     return 'indeterminate';
   };
 
-  const toggleParentPerm = (tabId: string, childIds: string[], col: PermCol) => {
-    const tabData = groupForm.tabs.find(t => t.tabId === tabId);
-    if (!tabData) return;
-    const allChecked = tabData.areas.filter(a => childIds.includes(a.id)).every(a => a[col]);
+  const toggleParentPerm = (childIds: string[], col: PermCol) => {
+    const allChecked = groupForm.areas.filter(a => childIds.includes(a.id)).every(a => a[col]);
     setGroupForm(prev => ({
       ...prev,
-      tabs: prev.tabs.map(t => t.tabId !== tabId ? t : {
-        ...t,
-        areas: t.areas.map(a => childIds.includes(a.id) ? { ...a, [col]: !allChecked } : a),
-      }),
+      areas: prev.areas.map(a => childIds.includes(a.id) ? { ...a, [col]: !allChecked } : a),
     }));
   };
 
@@ -1629,7 +1637,6 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
 
       {/* ── Group Detail (_formDetail.cshtml style) ──────────────────────────── */}
       {activeSection === 'permissions' && permView === 'edit' && (() => {
-        const activeTabData = groupForm.tabs.find(t => t.tabId === permActiveTab);
         const treeNodes = PERM_TREE[permActiveTab] || [];
         return (
           <div style={{ fontFamily: 'Arial, Helvetica, sans-serif', color: '#333', fontSize: 13 }}>
@@ -1746,18 +1753,18 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                           </td>
                           <td style={{ padding: '6px 10px', fontWeight: 500 }}>{parent.label}</td>
                           {PERM_COLS.map(c => {
-                            const st = getParentState(permActiveTab, parent.children, c.key);
+                            const st = getParentState(parent.children, c.key);
                             return (
                               <td key={c.key} style={{ textAlign: 'center', padding: '6px 10px' }}>
                                 {c.key === 'delete'
                                   ? <input type="checkbox" disabled checked={false} style={{ accentColor: '#586ab1', width: 14, height: 14, opacity: 0.25, cursor: 'not-allowed' }} />
-                                  : <IndeterminateCheckbox state={st} onChange={() => toggleParentPerm(permActiveTab, parent.children, c.key)} />
+                                  : <IndeterminateCheckbox state={st} onChange={() => toggleParentPerm(parent.children, c.key)} />
                                 }
                               </td>
                             );
                           })}
                         </tr>
-                        {isExpanded && activeTabData?.areas
+                        {isExpanded && groupForm.areas
                           .filter(a => parent.children.includes(a.id))
                           .map(area => (
                             <tr key={area.id} style={{ background: '#ffffff', borderBottom: '1px solid #eaecef' }}>
