@@ -46,6 +46,7 @@ interface PerStudentData {
   severityOverride: 'shared' | 'low' | 'medium' | 'high' | 'critical';
   incidentTypeOverride: string;
   parentNotified: boolean;
+  description: string;
   actionTaken: string;
   notes: string;
 }
@@ -265,7 +266,7 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
       setInvolvedStudents(prev => [...prev, student]);
       setPerStudentData(prev => ({
         ...prev,
-        [student.id]: { role: 'participant', severityOverride: 'shared', incidentTypeOverride: '', parentNotified: false, actionTaken: '', notes: '' },
+        [student.id]: { role: 'participant', severityOverride: 'shared', incidentTypeOverride: '', parentNotified: false, description: '', actionTaken: '', notes: '' },
       }));
       setExpandedStudents(prev => new Set([...prev, student.id]));
     }
@@ -867,6 +868,21 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
                             )}
                           </div>
 
+                          <div className="mb-4">
+                            <Label htmlFor={`desc-${student.id}`} style={{ fontFamily: 'Roboto, sans-serif' }}>Description of Involvement</Label>
+                            <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)', margin: '2px 0 8px' }}>
+                              Describe what this student specifically did or experienced during the incident.
+                            </p>
+                            <Textarea
+                              id={`desc-${student.id}`}
+                              placeholder="e.g. Verbally confronted another student, threw backpack, was struck by..."
+                              rows={3}
+                              value={data.description}
+                              onChange={(e) => updatePerStudent(student.id, 'description', e.target.value)}
+                              style={{ fontFamily: 'Roboto, sans-serif', marginTop: 6 }}
+                            />
+                          </div>
+
                           <div className="flex items-center space-x-2 mb-4">
                             <Checkbox
                               id={`parent-${student.id}`}
@@ -985,6 +1001,7 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
                           {data.incidentTypeOverride && <Badge variant="outline" className="text-blue-700 border-blue-300 bg-blue-50" style={{ fontSize: 'var(--text-xs)' }}>Type: {getIncidentTypeLabel(data.incidentTypeOverride)}</Badge>}
                           {data.severityOverride !== 'shared' && <Badge variant="outline" style={{ fontSize: 'var(--text-xs)', textTransform: 'capitalize' }}>Severity: {data.severityOverride}</Badge>}
                           {data.parentNotified && <Badge variant="outline" className="text-green-700 border-green-300 bg-green-50" style={{ fontSize: 'var(--text-xs)' }}>Parent notified</Badge>}
+                          {data.description && <Badge variant="outline" style={{ fontSize: 'var(--text-xs)' }}>Description added</Badge>}
                           {data.actionTaken && <Badge variant="outline" style={{ fontSize: 'var(--text-xs)' }}>Action documented</Badge>}
                           {data.notes && <Badge variant="outline" style={{ fontSize: 'var(--text-xs)' }}>Notes added</Badge>}
                         </div>
