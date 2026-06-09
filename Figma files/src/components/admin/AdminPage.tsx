@@ -167,18 +167,12 @@ const ALL_AREAS: { id: string; label: string }[] = [
   { id: 'permission-groups',   label: 'Permission Groups' },
 ];
 
-// Report-tab areas — individual reports (Accessible only, no CRUD)
+// Report-tab areas — matches the 4 Quick Reports in ReportsPage.tsx (Accessible only)
 const REPORT_AREAS: { id: string; label: string }[] = [
-  { id: 'rpt-incident-summary',     label: 'Incident Summary' },
-  { id: 'rpt-student-history',      label: 'Student Incident History' },
-  { id: 'rpt-driver-incidents',     label: 'Driver Incident Report' },
-  { id: 'rpt-vehicle-incidents',    label: 'Vehicle Incident Report' },
-  { id: 'rpt-by-type',              label: 'Incidents by Type' },
-  { id: 'rpt-by-severity',          label: 'Incidents by Severity' },
-  { id: 'rpt-open',                 label: 'Open Incidents' },
-  { id: 'rpt-resolved',             label: 'Resolved Incidents' },
-  { id: 'rpt-communications-log',   label: 'Communications Log' },
-  { id: 'rpt-workflow-activity',    label: 'Workflow Activity' },
+  { id: 'rpt-monthly-summary',   label: 'Monthly Summary' },
+  { id: 'rpt-yearly-summary',    label: 'Yearly Summary' },
+  { id: 'rpt-high-critical',     label: 'High & Critical Incidents' },
+  { id: 'rpt-open-incidents',    label: 'Open Incidents Report' },
 ];
 
 // "Incident Tracker" sits in both General and Report tabs at the same level as ST modules
@@ -216,14 +210,10 @@ const INITIAL_GROUPS: PermissionGroup[] = [
       'approvals':               { read: true, add: true, edit: true },
       'messages':                { read: true, add: true },
       'notifications':           { read: true },
-      'rpt-incident-summary':    { read: true },
-      'rpt-student-history':     { read: true },
-      'rpt-driver-incidents':    { read: true },
-      'rpt-by-type':             { read: true },
-      'rpt-by-severity':         { read: true },
-      'rpt-open':                { read: true },
-      'rpt-resolved':            { read: true },
-      'rpt-workflow-activity':   { read: true },
+      'rpt-monthly-summary':  { read: true },
+      'rpt-yearly-summary':   { read: true },
+      'rpt-high-critical':    { read: true },
+      'rpt-open-incidents':   { read: true },
     }),
   },
   {
@@ -235,8 +225,8 @@ const INITIAL_GROUPS: PermissionGroup[] = [
       'workflow-steps':       { read: true, edit: true },
       'messages':             { read: true, add: true },
       'notifications':        { read: true },
-      'rpt-incident-summary': { read: true },
-      'rpt-driver-incidents': { read: true },
+      'rpt-monthly-summary': { read: true },
+      'rpt-high-critical':   { read: true },
     }),
   },
   {
@@ -249,10 +239,10 @@ const INITIAL_GROUPS: PermissionGroup[] = [
       'workflow-steps':         { read: true },
       'messages':               { read: true },
       'notifications':          { read: true },
-      'rpt-incident-summary':   { read: true },
-      'rpt-vehicle-incidents':  { read: true },
-      'rpt-by-type':            { read: true },
-      'rpt-open':               { read: true },
+      'rpt-monthly-summary': { read: true },
+      'rpt-yearly-summary':  { read: true },
+      'rpt-high-critical':   { read: true },
+      'rpt-open-incidents':  { read: true },
     }),
   },
   {
@@ -263,8 +253,8 @@ const INITIAL_GROUPS: PermissionGroup[] = [
       'workflows':            { read: true },
       'messages':             { read: true, add: true },
       'notifications':        { read: true },
-      'rpt-incident-summary': { read: true },
-      'rpt-by-type':          { read: true },
+      'rpt-monthly-summary': { read: true },
+      'rpt-open-incidents':  { read: true },
     }),
   },
 ];
