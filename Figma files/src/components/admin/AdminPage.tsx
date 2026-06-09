@@ -151,7 +151,7 @@ const PERM_COLS: { key: PermCol; label: string }[] = [
 
 const GROUP_COLORS = ['#4A6FA5', '#3F51B5', '#7B8458', '#607D8B', '#F59E0B', '#EF4444', '#10B981', '#8B5CF6'];
 
-// All Incident Tracker sub-areas (flat list, used as children of the IT parent row)
+// General-tab areas — incidents, workflows, communications, admin
 const ALL_AREAS: { id: string; label: string }[] = [
   { id: 'my-incidents',        label: 'My Incidents' },
   { id: 'all-incidents',       label: 'All Incidents' },
@@ -160,8 +160,6 @@ const ALL_AREAS: { id: string; label: string }[] = [
   { id: 'approvals',           label: 'Approvals' },
   { id: 'messages',            label: 'Messages' },
   { id: 'notifications',       label: 'Notifications' },
-  { id: 'quick-reports',       label: 'Quick Reports' },
-  { id: 'data-export',         label: 'Data Export' },
   { id: 'users-admin',         label: 'Users' },
   { id: 'incident-types',      label: 'Incident Types' },
   { id: 'workflow-templates',  label: 'Workflow Templates' },
@@ -169,23 +167,35 @@ const ALL_AREAS: { id: string; label: string }[] = [
   { id: 'permission-groups',   label: 'Permission Groups' },
 ];
 
-// "Incident Tracker" sits in the General tab at the same level as ST modules
+// Report-tab areas — individual reports (Accessible only, no CRUD)
+const REPORT_AREAS: { id: string; label: string }[] = [
+  { id: 'rpt-incident-summary',     label: 'Incident Summary' },
+  { id: 'rpt-student-history',      label: 'Student Incident History' },
+  { id: 'rpt-driver-incidents',     label: 'Driver Incident Report' },
+  { id: 'rpt-vehicle-incidents',    label: 'Vehicle Incident Report' },
+  { id: 'rpt-by-type',              label: 'Incidents by Type' },
+  { id: 'rpt-by-severity',          label: 'Incidents by Severity' },
+  { id: 'rpt-open',                 label: 'Open Incidents' },
+  { id: 'rpt-resolved',             label: 'Resolved Incidents' },
+  { id: 'rpt-communications-log',   label: 'Communications Log' },
+  { id: 'rpt-workflow-activity',    label: 'Workflow Activity' },
+];
+
+// "Incident Tracker" sits in both General and Report tabs at the same level as ST modules
 const PERM_TREE: Record<string, Array<{ id: string; label: string; children: string[] }>> = {
-  general: [{ id: 'incident-tracker', label: 'Incident Tracker', children: ALL_AREAS.map(a => a.id) }],
-  report: [], 'trip-workflow': [], accounts: [], terms: [], schools: [], users: [],
+  general: [{ id: 'incident-tracker',         label: 'Incident Tracker', children: ALL_AREAS.map(a => a.id) }],
+  report:  [{ id: 'incident-tracker-reports', label: 'Incident Tracker', children: REPORT_AREAS.map(r => r.id) }],
+  'trip-workflow': [], accounts: [], terms: [], schools: [], users: [],
 };
 
+const ALL_COMBINED = [...ALL_AREAS, ...REPORT_AREAS];
+
 function makeAreas(overrides: Partial<Record<string, Partial<Record<PermCol, boolean>>>> = {}): PermArea[] {
-  return ALL_AREAS.map(a => {
+  return ALL_COMBINED.map(a => {
     const o = overrides[a.id] ?? {};
     return { id: a.id, label: a.label, read: o.read ?? false, add: o.add ?? false, edit: o.edit ?? false, delete: false };
   });
 }
-
-function countGroupPerms(areas: PermArea[]) {
-  return areas.reduce((n, a) => n + (a.read?1:0) + (a.add?1:0) + (a.edit?1:0) + (a.delete?1:0), 0);
-}
-const TOTAL_GROUP_PERMS = ALL_AREAS.length * 3; // read + add + edit (delete always off)
 
 interface PermissionGroup { id: string; name: string; description: string; color: string; active: boolean; areas: PermArea[]; }
 
@@ -193,57 +203,68 @@ const INITIAL_GROUPS: PermissionGroup[] = [
   {
     id: 'G-001', name: 'Administrator', color: '#3F51B5', active: true,
     description: 'Full access to all incident management features and administrative controls.',
-    areas: makeAreas(ALL_AREAS.reduce((acc, a) => ({ ...acc, [a.id]: { read: true, add: true, edit: true } }), {})),
+    areas: makeAreas(ALL_COMBINED.reduce((acc, a) => ({ ...acc, [a.id]: { read: true, add: true, edit: true } }), {})),
   },
   {
     id: 'G-002', name: 'Safety Coordinator', color: '#7B8458', active: true,
     description: 'Manages incidents end-to-end including workflows, communications, and reporting.',
     areas: makeAreas({
-      'my-incidents':       { read: true, add: true, edit: true },
-      'all-incidents':      { read: true, add: true, edit: true },
-      'workflows':          { read: true, add: true, edit: true },
-      'workflow-steps':     { read: true, add: true, edit: true },
-      'approvals':          { read: true, add: true, edit: true },
-      'messages':           { read: true, add: true },
-      'notifications':      { read: true },
-      'quick-reports':      { read: true },
-      'data-export':        { read: true },
+      'my-incidents':            { read: true, add: true, edit: true },
+      'all-incidents':           { read: true, add: true, edit: true },
+      'workflows':               { read: true, add: true, edit: true },
+      'workflow-steps':          { read: true, add: true, edit: true },
+      'approvals':               { read: true, add: true, edit: true },
+      'messages':                { read: true, add: true },
+      'notifications':           { read: true },
+      'rpt-incident-summary':    { read: true },
+      'rpt-student-history':     { read: true },
+      'rpt-driver-incidents':    { read: true },
+      'rpt-by-type':             { read: true },
+      'rpt-by-severity':         { read: true },
+      'rpt-open':                { read: true },
+      'rpt-resolved':            { read: true },
+      'rpt-workflow-activity':   { read: true },
     }),
   },
   {
     id: 'G-003', name: 'Driver', color: '#4A6FA5', active: true,
     description: 'Can create and view own incidents and participate in assigned workflow steps.',
     areas: makeAreas({
-      'my-incidents':    { read: true, add: true },
-      'workflows':       { read: true },
-      'workflow-steps':  { read: true, edit: true },
-      'messages':        { read: true, add: true },
-      'notifications':   { read: true },
+      'my-incidents':         { read: true, add: true },
+      'workflows':            { read: true },
+      'workflow-steps':       { read: true, edit: true },
+      'messages':             { read: true, add: true },
+      'notifications':        { read: true },
+      'rpt-incident-summary': { read: true },
+      'rpt-driver-incidents': { read: true },
     }),
   },
   {
     id: 'G-004', name: 'Fleet Manager', color: '#607D8B', active: true,
     description: 'Read-only access to all incidents with reporting capabilities.',
     areas: makeAreas({
-      'my-incidents':   { read: true, add: true },
-      'all-incidents':  { read: true },
-      'workflows':      { read: true },
-      'workflow-steps': { read: true },
-      'messages':       { read: true },
-      'notifications':  { read: true },
-      'quick-reports':  { read: true },
-      'data-export':    { read: true },
+      'my-incidents':           { read: true, add: true },
+      'all-incidents':          { read: true },
+      'workflows':              { read: true },
+      'workflow-steps':         { read: true },
+      'messages':               { read: true },
+      'notifications':          { read: true },
+      'rpt-incident-summary':   { read: true },
+      'rpt-vehicle-incidents':  { read: true },
+      'rpt-by-type':            { read: true },
+      'rpt-open':               { read: true },
     }),
   },
   {
     id: 'G-005', name: 'School Principal', color: '#F59E0B', active: true,
     description: 'View-only access to all incidents with communication capability.',
     areas: makeAreas({
-      'all-incidents':  { read: true },
-      'workflows':      { read: true },
-      'messages':       { read: true, add: true },
-      'notifications':  { read: true },
-      'quick-reports':  { read: true },
+      'all-incidents':        { read: true },
+      'workflows':            { read: true },
+      'messages':             { read: true, add: true },
+      'notifications':        { read: true },
+      'rpt-incident-summary': { read: true },
+      'rpt-by-type':          { read: true },
     }),
   },
 ];
@@ -1638,6 +1659,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
       {/* ── Group Detail (_formDetail.cshtml style) ──────────────────────────── */}
       {activeSection === 'permissions' && permView === 'edit' && (() => {
         const treeNodes = PERM_TREE[permActiveTab] || [];
+        const isReportTab = permActiveTab === 'report';
         return (
           <div style={{ fontFamily: 'Arial, Helvetica, sans-serif', color: '#333', fontSize: 13 }}>
 
@@ -1726,43 +1748,49 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                 ))}
               </div>
 
-              {/* Permission grid */}
+              {/* Permission grid — Report tab: Area + Accessible only; other tabs: Area + Read/Add/Edit/Delete */}
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, marginTop: 0 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #c0c8d4' }}>
                     <th style={{ width: 24, borderRight: '1px solid #dde3ea' }}></th>
-                    <th style={{ textAlign: 'left', padding: '6px 10px', fontWeight: 500, fontSize: 12, color: '#555', width: '44%' }}>Area</th>
-                    {PERM_COLS.map(c => (
-                      <th key={c.key} style={{ textAlign: 'center', padding: '6px 10px', fontWeight: 500, fontSize: 12, color: c.key === 'delete' ? '#c0c8d4' : '#555', width: '11%' }}>
-                        {c.label}{c.key === 'delete' && <Lock size={9} style={{ marginLeft: 3, verticalAlign: 'middle', color: '#c0c8d4' }} />}
-                      </th>
-                    ))}
+                    <th style={{ textAlign: 'left', padding: '6px 10px', fontWeight: 500, fontSize: 12, color: '#555' }}>Area</th>
+                    {isReportTab
+                      ? <th style={{ textAlign: 'right', padding: '6px 24px 6px 10px', fontWeight: 500, fontSize: 12, color: '#555' }}>Accessible</th>
+                      : PERM_COLS.map(c => (
+                          <th key={c.key} style={{ textAlign: 'center', padding: '6px 10px', fontWeight: 500, fontSize: 12, color: c.key === 'delete' ? '#c0c8d4' : '#555', width: '11%' }}>
+                            {c.label}{c.key === 'delete' && <Lock size={9} style={{ marginLeft: 3, verticalAlign: 'middle', color: '#c0c8d4' }} />}
+                          </th>
+                        ))
+                    }
                   </tr>
                 </thead>
                 <tbody>
                   {treeNodes.map((parent, pi) => {
                     const isExpanded = expandedRows.has(parent.id);
+                    const accessState = getParentState(parent.children, 'read');
                     return (
                       <>
                         <tr key={parent.id} style={{ background: pi % 2 === 0 ? '#EEF4FB' : '#ffffff', borderBottom: '1px solid #dde3ea' }}>
-                          <td
-                            onClick={() => toggleExpand(parent.id)}
-                            style={{ textAlign: 'center', cursor: 'pointer', padding: '5px 0', borderRight: '1px solid #dde3ea', userSelect: 'none' }}
-                          >
+                          <td onClick={() => toggleExpand(parent.id)} style={{ textAlign: 'center', cursor: 'pointer', padding: '5px 0', borderRight: '1px solid #dde3ea', userSelect: 'none' }}>
                             <span style={{ fontSize: 9, color: '#555', display: 'inline-block', transition: 'transform 0.1s', transform: isExpanded ? 'rotate(90deg)' : 'none' }}>▶</span>
                           </td>
                           <td style={{ padding: '6px 10px', fontWeight: 500 }}>{parent.label}</td>
-                          {PERM_COLS.map(c => {
-                            const st = getParentState(parent.children, c.key);
-                            return (
-                              <td key={c.key} style={{ textAlign: 'center', padding: '6px 10px' }}>
-                                {c.key === 'delete'
-                                  ? <input type="checkbox" disabled checked={false} style={{ accentColor: '#586ab1', width: 14, height: 14, opacity: 0.25, cursor: 'not-allowed' }} />
-                                  : <IndeterminateCheckbox state={st} onChange={() => toggleParentPerm(parent.children, c.key)} />
-                                }
+                          {isReportTab
+                            ? <td style={{ textAlign: 'right', padding: '6px 24px 6px 10px' }}>
+                                <IndeterminateCheckbox state={accessState} onChange={() => toggleParentPerm(parent.children, 'read')} />
                               </td>
-                            );
-                          })}
+                            : PERM_COLS.map(c => {
+                                const st = getParentState(parent.children, c.key);
+                                return (
+                                  <td key={c.key} style={{ textAlign: 'center', padding: '6px 10px' }}>
+                                    {c.key === 'delete'
+                                      ? <input type="checkbox" disabled checked={false} style={{ accentColor: '#586ab1', width: 14, height: 14, opacity: 0.25, cursor: 'not-allowed' }} />
+                                      : <IndeterminateCheckbox state={st} onChange={() => toggleParentPerm(parent.children, c.key)} />
+                                    }
+                                  </td>
+                                );
+                              })
+                          }
                         </tr>
                         {isExpanded && groupForm.areas
                           .filter(a => parent.children.includes(a.id))
@@ -1770,23 +1798,25 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                             <tr key={area.id} style={{ background: '#ffffff', borderBottom: '1px solid #eaecef' }}>
                               <td style={{ borderRight: '1px solid #dde3ea' }}></td>
                               <td style={{ padding: '5px 10px 5px 30px', color: '#444' }}>{area.label}</td>
-                              {PERM_COLS.map(c => (
-                                <td key={c.key} style={{ textAlign: 'center', padding: '5px 10px' }}>
-                                  <input
-                                    type="checkbox"
-                                    checked={area[c.key]}
-                                    disabled={c.key === 'delete'}
-                                    onChange={() => c.key !== 'delete' && toggleAreaPerm(area.id, c.key)}
-                                    style={{ cursor: c.key === 'delete' ? 'not-allowed' : 'pointer', accentColor: '#586ab1', width: 14, height: 14, transform: 'scale(1.15)', opacity: c.key === 'delete' ? 0.25 : 1 }}
-                                  />
-                                </td>
-                              ))}
+                              {isReportTab
+                                ? <td style={{ textAlign: 'right', padding: '5px 24px 5px 10px' }}>
+                                    <input type="checkbox" checked={area.read} onChange={() => toggleAreaPerm(area.id, 'read')} style={{ cursor: 'pointer', accentColor: '#586ab1', width: 14, height: 14, transform: 'scale(1.15)' }} />
+                                  </td>
+                                : PERM_COLS.map(c => (
+                                    <td key={c.key} style={{ textAlign: 'center', padding: '5px 10px' }}>
+                                      <input type="checkbox" checked={area[c.key]} disabled={c.key === 'delete'} onChange={() => c.key !== 'delete' && toggleAreaPerm(area.id, c.key)} style={{ cursor: c.key === 'delete' ? 'not-allowed' : 'pointer', accentColor: '#586ab1', width: 14, height: 14, transform: 'scale(1.15)', opacity: c.key === 'delete' ? 0.25 : 1 }} />
+                                    </td>
+                                  ))
+                              }
                             </tr>
                           ))
                         }
                       </>
                     );
                   })}
+                  {treeNodes.length === 0 && (
+                    <tr><td colSpan={6} style={{ padding: '20px 10px', color: '#aaa', fontSize: 12 }}>No permissions configured for this area.</td></tr>
+                  )}
                 </tbody>
               </table>
             </div>
