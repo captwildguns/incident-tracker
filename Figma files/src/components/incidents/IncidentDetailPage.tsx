@@ -27,7 +27,22 @@ interface IncidentDetailPageProps {
 export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunication, allIncidents = [], onNavigateToIncident }: IncidentDetailPageProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'workflow' | 'history' | 'photos' | 'documents' | 'communications'>('overview');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const resolvedWorkflow = incident.workflow ?? assignWorkflowToIncident(incident.type, incident.severity) ?? null;
+  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(
+    incident.involvedStudents?.[0]?.studentId ?? null
+  );
+
+  const computeWorkflow = (studentId: string | null) => {
+    const student = (incident.involvedStudents ?? []).find((s: any) => s.studentId === studentId) ?? null;
+    if (!(incident.involvedStudents?.length) || !student) {
+      return incident.workflow ?? assignWorkflowToIncident(incident.type, incident.severity) ?? null;
+    }
+    if ((student as any).noWorkflow) return null;
+    const type = (student as any).incidentTypeOverride || incident.type;
+    const sev = (student as any).severity || incident.severity;
+    return assignWorkflowToIncident(type, sev) ?? null;
+  };
+
+  const resolvedWorkflow = computeWorkflow(selectedStudentId);
   const [selectedStepIndex, setSelectedStepIndex] = useState<number | null>(null);
   const [workflowSteps, setWorkflowSteps] = useState<WorkflowStep[]>(resolvedWorkflow?.steps || []);
   const [hoveredStepIndex, setHoveredStepIndex] = useState<number | null>(null);
@@ -38,9 +53,6 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
   const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
   const [approvalStepIndex, setApprovalStepIndex] = useState<number | null>(null);
   const [approvalComment, setApprovalComment] = useState('');
-  const [selectedStudentId, setSelectedStudentId] = useState<string | null>(
-    incident.involvedStudents?.[0]?.studentId ?? null
-  );
 
   // Forge dialog refs
   const editDialogRef = useRef<HTMLElement>(null);
@@ -53,6 +65,16 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
   // Sync approval dialog open state
   useEffect(() => { const el = approvalDialogRef.current as any; if (!el) return; el.open = approvalDialogOpen; }, [approvalDialogOpen]);
   useEffect(() => { const el = approvalDialogRef.current as any; if (!el) return; const handler = () => setApprovalDialogOpen(false); el.addEventListener('forge-dialog-close', handler); return () => el.removeEventListener('forge-dialog-close', handler); }, []);
+
+  // Reset workflow state when selected student changes
+  useEffect(() => {
+    if (!incident.involvedStudents?.length) return;
+    const wf = computeWorkflow(selectedStudentId);
+    setWorkflowSteps(wf?.steps || []);
+    setSelectedStepIndex(null);
+    setStepComments({});
+    setWorkflowActive(wf ? isWorkflowActive(wf) : false);
+  }, [selectedStudentId]);
 
   // Communications state - load existing conversations or create default
   const existingMessages = getCommunicationsByIncidentId(incident.id);
@@ -396,10 +418,98 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
         </p>
       </div>
 
+      {/* Student Selector — when multiple students are involved */}
+      {incident.involvedStudents && incident.involvedStudents.length > 0 && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--forge-spacing-small)',
+          marginBottom: 'var(--forge-spacing-medium)',
+          padding: '10px 16px',
+          background: 'var(--forge-theme-surface-container-minimum)',
+          borderRadius: '6px',
+          border: '1px solid var(--border)',
+          flexWrap: 'wrap',
+        }}>
+          <span style={{
+            fontSize: 'var(--text-xs)',
+            color: 'var(--muted-foreground)',
+            fontFamily: 'Roboto, sans-serif',
+            textTransform: 'uppercase',
+            letterSpacing: '0.5px',
+            fontWeight: 500,
+            flexShrink: 0,
+            marginRight: 4,
+          }}>
+            Viewing:
+          </span>
+          {incident.involvedStudents.map((s: any) => {
+            const isSelected = selectedStudentId === s.studentId;
+            const roleColors: Record<string, { bg: string; border: string; text: string }> = {
+              Instigator: { bg: 'rgba(239,68,68,0.08)', border: 'rgba(239,68,68,0.3)', text: '#b91c1c' },
+              Participant: { bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.3)', text: '#b45309' },
+              Victim: { bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.3)', text: '#1d4ed8' },
+            };
+            const rc = roleColors[s.role] ?? { bg: 'rgba(100,116,139,0.08)', border: 'rgba(100,116,139,0.3)', text: '#475569' };
+            const studentWf = computeWorkflow(s.studentId);
+            return (
+              <button
+                key={s.studentId}
+                onClick={() => setSelectedStudentId(s.studentId)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 7,
+                  padding: '5px 12px',
+                  borderRadius: 6,
+                  border: `2px solid ${isSelected ? 'var(--brand-blue-medium)' : 'var(--border)'}`,
+                  background: isSelected ? 'rgba(91,139,184,0.1)' : 'white',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                  fontFamily: 'Roboto, sans-serif',
+                  outline: 'none',
+                }}
+              >
+                <span style={{
+                  fontSize: 'var(--text-sm)',
+                  fontWeight: isSelected ? 500 : 400,
+                  color: isSelected ? 'var(--brand-blue-dark)' : 'var(--foreground)',
+                }}>
+                  {s.name}
+                </span>
+                <span style={{
+                  fontSize: 'var(--text-xs)',
+                  fontWeight: 500,
+                  padding: '1px 7px',
+                  borderRadius: 10,
+                  background: rc.bg,
+                  border: `1px solid ${rc.border}`,
+                  color: rc.text,
+                }}>
+                  {s.role}
+                </span>
+                {studentWf === null && (
+                  <span style={{
+                    fontSize: 'var(--text-xs)',
+                    color: 'var(--muted-foreground)',
+                    padding: '1px 6px',
+                    borderRadius: 10,
+                    border: '1px solid var(--border)',
+                    background: 'var(--muted)',
+                  }}>
+                    No workflow
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Tab Navigation */}
-      <div 
-        style={{ 
-          display: 'flex', 
+      <div
+        style={{
+          display: 'flex',
           gap: 'var(--forge-spacing-small)', 
           marginBottom: 'var(--forge-spacing-large)',
           borderBottom: '2px solid var(--border)',
@@ -871,12 +981,28 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
         {activeTab === 'workflow' && !resolvedWorkflow && (
           <div style={{ textAlign: 'center', padding: 'var(--forge-spacing-xxlarge)', color: 'var(--muted-foreground)' }}>
             <GitBranch className="h-12 w-12 mx-auto mb-4 opacity-40" />
-            <p style={{ fontSize: 'var(--text-base)', fontFamily: 'Roboto, sans-serif', marginBottom: 8 }}>
-              No workflow has been assigned to this incident.
-            </p>
-            <p style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif' }}>
-              Incident type <strong>{incident.type}</strong> does not match a configured workflow.
-            </p>
+            {(() => {
+              const s = incident.involvedStudents?.find((s: any) => s.studentId === selectedStudentId);
+              return s ? (
+                <>
+                  <p style={{ fontSize: 'var(--text-base)', fontFamily: 'Roboto, sans-serif', marginBottom: 8 }}>
+                    No workflow is assigned for <strong>{s.name}</strong>.
+                  </p>
+                  <p style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif' }}>
+                    This student's role ({s.role}) does not require a workflow step in this incident.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p style={{ fontSize: 'var(--text-base)', fontFamily: 'Roboto, sans-serif', marginBottom: 8 }}>
+                    No workflow has been assigned to this incident.
+                  </p>
+                  <p style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif' }}>
+                    Incident type <strong>{incident.type}</strong> does not match a configured workflow.
+                  </p>
+                </>
+              );
+            })()}
           </div>
         )}
 
@@ -884,6 +1010,34 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
         {activeTab === 'workflow' && resolvedWorkflow && (
           <div>
             <>
+                {/* Per-student context banner */}
+                {incident.involvedStudents?.length > 0 && (() => {
+                  const s = incident.involvedStudents.find((s: any) => s.studentId === selectedStudentId);
+                  if (!s) return null;
+                  const roleColors: Record<string, { bg: string; border: string; text: string }> = {
+                    Instigator: { bg: 'rgba(239,68,68,0.06)', border: 'rgba(239,68,68,0.25)', text: '#b91c1c' },
+                    Participant: { bg: 'rgba(245,158,11,0.06)', border: 'rgba(245,158,11,0.25)', text: '#b45309' },
+                    Victim: { bg: 'rgba(59,130,246,0.06)', border: 'rgba(59,130,246,0.25)', text: '#1d4ed8' },
+                  };
+                  const rc = roleColors[s.role] ?? { bg: 'rgba(100,116,139,0.06)', border: 'rgba(100,116,139,0.25)', text: '#475569' };
+                  return (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      marginBottom: 'var(--forge-spacing-medium)',
+                      padding: '8px 14px',
+                      background: 'var(--forge-theme-surface-container-minimum)',
+                      borderRadius: 6,
+                      border: '1px solid var(--border)',
+                      fontFamily: 'Roboto, sans-serif',
+                    }}>
+                      <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Workflow for:</span>
+                      <span style={{ fontSize: 'var(--text-sm)', fontWeight: 500, color: 'var(--foreground)' }}>{s.name}</span>
+                      <span style={{ fontSize: 'var(--text-xs)', fontWeight: 500, padding: '1px 8px', borderRadius: 10, background: rc.bg, border: `1px solid ${rc.border}`, color: rc.text }}>{s.role}</span>
+                    </div>
+                  );
+                })()}
                 <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)', marginBottom: 'var(--forge-spacing-large)' }}>
                   <div style={{ padding: 'var(--forge-spacing-medium)' }}>
                     <div className="flex items-center justify-between">
