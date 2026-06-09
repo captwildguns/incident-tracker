@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { ForgeButton } from '@tylertech/forge-react';
 import { defineButtonComponent, defineDialogComponent, defineTextFieldComponent, defineTabBarComponent, defineTabComponent, defineBadgeComponent, defineIconComponent } from '@tylertech/forge';
 defineButtonComponent();
@@ -222,6 +222,23 @@ const INITIAL_GROUPS: PermissionGroup[] = [
   },
 ];
 
+const PERM_TREE: Record<string, Array<{ id: string; label: string; children: string[] }>> = {
+  general:        [{ id: 'par-incidents', label: 'Incidents',      children: ['my-incidents', 'all-incidents'] }],
+  workflows:      [{ id: 'par-workflows', label: 'Workflows',      children: ['workflows', 'workflow-steps', 'approvals'] }],
+  communications: [{ id: 'par-comms',    label: 'Communications', children: ['messages', 'notifications'] }],
+  reports:        [{ id: 'par-reports',  label: 'Reports',         children: ['quick-reports', 'data-export'] }],
+  administration: [{ id: 'par-admin',   label: 'Administration',  children: ['users', 'incident-types', 'workflow-templates', 'email-templates', 'permission-groups'] }],
+};
+
+function IndeterminateCheckbox({ state, onChange }: { state: 'checked' | 'indeterminate' | 'unchecked'; onChange: () => void }) {
+  const iRef = useRef<HTMLInputElement>(null);
+  useEffect(() => { if (iRef.current) iRef.current.indeterminate = state === 'indeterminate'; }, [state]);
+  return (
+    <input ref={iRef} type="checkbox" checked={state === 'checked'} onChange={onChange}
+      style={{ cursor: 'pointer', accentColor: '#586ab1', width: 14, height: 14, transform: 'scale(1.15)' }} />
+  );
+}
+
 function PermToggle({ checked, onChange }: { checked: boolean; onChange: () => void }) {
   return (
     <button
@@ -305,6 +322,8 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   const [groupForm, setGroupForm] = useState<Omit<PermissionGroup, 'id'>>({
     name: '', description: '', color: GROUP_COLORS[0], active: true, tabs: makeTabs(),
   });
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [isDefaultGroup, setIsDefaultGroup] = useState(false);
 
   // ─── Workflows State (for incident type linking) ────────────────────────────
   const [workflowsList, setWorkflowsList] = useState<Workflow[]>([...SEED_WORKFLOWS]);
@@ -582,6 +601,8 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
     setEditingGroup(null);
     setGroupForm({ name: '', description: '', color: GROUP_COLORS[0], active: true, tabs: makeTabs() });
     setPermActiveTab('general');
+    setExpandedRows(new Set());
+    setIsDefaultGroup(false);
     setPermView('edit');
   };
 
@@ -589,6 +610,8 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
     setEditingGroup(g);
     setGroupForm({ name: g.name, description: g.description, color: g.color, active: g.active, tabs: g.tabs.map(t => ({ ...t, areas: t.areas.map(a => ({ ...a })) })) });
     setPermActiveTab('general');
+    setExpandedRows(new Set());
+    setIsDefaultGroup(false);
     setPermView('edit');
   };
 
@@ -613,6 +636,35 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
       })),
     }));
   };
+
+  const getParentState = (tabId: string, childIds: string[], col: PermCol): 'checked' | 'indeterminate' | 'unchecked' => {
+    const tabData = groupForm.tabs.find(t => t.tabId === tabId);
+    if (!tabData) return 'unchecked';
+    const children = tabData.areas.filter(a => childIds.includes(a.id));
+    const n = children.filter(a => a[col]).length;
+    if (n === 0) return 'unchecked';
+    if (n === children.length) return 'checked';
+    return 'indeterminate';
+  };
+
+  const toggleParentPerm = (tabId: string, childIds: string[], col: PermCol) => {
+    const tabData = groupForm.tabs.find(t => t.tabId === tabId);
+    if (!tabData) return;
+    const allChecked = tabData.areas.filter(a => childIds.includes(a.id)).every(a => a[col]);
+    setGroupForm(prev => ({
+      ...prev,
+      tabs: prev.tabs.map(t => t.tabId !== tabId ? t : {
+        ...t,
+        areas: t.areas.map(a => childIds.includes(a.id) ? { ...a, [col]: !allChecked } : a),
+      }),
+    }));
+  };
+
+  const toggleExpand = (id: string) => setExpandedRows(prev => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    return next;
+  });
 
   // ═════════════════════════════════════════════════════════════════════════════
   // RENDER
@@ -1506,181 +1558,252 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
       </forge-dialog>
 
       {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* PERMISSIONS SECTION                                                   */}
+      {/* PERMISSIONS SECTION — ST Groups design                               */}
       {/* ══════════════════════════════════════════════════════════════════════ */}
+
+      {/* ── Groups List (ST Index.cshtml style) ─────────────────────────────── */}
       {activeSection === 'permissions' && permView === 'list' && (
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--forge-spacing-medium)', flexWrap: 'wrap', gap: 'var(--forge-spacing-small)' }}>
-            <div style={{ position: 'relative' }}>
-              <Search size={16} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted-foreground)', zIndex: 1 }} />
-              {/* @ts-ignore */}
-              <forge-text-field>
-                <input type="text" value={groupSearch} onChange={(e) => setGroupSearch(e.target.value)} placeholder="Search groups..." style={{ paddingLeft: '2rem', width: '260px', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }} />
-              {/* @ts-ignore */}
-              </forge-text-field>
-            </div>
-            <ForgeButton onClick={openAddGroup} style={{ fontFamily: 'var(--forge-font-family)' }}>
-              <Plus size={16} style={{ marginRight: '6px' }} />
-              Add Group
-            </ForgeButton>
+        <div style={{ fontFamily: 'Arial, Helvetica, sans-serif', color: '#333', fontSize: 13 }}>
+          {/* Title */}
+          <div style={{ fontSize: 17, fontWeight: 400, borderBottom: '1px solid #d0d5dd', paddingBottom: 8, marginBottom: 14 }}>
+            Groups
           </div>
-          <div style={cardStyle}>
-            <div style={{ overflowX: 'auto' }}>
-              <table className="forge-table">
-                <thead>
-                  <tr>
-                    <th className="forge-table-cell forge-table-cell--header">Group</th>
-                    <th className="forge-table-cell forge-table-cell--header">Description</th>
-                    <th className="forge-table-cell forge-table-cell--header">Permissions</th>
-                    <th className="forge-table-cell forge-table-cell--header">Active</th>
-                    <th className="forge-table-cell forge-table-cell--header" style={{ textAlign: 'right' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredGroups.map(g => (
-                    <tr key={g.id} className="forge-table-row">
-                      <td className="forge-table-cell">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)' }}>
-                          <span style={{ width: 12, height: 12, borderRadius: '50%', background: g.color, flexShrink: 0, display: 'inline-block' }} />
-                          <span style={{ fontWeight: 'var(--forge-font-weight-medium)', fontFamily: 'var(--forge-font-family)' }}>{g.name}</span>
-                        </div>
-                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)', marginLeft: 20 }}>{g.id}</div>
-                      </td>
-                      <td className="forge-table-cell" style={{ maxWidth: 320 }}>
-                        <span style={{ fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)', color: 'var(--muted-foreground)' }}>{g.description}</span>
-                      </td>
-                      <td className="forge-table-cell">
-                        {/* @ts-ignore */}
-                        <forge-badge theme="default" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-xs)' }}>
-                          {countGroupPerms(g.tabs)} of {TOTAL_GROUP_PERMS}
-                        {/* @ts-ignore */}
-                        </forge-badge>
-                      </td>
-                      <td className="forge-table-cell">
-                        <PermToggle checked={g.active} onChange={() => setGroups(groups.map(r => r.id === g.id ? { ...r, active: !r.active } : r))} />
-                      </td>
-                      <td className="forge-table-cell" style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: 'var(--forge-spacing-xxsmall)', justifyContent: 'flex-end' }}>
-                          <ForgeButton variant="outlined" onClick={() => openEditGroup(g)} style={{ fontFamily: 'var(--forge-font-family)' }}>
-                            <Pencil size={14} style={{ marginRight: 4 }} />Edit
-                          </ForgeButton>
-                          <ForgeButton variant="outlined" onClick={() => deleteGroup(g.id)} style={{ fontFamily: 'var(--forge-font-family)', color: 'var(--destructive)', borderColor: 'var(--destructive)' }}>
-                            <Trash2 size={14} />
-                          </ForgeButton>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {filteredGroups.length === 0 && (
-                    <tr><td colSpan={5} style={{ padding: 'var(--forge-spacing-large)', textAlign: 'center', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }}>No groups found</td></tr>
-                  )}
-                </tbody>
-              </table>
+
+          {/* Toolbar */}
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 10, gap: 12 }}>
+            <button onClick={openAddGroup} style={{ color: '#586ab1', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, textDecoration: 'underline', padding: 0 }}>
+              Add a new Group
+            </button>
+            <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <input
+                type="text"
+                value={groupSearch}
+                onChange={e => setGroupSearch(e.target.value)}
+                placeholder="Search..."
+                style={{ border: '1px solid #bbb', padding: '4px 8px', fontSize: 12, width: 200, borderRadius: 2, outline: 'none' }}
+              />
+              <Search size={16} style={{ color: '#555', cursor: 'pointer' }} />
             </div>
-            <div style={{ padding: 'var(--forge-spacing-small) var(--forge-spacing-medium)', color: 'var(--muted-foreground)', fontSize: 'var(--text-sm)', fontFamily: 'var(--forge-font-family)', borderTop: '1px solid var(--border)' }}>
-              Showing {filteredGroups.length} of {groups.length} groups
+          </div>
+
+          {/* Table */}
+          <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #c8d0d8', fontSize: 13 }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left', padding: '7px 10px', fontWeight: 600, borderBottom: '1px solid #c8d0d8', borderRight: '1px solid #c8d0d8', background: '#fff', width: '38%' }}>Name</th>
+                <th style={{ textAlign: 'left', padding: '7px 10px', fontWeight: 600, borderBottom: '1px solid #c8d0d8', background: '#fff', color: '#586ab1' }}>Description</th>
+                <th style={{ width: 16, borderBottom: '1px solid #c8d0d8', borderLeft: '1px solid #c8d0d8', background: '#fff' }}></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredGroups.map((g, idx) => (
+                <tr key={g.id} style={{ background: idx % 2 === 0 ? '#ffffff' : '#EEF4FB' }}>
+                  <td style={{ padding: '6px 10px', borderRight: '1px solid #dde3ea', borderBottom: '1px solid #eaecef' }}>
+                    <button onClick={() => openEditGroup(g)} style={{ color: '#586ab1', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, textDecoration: 'underline', padding: 0, textAlign: 'left' }}>
+                      {g.name}
+                    </button>
+                  </td>
+                  <td style={{ padding: '6px 10px', borderBottom: '1px solid #eaecef', color: '#555' }}>{g.description}</td>
+                  <td style={{ borderBottom: '1px solid #eaecef', borderLeft: '1px solid #dde3ea' }}></td>
+                </tr>
+              ))}
+              {filteredGroups.length === 0 && (
+                <tr>
+                  <td colSpan={3} style={{ padding: '14px 10px', textAlign: 'center', color: '#888' }}>No groups found</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          {/* Footer */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6, fontSize: 12 }}>
+            <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+              <button style={{ color: '#586ab1', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 12 }}>PDF</button>
+              <span style={{ color: '#888' }}>|</span>
+              <button style={{ color: '#586ab1', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 12 }}>EXCEL</button>
             </div>
+            <span style={{ color: '#666' }}>{filteredGroups.length} records</span>
           </div>
         </div>
       )}
 
-      {/* ── Group Editor (inline, ST-style) ──────────────────────────────────── */}
+      {/* ── Group Detail (_formDetail.cshtml style) ──────────────────────────── */}
       {activeSection === 'permissions' && permView === 'edit' && (() => {
         const activeTabData = groupForm.tabs.find(t => t.tabId === permActiveTab);
-        const activeTabIdx = PERM_TAB_DEFS.findIndex(t => t.id === permActiveTab);
+        const treeNodes = PERM_TREE[permActiveTab] || [];
         return (
-          <div>
-            {/* Back */}
-            <button onClick={() => setPermView('list')} style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)', fontWeight: 500, padding: 0, marginBottom: 'var(--forge-spacing-medium)' }}>
-              ← Back to Groups
-            </button>
+          <div style={{ fontFamily: 'Arial, Helvetica, sans-serif', color: '#333', fontSize: 13 }}>
 
-            {/* Group info bar */}
-            <div style={{ ...cardStyle, marginBottom: 0, borderBottomLeftRadius: 0, borderBottomRightRadius: 0, display: 'flex', gap: 'var(--forge-spacing-large)', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-              <div style={{ flex: '0 0 200px' }}>
-                <div style={labelStyle}>Name <span style={{ color: 'var(--destructive)' }}>*</span></div>
-                {/* @ts-ignore */}
-                <forge-text-field style={inputWrapperStyle}>
-                  <input type="text" value={groupForm.name} onChange={(e) => setGroupForm({ ...groupForm, name: e.target.value })} placeholder="Group name" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }} />
-                {/* @ts-ignore */}
-                </forge-text-field>
-              </div>
-              <div style={{ flex: 1, minWidth: 200 }}>
-                <div style={labelStyle}>Description</div>
-                {/* @ts-ignore */}
-                <forge-text-field style={inputWrapperStyle}>
-                  <input type="text" value={groupForm.description} onChange={(e) => setGroupForm({ ...groupForm, description: e.target.value })} placeholder="Brief description" style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--text-sm)' }} />
-                {/* @ts-ignore */}
-                </forge-text-field>
-              </div>
-              <div>
-                <div style={labelStyle}>Color</div>
-                <div style={{ display: 'flex', gap: 'var(--forge-spacing-xxsmall)', marginTop: 'var(--forge-spacing-xxsmall)' }}>
-                  {GROUP_COLORS.map(c => (
-                    <button key={c} onClick={() => setGroupForm({ ...groupForm, color: c })} style={{ width: 20, height: 20, borderRadius: '50%', background: c, border: 'none', cursor: 'pointer', boxShadow: groupForm.color === c ? `0 0 0 2px #fff, 0 0 0 3px ${c}` : 'none' }} />
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div style={labelStyle}>Active</div>
-                <div style={{ marginTop: 'var(--forge-spacing-xxsmall)' }}>
-                  <PermToggle checked={groupForm.active} onChange={() => setGroupForm({ ...groupForm, active: !groupForm.active })} />
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', marginLeft: 'auto' }}>
-                <ForgeButton variant="outlined" onClick={() => setPermView('list')} style={{ fontFamily: 'var(--forge-font-family)' }}>Cancel</ForgeButton>
-                <ForgeButton onClick={saveGroup} disabled={!groupForm.name} style={{ fontFamily: 'var(--forge-font-family)' }}>
-                  {editingGroup ? 'Save Changes' : 'Add Group'}
-                </ForgeButton>
+            {/* Page header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <span style={{ fontSize: 16, fontWeight: 400 }}>
+                Group{groupForm.name ? ` - ${groupForm.name}` : ''}
+              </span>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <button
+                  onClick={() => setPermView('list')}
+                  style={{ background: '#e8e8e8', border: '1px solid #c0c0c0', borderRadius: 3, padding: '4px 12px', cursor: 'pointer', fontSize: 12, color: '#333' }}
+                >
+                  back to list
+                </button>
+                <button style={{ background: '#fff', border: '1px solid #c0c0c0', borderRadius: 3, padding: '4px 10px', cursor: 'pointer', fontSize: 12, color: '#333', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  Actions <span style={{ fontSize: 9 }}>▾</span>
+                </button>
               </div>
             </div>
 
-            {/* Permission tabs */}
-            {/* @ts-ignore */}
-            <forge-tab-bar active-tab={activeTabIdx} style={{ borderBottom: '1px solid var(--border)', background: 'var(--card)' }}>
-              {PERM_TAB_DEFS.map(t => (
-                // @ts-ignore
-                <forge-tab key={t.id} onClick={() => setPermActiveTab(t.id)}>{t.label}{/* @ts-ignore */}</forge-tab>
-              ))}
-            {/* @ts-ignore */}
-            </forge-tab-bar>
+            {/* Group Information */}
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 8 }}>Group Information</div>
+              <table style={{ borderCollapse: 'separate', borderSpacing: '0 5px', marginTop: -4 }}>
+                <tbody>
+                  <tr>
+                    <td style={{ paddingRight: 12, fontWeight: 500, verticalAlign: 'middle', width: 110 }}>Name</td>
+                    <td>
+                      <input
+                        type="text"
+                        value={groupForm.name}
+                        onChange={e => setGroupForm({ ...groupForm, name: e.target.value })}
+                        style={{ border: '1px solid #aaa', padding: '4px 6px', fontSize: 13, width: 320, borderRadius: 1, outline: 'none' }}
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ paddingRight: 12, fontWeight: 500, verticalAlign: 'top', paddingTop: 4 }}>Description</td>
+                    <td>
+                      <textarea
+                        value={groupForm.description}
+                        onChange={e => setGroupForm({ ...groupForm, description: e.target.value })}
+                        rows={3}
+                        style={{ border: '1px solid #aaa', padding: '4px 6px', fontSize: 13, width: 320, borderRadius: 1, resize: 'none', outline: 'none' }}
+                      />
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ paddingRight: 12, fontWeight: 500, verticalAlign: 'middle' }}>Default Group</td>
+                    <td style={{ paddingTop: 2 }}>
+                      <input
+                        type="checkbox"
+                        checked={isDefaultGroup}
+                        onChange={() => setIsDefaultGroup(v => !v)}
+                        style={{ accentColor: '#586ab1', width: 14, height: 14, cursor: 'pointer' }}
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-            {/* Permission grid — ST style */}
-            <div style={{ ...cardStyle, borderTopLeftRadius: 0, borderTopRightRadius: 0, borderTop: 'none', padding: 0, overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--forge-font-family)', fontSize: 13 }}>
+            {/* Permissions */}
+            <div>
+              <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6 }}>Permissions</div>
+
+              {/* Tab links */}
+              <div style={{ display: 'flex', borderBottom: '1px solid #c8d0d8', marginBottom: 0 }}>
+                {PERM_TAB_DEFS.map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => { setPermActiveTab(t.id); setExpandedRows(new Set()); }}
+                    style={{
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      padding: '5px 14px',
+                      color: '#586ab1',
+                      fontSize: 13,
+                      fontWeight: permActiveTab === t.id ? 700 : 400,
+                      borderBottom: permActiveTab === t.id ? '2px solid #586ab1' : '2px solid transparent',
+                      marginBottom: -1,
+                    }}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Permission grid */}
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, marginTop: 0 }}>
                 <thead>
-                  <tr style={{ borderBottom: '1px solid #d0d7e2', background: '#f8fafc' }}>
-                    <th style={{ textAlign: 'left', padding: '8px 14px', fontSize: 12, fontWeight: 600, color: 'var(--muted-foreground)', width: '40%' }}>Area</th>
+                  <tr style={{ borderBottom: '1px solid #c0c8d4' }}>
+                    <th style={{ width: 24, borderRight: '1px solid #dde3ea' }}></th>
+                    <th style={{ textAlign: 'left', padding: '6px 10px', fontWeight: 500, fontSize: 12, color: '#555', width: '44%' }}>Area</th>
                     {PERM_COLS.map(c => (
-                      <th key={c.key} style={{ textAlign: 'center', padding: '8px 14px', fontSize: 12, fontWeight: 600, color: c.key === 'delete' ? '#c0c8d4' : 'var(--muted-foreground)', width: '15%' }}>
-                        {c.label}{c.key === 'delete' && <Lock size={10} style={{ marginLeft: 3, verticalAlign: 'middle', color: '#c0c8d4' }} />}
+                      <th key={c.key} style={{ textAlign: 'center', padding: '6px 10px', fontWeight: 500, fontSize: 12, color: c.key === 'delete' ? '#c0c8d4' : '#555', width: '11%' }}>
+                        {c.label}{c.key === 'delete' && <Lock size={9} style={{ marginLeft: 3, verticalAlign: 'middle', color: '#c0c8d4' }} />}
                       </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {activeTabData?.areas.map((area, idx) => (
-                    <tr key={area.id} style={{ background: idx % 2 === 0 ? '#ffffff' : '#f0f5fb', borderBottom: '1px solid #e8edf4' }}>
-                      <td style={{ padding: '7px 14px', color: 'var(--foreground)' }}>{area.label}</td>
-                      {PERM_COLS.map(c => (
-                        <td key={c.key} style={{ textAlign: 'center', padding: '7px 14px', background: c.key === 'delete' ? 'rgba(0,0,0,0.02)' : undefined }}>
-                          <input
-                            type="checkbox"
-                            checked={area[c.key]}
-                            disabled={c.key === 'delete'}
-                            onChange={() => c.key !== 'delete' && toggleAreaPerm(area.id, c.key)}
-                            style={{ cursor: c.key === 'delete' ? 'not-allowed' : 'pointer', accentColor: '#3B5EA6', width: 14, height: 14, transform: 'scale(1.15)', opacity: c.key === 'delete' ? 0.3 : 1 }}
-                          />
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
+                  {treeNodes.map((parent, pi) => {
+                    const isExpanded = expandedRows.has(parent.id);
+                    return (
+                      <>
+                        <tr key={parent.id} style={{ background: pi % 2 === 0 ? '#EEF4FB' : '#ffffff', borderBottom: '1px solid #dde3ea' }}>
+                          <td
+                            onClick={() => toggleExpand(parent.id)}
+                            style={{ textAlign: 'center', cursor: 'pointer', padding: '5px 0', borderRight: '1px solid #dde3ea', userSelect: 'none' }}
+                          >
+                            <span style={{ fontSize: 9, color: '#555', display: 'inline-block', transition: 'transform 0.1s', transform: isExpanded ? 'rotate(90deg)' : 'none' }}>▶</span>
+                          </td>
+                          <td style={{ padding: '6px 10px', fontWeight: 500 }}>{parent.label}</td>
+                          {PERM_COLS.map(c => {
+                            const st = getParentState(permActiveTab, parent.children, c.key);
+                            return (
+                              <td key={c.key} style={{ textAlign: 'center', padding: '6px 10px' }}>
+                                {c.key === 'delete'
+                                  ? <input type="checkbox" disabled checked={false} style={{ accentColor: '#586ab1', width: 14, height: 14, opacity: 0.25, cursor: 'not-allowed' }} />
+                                  : <IndeterminateCheckbox state={st} onChange={() => toggleParentPerm(permActiveTab, parent.children, c.key)} />
+                                }
+                              </td>
+                            );
+                          })}
+                        </tr>
+                        {isExpanded && activeTabData?.areas
+                          .filter(a => parent.children.includes(a.id))
+                          .map(area => (
+                            <tr key={area.id} style={{ background: '#ffffff', borderBottom: '1px solid #eaecef' }}>
+                              <td style={{ borderRight: '1px solid #dde3ea' }}></td>
+                              <td style={{ padding: '5px 10px 5px 30px', color: '#444' }}>{area.label}</td>
+                              {PERM_COLS.map(c => (
+                                <td key={c.key} style={{ textAlign: 'center', padding: '5px 10px' }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={area[c.key]}
+                                    disabled={c.key === 'delete'}
+                                    onChange={() => c.key !== 'delete' && toggleAreaPerm(area.id, c.key)}
+                                    style={{ cursor: c.key === 'delete' ? 'not-allowed' : 'pointer', accentColor: '#586ab1', width: 14, height: 14, transform: 'scale(1.15)', opacity: c.key === 'delete' ? 0.25 : 1 }}
+                                  />
+                                </td>
+                              ))}
+                            </tr>
+                          ))
+                        }
+                      </>
+                    );
+                  })}
                 </tbody>
               </table>
+            </div>
+
+            {/* Save / Cancel */}
+            <div style={{ marginTop: 18, display: 'flex', gap: 8 }}>
+              <button
+                onClick={saveGroup}
+                disabled={!groupForm.name}
+                style={{ background: groupForm.name ? '#586ab1' : '#a0a8c0', border: 'none', borderRadius: 3, padding: '6px 18px', color: '#fff', fontSize: 13, cursor: groupForm.name ? 'pointer' : 'not-allowed' }}
+              >
+                {editingGroup ? 'Save' : 'Add Group'}
+              </button>
+              <button
+                onClick={() => setPermView('list')}
+                style={{ background: '#e8e8e8', border: '1px solid #c0c0c0', borderRadius: 3, padding: '6px 18px', color: '#333', fontSize: 13, cursor: 'pointer' }}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         );
       })()}
+
     </div>
   );
 }
