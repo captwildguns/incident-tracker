@@ -242,7 +242,7 @@ const TOTAL_GROUP_PERMS = PERM_TAB_DEFS.reduce((n, t) => n + t.areas.length * 4,
 
 interface PermissionGroup { id: string; name: string; description: string; color: string; active: boolean; tabs: PermTabData[]; }
 
-const ALL_ON = { read: true, add: true, edit: true, delete: true };
+const ALL_ON = { read: true, add: true, edit: true, delete: false };
 
 const INITIAL_GROUPS: PermissionGroup[] = [
   {
@@ -2117,7 +2117,9 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                   <tr style={{ borderBottom: '1px solid #d0d7e2', background: '#f8fafc' }}>
                     <th style={{ textAlign: 'left', padding: '8px 14px', fontSize: 12, fontWeight: 600, color: 'var(--muted-foreground)', width: '40%' }}>Area</th>
                     {PERM_COLS.map(c => (
-                      <th key={c.key} style={{ textAlign: 'center', padding: '8px 14px', fontSize: 12, fontWeight: 600, color: 'var(--muted-foreground)', width: '15%' }}>{c.label}</th>
+                      <th key={c.key} style={{ textAlign: 'center', padding: '8px 14px', fontSize: 12, fontWeight: 600, color: c.key === 'delete' ? '#c0c8d4' : 'var(--muted-foreground)', width: '15%' }}>
+                        {c.label}{c.key === 'delete' && <Lock size={10} style={{ marginLeft: 3, verticalAlign: 'middle', color: '#c0c8d4' }} />}
+                      </th>
                     ))}
                   </tr>
                 </thead>
@@ -2126,12 +2128,13 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                     <tr key={area.id} style={{ background: idx % 2 === 0 ? '#ffffff' : '#f0f5fb', borderBottom: '1px solid #e8edf4' }}>
                       <td style={{ padding: '7px 14px', color: 'var(--foreground)' }}>{area.label}</td>
                       {PERM_COLS.map(c => (
-                        <td key={c.key} style={{ textAlign: 'center', padding: '7px 14px' }}>
+                        <td key={c.key} style={{ textAlign: 'center', padding: '7px 14px', background: c.key === 'delete' ? 'rgba(0,0,0,0.02)' : undefined }}>
                           <input
                             type="checkbox"
                             checked={area[c.key]}
-                            onChange={() => toggleAreaPerm(area.id, c.key)}
-                            style={{ cursor: 'pointer', accentColor: '#3B5EA6', width: 14, height: 14, transform: 'scale(1.15)' }}
+                            disabled={c.key === 'delete'}
+                            onChange={() => c.key !== 'delete' && toggleAreaPerm(area.id, c.key)}
+                            style={{ cursor: c.key === 'delete' ? 'not-allowed' : 'pointer', accentColor: '#3B5EA6', width: 14, height: 14, transform: 'scale(1.15)', opacity: c.key === 'delete' ? 0.3 : 1 }}
                           />
                         </td>
                       ))}
