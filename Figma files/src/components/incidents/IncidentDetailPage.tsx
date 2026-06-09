@@ -602,51 +602,50 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                   {incident.involvedStudents?.length > 0 ? (() => {
                     const s = incident.involvedStudents.find((s: any) => s.studentId === selectedStudentId);
                     if (!s) return null;
+                    const labelStyle = { fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase' as const, letterSpacing: '0.5px' };
+                    const valueStyle = { fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' };
                     return (
                       <div style={{ marginBottom: 'var(--forge-spacing-large)', paddingBottom: 'var(--forge-spacing-medium)', borderBottom: '1px solid var(--border)' }}>
-                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '8px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          Student
-                        </div>
-                        <div style={{ borderRadius: '4px', overflow: 'hidden', border: '1px solid var(--brand-blue-medium)' }}>
-                          {/* Header row */}
-                          <div style={{ padding: '8px 12px', background: 'rgba(91, 139, 184, 0.08)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ flex: 1 }}>
-                              <div style={{ fontWeight: 'var(--font-weight-medium)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)' }}>{s.name}</div>
-                              <div style={{ color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)' }}>{s.studentId}</div>
+                        <div className="grid grid-cols-2 gap-x-6 gap-y-4" style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
+                          <div>
+                            <div style={labelStyle}>Student</div>
+                            <div style={{ ...valueStyle, fontWeight: 'var(--font-weight-medium)', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                              {s.name}
+                              {/* @ts-ignore */}
+                              <forge-badge theme="default">{s.role}</forge-badge>
+                              {/* @ts-ignore */}
+                              <forge-badge theme={s.severity === 'Critical' ? 'danger' : s.severity === 'High' ? 'error' : s.severity === 'Medium' ? 'warning' : 'info'} strong>{s.severity}</forge-badge>
                             </div>
-                            {/* @ts-ignore */}
-                            <forge-badge theme="default">{s.role}</forge-badge>
-                            {/* @ts-ignore */}
-                            <forge-badge theme={s.severity === 'Critical' ? 'danger' : s.severity === 'High' ? 'error' : s.severity === 'Medium' ? 'warning' : 'info'} strong>{s.severity}</forge-badge>
-                            {s.parentNotified !== undefined && (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 3, fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif', color: s.parentNotified ? '#16a34a' : '#94a3b8', flexShrink: 0 }}>
-                                {s.parentNotified ? <CheckCircle2 size={13} /> : <Clock size={13} />}
-                                <span>{s.parentNotified ? 'Parent notified' : 'Parent pending'}</span>
-                              </div>
-                            )}
+                            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', marginTop: 2 }}>{s.studentId}</div>
                           </div>
-                          {/* Details — always visible */}
-                          <div style={{ padding: '12px 16px', background: '#fff', borderTop: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                            {s.description && (
-                              <div>
-                                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Description</div>
-                                <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5 }}>{s.description}</div>
+                          {s.parentNotified !== undefined && (
+                            <div>
+                              <div style={labelStyle}>Parent Contact</div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', color: s.parentNotified ? '#16a34a' : '#94a3b8' }}>
+                                {s.parentNotified ? <CheckCircle2 size={15} /> : <Clock size={15} />}
+                                {s.parentNotified ? 'Parent notified' : 'Parent contact pending'}
                               </div>
-                            )}
-                            {s.actionTaken && (
-                              <div>
-                                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Action Taken</div>
-                                <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5 }}>{s.actionTaken}</div>
-                              </div>
-                            )}
-                            {s.notes && (
-                              <div>
-                                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Notes</div>
-                                <div style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', lineHeight: 1.5, color: 'var(--muted-foreground)', fontStyle: 'italic' }}>{s.notes}</div>
-                              </div>
-                            )}
-                          </div>
+                            </div>
+                          )}
                         </div>
+                        {s.description && (
+                          <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
+                            <div style={labelStyle}>Student Description</div>
+                            <p style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', lineHeight: '1.6' }}>{s.description}</p>
+                          </div>
+                        )}
+                        {s.actionTaken && (
+                          <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
+                            <div style={labelStyle}>Action Taken</div>
+                            <p style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', lineHeight: '1.6' }}>{s.actionTaken}</p>
+                          </div>
+                        )}
+                        {s.notes && (
+                          <div>
+                            <div style={labelStyle}>Notes</div>
+                            <p style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', lineHeight: '1.6', color: 'var(--muted-foreground)', fontStyle: 'italic' }}>{s.notes}</p>
+                          </div>
+                        )}
                       </div>
                     );
                   })() : null}
