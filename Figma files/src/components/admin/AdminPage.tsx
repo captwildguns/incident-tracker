@@ -191,13 +191,18 @@ function makeAreas(overrides: Partial<Record<string, Partial<Record<PermCol, boo
   });
 }
 
-interface PermissionGroup { id: string; name: string; description: string; color: string; active: boolean; areas: PermArea[]; }
+interface GroupMember { name: string; email: string; title: string; }
+interface PermissionGroup { id: string; name: string; description: string; color: string; active: boolean; areas: PermArea[]; members: GroupMember[]; }
 
 const INITIAL_GROUPS: PermissionGroup[] = [
   {
     id: 'G-001', name: 'Administrator', color: '#3F51B5', active: true,
     description: 'Full access to all incident management features and administrative controls.',
     areas: makeAreas(ALL_COMBINED.reduce((acc, a) => ({ ...acc, [a.id]: { read: true, add: true, edit: true } }), {})),
+    members: [
+      { name: 'Sarah Williams',  email: 'sarah.williams@district.edu',  title: 'Transportation Director' },
+      { name: 'Karen Singh',     email: 'karen.singh@district.edu',     title: 'District Administrator' },
+    ],
   },
   {
     id: 'G-002', name: 'Safety Coordinator', color: '#7B8458', active: true,
@@ -215,6 +220,11 @@ const INITIAL_GROUPS: PermissionGroup[] = [
       'rpt-high-critical':    { read: true },
       'rpt-open-incidents':   { read: true },
     }),
+    members: [
+      { name: 'Carlos Medina',  email: 'carlos.medina@district.edu',  title: 'Safety Coordinator' },
+      { name: 'Megan Ford',     email: 'megan.ford@district.edu',     title: 'Safety Coordinator' },
+      { name: 'Angela Brooks',  email: 'angela.brooks@district.edu',  title: 'Transportation Director' },
+    ],
   },
   {
     id: 'G-003', name: 'Driver', color: '#4A6FA5', active: true,
@@ -228,6 +238,13 @@ const INITIAL_GROUPS: PermissionGroup[] = [
       'rpt-monthly-summary': { read: true },
       'rpt-high-critical':   { read: true },
     }),
+    members: [
+      { name: 'James Rodriguez',  email: 'james.rodriguez@district.edu',  title: 'Bus Driver' },
+      { name: 'Michael Thompson', email: 'michael.thompson@district.edu', title: 'Bus Driver' },
+      { name: 'Frank Okafor',     email: 'frank.okafor@district.edu',     title: 'Bus Driver' },
+      { name: 'Gloria Patel',     email: 'gloria.patel@district.edu',     title: 'Bus Driver' },
+      { name: 'Luis Torres',      email: 'luis.torres@district.edu',      title: 'Bus Driver' },
+    ],
   },
   {
     id: 'G-004', name: 'Fleet Manager', color: '#607D8B', active: true,
@@ -244,6 +261,11 @@ const INITIAL_GROUPS: PermissionGroup[] = [
       'rpt-high-critical':   { read: true },
       'rpt-open-incidents':  { read: true },
     }),
+    members: [
+      { name: 'Patricia Chen',  email: 'patricia.chen@district.edu',  title: 'Fleet Manager' },
+      { name: 'Denise Harmon',  email: 'denise.harmon@district.edu',  title: 'Fleet Manager' },
+      { name: 'Nathan Kim',     email: 'nathan.kim@district.edu',     title: 'Fleet Manager' },
+    ],
   },
   {
     id: 'G-005', name: 'School Principal', color: '#F59E0B', active: true,
@@ -256,6 +278,10 @@ const INITIAL_GROUPS: PermissionGroup[] = [
       'rpt-monthly-summary': { read: true },
       'rpt-open-incidents':  { read: true },
     }),
+    members: [
+      { name: 'Lisa Nguyen',    email: 'lisa.nguyen@district.edu',    title: 'School Principal' },
+      { name: 'Jerome Wallace', email: 'jerome.wallace@district.edu', title: 'School Principal' },
+    ],
   },
 ];
 
@@ -343,13 +369,13 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
   });
 
   // ─── Permission Groups State ─────────────────────────────────────────────────
-  const [groups, setGroups] = useState<PermissionGroup[]>(INITIAL_GROUPS.map(g => ({ ...g, areas: g.areas.map(a => ({ ...a })) })));
+  const [groups, setGroups] = useState<PermissionGroup[]>(INITIAL_GROUPS.map(g => ({ ...g, areas: g.areas.map(a => ({ ...a })), members: [...g.members] })));
   const [groupSearch, setGroupSearch] = useState('');
   const [permView, setPermView] = useState<'list' | 'edit'>('list');
   const [editingGroup, setEditingGroup] = useState<PermissionGroup | null>(null);
   const [permActiveTab, setPermActiveTab] = useState('general');
   const [groupForm, setGroupForm] = useState<Omit<PermissionGroup, 'id'>>({
-    name: '', description: '', color: GROUP_COLORS[0], active: true, areas: makeAreas(),
+    name: '', description: '', color: GROUP_COLORS[0], active: true, areas: makeAreas(), members: [],
   });
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [isDefaultGroup, setIsDefaultGroup] = useState(false);
@@ -637,7 +663,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
 
   const openEditGroup = (g: PermissionGroup) => {
     setEditingGroup(g);
-    setGroupForm({ name: g.name, description: g.description, color: g.color, active: g.active, areas: g.areas.map(a => ({ ...a })) });
+    setGroupForm({ name: g.name, description: g.description, color: g.color, active: g.active, areas: g.areas.map(a => ({ ...a })), members: [...g.members] });
     setPermActiveTab('general');
     setExpandedRows(new Set());
     setIsDefaultGroup(false);
@@ -1650,6 +1676,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
       {activeSection === 'permissions' && permView === 'edit' && (() => {
         const treeNodes = PERM_TREE[permActiveTab] || [];
         const isReportTab = permActiveTab === 'report';
+        const isUsersTab = permActiveTab === 'users';
         return (
           <div style={{ fontFamily: 'Arial, Helvetica, sans-serif', color: '#333', fontSize: 13 }}>
 
@@ -1738,8 +1765,32 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                 ))}
               </div>
 
-              {/* Permission grid — Report tab: Area + Accessible only; other tabs: Area + Read/Add/Edit/Delete */}
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, marginTop: 0 }}>
+              {/* Users tab — member list */}
+              {isUsersTab && (
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, marginTop: 0 }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid #c0c8d4' }}>
+                      <th style={{ textAlign: 'left', padding: '6px 10px', fontWeight: 500, fontSize: 12, color: '#555', width: '35%' }}>Name</th>
+                      <th style={{ textAlign: 'left', padding: '6px 10px', fontWeight: 500, fontSize: 12, color: '#555', width: '40%' }}>Email</th>
+                      <th style={{ textAlign: 'left', padding: '6px 10px', fontWeight: 500, fontSize: 12, color: '#555' }}>Title</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {groupForm.members.length === 0 ? (
+                      <tr><td colSpan={3} style={{ padding: '20px 10px', color: '#aaa', fontSize: 12 }}>No users assigned to this group.</td></tr>
+                    ) : groupForm.members.map((m, idx) => (
+                      <tr key={m.email} style={{ background: idx % 2 === 0 ? '#ffffff' : '#EEF4FB', borderBottom: '1px solid #eaecef' }}>
+                        <td style={{ padding: '6px 10px', color: '#586ab1' }}>{m.name}</td>
+                        <td style={{ padding: '6px 10px', color: '#555' }}>{m.email}</td>
+                        <td style={{ padding: '6px 10px', color: '#555' }}>{m.title}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+
+              {/* Permission grid — hidden on Users tab */}
+              {!isUsersTab && <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, marginTop: 0 }}>
                 <thead>
                   <tr style={{ borderBottom: '1px solid #c0c8d4' }}>
                     <th style={{ width: 24, borderRight: '1px solid #dde3ea' }}></th>
@@ -1808,7 +1859,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                     <tr><td colSpan={6} style={{ padding: '20px 10px', color: '#aaa', fontSize: 12 }}>No permissions configured for this area.</td></tr>
                   )}
                 </tbody>
-              </table>
+              </table>}
             </div>
 
             {/* Save / Cancel */}
