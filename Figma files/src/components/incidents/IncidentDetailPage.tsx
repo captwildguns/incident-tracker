@@ -411,9 +411,11 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
           )}
         </div>
         
-        <p style={{ margin: 0, color: 'var(--muted-foreground)' }}>
-          {incident.type} • {incident.date.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$2-$3-$1')}
-        </p>
+        {!(incident.involvedStudents && incident.involvedStudents.length > 1) && (
+          <p style={{ margin: 0, color: 'var(--muted-foreground)' }}>
+            {incident.type} • {incident.date.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$2-$3-$1')}
+          </p>
+        )}
       </div>
 
       {/* Student Selector — prominent treatment when multiple students are involved */}
