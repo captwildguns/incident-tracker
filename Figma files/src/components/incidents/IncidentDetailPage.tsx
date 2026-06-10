@@ -359,10 +359,6 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 'var(--forge-spacing-small)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)' }}>
             <h1 style={{ margin: 0 }}>{incident.id}</h1>
-            <Badge variant={incident.severity === 'Critical' || incident.severity === 'High' ? 'destructive' : incident.severity === 'Medium' ? 'secondary' : 'outline'} style={incident.severity === 'Critical' ? { background: 'var(--forge-theme-critical)', color: '#fff', borderColor: 'var(--forge-theme-critical)' } : undefined}>
-              {incident.severity}
-            </Badge>
-            <Badge>{incident.status}</Badge>
             <ForgeButton variant="outlined" size="sm" onClick={() => setIsEditDialogOpen(true)}>
               <Edit className="mr-2 h-4 w-4" />
               Edit
@@ -491,7 +487,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                   )}
                 </div>
                 <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', marginTop: 3 }}>
-                  Showing all details below for student {idx + 1} of {students.length}
+                  {incident.type} • {incident.date.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$2-$3-$1')}
                 </div>
               </div>
 
