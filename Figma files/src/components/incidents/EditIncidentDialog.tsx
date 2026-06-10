@@ -268,7 +268,7 @@ export function EditIncidentDialog({ incident, onClose, onSave }: EditIncidentDi
             </div>
           </div>
           <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: '11px', color: 'var(--forge-theme-text-medium)' }}>
-            Student, incident type, and severity are set when the incident is created and can't be changed here — they determine the assigned workflow.
+            Student, incident type, and severity are set when the incident is created and can't be changed to preserve the assigned workflow.
           </p>
         </div>
 
