@@ -715,15 +715,8 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                       <div style={{ marginBottom: 'var(--forge-spacing-large)', paddingBottom: 'var(--forge-spacing-medium)', borderBottom: '1px solid var(--border)' }}>
                         <div className="grid grid-cols-2 gap-x-6 gap-y-4" style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
                           <div>
-                            <div style={labelStyle}>Student</div>
-                            <div style={{ ...valueStyle, fontWeight: 'var(--font-weight-medium)', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                              {s.name}
-                              {/* @ts-ignore */}
-                              <forge-badge theme="default">{s.role}</forge-badge>
-                              {/* @ts-ignore */}
-                              <forge-badge theme={s.severity === 'Critical' ? 'danger' : s.severity === 'High' ? 'error' : s.severity === 'Medium' ? 'warning' : 'info'} strong>{s.severity}</forge-badge>
-                            </div>
-                            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', marginTop: 2 }}>{s.studentId}</div>
+                            <div style={labelStyle}>Student ID</div>
+                            <div style={valueStyle}>{s.studentId}</div>
                           </div>
                           {s.parentNotified !== undefined && (
                             <div>
@@ -735,6 +728,12 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                             </div>
                           )}
                         </div>
+                        {incident.description && (
+                          <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
+                            <div style={labelStyle}>Description</div>
+                            <p style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', lineHeight: '1.6' }}>{incident.description}</p>
+                          </div>
+                        )}
                         {s.description && (
                           <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
                             <div style={labelStyle}>Student Description</div>
@@ -835,14 +834,16 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                       </div>
                     </div>
                   </div>
-                  <div style={{ marginTop: 'var(--forge-spacing-large)', paddingTop: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--border)' }}>
-                    <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                      Description
+                  {(!incident.involvedStudents || incident.involvedStudents.length === 0) && (
+                    <div style={{ marginTop: 'var(--forge-spacing-large)', paddingTop: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--border)' }}>
+                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Description
+                      </div>
+                      <p style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', lineHeight: '1.6' }}>
+                        {incident.description}
+                      </p>
                     </div>
-                    <p style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', lineHeight: '1.6' }}>
-                      {incident.description}
-                    </p>
-                  </div>
+                  )}
 
                   {/* Witnesses */}
                   {incident.witnessPresent && (
