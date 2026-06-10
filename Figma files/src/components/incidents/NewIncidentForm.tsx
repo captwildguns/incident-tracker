@@ -17,6 +17,7 @@ import { Alert, AlertDescription } from '../ui/alert';
 import { INCIDENT_TYPES, getAllCategories } from './IncidentTypes';
 import { IncidentLocationMap } from './IncidentLocationMap';
 import { mockDrivers } from '../drivers/DriversPage';
+import { mockIncidents } from './IncidentsPage';
 
 const mockStudents = [
   { id: 'STU-2891', name: 'Sarah Mitchell', grade: '9th Grade', school: 'Lincoln Middle School', photoUrl: 'https://images.unsplash.com/photo-1729283098418-e2c849b4e2cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWVuYWdlJTIwZ2lybCUyMHBhc3Nwb3J0JTIwcGhvdG8lMjAxNCUyMHllYXIlMjBvbGR8ZW58MXx8fHwxNzY5NTI3Mjc4fDA&ixlib=rb-4.1.0&q=80&w=1080', bus: 'bus-12', route: 'lincoln-elem-am-green' },
@@ -90,6 +91,15 @@ const LOCATION_OPTIONS = [
   ]},
   { category: 'OTHER', items: [{ value: 'other', label: 'Other' }] },
 ];
+
+const ROUTE_LABELS: Record<string, string> = {
+  'colonie-high-am-purple': 'Colonie High AM - Purple',
+  'jefferson-middle-am-blue': 'Jefferson Middle AM - Blue',
+  'lincoln-elem-am-green': 'Lincoln Elementary AM - Green',
+  'meyers-middle-am-yellow': 'Meyers Middle AM - Yellow',
+  'roosevelt-high-pm-red': 'Roosevelt High PM - Red',
+  'washington-high-pm-wolf': 'Washington High PM - Wolf Rd',
+};
 
 const DRIVER_LOCATION_OPTIONS = [
   ...LOCATION_OPTIONS.slice(0, 1),
@@ -310,6 +320,71 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
   };
 
   const handleStudentSubmit = () => {
+    const cap = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+    const typeLabel = getIncidentTypeLabel(sharedData.incidentType);
+    const sharedSeverity = cap(sharedData.severity);
+    const today = new Date().toISOString().slice(0, 10);
+    const createdBy = sharedData.driver || 'Current User';
+
+    // Build the per-student records (role / severity / type override / notes)
+    const involved = involvedStudents.map(stu => {
+      const d = perStudentData[stu.id] || ({} as PerStudentData);
+      const sev = d.severityOverride && d.severityOverride !== 'shared' ? cap(d.severityOverride) : sharedSeverity;
+      const typeOv = d.incidentTypeOverride ? getIncidentTypeLabel(d.incidentTypeOverride) : '';
+      return {
+        studentId: stu.id,
+        name: stu.name,
+        role: cap(d.role || 'participant'),
+        severity: sev,
+        parentNotified: !!d.parentNotified,
+        description: d.description || '',
+        actionTaken: d.actionTaken || '',
+        notes: d.notes || '',
+        ...(typeOv ? { incidentTypeOverride: typeOv } : {}),
+        ...(d.role === 'bystander' ? { noWorkflow: true } : {}),
+      };
+    });
+
+    // Next sequential incident ID (INC-YYYY-NNNN)
+    const maxNum = mockIncidents.reduce((m, i: any) => {
+      const n = parseInt(String(i.id).split('-')[2] || '0', 10);
+      return Math.max(m, isNaN(n) ? 0 : n);
+    }, 0);
+    const newId = `INC-${new Date().getFullYear()}-${String(maxNum + 1).padStart(4, '0')}`;
+
+    const first = involvedStudents[0];
+    const newIncident: any = {
+      id: newId,
+      date: today,
+      student: first?.name || '',
+      studentId: first?.id || '',
+      type: typeLabel,
+      description: sharedData.description,
+      bus: sharedData.bus ? `Bus ${sharedData.bus.replace('bus-', '')}` : '',
+      route: ROUTE_LABELS[sharedData.route] || sharedData.route || '',
+      driver: sharedData.driver,
+      severity: sharedSeverity,
+      status: 'Open',
+      createdBy,
+      assignedTo: 'Sarah Williams',
+      location: sharedData.location,
+      ...(locationCoordinates ? { locationCoordinates } : {}),
+      ...(locationAddress ? { locationAddress } : {}),
+      witnessPresent: sharedData.witnessPresent,
+      witnessNames: sharedData.witnessNames.filter(Boolean),
+      tags: sharedData.tags,
+      involvedStudents: involved,
+      ...(uploadedPhotos.length
+        ? { photos: uploadedPhotos.map(p => ({ id: p.id, url: p.url, thumbnail: p.url, uploadedBy: createdBy, uploadedAt: today, caption: p.name })) }
+        : {}),
+      ...(uploadedDocuments.length
+        ? { documents: uploadedDocuments.map(doc => ({ id: doc.id, name: doc.name, size: doc.size, type: doc.type, uploadedBy: createdBy, uploadedAt: today })) }
+        : {}),
+    };
+
+    // Persist into the shared incidents list (in-memory for the session)
+    mockIncidents.unshift(newIncident);
+
     setShowSuccess(true);
     setTimeout(() => { setShowSuccess(false); onNavigate('incidents'); }, 3000);
   };
