@@ -8,7 +8,7 @@ defineAvatarComponent();
 defineIconButtonComponent();
 import { Badge } from '../ui/badge';
 import { Textarea } from '../ui/textarea';
-import { ArrowLeft, MessageSquare, Edit, Camera, FileText, GitBranch, Clock, CheckCircle2, AlertCircle, Users, ChevronRight, MessageCircle, Play, Pause, Send, FileDown, Paperclip, ChevronLeft } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Edit, Camera, FileText, GitBranch, Clock, CheckCircle2, AlertCircle, Users, ChevronRight, MessageCircle, Play, Pause, Send, FileDown, Paperclip, ChevronLeft, MapPin } from 'lucide-react';
 
 import { EditIncidentDialog } from './EditIncidentDialog';
 import { Workflow, WorkflowStep, isWorkflowActive, assignWorkflowToIncident } from '../../data/workflows';
@@ -17,6 +17,7 @@ import { getCommunicationsByIncidentId, type Message } from '../communications/C
 import { CurrentStepActionCard } from './CurrentStepActionCard';
 import { DocumentsViewer } from './DocumentsViewer';
 import { PhotosViewer } from './PhotosViewer';
+import { buildMapUrl } from './IncidentLocationMap';
 
 interface IncidentDetailPageProps {
   incident: any;
@@ -887,6 +888,37 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                             {tag}
                           </span>
                         ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Location Pin — only when a coordinate was pinned at creation */}
+                  {incident.locationCoordinates && (
+                    <div style={{ marginTop: 'var(--forge-spacing-large)', paddingTop: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--border)' }}>
+                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '8px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Pinned Location
+                      </div>
+                      <div style={{ position: 'relative', width: '100%', height: '220px', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0, display: 'block' }}
+                          src={buildMapUrl(incident.locationCoordinates.lat, incident.locationCoordinates.lng, 15)}
+                          title="Pinned incident location"
+                          loading="lazy"
+                        />
+                        <div style={{ position: 'absolute', top: 10, left: '50%', transform: 'translateX(-50%)', background: 'var(--brand-blue-medium)', color: '#fff', padding: '3px 10px', borderRadius: 4, fontFamily: 'Roboto, sans-serif', fontSize: '12px', display: 'flex', alignItems: 'center', gap: 4, pointerEvents: 'none' }}>
+                          <MapPin className="h-3 w-3" /> Location Pinned
+                        </div>
+                      </div>
+                      {incident.locationAddress && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-sm)' }}>
+                          <MapPin className="h-4 w-4" style={{ color: 'var(--brand-blue-medium)', flexShrink: 0 }} />
+                          {incident.locationAddress}
+                        </div>
+                      )}
+                      <div style={{ marginTop: 4, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)' }}>
+                        {incident.locationCoordinates.lat.toFixed(5)}, {incident.locationCoordinates.lng.toFixed(5)}
                       </div>
                     </div>
                   )}

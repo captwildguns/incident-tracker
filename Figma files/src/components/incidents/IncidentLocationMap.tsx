@@ -32,7 +32,7 @@ const mockAddresses = [
 ];
 
 // Converts lat/lng + zoom to OpenStreetMap tile URL for a static preview
-function buildMapUrl(lat: number, lng: number, zoom: number) {
+export function buildMapUrl(lat: number, lng: number, zoom: number) {
   return `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.02},${lat - 0.012},${lng + 0.02},${lat + 0.012}&layer=mapnik&marker=${lat},${lng}`;
 }
 
