@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { ForgeButton } from '@tylertech/forge-react';
 import { defineButtonComponent, defineTextFieldComponent } from '@tylertech/forge';
 defineButtonComponent();
@@ -7,25 +7,10 @@ import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Checkbox } from '../ui/checkbox';
 import { Badge } from '../ui/badge';
-import { Save, X, Check, Circle, CheckCircle2, Upload, Image as ImageIcon, FileText, Plus } from 'lucide-react';
+import { Save, X, Upload, Image as ImageIcon, FileText, Plus } from 'lucide-react';
 import { Alert, AlertDescription } from '../ui/alert';
-import { INCIDENT_TYPES, getAllCategories } from './IncidentTypes';
 import { IncidentLocationMap } from './IncidentLocationMap';
 import { toast } from 'sonner';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../ui/command';
-
-const mockStudents = [
-  { id: 'STU-2891', name: 'Sarah Mitchell', grade: '8th Grade', school: 'Lincoln Middle School' },
-  { id: 'STU-3421', name: 'Marcus Johnson', grade: '10th Grade', school: 'Washington High School' },
-  { id: 'STU-1956', name: 'Emma Rodriguez', grade: '7th Grade', school: 'Jefferson Middle School' },
-  { id: 'STU-4782', name: 'James Thompson', grade: '9th Grade', school: 'Roosevelt High School' },
-  { id: 'STU-5623', name: 'Olivia Davis', grade: '11th Grade', school: 'Washington High School' },
-  { id: 'STU-6234', name: 'Liam Anderson', grade: '6th Grade', school: 'Lincoln Middle School' },
-  { id: 'STU-7845', name: 'Sophia Martinez', grade: '9th Grade', school: 'Roosevelt High School' },
-  { id: 'STU-8956', name: 'Noah Williams', grade: '7th Grade', school: 'Jefferson Middle School' },
-  { id: 'STU-9067', name: 'Isabella Brown', grade: '10th Grade', school: 'Washington High School' },
-  { id: 'STU-1178', name: 'Ethan Taylor', grade: '8th Grade', school: 'Lincoln Middle School' },
-];
 
 const LOCATION_OPTIONS = [
   { category: 'ON ROUTE', items: [
@@ -194,8 +179,6 @@ export function EditIncidentDialog({ incident, onClose, onSave }: EditIncidentDi
   const [locationCoordinates, setLocationCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [locationAddress, setLocationAddress] = useState('');
   const [showSuccess, setShowSuccess] = useState(false);
-  const [studentLookupOpen, setStudentLookupOpen] = useState(false);
-  const studentLookupRef = useRef<HTMLDivElement>(null);
 
   const [uploadedPhotos, setUploadedPhotos] = useState<Array<{ id: string; name: string; url: string; size: string }>>(
     incident.photos || []
@@ -206,18 +189,6 @@ export function EditIncidentDialog({ incident, onClose, onSave }: EditIncidentDi
   const fileInputRef = useRef<HTMLInputElement>(null);
   const documentInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (studentLookupRef.current && !studentLookupRef.current.contains(event.target as Node)) {
-        setStudentLookupOpen(false);
-      }
-    };
-    if (studentLookupOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [studentLookupOpen]);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setShowSuccess(true);
@@ -226,11 +197,6 @@ export function EditIncidentDialog({ incident, onClose, onSave }: EditIncidentDi
     });
     if (onSave) onSave(formData);
     setTimeout(() => { setShowSuccess(false); onClose(); }, 1500);
-  };
-
-  const handleIncidentTypeChange = (value: string) => {
-    const selectedType = INCIDENT_TYPES.find(t => t.id === value);
-    setFormData({ ...formData, incidentType: value, severity: selectedType?.defaultSeverity.toLowerCase() || '' });
   };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -258,7 +224,8 @@ export function EditIncidentDialog({ incident, onClose, onSave }: EditIncidentDi
     if (documentInputRef.current) documentInputRef.current.value = '';
   };
 
-  const selectedIncidentType = INCIDENT_TYPES.find(t => t.id === formData.incidentType);
+  const isMulti = incident.involvedStudents && incident.involvedStudents.length > 0;
+  const sevLower = (incident.severity || '').toLowerCase();
 
   return (
     <div className="max-h-[600px] overflow-y-auto">
@@ -270,59 +237,39 @@ export function EditIncidentDialog({ incident, onClose, onSave }: EditIncidentDi
 
       <form onSubmit={handleSubmit} className="space-y-6">
 
-        {/* ── Student Information ── */}
-        <div className="space-y-4">
-          <h3 style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, marginBottom: 12 }}>Student Information</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="relative" ref={studentLookupRef}>
-              <Label htmlFor="edit-student" style={{ fontFamily: 'Roboto, sans-serif' }}>Student Name</Label>
-              {/* @ts-ignore */}
-              <forge-text-field>
-                <input
-                  type="text"
-                  id="edit-student"
-                  value={formData.student}
-                  onChange={(e) => { setFormData({ ...formData, student: e.target.value }); setStudentLookupOpen(true); }}
-                  placeholder="Type to search students..."
-                  required
-                />
-              </forge-text-field>
-              {studentLookupOpen && (
-                <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-[300px] overflow-hidden">
-                  <Command>
-                    <CommandList>
-                      <CommandEmpty>No student found.</CommandEmpty>
-                      <CommandGroup>
-                        {mockStudents
-                          .filter(s => s.name.toLowerCase().includes(formData.student.toLowerCase()) || s.id.toLowerCase().includes(formData.student.toLowerCase()))
-                          .map(student => (
-                            <CommandItem
-                              key={student.id}
-                              value={student.name}
-                              onSelect={() => { setFormData({ ...formData, student: student.name, studentId: student.id }); setStudentLookupOpen(false); }}
-                            >
-                              <Check className={formData.student === student.name ? 'mr-2 h-4 w-4 opacity-100' : 'mr-2 h-4 w-4 opacity-0'} />
-                              <div className="flex flex-col">
-                                <div>{student.name}</div>
-                                <div className="text-sm text-muted-foreground">{student.id} · {student.grade} · {student.school}</div>
-                              </div>
-                            </CommandItem>
-                          ))}
-                      </CommandGroup>
-                    </CommandList>
-                  </Command>
-                </div>
-              )}
-            </div>
-
+        {/* ── Classification (set at creation — not editable here) ── */}
+        <div className="space-y-2">
+          <h3 style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, marginBottom: 12 }}>Classification</h3>
+          <div className="grid grid-cols-2 gap-4 p-4 rounded-md" style={{ background: '#F4F7FB', border: '1px solid #D4DFF0' }}>
             <div>
-              <Label htmlFor="edit-studentId" style={{ fontFamily: 'Roboto, sans-serif' }}>Student ID</Label>
-              {/* @ts-ignore */}
-              <forge-text-field>
-                <input type="text" id="edit-studentId" value={formData.studentId} disabled style={{ cursor: 'not-allowed' }} />
-              </forge-text-field>
+              <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Student</div>
+              <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', fontWeight: 500 }}>
+                {isMulti ? `${incident.involvedStudents.length} students involved` : incident.student}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Student ID</div>
+              <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>
+                {isMulti ? 'Multiple' : incident.studentId}
+              </div>
+            </div>
+            <div>
+              <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Incident Type</div>
+              <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>{incident.type}</div>
+            </div>
+            <div>
+              <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>Severity</div>
+              <Badge
+                variant={sevLower === 'critical' || sevLower === 'high' ? 'destructive' : sevLower === 'medium' ? 'secondary' : 'outline'}
+                style={sevLower === 'critical' ? { background: 'var(--forge-theme-critical)', color: '#fff', borderColor: 'var(--forge-theme-critical)', fontFamily: 'Roboto, sans-serif' } : { fontFamily: 'Roboto, sans-serif' }}
+              >
+                {incident.severity}
+              </Badge>
             </div>
           </div>
+          <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: '11px', color: 'var(--forge-theme-text-medium)' }}>
+            Student, incident type, and severity are set when the incident is created and can't be changed here — they determine the assigned workflow.
+          </p>
         </div>
 
         {/* ── Incident Details ── */}
@@ -330,34 +277,6 @@ export function EditIncidentDialog({ incident, onClose, onSave }: EditIncidentDi
           <h3 style={{ fontFamily: 'Roboto, sans-serif', fontWeight: 500, marginBottom: 12 }}>Incident Details</h3>
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="edit-incidentType" style={{ fontFamily: 'Roboto, sans-serif' }}>Incident Type *</Label>
-              {/* @ts-ignore */}
-              <forge-text-field>
-                <select
-                  id="edit-incidentType"
-                  value={formData.incidentType}
-                  onChange={(e) => handleIncidentTypeChange(e.target.value)}
-                  required
-                  style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
-                >
-                  <option value="" disabled>Select type...</option>
-                  {getAllCategories().map((category) => (
-                    <optgroup key={category} label={category}>
-                      {INCIDENT_TYPES.filter(type => type.category === category).map((type) => (
-                        <option key={type.id} value={type.id}>{type.label}</option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </forge-text-field>
-              {selectedIncidentType && (
-                <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)', marginTop: 4 }}>
-                  {selectedIncidentType.description}
-                </p>
-              )}
-            </div>
-
             <div>
               <Label htmlFor="edit-status" style={{ fontFamily: 'Roboto, sans-serif' }}>Status</Label>
               {/* @ts-ignore */}
@@ -455,32 +374,6 @@ export function EditIncidentDialog({ incident, onClose, onSave }: EditIncidentDi
                   onChange={(e) => setFormData({ ...formData, driver: e.target.value })}
                 />
               </forge-text-field>
-            </div>
-          </div>
-
-          {/* Severity — same badge-button style as creation */}
-          <div>
-            <Label style={{ fontFamily: 'Roboto, sans-serif' }}>Severity Level *</Label>
-            <div className="flex gap-3 mt-2">
-              {(['low', 'medium', 'high', 'critical'] as const).map(level => (
-                <button
-                  key={level}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, severity: level })}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-md border-2 transition-all ${formData.severity === level ? 'border-primary bg-primary/5' : 'border-transparent bg-muted/50 hover:bg-muted'}`}
-                >
-                  {formData.severity === level
-                    ? <CheckCircle2 className="h-4 w-4 text-primary" />
-                    : <Circle className="h-4 w-4 text-muted-foreground" />}
-                  <Badge
-                    variant={level === 'critical' || level === 'high' ? 'destructive' : level === 'medium' ? 'secondary' : 'outline'}
-                    style={level === 'critical' ? { background: 'var(--forge-theme-critical)', color: '#fff', borderColor: 'var(--forge-theme-critical)' } : undefined}
-                    className="pointer-events-none"
-                  >
-                    {level.charAt(0).toUpperCase() + level.slice(1)}
-                  </Badge>
-                </button>
-              ))}
             </div>
           </div>
 
