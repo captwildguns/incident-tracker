@@ -318,8 +318,6 @@ const INITIAL_GROUPS: PermissionGroup[] = [
       'workflow-steps':       { read: true },
       'messages':             { read: true, add: true },
       'notifications':        { read: true },
-      'rpt-monthly-summary': { read: true },
-      'rpt-high-critical':   { read: true },
     }),
     members: [
       { name: 'James Rodriguez',  email: 'james.rodriguez@district.edu',  title: 'Bus Driver' },
@@ -362,6 +360,8 @@ const INITIAL_GROUPS: PermissionGroup[] = [
       'messages':             { read: true, add: true },
       'notifications':        { read: true },
       'rpt-monthly-summary': { read: true },
+      'rpt-yearly-summary':  { read: true },
+      'rpt-high-critical':   { read: true },
       'rpt-open-incidents':  { read: true },
     }),
     members: [
