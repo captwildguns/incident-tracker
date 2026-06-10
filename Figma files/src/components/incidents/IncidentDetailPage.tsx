@@ -359,7 +359,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 'var(--forge-spacing-small)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)' }}>
             <h1 style={{ margin: 0 }}>{incident.id}</h1>
-            <ForgeButton variant="outlined" size="sm" onClick={() => setIsEditDialogOpen(true)}>
+            <ForgeButton variant="outlined" size="sm" onClick={() => setIsEditDialogOpen(true)} style={{ transform: 'scale(0.8)', transformOrigin: 'left center' }}>
               <Edit className="mr-2 h-4 w-4" />
               Edit
             </ForgeButton>
@@ -493,8 +493,8 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                 </div>
               </div>
 
-              {/* Switcher */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+              {/* Switcher — left-justified starting mid-page */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, justifyContent: 'flex-start', minWidth: 300 }}>
                 <label style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', color: 'var(--brand-blue-dark)', fontWeight: 500 }}>
                   Switch student:
                 </label>
