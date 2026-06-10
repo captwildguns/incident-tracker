@@ -505,8 +505,13 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                   aria-label="Previous student"
                   onClick={goPrev}
                   {...(idx === 0 ? { disabled: true } : {})}
+                  style={{
+                    color: 'var(--brand-blue-dark)',
+                    border: '1px solid rgba(91,139,184,0.45)',
+                    borderRadius: 6,
+                  } as React.CSSProperties}
                 >
-                  <ChevronLeft className="h-4 w-4" />
+                  <ChevronLeft className="h-5 w-5" strokeWidth={2.5} />
                 {/* @ts-ignore */}
                 </forge-icon-button>
                 {/* @ts-ignore */}
@@ -528,8 +533,13 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                   aria-label="Next student"
                   onClick={goNext}
                   {...(idx === students.length - 1 ? { disabled: true } : {})}
+                  style={{
+                    color: 'var(--brand-blue-dark)',
+                    border: '1px solid rgba(91,139,184,0.45)',
+                    borderRadius: 6,
+                  } as React.CSSProperties}
                 >
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-5 w-5" strokeWidth={2.5} />
                 {/* @ts-ignore */}
                 </forge-icon-button>
               </div>
