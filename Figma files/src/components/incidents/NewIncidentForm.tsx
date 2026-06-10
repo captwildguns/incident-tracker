@@ -58,6 +58,7 @@ interface SharedFormData {
   location: string;
   bus: string;
   route: string;
+  driver: string;
   witnessPresent: boolean;
   witnessNames: string[];
   tags: string[];
@@ -240,7 +241,7 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
   // Step 2: shared incident data
   const [sharedData, setSharedData] = useState<SharedFormData>({
     incidentType: '', severity: '', description: '', location: '',
-    bus: '', route: '', witnessPresent: false, witnessNames: [], tags: [],
+    bus: '', route: '', driver: '', witnessPresent: false, witnessNames: [], tags: [],
   });
   const [locationCoordinates, setLocationCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [locationAddress, setLocationAddress] = useState('');
@@ -591,22 +592,36 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
                   </forge-text-field>
                   <p style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-xs)', color: 'var(--forge-theme-text-medium)', marginTop: 4 }}>Leave blank if incident occurred outside of a run</p>
                 </div>
-              </div>
 
-              <div>
-                <Label style={{ fontFamily: 'Roboto, sans-serif' }}>Severity Level *</Label>
-                <div className="flex gap-3 mt-2">
-                  {(['low', 'medium', 'high', 'critical'] as const).map(level => (
-                    <button key={level} type="button" onClick={() => setSharedData(s => ({ ...s, severity: level }))}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-md border-2 transition-all ${sharedData.severity === level ? 'border-primary bg-primary/5' : 'border-transparent bg-muted/50 hover:bg-muted'}`}>
-                      {sharedData.severity === level ? <CheckCircle2 className="h-4 w-4 text-primary" /> : <Circle className="h-4 w-4 text-muted-foreground" />}
-                      <Badge
-                        variant={level === 'critical' || level === 'high' ? 'destructive' : level === 'medium' ? 'secondary' : 'outline'}
-                        style={level === 'critical' ? { background: 'var(--forge-theme-critical)', color: '#fff', borderColor: 'var(--forge-theme-critical)' } : undefined}
-                        className="pointer-events-none"
-                      >{level.charAt(0).toUpperCase() + level.slice(1)}</Badge>
-                    </button>
-                  ))}
+                <div>
+                  <Label style={{ fontFamily: 'Roboto, sans-serif' }}>Driver</Label>
+                  {/* @ts-ignore */}
+                  <forge-text-field>
+                    <input
+                      type="text"
+                      value={sharedData.driver}
+                      onChange={(e) => setSharedData(s => ({ ...s, driver: e.target.value }))}
+                      placeholder="Driver name"
+                      style={{ fontFamily: 'Roboto, sans-serif' }}
+                    />
+                  </forge-text-field>
+                </div>
+
+                <div>
+                  <Label style={{ fontFamily: 'Roboto, sans-serif' }}>Severity Level *</Label>
+                  <div className="flex flex-wrap gap-3 mt-2">
+                    {(['low', 'medium', 'high', 'critical'] as const).map(level => (
+                      <button key={level} type="button" onClick={() => setSharedData(s => ({ ...s, severity: level }))}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-md border-2 transition-all ${sharedData.severity === level ? 'border-primary bg-primary/5' : 'border-transparent bg-muted/50 hover:bg-muted'}`}>
+                        {sharedData.severity === level ? <CheckCircle2 className="h-4 w-4 text-primary" /> : <Circle className="h-4 w-4 text-muted-foreground" />}
+                        <Badge
+                          variant={level === 'critical' || level === 'high' ? 'destructive' : level === 'medium' ? 'secondary' : 'outline'}
+                          style={level === 'critical' ? { background: 'var(--forge-theme-critical)', color: '#fff', borderColor: 'var(--forge-theme-critical)' } : undefined}
+                          className="pointer-events-none"
+                        >{level.charAt(0).toUpperCase() + level.slice(1)}</Badge>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -963,6 +978,7 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
                   { label: 'Location', value: getLocationLabel(sharedData.location) },
                   ...(sharedData.bus ? [{ label: 'Vehicle', value: `Vehicle ${sharedData.bus.replace('bus-', '')}` }] : []),
                   ...(sharedData.route ? [{ label: 'Run', value: sharedData.route }] : []),
+                  ...(sharedData.driver ? [{ label: 'Driver', value: sharedData.driver }] : []),
                   ...(uploadedPhotos.length ? [{ label: 'Photos', value: `${uploadedPhotos.length} attached` }] : []),
                   ...(uploadedDocuments.length ? [{ label: 'Documents', value: `${uploadedDocuments.length} attached` }] : []),
                 ].map(item => (
