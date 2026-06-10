@@ -16,6 +16,7 @@ import {
 import { Alert, AlertDescription } from '../ui/alert';
 import { INCIDENT_TYPES, getAllCategories } from './IncidentTypes';
 import { IncidentLocationMap } from './IncidentLocationMap';
+import { mockDrivers } from '../drivers/DriversPage';
 
 const mockStudents = [
   { id: 'STU-2891', name: 'Sarah Mitchell', grade: '9th Grade', school: 'Lincoln Middle School', photoUrl: 'https://images.unsplash.com/photo-1729283098418-e2c849b4e2cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWVuYWdlJTIwZ2lybCUyMHBhc3Nwb3J0JTIwcGhvdG8lMjAxNCUyMHllYXIlMjBvbGR8ZW58MXx8fHwxNzY5NTI3Mjc4fDA&ixlib=rb-4.1.0&q=80&w=1080', bus: 'bus-12', route: 'lincoln-elem-am-green' },
@@ -597,13 +598,19 @@ export function NewIncidentForm({ onNavigate }: NewIncidentFormProps) {
                   <Label style={{ fontFamily: 'Roboto, sans-serif' }}>Driver</Label>
                   {/* @ts-ignore */}
                   <forge-text-field>
-                    <input
-                      type="text"
+                    <select
                       value={sharedData.driver}
                       onChange={(e) => setSharedData(s => ({ ...s, driver: e.target.value }))}
-                      placeholder="Driver name"
-                      style={{ fontFamily: 'Roboto, sans-serif' }}
-                    />
+                      style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)', width: '100%' }}
+                    >
+                      <option value="">Select driver (optional)...</option>
+                      {mockDrivers
+                        .filter(d => d.status === 'Active')
+                        .sort((a, b) => a.fullName.localeCompare(b.fullName))
+                        .map(d => (
+                          <option key={d.id} value={d.fullName}>{d.fullName}</option>
+                        ))}
+                    </select>
                   </forge-text-field>
                 </div>
 
