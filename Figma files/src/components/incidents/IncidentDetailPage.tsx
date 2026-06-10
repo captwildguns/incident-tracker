@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ForgeCard, ForgeButton } from '@tylertech/forge-react';
-import { defineCardComponent, defineButtonComponent, defineDialogComponent } from '@tylertech/forge';
+import { defineCardComponent, defineButtonComponent, defineDialogComponent, defineAvatarComponent, defineIconButtonComponent } from '@tylertech/forge';
 defineCardComponent();
 defineButtonComponent();
 defineDialogComponent();
+defineAvatarComponent();
+defineIconButtonComponent();
 import { Badge } from '../ui/badge';
 import { Textarea } from '../ui/textarea';
 import { ArrowLeft, MessageSquare, Edit, Camera, FileText, GitBranch, Clock, CheckCircle2, AlertCircle, Users, ChevronRight, MessageCircle, Play, Pause, Send, FileDown, Paperclip, ChevronLeft } from 'lucide-react';
@@ -423,119 +425,116 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
         const students = incident.involvedStudents;
         const idx = Math.max(0, students.findIndex((s: any) => s.studentId === selectedStudentId));
         const current = students[idx];
-        const initials = current.name.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
         const roleSolid: Record<string, string> = {
           Instigator: '#b91c1c',
           Participant: '#b45309',
           Victim: '#1d4ed8',
           Bystander: '#475569',
         };
+        const roleTint: Record<string, string> = {
+          Instigator: 'rgba(185,28,28,0.06)',
+          Participant: 'rgba(180,83,9,0.06)',
+          Victim: 'rgba(29,78,216,0.06)',
+          Bystander: 'rgba(71,85,105,0.06)',
+        };
         const avatarColor = roleSolid[current.role] ?? '#475569';
+        const tint = roleTint[current.role] ?? 'rgba(71,85,105,0.06)';
         const goPrev = () => idx > 0 && setSelectedStudentId(students[idx - 1].studentId);
         const goNext = () => idx < students.length - 1 && setSelectedStudentId(students[idx + 1].studentId);
         return (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 16,
-            marginBottom: 'var(--forge-spacing-medium)',
-            padding: '14px 18px',
-            background: 'linear-gradient(135deg, rgba(91,139,184,0.12) 0%, rgba(91,139,184,0.04) 100%)',
-            border: '1px solid rgba(91,139,184,0.30)',
-            borderLeft: '4px solid var(--brand-blue-medium)',
-            borderRadius: 8,
-            flexWrap: 'wrap',
-          }}>
-            {/* Avatar */}
-            <div style={{
-              width: 48, height: 48, borderRadius: '50%',
-              background: avatarColor, color: '#fff',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'Roboto, sans-serif', fontWeight: 600, fontSize: 18,
-              flexShrink: 0,
-            }}>
-              {initials}
-            </div>
-
-            {/* Identity */}
-            <div style={{ flex: 1, minWidth: 200 }}>
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif',
-                fontWeight: 600, color: 'var(--brand-blue-dark)',
-                textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4,
-              }}>
-                <Users className="h-3.5 w-3.5" />
-                Multi-Student Incident · {students.length} students involved
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 'var(--text-lg)', fontWeight: 600, fontFamily: 'Roboto, sans-serif', color: 'var(--foreground)' }}>
-                  {current.name}
-                </span>
-                {/* @ts-ignore */}
-                <forge-badge theme="default">{current.role}</forge-badge>
-                {/* @ts-ignore */}
-                <forge-badge theme={current.severity === 'Critical' ? 'danger' : current.severity === 'High' ? 'error' : current.severity === 'Medium' ? 'warning' : 'info'} strong>{current.severity}</forge-badge>
-                {computeWorkflow(current.studentId) === null && (
-                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif' }}>· No workflow</span>
-                )}
-              </div>
-              <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', marginTop: 3 }}>
-                Showing all details below for student {idx + 1} of {students.length}
-              </div>
-            </div>
-
-            {/* Switcher */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-              <label style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', color: 'var(--brand-blue-dark)', fontWeight: 500 }}>
-                Switch student:
-              </label>
-              <button
-                type="button"
-                onClick={goPrev}
-                disabled={idx === 0}
-                aria-label="Previous student"
-                style={{
-                  width: 32, height: 32, borderRadius: 6,
-                  border: '1px solid rgba(91,139,184,0.40)', background: '#fff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: idx === 0 ? 'not-allowed' : 'pointer',
-                  opacity: idx === 0 ? 0.4 : 1, color: 'var(--brand-blue-dark)',
-                }}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
+          <ForgeCard
+            raised
+            style={{
+              display: 'block',
+              marginBottom: 'var(--forge-spacing-medium)',
+              // Highlight keyed to the selected student's role color — all via Forge card props
+              '--forge-card-padding': '14px 18px',
+              '--forge-card-background': tint,
+              '--forge-card-outline-color': avatarColor,
+              '--forge-card-outline-width': '2px',
+            } as React.CSSProperties}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+              {/* Avatar — Forge component, colored to the student's role */}
               {/* @ts-ignore */}
-              <forge-text-field style={{ minWidth: 240 }}>
-                <select
-                  value={selectedStudentId ?? ''}
-                  onChange={(e) => setSelectedStudentId(e.target.value)}
-                  style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)' }}
-                >
-                  {students.map((s: any) => (
-                    <option key={s.studentId} value={s.studentId}>
-                      {s.name} — {s.role}{computeWorkflow(s.studentId) === null ? ' (No workflow)' : ''}
-                    </option>
-                  ))}
-                </select>
-              </forge-text-field>
-              <button
-                type="button"
-                onClick={goNext}
-                disabled={idx === students.length - 1}
-                aria-label="Next student"
+              <forge-avatar
+                text={current.name}
                 style={{
-                  width: 32, height: 32, borderRadius: 6,
-                  border: '1px solid rgba(91,139,184,0.40)', background: '#fff',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  cursor: idx === students.length - 1 ? 'not-allowed' : 'pointer',
-                  opacity: idx === students.length - 1 ? 0.4 : 1, color: 'var(--brand-blue-dark)',
-                }}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
+                  flexShrink: 0,
+                  '--forge-avatar-background': avatarColor,
+                  '--forge-avatar-color': '#fff',
+                  '--forge-avatar-size': '48px',
+                } as React.CSSProperties}
+              />
+
+              {/* Identity */}
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  fontSize: 'var(--text-xs)', fontFamily: 'Roboto, sans-serif',
+                  fontWeight: 600, color: avatarColor,
+                  textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4,
+                }}>
+                  <Users className="h-3.5 w-3.5" />
+                  Multi-Student Incident · {students.length} students involved
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 'var(--text-lg)', fontWeight: 600, fontFamily: 'Roboto, sans-serif', color: 'var(--foreground)' }}>
+                    {current.name}
+                  </span>
+                  {/* @ts-ignore */}
+                  <forge-badge theme="default">{current.role}</forge-badge>
+                  {/* @ts-ignore */}
+                  <forge-badge theme={current.severity === 'Critical' ? 'danger' : current.severity === 'High' ? 'error' : current.severity === 'Medium' ? 'warning' : 'info'} strong>{current.severity}</forge-badge>
+                  {computeWorkflow(current.studentId) === null && (
+                    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif' }}>· No workflow</span>
+                  )}
+                </div>
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', marginTop: 3 }}>
+                  Showing all details below for student {idx + 1} of {students.length}
+                </div>
+              </div>
+
+              {/* Switcher */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                <label style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', color: 'var(--brand-blue-dark)', fontWeight: 500 }}>
+                  Switch student:
+                </label>
+                {/* @ts-ignore */}
+                <forge-icon-button
+                  aria-label="Previous student"
+                  onClick={goPrev}
+                  {...(idx === 0 ? { disabled: true } : {})}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                {/* @ts-ignore */}
+                </forge-icon-button>
+                {/* @ts-ignore */}
+                <forge-text-field style={{ minWidth: 240 }}>
+                  <select
+                    value={selectedStudentId ?? ''}
+                    onChange={(e) => setSelectedStudentId(e.target.value)}
+                    style={{ fontFamily: 'var(--forge-font-family)', fontSize: 'var(--forge-font-size-base)' }}
+                  >
+                    {students.map((s: any) => (
+                      <option key={s.studentId} value={s.studentId}>
+                        {s.name} — {s.role}{computeWorkflow(s.studentId) === null ? ' (No workflow)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </forge-text-field>
+                {/* @ts-ignore */}
+                <forge-icon-button
+                  aria-label="Next student"
+                  onClick={goNext}
+                  {...(idx === students.length - 1 ? { disabled: true } : {})}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                {/* @ts-ignore */}
+                </forge-icon-button>
+              </div>
             </div>
-          </div>
+          </ForgeCard>
         );
       })()}
 
