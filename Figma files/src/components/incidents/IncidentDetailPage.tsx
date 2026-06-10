@@ -412,16 +412,17 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
           )}
         </div>
         
-        {!(incident.involvedStudents && incident.involvedStudents.length > 1) && (
+        {!(incident.involvedStudents && incident.involvedStudents.length >= 1) && (
           <p style={{ margin: 0, color: 'var(--muted-foreground)' }}>
             {incident.type} • {incident.date.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$2-$3-$1')}
           </p>
         )}
       </div>
 
-      {/* Student Selector — prominent treatment when multiple students are involved */}
-      {incident.involvedStudents && incident.involvedStudents.length > 1 && (() => {
+      {/* Student banner — shown whenever the incident has involved students */}
+      {incident.involvedStudents && incident.involvedStudents.length >= 1 && (() => {
         const students = incident.involvedStudents;
+        const isMulti = students.length > 1;
         const idx = Math.max(0, students.findIndex((s: any) => s.studentId === selectedStudentId));
         const current = students[idx];
         const roleSolid: Record<string, string> = {
@@ -475,14 +476,16 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                   textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4,
                 }}>
                   <Users className="h-3.5 w-3.5" />
-                  Multi-Student Incident · {students.length} students involved
+                  {isMulti ? `Multi-Student Incident · ${students.length} students involved` : 'Involved Student'}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   <span style={{ fontSize: 'var(--text-lg)', fontWeight: 600, fontFamily: 'Roboto, sans-serif', color: 'var(--foreground)' }}>
                     {current.name}
                   </span>
-                  {/* @ts-ignore */}
-                  <forge-badge theme="default">{current.role}</forge-badge>
+                  {current.role && (
+                    /* @ts-ignore */
+                    <forge-badge theme="default">{current.role}</forge-badge>
+                  )}
                   {/* @ts-ignore */}
                   <forge-badge theme={current.severity === 'Critical' ? 'danger' : current.severity === 'High' ? 'error' : current.severity === 'Medium' ? 'warning' : 'info'} strong>{current.severity}</forge-badge>
                   {computeWorkflow(current.studentId) === null && (
@@ -494,7 +497,8 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                 </div>
               </div>
 
-              {/* Switcher — left-justified starting mid-page */}
+              {/* Switcher — only when more than one student is involved */}
+              {isMulti && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, justifyContent: 'flex-start', minWidth: 300 }}>
                 <label style={{ fontSize: 'var(--text-sm)', fontFamily: 'Roboto, sans-serif', color: 'var(--brand-blue-dark)', fontWeight: 500 }}>
                   Switch student:
@@ -542,6 +546,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                 {/* @ts-ignore */}
                 </forge-icon-button>
               </div>
+              )}
             </div>
           </ForgeCard>
         );
@@ -705,7 +710,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                   </h3>
                 </div>
                 <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-                  {incident.involvedStudents?.length > 0 ? (() => {
+                  {incident.involvedStudents?.length > 0 && (() => {
                     const s = incident.involvedStudents.find((s: any) => s.studentId === selectedStudentId);
                     if (!s) return null;
                     const labelStyle = { fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase' as const, letterSpacing: '0.5px' };
@@ -753,28 +758,8 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                         )}
                       </div>
                     );
-                  })() : null}
+                  })()}
                   <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                    {(!incident.involvedStudents || incident.involvedStudents.length === 0) && (
-                      <>
-                        <div>
-                          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                            Student
-                          </div>
-                          <div style={{ fontWeight: 'var(--font-weight-medium)', fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>
-                            {incident.student}
-                          </div>
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                            Student ID
-                          </div>
-                          <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>
-                            {incident.studentId}
-                          </div>
-                        </div>
-                      </>
-                    )}
                     <div>
                       <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         Type
@@ -833,16 +818,6 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                       </div>
                     </div>
                   </div>
-                  {(!incident.involvedStudents || incident.involvedStudents.length === 0) && (
-                    <div style={{ marginTop: 'var(--forge-spacing-large)', paddingTop: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--border)' }}>
-                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Description
-                      </div>
-                      <p style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', lineHeight: '1.6' }}>
-                        {incident.description}
-                      </p>
-                    </div>
-                  )}
 
                   {/* Witnesses */}
                   {incident.witnessPresent && (

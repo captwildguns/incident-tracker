@@ -46,7 +46,7 @@ const statusTheme = (status: string): string => {
   }
 };
 
-export const mockIncidents = [
+const rawIncidents = [
   {
     id: 'INC-2025-0063',
     date: '2025-03-05',
@@ -1035,6 +1035,29 @@ export const mockIncidents = [
     assignedTo: 'Jane Doe',
   },
 ];
+
+// Normalize to a single model: every incident carries an involvedStudents
+// array. Single-student incidents become a 1-element array derived from the
+// top-level student fields (no role — role only applies to multi-student
+// conflicts). Incidents that already define involvedStudents are left as-is.
+export const mockIncidents = rawIncidents.map((inc: any) =>
+  inc.involvedStudents && inc.involvedStudents.length > 0
+    ? inc
+    : {
+        ...inc,
+        involvedStudents: [
+          {
+            studentId: inc.studentId,
+            name: inc.student,
+            severity: inc.severity,
+            parentNotified: inc.parentNotified ?? false,
+            description: '',
+            actionTaken: inc.actionTaken ?? '',
+            notes: '',
+          },
+        ],
+      }
+);
 
 interface IncidentsPageProps {
   onNavigate: (page: string) => void;
