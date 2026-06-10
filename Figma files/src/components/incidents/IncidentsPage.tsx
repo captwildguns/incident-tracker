@@ -22,7 +22,6 @@ import { ForgeMultiSelect } from '../ui/forge-multiselect';
 import { EditIncidentDialog } from './EditIncidentDialog';
 import { NewIncidentForm } from './NewIncidentForm';
 import { hasActiveCommunication } from '../communications/communicationsData';
-import { IncidentWorkflowProgress } from './IncidentWorkflowProgress';
 import { assignWorkflowToIncident, Workflow, workflows } from '../../data/workflows';
 import { ExportDropdown } from '../shared/ExportDropdown';
 import type { ExportFormat } from '../shared/ExportDropdown';
@@ -1635,18 +1634,6 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
                       {sortField !== 'status' && <forge-icon name="unfold_more" style={{ fontSize: '14px', opacity: 0.3 }}></forge-icon>}
                     </button>
                   </th>
-                  <th className="forge-table-cell forge-table-cell--header" style={{ minWidth: '240px' }}>
-                    <button
-                      onClick={() => handleSort('workflow')}
-                      className="flex items-center gap-1 hover:text-primary transition-colors"
-                    >
-                      <forge-icon name="account_tree" style={{ fontSize: '16px' }}></forge-icon>
-                      Workflow Step
-                      {sortField === 'workflow' && sortDirection === 'desc' && <forge-icon name="arrow_downward" style={{ fontSize: '14px' }}></forge-icon>}
-                      {sortField === 'workflow' && sortDirection === 'asc' && <forge-icon name="arrow_upward" style={{ fontSize: '14px' }}></forge-icon>}
-                      {sortField !== 'workflow' && <forge-icon name="unfold_more" style={{ fontSize: '14px', opacity: 0.3 }}></forge-icon>}
-                    </button>
-                  </th>
                   <th className="forge-table-cell forge-table-cell--header" style={{ minWidth: '150px' }}>Assigned To</th>
                   <th className="forge-table-cell forge-table-cell--header" style={{ minWidth: '100px' }}>Messages</th>
                 </tr>
@@ -1705,9 +1692,6 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
                         <forge-badge theme={statusTheme(incident.status)}>
                           {incident.status}
                         </forge-badge>
-                      </td>
-                      <td className="forge-table-cell">
-                        <IncidentWorkflowProgress workflow={incident.workflow} />
                       </td>
                       <td className="forge-table-cell">
                         {incident.assignedTo}
