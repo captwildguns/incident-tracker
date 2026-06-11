@@ -2,24 +2,28 @@ import { useState } from 'react';
 import {
   Search, Camera, MapPin, Check, ChevronLeft, ChevronRight,
   AlertTriangle, MessageSquare, FileText, Map, ClipboardCheck, Timer, LogOut, Flashlight,
+  Home, Mail,
 } from 'lucide-react';
 import tylerLogo from '../../assets/tyler-logo.png';
 
 /* ============================================================
    Tyler Drive — working driver tablet mockup
-   Visual language extracted from tyler-drive-maui:
-   black content screens, large white text, white app bar,
-   lowercase gradient buttons (blue=primary, green=continue,
-   orange=back/clear), cyan selection highlight, 5px radius.
+   Visual language taken from tyler-drive-maui + TYD screencaps:
+   • Home: white bar + Tyler logo + welcome, grey tile grid.
+   • In-app: navy toolbar (logo chip → desktop, home, mail, clock).
+   • Lists: light-grey cards with green action buttons (My Runs / bus search).
+   • Data entry: TYD's own on-screen keyboard (grey #AFB0B4 panel,
+     #5F5F5F key text), shown inline — never the OS keyboard.
    ============================================================ */
 
 interface TabletViewProps {
-  onExit: () => void; // tapping the Tyler logo returns to desktop view
+  onExit: () => void; // tapping the Tyler logo returns to the desktop view
 }
 
-// ---- design tokens ----
 const C = {
   black: '#000000',
+  navy: '#27348C',
+  navyBtn: '#33429A',
   blueGrad: 'linear-gradient(to top,#29448F,#364E96 55%,#586CA7)',
   greenGrad: 'linear-gradient(to top,#117922,#1E8431 55%,#469F5A)',
   orangeGrad: 'linear-gradient(to top,#E0801A,#F2A33E)',
@@ -29,9 +33,11 @@ const C = {
   flatGreen: '#3FB152',
   red: '#D83333',
   redDark: '#840A00',
-  tylerBlue: '#3f5fa5',
-  tylerOlive: '#8a9b4e',
-  run: '#00BFD8',
+  kbdPanel: '#AFB0B4',
+  kbdKey: '#ECECEC',
+  kbdKeyText: '#5F5F5F',
+  kbdSpecial: '#949BA3',
+  card: '#D9D9D9',
 };
 
 const ROSTER = [
@@ -90,29 +96,24 @@ const STATUS_FLOW: Record<string, { t: string; sub: string; state: string }[]> =
   ],
 };
 
-// Per-incident message threads, written to match each incident's status/detail.
 const COORD = 'S. Williams · Safety Coordinator';
 const DEFAULT_THREADS: Record<string, any[]> = {
-  // Just filed from the tablet — open
   'INC-2025-0064': [
     { me: true, text: 'Reported the back-row altercation — Marcus & Ethan. Photo attached. Both held at school for pickup.', t: '3:56 PM' },
     { me: false, who: COORD, text: 'Got it, thanks Gabe. Did either student report an injury?', t: '3:58 PM' },
     { me: true, text: 'No injuries. Ethan said his shoulder was fine, declined the nurse.', t: '3:59 PM' },
     { me: false, who: COORD, text: "Perfect. I'm contacting both parents now. I'll take it from here.", t: '4:01 PM' },
   ],
-  // Brianna Cooper +2 — in review
   'INC-2025-0059': [
     { me: true, text: 'Filed the back-row altercation involving Brianna and two other students from the Mar 1 run.', t: 'Mar 1 · 4:10 PM' },
     { me: false, who: COORD, text: "Thanks Gabe. I've reviewed it and I'm notifying all three families now. Disciplinary review is in progress.", t: 'Mar 1 · 4:40 PM' },
     { me: true, text: 'Understood — let me know if you need anything else from me.', t: 'Mar 1 · 4:42 PM' },
     { me: false, who: COORD, text: "Will do. This one is still in review on my end — I'll update you when it's resolved.", t: 'Mar 2 · 8:15 AM' },
   ],
-  // Natalie Collins — ACTION NEEDED: awaiting the driver's follow-up note
   'INC-2025-0051': [
     { me: false, who: COORD, text: "Gabe, I'm working the Natalie Collins incident from the 9th. Before I can contact her parent, can you add a quick note on exactly what she said when you spoke with her?", t: 'Mar 9 · 3:30 PM' },
     { me: false, who: COORD, text: "Following up — I still need your follow-up note on this one when you get a chance. It's holding up the parent call.", t: 'Mar 10 · 9:05 AM' },
   ],
-  // Dylan Bell — resolved & closed
   'INC-2025-0042': [
     { me: true, text: 'Reported Dylan standing up while the bus was moving on the Feb 18 run.', t: 'Feb 18 · 3:20 PM' },
     { me: false, who: COORD, text: 'Thanks. I spoke with Dylan and the parent and reinforced the stay-seated rule. Closing this out — no further action needed.', t: 'Feb 18 · 5:00 PM' },
@@ -120,9 +121,56 @@ const DEFAULT_THREADS: Record<string, any[]> = {
   ],
 };
 
+const statusMap: Record<string, { lbl: string; bg: string; fg: string }> = {
+  open: { lbl: 'OPEN', bg: '#7a5a1e', fg: '#ffe6b0' },
+  review: { lbl: 'IN REVIEW', bg: '#1d3a6b', fg: '#cfe0ff' },
+  action: { lbl: 'ACTION NEEDED', bg: C.redDark, fg: '#ffd2cd' },
+  closed: { lbl: 'CLOSED', bg: '#2f4030', fg: '#bfe3c4' },
+};
+
+// ── TYD on-screen keyboard ─────────────────────────────────────────────
+const ABC = [['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'], ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'], ['z', 'x', 'c', 'v', 'b', 'n', 'm']];
+const NUM = [['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'], ['-', '/', ':', ';', '(', ')', '$', '&', '@'], ['.', ',', '?', '!', "'"]];
+
+function TydKeyboard({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [shift, setShift] = useState(false);
+  const [num, setNum] = useState(false);
+  const rows = num ? NUM : ABC;
+  const tap = (k: string) => {
+    const ch = !num && shift ? k.toUpperCase() : k;
+    onChange(value + ch);
+    if (shift) setShift(false);
+  };
+  const key = (label: string, onClick: () => void, opts: { flex?: number; special?: boolean; green?: boolean } = {}) => (
+    <button key={label} onMouseDown={(e) => { e.preventDefault(); onClick(); }}
+      style={{
+        flex: opts.flex ?? 1, minWidth: 0, height: 52, margin: 3, borderRadius: 5, border: 'none', cursor: 'pointer',
+        background: opts.green ? C.flatGreen : opts.special ? C.kbdSpecial : C.kbdKey,
+        color: opts.green ? '#fff' : opts.special ? '#fff' : C.kbdKeyText,
+        fontSize: 22, fontWeight: 500, fontFamily: 'inherit',
+      }}>{label}</button>
+  );
+  return (
+    <div style={{ background: C.kbdPanel, padding: '6px 10px 10px', flexShrink: 0 }}>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>{rows[0].map(k => key(!num && shift ? k.toUpperCase() : k, () => tap(k)))}</div>
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '0 24px' }}>{rows[1].map(k => key(!num && shift ? k.toUpperCase() : k, () => tap(k)))}</div>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {!num && key('⇧', () => setShift(s => !s), { flex: 1.5, special: true })}
+        {rows[2].map(k => key(!num && shift ? k.toUpperCase() : k, () => tap(k)))}
+        {key('⌫', () => onChange(value.slice(0, -1)), { flex: 1.5, special: true })}
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        {key(num ? 'ABC' : '?123', () => { setNum(n => !n); setShift(false); }, { flex: 1.6, special: true })}
+        {key('space', () => onChange(value + ' '), { flex: 5, special: true })}
+        {key('return', () => onChange(value + '\n'), { flex: 1.8, green: true })}
+      </div>
+    </div>
+  );
+}
+
 export function TabletView({ onExit }: TabletViewProps) {
   const [screen, setScreen] = useState<'home' | 'report' | 'list' | 'detail' | 'messages'>('home');
-  const [step, setStep] = useState(1); // report wizard 1..7 (7 = confirmation)
+  const [step, setStep] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [type, setType] = useState('');
@@ -135,30 +183,27 @@ export function TabletView({ onExit }: TabletViewProps) {
   const [incidents, setIncidents] = useState<any[]>(SEED_INCIDENTS);
   const [active, setActive] = useState<any>(SEED_INCIDENTS[0]);
   const [submittedId, setSubmittedId] = useState('');
+  const [filter, setFilter] = useState('all');
+  const [threads, setThreads] = useState<Record<string, any[]>>(DEFAULT_THREADS);
+  const [draft, setDraft] = useState('');
+  const [composing, setComposing] = useState(false);
 
   const selStudents = ROSTER.filter(s => selected.includes(s.id));
+  const activeThread = (active && threads[active.id]) || [];
 
-  // ---------- flow helpers ----------
   const resetReport = () => {
     setStep(1); setSelected([]); setSearch(''); setType(''); setSeverity('');
     setPer({}); setStmtIdx(0); setDriverDesc(''); setHasPhoto(false); setPinned(false); setSubmittedId('');
   };
   const startReport = () => { resetReport(); setScreen('report'); };
-
-  const toggleStudent = (id: string) => {
-    setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-  };
-
+  const toggleStudent = (id: string) => setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   const goStep2to3 = () => {
-    // initialize per-student records when leaving roles entry the first time
     const next: Record<string, PerStudent> = { ...per };
     selected.forEach(id => { if (!next[id]) next[id] = { role: 'participant', severity: 'shared', statement: '' }; });
     Object.keys(next).forEach(id => { if (!selected.includes(id)) delete next[id]; });
     setPer(next);
   };
-
   const setRole = (id: string, role: string) => setPer(p => ({ ...p, [id]: { ...p[id], role } }));
-  const setSev = (id: string, sv: string) => setPer(p => ({ ...p, [id]: { ...p[id], severity: sv } }));
   const setStmt = (id: string, v: string) => setPer(p => ({ ...p, [id]: { ...p[id], statement: v } }));
 
   const submit = () => {
@@ -166,61 +211,61 @@ export function TabletView({ onExit }: TabletViewProps) {
     const id = `INC-2025-${String(maxNum + 1).padStart(4, '0')}`;
     const first = selStudents[0];
     const rec = {
-      id,
-      title: `${first?.name}${selStudents.length > 1 ? ` +${selStudents.length - 1}` : ''} · ${type}`,
-      sub: `Bus 8 · today · you reported this`,
-      status: 'open',
-      type,
-      severity,
-      driverDesc,
-      hasPhoto, pinned,
+      id, title: `${first?.name}${selStudents.length > 1 ? ` +${selStudents.length - 1}` : ''} · ${type}`,
+      sub: `Bus 8 · today · you reported this`, status: 'open', type, severity, driverDesc, hasPhoto, pinned,
       students: selStudents.map(s => ({ ...s, ...per[s.id], severity: per[s.id]?.severity === 'shared' ? severity : per[s.id]?.severity })),
     };
     setIncidents(prev => [rec, ...prev]);
-    setSubmittedId(id);
-    setActive(rec);
-    setStep(7);
+    setSubmittedId(id); setActive(rec); setStep(7);
   };
 
-  // ============================================================
-  //  CHROME
-  // ============================================================
-  const AppBar = ({ ctx, home }: { ctx?: React.ReactNode; home?: boolean }) => (
-    <div style={st.appbar}>
-      {/* Real Tyler Technologies logo — tap to return to desktop view */}
-      <button onClick={onExit} title="Back to desktop view" style={st.logoBtn}>
+  const sendMsg = (text: string) => {
+    if (!text.trim() || !active) return;
+    setThreads(prev => ({ ...prev, [active.id]: [...(prev[active.id] || []), { me: true, text, t: 'now' }] }));
+    setDraft(''); setComposing(false);
+  };
+
+  // ── chrome ──────────────────────────────────────────────
+  const Logo = () => (
+    <button onClick={onExit} title="Back to desktop view" style={st.logoChip}>
+      <img src={tylerLogo} alt="Tyler Technologies" style={{ height: 30, display: 'block' }} />
+    </button>
+  );
+  // White home bar (matches the real TYD home screen)
+  const HomeBar = () => (
+    <div style={st.homeBar}>
+      <button onClick={onExit} title="Back to desktop view" style={{ background: 'none', border: 'none', padding: '4px 8px', cursor: 'pointer' }}>
         <img src={tylerLogo} alt="Tyler Technologies" style={{ height: 44, display: 'block' }} />
       </button>
-      {home ? (
-        <div style={st.welcome}>Welcome to Tyler Drive, <b>Gabe Guzman</b></div>
-      ) : (
-        <>
-          <div style={st.ctx}>{ctx}</div>
-          <div style={st.driver}><b style={{ color: '#222' }}>G. Guzman</b><br />Bus 8</div>
-        </>
-      )}
+      <div style={st.welcome}>Welcome to Tyler Drive, <b>Gabe Guzman</b></div>
     </div>
   );
-
-  const Footer = ({ children }: { children: React.ReactNode }) => (
-    <div style={st.footbar}>{children}</div>
+  // Navy in-app toolbar (matches the real TYD nav bar)
+  const NavBar = ({ ctx }: { ctx?: React.ReactNode }) => (
+    <div style={st.navbar}>
+      <Logo />
+      <button onClick={() => setScreen('home')} title="Home" style={st.navBtn}><Home size={26} /></button>
+      <button onClick={() => { if (!active) setActive(incidents[0]); setComposing(false); setScreen('messages'); }} title="Messages" style={st.navBtn}><Mail size={26} /></button>
+      <div style={st.navCtx}>{ctx}</div>
+      <div style={st.clock}>3:54 PM</div>
+    </div>
   );
-
+  const Footer = ({ children }: { children: React.ReactNode }) => <div style={st.footbar}>{children}</div>;
   const Btn = ({ kind, children, onClick, disabled, wide }: any) => {
     const bg = kind === 'green' ? C.greenGrad : kind === 'orange' ? C.orangeGrad : kind === 'grey' ? C.grey : C.blueGrad;
     return (
       <button onClick={disabled ? undefined : onClick} disabled={disabled}
-        style={{
-          ...st.btn,
-          background: bg, // shorthand — overrides Tailwind preflight's background-image reset on <button>
-          color: kind === 'grey' ? '#2a2a2a' : '#fff',
-          minWidth: wide ? 260 : 120, opacity: disabled ? 0.45 : 1,
-          cursor: disabled ? 'default' : 'pointer',
-        }}>
+        style={{ ...st.btn, background: bg, color: kind === 'grey' ? '#2a2a2a' : '#fff', minWidth: wide ? 260 : 120, opacity: disabled ? 0.45 : 1, cursor: disabled ? 'default' : 'pointer' }}>
         {children}
       </button>
     );
   };
+  const NoteField = ({ value, placeholder, height = 150 }: { value: string; placeholder: string; height?: number }) => (
+    <div style={{ ...st.noteField, height }}>
+      {value ? <span style={{ whiteSpace: 'pre-wrap' }}>{value}</span> : <span style={{ color: '#6b6b6b' }}>{placeholder}</span>}
+      <span style={st.caret}>▏</span>
+    </div>
+  );
 
   // ============================================================
   //  HOME
@@ -238,10 +283,9 @@ export function TabletView({ onExit }: TabletViewProps) {
       <span style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>{icon}</span>
     </button>
   );
-
   const renderHome = () => (
     <>
-      <AppBar home />
+      <HomeBar />
       <div style={st.homeBg}>
         <div style={st.tileRow}>
           <HomeTile color="green" icon={<Map size={64} strokeWidth={1.5} />} label="My Runs" />
@@ -264,7 +308,7 @@ export function TabletView({ onExit }: TabletViewProps) {
     if (step === 7) return renderConfirm();
     return (
       <>
-        <AppBar ctx={<><span style={st.runChip}>WOLF RD</span> Washington High PM · Bus 8</>} />
+        <NavBar ctx={<><span style={st.runChip}>WOLF RD</span> Washington High PM · Bus 8</>} />
         <div style={st.screen}>
           {step === 1 && renderSelect()}
           {step === 2 && renderType()}
@@ -277,7 +321,6 @@ export function TabletView({ onExit }: TabletViewProps) {
     );
   };
 
-  // step 1 — select students
   const renderSelect = () => {
     const list = ROSTER.filter(s => !search || s.name.toLowerCase().includes(search.toLowerCase()) || s.id.toLowerCase().includes(search.toLowerCase()));
     return (
@@ -285,16 +328,13 @@ export function TabletView({ onExit }: TabletViewProps) {
         <div style={st.pad}>
           <div style={st.titleRow}><span style={st.title}>Report incident — involved students</span><span style={st.opt}>step 1 of 6</span></div>
           <div style={st.sub}>Select everyone involved. A linked record is created for each student.</div>
-          <div style={st.search}>
-            <Search size={22} color="#7c8aa0" />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="search this run by name or ID…" style={st.searchInput} />
-          </div>
+          <div style={st.search}><Search size={22} color="#7c8aa0" /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="search this run by name or ID…" style={st.searchInput} /></div>
           <div style={st.list}>
             {list.map(s => {
               const on = selected.includes(s.id);
               return (
                 <button key={s.id} onClick={() => toggleStudent(s.id)} style={{ ...st.row, background: on ? C.cyanSel : '#fff', borderColor: on ? '#3a9aa8' : '#cfcfcf' }}>
-                  <span style={{ ...st.chk, background: on ? '#1E8431' : 'transparent', borderColor: on ? '#1E8431' : '#8a8a8a', color: '#fff' }}>{on ? <Check size={20} strokeWidth={3} /> : null}</span>
+                  <span style={{ ...st.chk, background: on ? '#1E8431' : 'transparent', borderColor: on ? '#1E8431' : '#8a8a8a' }}>{on ? <Check size={20} strokeWidth={3} color="#fff" /> : null}</span>
                   <span style={{ ...st.av, background: s.color }}>{s.initials}</span>
                   <span style={st.rowName}>{s.name}</span>
                   <span style={st.rowMeta}>{s.id} · {s.grade} · Seat {s.seat}</span>
@@ -306,15 +346,12 @@ export function TabletView({ onExit }: TabletViewProps) {
         <Footer>
           <Btn kind="orange" onClick={() => setScreen('home')}>back</Btn>
           <Btn kind="orange" onClick={() => setSelected([])}>clear</Btn>
-          <Btn kind="green" disabled={selected.length === 0} onClick={() => { goStep2to3(); setStep(2); }}>
-            continue{selected.length ? ` · ${selected.length} selected` : ''}
-          </Btn>
+          <Btn kind="green" disabled={selected.length === 0} onClick={() => { goStep2to3(); setStep(2); }}>continue{selected.length ? ` · ${selected.length} selected` : ''}</Btn>
         </Footer>
       </>
     );
   };
 
-  // step 2 — type + severity
   const renderType = () => (
     <>
       <div style={st.pad}>
@@ -324,9 +361,8 @@ export function TabletView({ onExit }: TabletViewProps) {
             const on = type === t.label;
             return (
               <button key={t.label} onClick={() => { setType(t.label); setSeverity(t.def); }} style={{ ...st.row, background: on ? C.cyanSel : '#fff', borderColor: on ? '#3a9aa8' : '#cfcfcf' }}>
-                <span style={{ ...st.chk, background: on ? '#1E8431' : 'transparent', borderColor: on ? '#1E8431' : '#8a8a8a', color: '#fff' }}>{on ? <Check size={20} strokeWidth={3} /> : null}</span>
-                <span style={st.rowName}>{t.label}</span>
-                <span style={st.rowMeta}>{t.desc}</span>
+                <span style={{ ...st.chk, background: on ? '#1E8431' : 'transparent', borderColor: on ? '#1E8431' : '#8a8a8a' }}>{on ? <Check size={20} strokeWidth={3} color="#fff" /> : null}</span>
+                <span style={st.rowName}>{t.label}</span><span style={st.rowMeta}>{t.desc}</span>
               </button>
             );
           })}
@@ -334,11 +370,7 @@ export function TabletView({ onExit }: TabletViewProps) {
         {type && (
           <>
             <div style={{ fontSize: 15, color: '#cbd5e1', margin: '14px 0 6px' }}>Severity <span style={{ color: '#8b97a8' }}>(auto-set from type — adjust if needed)</span></div>
-            <div style={{ display: 'flex', gap: 12 }}>
-              {SEVS.map(sv => (
-                <button key={sv} onClick={() => setSeverity(sv)} style={{ ...st.sev, background: sevColor[sv], outline: severity === sv ? '3px solid #fff' : 'none', outlineOffset: 1 }}>{sv}</button>
-              ))}
-            </div>
+            <div style={{ display: 'flex', gap: 12 }}>{SEVS.map(sv => (<button key={sv} onClick={() => setSeverity(sv)} style={{ ...st.sev, background: sevColor[sv], outline: severity === sv ? '3px solid #fff' : 'none', outlineOffset: 1 }}>{sv}</button>))}</div>
           </>
         )}
       </div>
@@ -350,7 +382,6 @@ export function TabletView({ onExit }: TabletViewProps) {
     </>
   );
 
-  // step 3 — per-student roles
   const renderRoles = () => (
     <>
       <div style={st.pad}>
@@ -370,9 +401,7 @@ export function TabletView({ onExit }: TabletViewProps) {
                     const on = d?.role === r;
                     const tint = r === 'instigator' ? '#ffd0d0' : r === 'victim' ? '#cfe0ff' : '#fff';
                     const tcol = r === 'instigator' ? '#7a1010' : r === 'victim' ? '#0b2a66' : '#13203a';
-                    return (
-                      <button key={r} onClick={() => setRole(s.id, r)} style={{ ...st.role, background: on ? tint : 'transparent', color: on ? tcol : '#cdd6e4', borderColor: on ? tint : '#46506a', fontWeight: on ? 600 : 400 }}>{r}</button>
-                    );
+                    return (<button key={r} onClick={() => setRole(s.id, r)} style={{ ...st.role, background: on ? tint : 'transparent', color: on ? tcol : '#cdd6e4', borderColor: on ? tint : '#46506a', fontWeight: on ? 600 : 400 }}>{r}</button>);
                   })}
                 </div>
               </div>
@@ -387,7 +416,7 @@ export function TabletView({ onExit }: TabletViewProps) {
     </>
   );
 
-  // step 4 — STUDENT STATEMENTS (one per student) — NEW capability
+  // STUDENT STATEMENTS — TYD on-screen keyboard shown inline
   const renderStatements = () => {
     const s = selStudents[stmtIdx];
     if (!s) return null;
@@ -395,80 +424,47 @@ export function TabletView({ onExit }: TabletViewProps) {
     const captured = selStudents.filter(x => (per[x.id]?.statement || '').trim()).length;
     return (
       <>
-        <div style={st.pad}>
-          <div style={st.titleRow}>
-            <span style={st.title}>Student's account of what happened</span>
-            <span style={st.opt}>step 4 of 6 · {captured}/{selStudents.length} captured · * optional</span>
-          </div>
-          <div style={st.sub}>Record this student's own description in their words. One statement per student.</div>
-
-          {/* student switcher */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '6px 0 14px' }}>
+        <div style={{ ...st.pad, paddingBottom: 8 }}>
+          <div style={st.titleRow}><span style={st.title}>Student's account of what happened</span><span style={st.opt}>step 4 of 6 · {captured}/{selStudents.length} · * optional</span></div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '4px 0 10px' }}>
             <button onClick={() => setStmtIdx(i => Math.max(0, i - 1))} disabled={stmtIdx === 0} style={{ ...st.navIcon, opacity: stmtIdx === 0 ? 0.4 : 1 }}><ChevronLeft size={26} /></button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, background: '#11161f', border: '1px solid #2a3342', borderRadius: 8, padding: '10px 16px' }}>
-              <span style={{ ...st.av, width: 46, height: 46, background: s.color }}>{s.initials}</span>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 23, fontWeight: 600 }}>{s.name}</div>
-                <div style={{ fontSize: 15, color: '#9aa6b6' }}>{s.id} · {d?.role} · student {stmtIdx + 1} of {selStudents.length}</div>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flex: 1, background: '#11161f', border: '1px solid #2a3342', borderRadius: 8, padding: '8px 14px' }}>
+              <span style={{ ...st.av, width: 42, height: 42, background: s.color }}>{s.initials}</span>
+              <div style={{ flex: 1 }}><div style={{ fontSize: 21, fontWeight: 600 }}>{s.name}</div><div style={{ fontSize: 14, color: '#9aa6b6' }}>{s.id} · {d?.role} · student {stmtIdx + 1} of {selStudents.length}</div></div>
             </div>
             <button onClick={() => setStmtIdx(i => Math.min(selStudents.length - 1, i + 1))} disabled={stmtIdx === selStudents.length - 1} style={{ ...st.navIcon, opacity: stmtIdx === selStudents.length - 1 ? 0.4 : 1 }}><ChevronRight size={26} /></button>
           </div>
-
-          <div style={{ fontSize: 16, color: '#8b97a8', marginBottom: 6 }}>“In your own words, what happened?” — as told by {s.name.split(' ')[0]}</div>
-          <textarea
-            value={d?.statement || ''}
-            onChange={e => setStmt(s.id, e.target.value)}
-            placeholder={`Type ${s.name.split(' ')[0]}'s account of the incident…`}
-            style={st.textarea}
-          />
-          <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
-            {selStudents.map((x, i) => (
-              <button key={x.id} onClick={() => setStmtIdx(i)} style={{
-                ...st.pill,
-                background: i === stmtIdx ? '#fff' : (per[x.id]?.statement || '').trim() ? '#1E8431' : '#141a23',
-                color: i === stmtIdx ? '#13203a' : '#cdd6e4',
-                borderColor: i === stmtIdx ? '#fff' : '#38445a',
-              }}>
-                {(per[x.id]?.statement || '').trim() ? <Check size={15} strokeWidth={3} /> : null} {x.name.split(' ')[0]}
-              </button>
-            ))}
-          </div>
+          <div style={{ fontSize: 15, color: '#8b97a8', marginBottom: 6 }}>“In your own words, what happened?” — as told by {s.name.split(' ')[0]}</div>
+          <NoteField value={d?.statement || ''} placeholder={`Type ${s.name.split(' ')[0]}'s account…`} height={120} />
         </div>
         <Footer>
           <Btn kind="orange" onClick={() => setStep(3)}>back</Btn>
-          {stmtIdx < selStudents.length - 1
-            ? <Btn kind="blue" onClick={() => setStmtIdx(i => i + 1)}>next student</Btn>
-            : <Btn kind="green" onClick={() => setStep(5)}>continue</Btn>}
+          {stmtIdx < selStudents.length - 1 ? <Btn kind="blue" onClick={() => setStmtIdx(i => i + 1)}>next student</Btn> : <Btn kind="green" onClick={() => setStep(5)}>continue</Btn>}
         </Footer>
+        <TydKeyboard value={d?.statement || ''} onChange={v => setStmt(s.id, v)} />
       </>
     );
   };
 
-  // step 5 — driver's overall description + evidence
+  // DRIVER ACCOUNT — TYD keyboard inline
   const renderDescription = () => (
     <>
-      <div style={st.pad}>
+      <div style={{ ...st.pad, paddingBottom: 8 }}>
         <div style={st.titleRow}><span style={st.title}>Your account & evidence</span><span style={st.opt}>step 5 of 6 · * optional</span></div>
-        <div style={st.sub}>The driver's overall description of the incident.</div>
-        <textarea value={driverDesc} onChange={e => setDriverDesc(e.target.value)} placeholder="Describe what you observed…" style={{ ...st.textarea, height: 160 }} />
-        <div style={{ display: 'flex', gap: 12, marginTop: 12, flexWrap: 'wrap' }}>
-          <button onClick={() => setHasPhoto(true)} style={{ ...st.attach, color: hasPhoto ? '#bfe3c4' : '#aab4c6', borderColor: hasPhoto ? '#3FB152' : '#4a5670' }}>
-            <Camera size={20} /> {hasPhoto ? 'photo added ✓' : 'take photo'}
-          </button>
-          <button onClick={() => setPinned(true)} style={{ ...st.attach, color: pinned ? '#bfe3c4' : '#aab4c6', borderColor: pinned ? '#3FB152' : '#4a5670' }}>
-            <MapPin size={20} /> {pinned ? 'location pinned — Lot B ✓' : 'pin location'}
-          </button>
+        <NoteField value={driverDesc} placeholder="Describe what you observed…" height={120} />
+        <div style={{ display: 'flex', gap: 12, marginTop: 10, flexWrap: 'wrap' }}>
+          <button onClick={() => setHasPhoto(true)} style={{ ...st.attach, color: hasPhoto ? '#1E7B34' : '#5F5F5F', borderColor: hasPhoto ? '#3FB152' : '#8a8a8a' }}><Camera size={20} /> {hasPhoto ? 'photo added ✓' : 'take photo'}</button>
+          <button onClick={() => setPinned(true)} style={{ ...st.attach, color: pinned ? '#1E7B34' : '#5F5F5F', borderColor: pinned ? '#3FB152' : '#8a8a8a' }}><MapPin size={20} /> {pinned ? 'location pinned — Lot B ✓' : 'pin location'}</button>
         </div>
       </div>
       <Footer>
         <Btn kind="orange" onClick={() => setStep(4)}>back</Btn>
         <Btn kind="green" onClick={() => setStep(6)}>review</Btn>
       </Footer>
+      <TydKeyboard value={driverDesc} onChange={setDriverDesc} />
     </>
   );
 
-  // step 6 — review & submit
   const renderReview = () => (
     <>
       <div style={st.pad}>
@@ -487,15 +483,11 @@ export function TabletView({ onExit }: TabletViewProps) {
             <h4 style={st.sumH}>Captured</h4>
             <div style={st.sumList}>
               {selStudents.map(s => {
-                const d = per[s.id];
-                const hasStmt = (d?.statement || '').trim().length > 0;
+                const d = per[s.id]; const hasStmt = (d?.statement || '').trim().length > 0;
                 return (
                   <div key={s.id} style={st.sumItem}>
-                    <b style={{ color: '#ffd479' }}>{s.name}</b> — {d?.role}
-                    <span style={{ fontSize: 16, color: '#9aa6b6' }}> · {d?.severity === 'shared' ? severity : d?.severity}</span>
-                    <div style={{ fontSize: 16, color: hasStmt ? '#bfe3c4' : '#8b97a8', marginTop: 2 }}>
-                      {hasStmt ? '“' + (d!.statement.length > 60 ? d!.statement.slice(0, 60) + '…' : d!.statement) + '”' : 'no student statement'}
-                    </div>
+                    <b style={{ color: '#ffd479' }}>{s.name}</b> — {d?.role}<span style={{ fontSize: 16, color: '#9aa6b6' }}> · {d?.severity === 'shared' ? severity : d?.severity}</span>
+                    <div style={{ fontSize: 16, color: hasStmt ? '#bfe3c4' : '#8b97a8', marginTop: 2 }}>{hasStmt ? '“' + (d!.statement.length > 60 ? d!.statement.slice(0, 60) + '…' : d!.statement) + '”' : 'no student statement'}</div>
                   </div>
                 );
               })}
@@ -512,16 +504,14 @@ export function TabletView({ onExit }: TabletViewProps) {
     </>
   );
 
-  // step 7 — confirmation
   const renderConfirm = () => (
     <>
-      <AppBar ctx={<><span style={st.runChip}>WOLF RD</span> Washington High PM · Bus 8</>} />
+      <NavBar ctx={<><span style={st.runChip}>WOLF RD</span> Washington High PM · Bus 8</>} />
       <div style={st.screen}><div style={{ ...st.pad, alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 18, display: 'flex', flexDirection: 'column' }}>
         <div style={st.ring}><Check size={78} color={C.flatGreen} strokeWidth={2.5} /></div>
         <h2 style={{ fontSize: 38, margin: 0 }}>Incident submitted</h2>
         <p style={{ fontSize: 22, color: '#aeb9c9', margin: 0 }}>{selStudents.length} linked record{selStudents.length !== 1 ? 's' : ''} created · your safety coordinator has been notified</p>
         <div style={{ fontSize: 20, color: '#ffd479', fontFamily: 'monospace' }}>{submittedId}</div>
-        <p style={{ fontSize: 18, color: '#8b97a8', margin: 0 }}>You can track it any time under “my incidents.”</p>
         <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
           <Btn kind="grey" onClick={() => { resetReport(); setScreen('home'); }}>done</Btn>
           <Btn kind="blue" onClick={() => setScreen('detail')}>view incident</Btn>
@@ -531,65 +521,59 @@ export function TabletView({ onExit }: TabletViewProps) {
   );
 
   // ============================================================
-  //  MY INCIDENTS
+  //  MY INCIDENTS — TYD list (light bg, grey cards, green action)
   // ============================================================
-  const [filter, setFilter] = useState('all');
-  const statusMap: Record<string, { lbl: string; bg: string; fg: string }> = {
-    open: { lbl: 'OPEN', bg: '#7a5a1e', fg: '#ffe6b0' },
-    review: { lbl: 'IN REVIEW', bg: '#1d3a6b', fg: '#cfe0ff' },
-    action: { lbl: 'ACTION NEEDED', bg: C.redDark, fg: '#ffd2cd' },
-    closed: { lbl: 'CLOSED', bg: '#2f4030', fg: '#bfe3c4' },
-  };
   const renderList = () => {
-    const shown = incidents.filter(i =>
-      filter === 'all' ? true : filter === 'open' ? (i.status === 'open' || i.status === 'action') : filter === 'review' ? i.status === 'review' : i.status === 'closed');
+    const shown = incidents.filter(i => filter === 'all' ? true : filter === 'open' ? (i.status === 'open' || i.status === 'action') : filter === 'review' ? i.status === 'review' : i.status === 'closed');
+    const need = incidents.filter(i => i.status === 'action').length;
     return (
       <>
-        <AppBar ctx="my incidents" />
-        <div style={st.screen}><div style={st.pad}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <span style={{ fontSize: 26, fontWeight: 500 }}>My Incidents</span>
-            <Btn kind="green" onClick={startReport}>+ report incident</Btn>
+        <NavBar />
+        <div style={st.listScreen}>
+          <div style={st.pageHead}>
+            <span style={st.pageTitle}>My Incidents</span>
+            <div style={{ display: 'flex', gap: 8 }}>
+              {['all', 'open', 'review', 'closed'].map(f => (
+                <button key={f} onClick={() => setFilter(f)} style={{ ...st.filterBtn, background: filter === f ? C.navy : '#fff', color: filter === f ? '#fff' : '#4f4f4f', borderColor: filter === f ? C.navy : '#bcbcbc' }}>{f}</button>
+              ))}
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
-            {['all', 'open', 'review', 'closed'].map(f => (
-              <button key={f} onClick={() => setFilter(f)} style={{ ...st.pill, background: filter === f ? '#fff' : '#141a23', color: filter === f ? '#13203a' : '#aab4c6', borderColor: filter === f ? '#fff' : '#38445a' }}>{f}</button>
-            ))}
-          </div>
-          <div style={{ overflowY: 'auto', flex: 1 }}>
+          <div style={st.subbar}>{incidents.length} incidents{need ? ` · ${need} need${need === 1 ? 's' : ''} your attention` : ''}</div>
+          <div style={st.cardWrap}>
             {shown.map(i => {
               const s = statusMap[i.status];
               return (
-                <button key={i.id} onClick={() => { setActive(i); setScreen('detail'); }} style={st.inc}>
-                  <span style={st.incId}>{i.id}</span>
-                  <span style={{ flex: 1, textAlign: 'left' }}>
-                    <span style={{ display: 'block', fontSize: 22, fontWeight: 600 }}>{i.title}</span>
-                    <span style={{ display: 'block', fontSize: 15, color: '#9aa6b6' }}>{i.sub}</span>
-                  </span>
-                  <span style={{ ...st.stat, background: s.bg, color: s.fg }}>{s.lbl}</span>
-                  <ChevronRight size={28} color="#5a6678" />
-                </button>
+                <div key={i.id} style={st.tydCard}>
+                  <div style={st.tydCardId}>{i.id}</div>
+                  <div style={st.tydCardTitle}>{i.title}</div>
+                  <div style={st.tydCardSub}>{i.sub}</div>
+                  <div style={{ ...st.statPill, background: s.bg, color: s.fg }}>{s.lbl}</div>
+                  <button style={st.tydOpen} onClick={() => { setActive(i); setScreen('detail'); }}>open</button>
+                </div>
               );
             })}
           </div>
-          <div style={{ marginTop: 10 }}><Btn kind="orange" onClick={() => setScreen('home')}>back to home</Btn></div>
-        </div></div>
+        </div>
+        <div style={st.navFooter}>
+          <button style={st.navFootBtn} onClick={startReport}><AlertTriangle size={26} /><span>report incident</span></button>
+          <button style={st.navFootBtn} onClick={() => setScreen('home')}><Home size={26} /><span>home</span></button>
+        </div>
       </>
     );
   };
 
   // ============================================================
-  //  INCIDENT DETAIL (driver view + manage)
+  //  INCIDENT DETAIL
   // ============================================================
   const renderDetail = () => {
     const i = active || incidents[0];
     const s = statusMap[i.status] || statusMap.open;
     return (
       <>
-        <AppBar ctx={i.id} />
+        <NavBar ctx={i.id} />
         <div style={st.screen}>
           <div style={st.pad}>
-            <div style={st.titleRow}><span style={{ ...st.title, fontSize: 26 }}>{i.title}</span><span style={{ ...st.stat, background: s.bg, color: s.fg, fontSize: 14 }}>{s.lbl}</span></div>
+            <div style={st.titleRow}><span style={{ ...st.title, fontSize: 26 }}>{i.title}</span><span style={{ ...st.statPill, background: s.bg, color: s.fg, fontSize: 14 }}>{s.lbl}</span></div>
             <div style={{ display: 'flex', gap: 22, flex: 1, minHeight: 0 }}>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto' }}>
                 <div style={st.panel}>
@@ -598,7 +582,6 @@ export function TabletView({ onExit }: TabletViewProps) {
                   {i.driverDesc ? <div style={st.kv}><span style={{ color: '#9aa6b6' }}>Description</span> {i.driverDesc}</div> : null}
                   {i.hasPhoto ? <div style={st.kv}><span style={{ color: '#9aa6b6' }}>Evidence</span> 1 photo{i.pinned ? ' · location pinned' : ''}</div> : null}
                 </div>
-                {/* involved students + their statements (the new capability surfaced) */}
                 {i.students && i.students.length > 0 && (
                   <div style={st.panel}>
                     <h4 style={st.panelH}>Involved students & statements</h4>
@@ -606,12 +589,9 @@ export function TabletView({ onExit }: TabletViewProps) {
                       <div key={stu.id} style={{ padding: '8px 0', borderBottom: '1px solid #1c2430' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                           <span style={{ ...st.av, width: 36, height: 36, fontSize: 15, background: stu.color || '#46506a' }}>{stu.initials || stu.name?.[0]}</span>
-                          <span style={{ fontSize: 20, fontWeight: 600 }}>{stu.name}</span>
-                          <span style={{ fontSize: 16, color: '#9aa6b6' }}>· {stu.role} · {stu.severity}</span>
+                          <span style={{ fontSize: 20, fontWeight: 600 }}>{stu.name}</span><span style={{ fontSize: 16, color: '#9aa6b6' }}>· {stu.role} · {stu.severity}</span>
                         </div>
-                        <div style={{ fontSize: 18, color: stu.statement ? '#dbe4f0' : '#8b97a8', fontStyle: stu.statement ? 'italic' : 'normal', marginTop: 4, paddingLeft: 46 }}>
-                          {stu.statement ? '“' + stu.statement + '”' : 'no student statement recorded'}
-                        </div>
+                        <div style={{ fontSize: 18, color: stu.statement ? '#dbe4f0' : '#8b97a8', fontStyle: stu.statement ? 'italic' : 'normal', marginTop: 4, paddingLeft: 46 }}>{stu.statement ? '“' + stu.statement + '”' : 'no student statement recorded'}</div>
                       </div>
                     ))}
                   </div>
@@ -628,14 +608,17 @@ export function TabletView({ onExit }: TabletViewProps) {
               </div>
               <div style={{ width: 290, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={{ ...st.panel, padding: '12px 14px' }}><h4 style={{ ...st.panelH, margin: 0 }}>You can</h4></div>
-                <button style={{ ...st.act, backgroundImage: C.blueGrad }}><FileText size={24} /> add a note</button>
-                <button style={{ ...st.act, backgroundImage: C.blueGrad }} onClick={() => setHasPhoto(true)}><Camera size={24} /> add a photo</button>
-                <button style={{ ...st.act, backgroundImage: C.blueGrad }} onClick={() => setScreen('messages')}><MessageSquare size={24} /> message coordinator</button>
+                <button style={{ ...st.act, background: C.blueGrad }}><FileText size={24} /> add a note</button>
+                <button style={{ ...st.act, background: C.blueGrad }} onClick={() => setHasPhoto(true)}><Camera size={24} /> add a photo</button>
+                <button style={{ ...st.act, background: C.blueGrad }} onClick={() => { setComposing(false); setScreen('messages'); }}><MessageSquare size={24} /> message coordinator</button>
                 <button style={{ ...st.act, background: '#11161f' }}><FileText size={24} /> view office response</button>
               </div>
             </div>
           </div>
-          <Footer><Btn kind="orange" onClick={() => setScreen('list')}>back to my incidents</Btn></Footer>
+          <div style={st.navFooter}>
+            <button style={st.navFootBtn} onClick={() => setScreen('list')}><ChevronLeft size={26} /><span>my incidents</span></button>
+            <button style={st.navFootBtn} onClick={() => setScreen('home')}><Home size={26} /><span>home</span></button>
+          </div>
         </div>
       </>
     );
@@ -644,43 +627,42 @@ export function TabletView({ onExit }: TabletViewProps) {
   // ============================================================
   //  MESSAGES
   // ============================================================
-  const [threads, setThreads] = useState<Record<string, any[]>>(DEFAULT_THREADS);
-  const [draft, setDraft] = useState('');
-  const activeThread = (active && threads[active.id]) || [];
-  const sendMsg = (text: string) => {
-    if (!text.trim() || !active) return;
-    setThreads(prev => ({ ...prev, [active.id]: [...(prev[active.id] || []), { me: true, text, t: 'now' }] }));
-    setDraft('');
-  };
   const renderMessages = () => (
     <>
-      <AppBar ctx={`messages · ${active?.id || ''}`} />
-      <div style={st.screen}><div style={st.pad}>
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', padding: '4px 2px' }}>
-          {activeThread.map((m, i) => (
-            <div key={i} style={{ alignSelf: m.me ? 'flex-end' : 'flex-start', maxWidth: '74%', padding: '13px 18px', borderRadius: 12, fontSize: 21, lineHeight: 1.4, color: m.me ? '#fff' : '#16202e', backgroundImage: m.me ? C.blueGrad : 'none', background: m.me ? undefined : '#fff', borderBottomRightRadius: m.me ? 3 : 12, borderBottomLeftRadius: m.me ? 12 : 3 }}>
-              {m.who && <div style={{ fontSize: 14, color: '#8b97a8', marginBottom: 3 }}>{m.who}</div>}
-              <div>{m.text}</div>
-              <div style={{ fontSize: 13, opacity: 0.7, marginTop: 4, textAlign: 'right' }}>{m.t}{m.me ? ' ✓✓' : ''}</div>
+      <NavBar ctx={`messages · ${active?.id || ''}`} />
+      <div style={st.screen}>
+        <div style={{ ...st.pad, paddingBottom: composing ? 0 : 18 }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', padding: '4px 2px' }}>
+            {activeThread.map((m, i) => (
+              <div key={i} style={{ alignSelf: m.me ? 'flex-end' : 'flex-start', maxWidth: '74%', padding: '13px 18px', borderRadius: 12, fontSize: 21, lineHeight: 1.4, color: m.me ? '#fff' : '#16202e', background: m.me ? C.blueGrad : '#fff', borderBottomRightRadius: m.me ? 3 : 12, borderBottomLeftRadius: m.me ? 12 : 3 }}>
+                {m.who && <div style={{ fontSize: 14, color: '#8b97a8', marginBottom: 3 }}>{m.who}</div>}
+                <div>{m.text}</div>
+                <div style={{ fontSize: 13, opacity: 0.7, marginTop: 4, textAlign: 'right' }}>{m.t}{m.me ? ' ✓✓' : ''}</div>
+              </div>
+            ))}
+          </div>
+          {!composing && (
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', margin: '10px 0 4px' }}>
+              {['👍 understood', 'no injuries', 'photo attached', 'will follow up'].map(c => (<button key={c} onClick={() => sendMsg(c)} style={st.canned}>{c}</button>))}
+              <button onClick={() => { setComposing(true); setDraft(''); }} style={{ ...st.canned, background: C.blueGrad, color: '#fff', borderColor: 'transparent' }}>✎ write a reply</button>
             </div>
-          ))}
+          )}
         </div>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', margin: '10px 0' }}>
-          {['👍 understood', 'no injuries', 'photo attached', 'will follow up'].map(c => (
-            <button key={c} onClick={() => sendMsg(c)} style={{ ...st.pill, background: '#141a23', color: '#cdd6e4', borderColor: '#38445a' }}>{c}</button>
-          ))}
-        </div>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <input value={draft} onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') sendMsg(draft); }} placeholder="type a reply…" style={{ flex: 1, background: '#dcdcdc', color: '#333', borderRadius: 22, padding: '13px 20px', fontSize: 20, border: 'none', outline: 'none' }} />
-          <Btn kind="green" onClick={() => sendMsg(draft)}>send</Btn>
-        </div>
-      </div>
-      <Footer><Btn kind="blue" onClick={() => setScreen('detail')}>close</Btn></Footer>
+        {composing ? (
+          <>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '0 18px 8px' }}>
+              <NoteField value={draft} placeholder="type a reply…" height={56} />
+              <Btn kind="green" onClick={() => sendMsg(draft)}>send</Btn>
+            </div>
+            <TydKeyboard value={draft} onChange={setDraft} />
+          </>
+        ) : (
+          <Footer><Btn kind="blue" onClick={() => setScreen('detail')}>close</Btn></Footer>
+        )}
       </div>
     </>
   );
 
-  // ---------- render ----------
   return (
     <div style={st.viewport}>
       <div style={st.device}>
@@ -700,23 +682,17 @@ export function TabletView({ onExit }: TabletViewProps) {
 const st: Record<string, React.CSSProperties> = {
   viewport: { position: 'fixed', inset: 0, background: '#0d0d0f', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, fontFamily: 'Roboto, "Segoe UI", system-ui, sans-serif' },
   device: { width: '100%', maxWidth: 1280, height: '100%', maxHeight: 800, background: '#000', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-  appbar: { height: 72, flexShrink: 0, background: '#fff', borderBottom: '1px solid #E4E4E4', display: 'flex', alignItems: 'center', padding: '0 22px', gap: 18 },
-  logoBtn: { display: 'flex', alignItems: 'center', gap: 10, background: 'none', border: 'none', cursor: 'pointer', padding: '6px 10px', borderRadius: 8 },
-  dots: { position: 'relative', width: 28, height: 28, display: 'inline-block' },
-  dot: { position: 'absolute', width: 11, height: 11, borderRadius: '50%' },
-  logoText: { fontWeight: 700, fontSize: 24, color: '#3f5fa5', letterSpacing: '-.5px' },
-  ctx: { flex: 1, textAlign: 'center', color: '#4f4f4f', fontSize: 18 },
-  runChip: { display: 'inline-block', background: '#00BFD8', color: '#04323a', fontWeight: 700, fontSize: 13, padding: '3px 12px', borderRadius: 14, marginRight: 8 },
-  driver: { color: '#4f4f4f', fontSize: 15, textAlign: 'right', lineHeight: 1.25 },
+  // home bar
+  homeBar: { height: 72, flexShrink: 0, background: '#fff', borderBottom: '1px solid #E4E4E4', display: 'flex', alignItems: 'center', padding: '0 22px', gap: 18 },
   welcome: { flex: 1, textAlign: 'center', color: '#333', fontSize: 30, fontWeight: 400 },
-  // home (matches Tyler Drive home screen)
-  homeBg: { flex: 1, background: '#C2C2C2', display: 'flex', flexDirection: 'column', padding: '26px 30px', overflow: 'hidden' },
-  tileRow: { flex: 1, display: 'flex', gap: 18, justifyContent: 'center', alignItems: 'center' },
-  homeTile: { width: 240, height: 360, border: 'none', borderRadius: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#fff', boxShadow: '0 3px 8px rgba(0,0,0,.28)', position: 'relative', paddingTop: 34 },
-  homeTileLabel: { fontSize: 28, fontWeight: 700 },
-  homeBottom: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 22 },
-  logoutBtn: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, backgroundImage: 'linear-gradient(to bottom,#3A57A0,#28407C)', color: '#fff', border: 'none', borderRadius: 10, padding: '0 34px', height: 80, fontSize: 26, cursor: 'pointer', minWidth: 240, textTransform: 'lowercase' },
-  flashBtn: { display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundImage: 'linear-gradient(to bottom,#3A57A0,#28407C)', color: '#fff', border: 'none', borderRadius: 10, width: 130, height: 80, cursor: 'pointer' },
+  // navy in-app toolbar
+  navbar: { height: 64, flexShrink: 0, background: '#27348C', display: 'flex', alignItems: 'stretch', color: '#fff' },
+  logoChip: { display: 'flex', alignItems: 'center', background: '#fff', border: 'none', cursor: 'pointer', padding: '0 14px', margin: 8, borderRadius: 6 },
+  navBtn: { width: 64, background: 'none', border: 'none', borderLeft: '1px solid rgba(255,255,255,.18)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  navCtx: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: '#dbe2f5' },
+  clock: { display: 'flex', alignItems: 'center', background: '#000', color: '#fff', fontSize: 18, fontWeight: 600, padding: '0 20px', margin: '8px 8px 8px 0', borderRadius: 4 },
+  runChip: { display: 'inline-block', background: '#00BFD8', color: '#04323a', fontWeight: 700, fontSize: 13, padding: '3px 12px', borderRadius: 14, marginRight: 8 },
+  // screens
   screen: { flex: 1, background: '#000', color: '#fff', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
   pad: { flex: 1, padding: '18px 26px', overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: 0 },
   titleRow: { display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 },
@@ -725,12 +701,19 @@ const st: Record<string, React.CSSProperties> = {
   sub: { fontSize: 16, color: '#9aa6b6', marginTop: -2, marginBottom: 10 },
   footbar: { flexShrink: 0, display: 'flex', justifyContent: 'center', gap: 18, padding: 14, background: '#000' },
   btn: { border: '1px solid #959595', borderRadius: 5, fontSize: 24, fontWeight: 500, padding: '12px 30px', textTransform: 'lowercase', textAlign: 'center' },
-  // home
-  runBanner: { background: '#11161f', border: '1px solid #2a3342', borderRadius: 8, padding: '14px 18px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 18 },
-  ws: { display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, flex: 1 },
-  tile: { border: '1px solid #959595', borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, color: '#fff', position: 'relative' },
+  // navy footer action bar (add run / add trip style)
+  navFooter: { flexShrink: 0, height: 84, background: '#27348C', display: 'flex', alignItems: 'stretch' },
+  navFootBtn: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, minWidth: 150, padding: '0 24px', background: 'none', border: 'none', borderRight: '1px solid rgba(255,255,255,.18)', color: '#fff', fontSize: 18, cursor: 'pointer', textTransform: 'lowercase' },
+  // home tiles
+  homeBg: { flex: 1, background: '#C2C2C2', display: 'flex', flexDirection: 'column', padding: '26px 30px', overflow: 'hidden' },
+  tileRow: { flex: 1, display: 'flex', gap: 18, justifyContent: 'center', alignItems: 'center' },
+  homeTile: { width: 240, height: 360, border: 'none', borderRadius: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', color: '#fff', boxShadow: '0 3px 8px rgba(0,0,0,.28)', position: 'relative', paddingTop: 34 },
+  homeTileLabel: { fontSize: 28, fontWeight: 700 },
+  homeBottom: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 22 },
+  logoutBtn: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, backgroundImage: 'linear-gradient(to bottom,#3A57A0,#28407C)', color: '#fff', border: 'none', borderRadius: 10, padding: '0 34px', height: 80, fontSize: 26, cursor: 'pointer', minWidth: 240, textTransform: 'lowercase' },
+  flashBtn: { display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundImage: 'linear-gradient(to bottom,#3A57A0,#28407C)', color: '#fff', border: 'none', borderRadius: 10, width: 130, height: 80, cursor: 'pointer' },
   badge: { position: 'absolute', top: 14, right: 16, background: '#D83333', color: '#fff', fontSize: 18, fontWeight: 700, minWidth: 34, height: 34, borderRadius: 17, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 8px' },
-  // lists
+  // choice lists
   search: { display: 'flex', alignItems: 'center', gap: 12, background: '#1a212c', border: '1px solid #38445a', borderRadius: 6, padding: '12px 16px', marginBottom: 12 },
   searchInput: { flex: 1, background: 'none', border: 'none', outline: 'none', color: '#fff', fontSize: 21 },
   list: { display: 'flex', flexDirection: 'column', gap: 8, overflowY: 'auto' },
@@ -740,28 +723,38 @@ const st: Record<string, React.CSSProperties> = {
   rowName: { fontSize: 25, fontWeight: 500, flex: 1 },
   rowMeta: { fontSize: 16, color: '#5a5a5a' },
   sev: { padding: '10px 22px', borderRadius: 6, fontSize: 21, fontWeight: 600, border: 'none', color: '#fff', cursor: 'pointer', textTransform: 'lowercase' },
-  // per-student
   pcard: { background: '#11161f', border: '1px solid #2a3342', borderRadius: 8, padding: '14px 16px', marginBottom: 12 },
   role: { padding: '9px 18px', borderRadius: 6, border: '2px solid #46506a', fontSize: 19, color: '#cdd6e4', cursor: 'pointer', textTransform: 'lowercase' },
   navIcon: { width: 52, height: 52, borderRadius: 8, border: '1px solid #38445a', background: '#141a23', color: '#cdd6e4', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 },
-  textarea: { width: '100%', background: '#dcdcdc', color: '#1a1a1a', borderRadius: 6, padding: 16, fontSize: 22, lineHeight: 1.4, height: 200, border: 'none', outline: 'none', resize: 'none', fontFamily: 'inherit' },
-  pill: { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 18, border: '1px solid #38445a', fontSize: 17, cursor: 'pointer', textTransform: 'lowercase' },
-  attach: { display: 'flex', alignItems: 'center', gap: 10, border: '1px dashed #4a5670', borderRadius: 6, padding: '10px 18px', fontSize: 18, background: 'none', cursor: 'pointer' },
+  // notes field (paired with on-screen keyboard)
+  noteField: { flex: 1, width: '100%', background: '#BDBDBD', color: '#1a1a1a', borderRadius: 6, padding: 16, fontSize: 22, lineHeight: 1.4, overflow: 'auto' },
+  caret: { color: '#333', fontWeight: 700 },
+  attach: { display: 'flex', alignItems: 'center', gap: 10, background: '#BDBDBD', border: '1px solid #8a8a8a', borderRadius: 6, padding: '10px 18px', fontSize: 18, cursor: 'pointer' },
   // summary
   sumH: { fontSize: 24, fontWeight: 700, color: '#fff', margin: '0 0 4px' },
   sumLn: { fontSize: 22, color: '#e2e8f0', margin: '2px 0' },
   sumDim: { fontSize: 18, color: '#9aa6b6', margin: '2px 0' },
   sumList: { flex: 1, background: '#0c1016', border: '1px solid #232c3a', borderRadius: 8, overflow: 'auto' },
   sumItem: { color: '#fff', fontSize: 21, padding: '12px 16px', borderBottom: '1px solid #1c2430' },
-  // confirm
   ring: { width: 140, height: 140, borderRadius: '50%', background: 'rgba(63,177,82,.15)', border: '5px solid #3FB152', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  // my incidents
-  inc: { display: 'flex', alignItems: 'center', gap: 16, background: '#11161f', border: '1px solid #25303f', borderRadius: 8, padding: '14px 18px', marginBottom: 10, cursor: 'pointer', width: '100%' },
-  incId: { fontFamily: 'monospace', fontSize: 17, color: '#7dd3fc', width: 150, flexShrink: 0, textAlign: 'left' },
-  stat: { fontSize: 15, fontWeight: 700, padding: '6px 14px', borderRadius: 16, flexShrink: 0, whiteSpace: 'nowrap' },
+  // my incidents (TYD list)
+  listScreen: { flex: 1, background: '#ECECEC', color: '#1a1a1a', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
+  pageHead: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 22px', background: '#fff', borderBottom: '1px solid #d6d6d6' },
+  pageTitle: { fontSize: 30, fontWeight: 500, color: '#3a3a3a' },
+  filterBtn: { padding: '7px 16px', borderRadius: 4, border: '1px solid #bcbcbc', fontSize: 16, cursor: 'pointer', textTransform: 'lowercase' },
+  subbar: { background: '#000', color: '#fff', fontSize: 18, padding: '8px 22px', flexShrink: 0 },
+  cardWrap: { flex: 1, overflowY: 'auto', display: 'flex', flexWrap: 'wrap', gap: 14, padding: 18, alignContent: 'flex-start' },
+  tydCard: { width: 'calc(33.333% - 10px)', minWidth: 300, background: '#D9D9D9', border: '1px solid #c4c4c4', borderRadius: 4, padding: 14, display: 'flex', flexDirection: 'column', gap: 6 },
+  tydCardId: { fontFamily: 'monospace', fontSize: 15, color: '#5a6678' },
+  tydCardTitle: { fontSize: 22, fontWeight: 600, color: '#1a1a1a' },
+  tydCardSub: { fontSize: 15, color: '#555', flex: 1 },
+  statPill: { alignSelf: 'flex-start', fontSize: 14, fontWeight: 700, padding: '5px 12px', borderRadius: 14, whiteSpace: 'nowrap' },
+  tydOpen: { marginTop: 6, background: 'linear-gradient(to top,#117922,#1E8431 55%,#469F5A)', color: '#fff', border: '1px solid #5A955D', borderRadius: 5, fontSize: 20, padding: '10px 0', cursor: 'pointer', textTransform: 'lowercase' },
   // detail
   panel: { background: '#11161f', border: '1px solid #25303f', borderRadius: 8, padding: '16px 18px' },
   panelH: { margin: '0 0 8px', fontSize: 14, textTransform: 'uppercase', letterSpacing: '.6px', color: '#8b97a8' },
   kv: { fontSize: 20, margin: '3px 0', color: '#e2e8f0' },
   act: { display: 'flex', alignItems: 'center', gap: 14, border: '1px solid #959595', borderRadius: 6, padding: '16px 18px', fontSize: 21, color: '#fff', cursor: 'pointer', textAlign: 'left' },
+  // messages
+  canned: { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 18px', borderRadius: 18, border: '1px solid #38445a', fontSize: 18, cursor: 'pointer', background: '#141a23', color: '#cdd6e4' },
 };
