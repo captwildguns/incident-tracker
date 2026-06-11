@@ -61,9 +61,9 @@ const SEVS = ['low', 'medium', 'high', 'critical'] as const;
 const sevColor: Record<string, string> = { low: '#3a5a3f', medium: '#7a5a1e', high: '#CC504F', critical: C.redDark };
 
 const SEED_INCIDENTS = [
-  { id: 'INC-2025-0059', title: 'Brianna Cooper +2 · Physical Altercation', sub: 'Bus 8 · Mar 1 · with safety coordinator', status: 'review', students: [] as any[], driverDesc: '', type: 'Physical Altercation' },
-  { id: 'INC-2025-0051', title: 'Natalie Collins · Disruptive Behavior', sub: 'Bus 8 · Mar 9 · awaiting your note', status: 'action', students: [], driverDesc: '', type: 'Disruptive Behavior' },
-  { id: 'INC-2025-0042', title: 'Dylan Bell · Safety Violation', sub: 'Bus 8 · Feb 18 · resolved & closed', status: 'closed', students: [], driverDesc: '', type: 'Safety Violation' },
+  { id: 'INC-2025-0059', date: '2025-03-01', title: 'Brianna Cooper +2 · Physical Altercation', sub: 'Bus 8 · Mar 1 · with safety coordinator', status: 'review', students: [] as any[], driverDesc: '', type: 'Physical Altercation' },
+  { id: 'INC-2025-0051', date: '2025-03-09', title: 'Natalie Collins · Disruptive Behavior', sub: 'Bus 8 · Mar 9 · awaiting your note', status: 'action', students: [], driverDesc: '', type: 'Disruptive Behavior' },
+  { id: 'INC-2025-0042', date: '2025-02-18', title: 'Dylan Bell · Safety Violation', sub: 'Bus 8 · Feb 18 · resolved & closed', status: 'closed', students: [], driverDesc: '', type: 'Safety Violation' },
 ];
 
 type PerStudent = { role: string; severity: string; statement: string };
@@ -211,7 +211,7 @@ export function TabletView({ onExit }: TabletViewProps) {
     const id = `INC-2025-${String(maxNum + 1).padStart(4, '0')}`;
     const first = selStudents[0];
     const rec = {
-      id, title: `${first?.name}${selStudents.length > 1 ? ` +${selStudents.length - 1}` : ''} · ${type}`,
+      id, date: '2025-03-15', title: `${first?.name}${selStudents.length > 1 ? ` +${selStudents.length - 1}` : ''} · ${type}`,
       sub: `Bus 8 · today · you reported this`, status: 'open', type, severity, driverDesc, hasPhoto, pinned,
       students: selStudents.map(s => ({ ...s, ...per[s.id], severity: per[s.id]?.severity === 'shared' ? severity : per[s.id]?.severity })),
     };
@@ -520,8 +520,15 @@ export function TabletView({ onExit }: TabletViewProps) {
   //  MY INCIDENTS — TYD list (light bg, grey cards, green action)
   // ============================================================
   const renderList = () => {
-    const shown = incidents.filter(i => filter === 'all' ? true : filter === 'open' ? (i.status === 'open' || i.status === 'action') : filter === 'review' ? i.status === 'review' : i.status === 'closed');
-    const need = incidents.filter(i => i.status === 'action').length;
+    const shown = incidents
+      .filter(i => filter === 'all' ? true : filter === 'open' ? (i.status === 'open' || i.status === 'action') : filter === 'review' ? i.status === 'review' : i.status === 'closed')
+      .slice()
+      .sort((a, b) => {
+        // "action needed" first; within any tier, older incidents appear first
+        const rank = (x: any) => (x.status === 'action' ? 0 : 1);
+        if (rank(a) !== rank(b)) return rank(a) - rank(b);
+        return (a.date || '').localeCompare(b.date || '');
+      });
     return (
       <>
         <NavBar onBack={() => setScreen('home')} />
@@ -534,7 +541,6 @@ export function TabletView({ onExit }: TabletViewProps) {
               ))}
             </div>
           </div>
-          <div style={st.subbar}>{incidents.length} incidents{need ? ` · ${need} need${need === 1 ? 's' : ''} your attention` : ''}</div>
           <div style={st.cardWrap}>
             {shown.map(i => {
               const s = statusMap[i.status];
