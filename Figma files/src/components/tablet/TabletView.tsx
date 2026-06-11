@@ -634,7 +634,10 @@ export function TabletView({ onExit }: TabletViewProps) {
     <>
       <NavBar onBack={() => setScreen('detail')} />
       <div style={st.detailScreen}>
-        <div style={st.subbar}>messages · {active?.id || ''}</div>
+        <div style={st.msgHead}>
+          <div style={st.pageTitle}>{active?.title || 'Messages'}</div>
+          <div style={st.msgHeadId}>{active?.id || ''} · Messages</div>
+        </div>
         <div style={{ ...st.pad, paddingBottom: composing ? 0 : 14 }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', padding: '4px 2px' }}>
             {activeThread.map((m, i) => (
@@ -750,6 +753,8 @@ const st: Record<string, React.CSSProperties> = {
   pageTitle: { fontSize: 30, fontWeight: 500, color: '#3a3a3a' },
   filterBtn: { padding: '7px 16px', borderRadius: 4, border: '1px solid #bcbcbc', fontSize: 16, cursor: 'pointer', textTransform: 'lowercase' },
   subbar: { background: '#000', color: '#fff', fontSize: 18, padding: '8px 22px', flexShrink: 0 },
+  msgHead: { background: '#fff', borderBottom: '1px solid #d6d6d6', padding: '14px 22px', flexShrink: 0 },
+  msgHeadId: { fontFamily: 'monospace', fontSize: 16, color: '#888', marginTop: 3 },
   cardWrap: { flex: 1, overflowY: 'auto', display: 'flex', flexWrap: 'wrap', gap: 14, padding: 18, alignContent: 'flex-start' },
   tydCard: { width: 'calc(33.333% - 10px)', minWidth: 300, background: '#D9D9D9', border: '1px solid #c4c4c4', borderRadius: 4, padding: 14, display: 'flex', flexDirection: 'column', gap: 6 },
   tydCardId: { fontFamily: 'monospace', fontSize: 15, color: '#5a6678' },
