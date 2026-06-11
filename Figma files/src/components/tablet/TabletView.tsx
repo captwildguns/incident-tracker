@@ -586,7 +586,7 @@ export function TabletView({ onExit }: TabletViewProps) {
                   <div style={st.panel}>
                     <h4 style={st.panelH}>Involved students & statements</h4>
                     {i.students.map((stu: any) => (
-                      <div key={stu.id} style={{ padding: '8px 0', borderBottom: '1px solid #1c2430' }}>
+                      <div key={stu.id} style={{ padding: '8px 0', borderBottom: '1px solid #2e2e2e' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                           <span style={{ ...st.av, width: 36, height: 36, fontSize: 15, background: stu.color || '#46506a' }}>{stu.initials || stu.name?.[0]}</span>
                           <span style={{ fontSize: 20, fontWeight: 600 }}>{stu.name}</span><span style={{ fontSize: 16, color: '#9aa6b6' }}>· {stu.role} · {stu.severity}</span>
@@ -596,7 +596,7 @@ export function TabletView({ onExit }: TabletViewProps) {
                     ))}
                   </div>
                 )}
-                <div style={{ ...st.panel, flex: 1 }}>
+                <div style={{ ...st.panel, flex: 1, borderBottom: 'none' }}>
                   <h4 style={st.panelH}>Where it stands</h4>
                   {(STATUS_FLOW[i.status] || STATUS_FLOW.open).map((x, idx) => (
                     <div key={idx} style={{ display: 'flex', gap: 12, padding: '8px 0' }}>
@@ -607,7 +607,7 @@ export function TabletView({ onExit }: TabletViewProps) {
                 </div>
               </div>
               <div style={{ width: 290, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ ...st.panel, padding: '12px 14px' }}><h4 style={{ ...st.panelH, margin: 0 }}>You can</h4></div>
+                <h4 style={{ ...st.panelH, marginBottom: 12 }}>You can</h4>
                 <button style={{ ...st.act, background: C.blueGrad }}><FileText size={24} /> add a note</button>
                 <button style={{ ...st.act, background: C.blueGrad }} onClick={() => setHasPhoto(true)}><Camera size={24} /> add a photo</button>
                 <button style={{ ...st.act, background: C.blueGrad }} onClick={() => { setComposing(false); setScreen('messages'); }}><MessageSquare size={24} /> message coordinator</button>
@@ -750,10 +750,10 @@ const st: Record<string, React.CSSProperties> = {
   tydCardSub: { fontSize: 15, color: '#555', flex: 1 },
   statPill: { alignSelf: 'flex-start', fontSize: 14, fontWeight: 700, padding: '5px 12px', borderRadius: 14, whiteSpace: 'nowrap' },
   tydOpen: { marginTop: 6, background: 'linear-gradient(to top,#117922,#1E8431 55%,#469F5A)', color: '#fff', border: '1px solid #5A955D', borderRadius: 5, fontSize: 20, padding: '10px 0', cursor: 'pointer', textTransform: 'lowercase' },
-  // detail
-  panel: { background: '#11161f', border: '1px solid #25303f', borderRadius: 8, padding: '16px 18px' },
-  panelH: { margin: '0 0 8px', fontSize: 14, textTransform: 'uppercase', letterSpacing: '.6px', color: '#8b97a8' },
-  kv: { fontSize: 20, margin: '3px 0', color: '#e2e8f0' },
+  // detail — flat black like the real TYD StudentIncidentSummary screen
+  panel: { paddingBottom: 14, borderBottom: '1px solid #2e2e2e' },
+  panelH: { margin: '0 0 10px', fontSize: 22, fontWeight: 700, color: '#fff' },
+  kv: { fontSize: 20, margin: '4px 0', color: '#fff' },
   act: { display: 'flex', alignItems: 'center', gap: 14, border: '1px solid #959595', borderRadius: 6, padding: '16px 18px', fontSize: 21, color: '#fff', cursor: 'pointer', textAlign: 'left' },
   // messages
   canned: { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 18px', borderRadius: 18, border: '1px solid #38445a', fontSize: 18, cursor: 'pointer', background: '#141a23', color: '#cdd6e4' },
