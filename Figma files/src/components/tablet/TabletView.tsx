@@ -567,48 +567,49 @@ export function TabletView({ onExit }: TabletViewProps) {
     return (
       <>
         <NavBar onBack={() => setScreen('list')} />
-        <div style={st.screen}>
-          <div style={st.pad}>
-            <div style={st.titleRow}><span style={{ ...st.title, fontSize: 26 }}>{i.title}</span><span style={{ ...st.statPill, background: s.bg, color: s.fg, fontSize: 14 }}>{s.lbl}</span></div>
-            <div style={{ display: 'flex', gap: 22, flex: 1, minHeight: 0 }}>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto' }}>
-                <div style={st.panel}>
-                  <h4 style={st.panelH}>Your report</h4>
-                  <div style={st.kv}><span style={{ color: '#9aa6b6' }}>Reported</span> today · Bus 8{i.pinned ? ' · Lot B' : ''}</div>
-                  {i.driverDesc ? <div style={st.kv}><span style={{ color: '#9aa6b6' }}>Description</span> {i.driverDesc}</div> : null}
-                  {i.hasPhoto ? <div style={st.kv}><span style={{ color: '#9aa6b6' }}>Evidence</span> 1 photo{i.pinned ? ' · location pinned' : ''}</div> : null}
-                </div>
-                {i.students && i.students.length > 0 && (
-                  <div style={st.panel}>
-                    <h4 style={st.panelH}>Involved students & statements</h4>
-                    {i.students.map((stu: any) => (
-                      <div key={stu.id} style={{ padding: '8px 0', borderBottom: '1px solid #2e2e2e' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <span style={{ ...st.av, width: 36, height: 36, fontSize: 15, background: stu.color || '#46506a' }}>{stu.initials || stu.name?.[0]}</span>
-                          <span style={{ fontSize: 20, fontWeight: 600 }}>{stu.name}</span><span style={{ fontSize: 16, color: '#9aa6b6' }}>· {stu.role} · {stu.severity}</span>
-                        </div>
-                        <div style={{ fontSize: 18, color: stu.statement ? '#dbe4f0' : '#8b97a8', fontStyle: stu.statement ? 'italic' : 'normal', marginTop: 4, paddingLeft: 46 }}>{stu.statement ? '“' + stu.statement + '”' : 'no student statement recorded'}</div>
+        <div style={st.detailScreen}>
+          <div style={st.pageHead}>
+            <span style={st.pageTitle}>{i.title}</span>
+            <span style={{ ...st.statPill, background: s.bg, color: s.fg, fontSize: 14 }}>{s.lbl}</span>
+          </div>
+          <div style={{ flex: 1, display: 'flex', gap: 18, minHeight: 0, padding: 18, overflow: 'hidden' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 14, overflowY: 'auto' }}>
+              <div style={st.card2}>
+                <h4 style={st.cardH}>Your report</h4>
+                <div style={st.kvd}><span style={st.kvLbl}>Reported</span> today · Bus 8{i.pinned ? ' · Lot B' : ''}</div>
+                {i.driverDesc ? <div style={st.kvd}><span style={st.kvLbl}>Description</span> {i.driverDesc}</div> : null}
+                {i.hasPhoto ? <div style={st.kvd}><span style={st.kvLbl}>Evidence</span> 1 photo{i.pinned ? ' · location pinned' : ''}</div> : null}
+              </div>
+              {i.students && i.students.length > 0 && (
+                <div style={st.card2}>
+                  <h4 style={st.cardH}>Involved students & statements</h4>
+                  {i.students.map((stu: any) => (
+                    <div key={stu.id} style={{ padding: '8px 0', borderBottom: '1px solid #e2e2e2' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <span style={{ ...st.av, width: 36, height: 36, fontSize: 15, background: stu.color || '#46506a' }}>{stu.initials || stu.name?.[0]}</span>
+                        <span style={{ fontSize: 20, fontWeight: 600, color: '#1a1a1a' }}>{stu.name}</span><span style={{ fontSize: 16, color: '#666' }}>· {stu.role} · {stu.severity}</span>
                       </div>
-                    ))}
-                  </div>
-                )}
-                <div style={{ ...st.panel, flex: 1, borderBottom: 'none' }}>
-                  <h4 style={st.panelH}>Where it stands</h4>
-                  {(STATUS_FLOW[i.status] || STATUS_FLOW.open).map((x, idx) => (
-                    <div key={idx} style={{ display: 'flex', gap: 12, padding: '8px 0' }}>
-                      <span style={{ width: 24, height: 24, borderRadius: '50%', flexShrink: 0, marginTop: 3, border: '2px solid #46506a', background: x.state === 'done' ? C.flatGreen : x.state === 'now' ? '#586CA7' : 'transparent', borderColor: x.state === 'done' ? C.flatGreen : x.state === 'now' ? '#9ab4e6' : '#46506a', boxShadow: x.state === 'now' ? '0 0 0 4px rgba(88,108,167,.3)' : 'none' }} />
-                      <span style={{ fontSize: 20, fontWeight: x.state === 'now' ? 700 : 400, color: x.state === 'now' ? '#bcd0f5' : '#fff' }}>{x.t}<small style={{ display: 'block', fontSize: 14, color: '#8b97a8', fontWeight: 400 }}>{x.sub}</small></span>
+                      <div style={{ fontSize: 18, color: stu.statement ? '#333' : '#999', fontStyle: stu.statement ? 'italic' : 'normal', marginTop: 4, paddingLeft: 46 }}>{stu.statement ? '“' + stu.statement + '”' : 'no student statement recorded'}</div>
                     </div>
                   ))}
                 </div>
+              )}
+              <div style={{ ...st.card2, flex: 1 }}>
+                <h4 style={st.cardH}>Where it stands</h4>
+                {(STATUS_FLOW[i.status] || STATUS_FLOW.open).map((x, idx) => (
+                  <div key={idx} style={{ display: 'flex', gap: 12, padding: '8px 0' }}>
+                    <span style={{ width: 24, height: 24, borderRadius: '50%', flexShrink: 0, marginTop: 3, background: x.state === 'done' ? C.flatGreen : x.state === 'now' ? '#2E3F8F' : '#fff', border: `2px solid ${x.state === 'done' ? C.flatGreen : x.state === 'now' ? '#2E3F8F' : '#bcbcbc'}`, boxShadow: x.state === 'now' ? '0 0 0 4px rgba(46,63,143,.18)' : 'none' }} />
+                    <span style={{ fontSize: 20, fontWeight: x.state === 'now' ? 700 : 400, color: x.state === 'now' ? '#2E3F8F' : x.state === 'done' ? '#1a1a1a' : '#888' }}>{x.t}<small style={{ display: 'block', fontSize: 14, color: '#888', fontWeight: 400 }}>{x.sub}</small></span>
+                  </div>
+                ))}
               </div>
-              <div style={{ width: 290, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <h4 style={{ ...st.panelH, marginBottom: 12 }}>You can</h4>
-                <button style={{ ...st.act, background: C.blueGrad }}><FileText size={24} /> add a note</button>
-                <button style={{ ...st.act, background: C.blueGrad }} onClick={() => setHasPhoto(true)}><Camera size={24} /> add a photo</button>
-                <button style={{ ...st.act, background: C.blueGrad }} onClick={() => { setComposing(false); setScreen('messages'); }}><MessageSquare size={24} /> message coordinator</button>
-                <button style={{ ...st.act, background: '#11161f' }}><FileText size={24} /> view office response</button>
-              </div>
+            </div>
+            <div style={{ width: 290, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <h4 style={{ ...st.cardH, marginBottom: 4 }}>You can</h4>
+              <button style={st.act}><FileText size={24} /> add a note</button>
+              <button style={st.act} onClick={() => setHasPhoto(true)}><Camera size={24} /> add a photo</button>
+              <button style={st.act} onClick={() => { setComposing(false); setScreen('messages'); }}><MessageSquare size={24} /> message coordinator</button>
+              <button style={st.actGhost}><FileText size={24} /> view office response</button>
             </div>
           </div>
           <div style={st.navFooter}>
@@ -626,12 +627,13 @@ export function TabletView({ onExit }: TabletViewProps) {
   const renderMessages = () => (
     <>
       <NavBar onBack={() => setScreen('detail')} />
-      <div style={st.screen}>
-        <div style={{ ...st.pad, paddingBottom: composing ? 0 : 18 }}>
+      <div style={st.detailScreen}>
+        <div style={st.subbar}>messages · {active?.id || ''}</div>
+        <div style={{ ...st.pad, paddingBottom: composing ? 0 : 14 }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', padding: '4px 2px' }}>
             {activeThread.map((m, i) => (
-              <div key={i} style={{ alignSelf: m.me ? 'flex-end' : 'flex-start', maxWidth: '74%', padding: '13px 18px', borderRadius: 12, fontSize: 21, lineHeight: 1.4, color: m.me ? '#fff' : '#16202e', background: m.me ? C.blueGrad : '#fff', borderBottomRightRadius: m.me ? 3 : 12, borderBottomLeftRadius: m.me ? 12 : 3 }}>
-                {m.who && <div style={{ fontSize: 14, color: '#8b97a8', marginBottom: 3 }}>{m.who}</div>}
+              <div key={i} style={{ alignSelf: m.me ? 'flex-end' : 'flex-start', maxWidth: '74%', padding: '13px 18px', borderRadius: 12, fontSize: 21, lineHeight: 1.4, color: m.me ? '#fff' : '#16202e', background: m.me ? C.blueGrad : '#fff', border: m.me ? 'none' : '1px solid #d6d6d6', borderBottomRightRadius: m.me ? 3 : 12, borderBottomLeftRadius: m.me ? 12 : 3 }}>
+                {m.who && <div style={{ fontSize: 14, color: '#667', marginBottom: 3 }}>{m.who}</div>}
                 <div>{m.text}</div>
                 <div style={{ fontSize: 13, opacity: 0.7, marginTop: 4, textAlign: 'right' }}>{m.t}{m.me ? ' ✓✓' : ''}</div>
               </div>
@@ -648,12 +650,16 @@ export function TabletView({ onExit }: TabletViewProps) {
           <>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center', padding: '0 18px 8px' }}>
               <NoteField value={draft} placeholder="type a reply…" height={56} />
+              <Btn kind="grey" onClick={() => setComposing(false)}>cancel</Btn>
               <Btn kind="green" onClick={() => sendMsg(draft)}>send</Btn>
             </div>
             <TydKeyboard value={draft} onChange={setDraft} />
           </>
         ) : (
-          <Footer><Btn kind="blue" onClick={() => setScreen('detail')}>close</Btn></Footer>
+          <div style={st.navFooter}>
+            <button style={st.navFootBtn} onClick={() => setScreen('detail')}><ChevronLeft size={26} /><span>back</span></button>
+            <button style={st.navFootBtn} onClick={() => setScreen('home')}><Home size={26} /><span>home</span></button>
+          </div>
         )}
       </div>
     </>
@@ -745,11 +751,14 @@ const st: Record<string, React.CSSProperties> = {
   tydCardSub: { fontSize: 15, color: '#555', flex: 1 },
   statPill: { alignSelf: 'flex-start', fontSize: 14, fontWeight: 700, padding: '5px 12px', borderRadius: 14, whiteSpace: 'nowrap' },
   tydOpen: { marginTop: 6, background: 'linear-gradient(to top,#117922,#1E8431 55%,#469F5A)', color: '#fff', border: '1px solid #5A955D', borderRadius: 5, fontSize: 20, padding: '10px 0', cursor: 'pointer', textTransform: 'lowercase' },
-  // detail — flat black like the real TYD StudentIncidentSummary screen
-  panel: { paddingBottom: 14, borderBottom: '1px solid #2e2e2e' },
-  panelH: { margin: '0 0 10px', fontSize: 22, fontWeight: 700, color: '#fff' },
-  kv: { fontSize: 20, margin: '4px 0', color: '#fff' },
-  act: { display: 'flex', alignItems: 'center', gap: 14, border: '1px solid #959595', borderRadius: 6, padding: '16px 18px', fontSize: 21, color: '#fff', cursor: 'pointer', textAlign: 'left' },
+  // detail — light TYD theme (light bg, white cards, dark text)
+  detailScreen: { flex: 1, background: '#ECECEC', color: '#1a1a1a', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
+  card2: { background: '#fff', border: '1px solid #d6d6d6', borderRadius: 6, padding: '16px 18px' },
+  cardH: { margin: '0 0 10px', fontSize: 22, fontWeight: 700, color: '#3a3a3a' },
+  kvd: { fontSize: 20, margin: '4px 0', color: '#222' },
+  kvLbl: { color: '#888' },
+  act: { display: 'flex', alignItems: 'center', gap: 14, border: '1px solid #2c4a86', borderRadius: 6, padding: '16px 18px', fontSize: 21, color: '#fff', cursor: 'pointer', textAlign: 'left', background: C.blueGrad },
+  actGhost: { display: 'flex', alignItems: 'center', gap: 14, border: '1px solid #bcbcbc', borderRadius: 6, padding: '16px 18px', fontSize: 21, color: '#3a3a3a', cursor: 'pointer', textAlign: 'left', background: '#fff' },
   // messages
-  canned: { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 18px', borderRadius: 18, border: '1px solid #38445a', fontSize: 18, cursor: 'pointer', background: '#141a23', color: '#cdd6e4' },
+  canned: { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 18px', borderRadius: 18, border: '1px solid #bcbcbc', fontSize: 18, cursor: 'pointer', background: '#fff', color: '#2c4a86' },
 };
