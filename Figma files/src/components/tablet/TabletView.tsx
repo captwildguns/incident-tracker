@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   Search, Camera, MapPin, Check, ChevronLeft, ChevronRight,
   AlertTriangle, MessageSquare, FileText, Map, ClipboardCheck, Timer, LogOut, Flashlight,
-  Home, Mail,
+  Home, Mail, ArrowLeft, ArrowUp,
 } from 'lucide-react';
 import tylerLogo from '../../assets/tyler-logo.png';
 
@@ -226,11 +226,6 @@ export function TabletView({ onExit }: TabletViewProps) {
   };
 
   // ── chrome ──────────────────────────────────────────────
-  const Logo = () => (
-    <button onClick={onExit} title="Back to desktop view" style={st.logoChip}>
-      <img src={tylerLogo} alt="Tyler Technologies" style={{ height: 30, display: 'block' }} />
-    </button>
-  );
   // White home bar (matches the real TYD home screen)
   const HomeBar = () => (
     <div style={st.homeBar}>
@@ -240,14 +235,15 @@ export function TabletView({ onExit }: TabletViewProps) {
       <div style={st.welcome}>Welcome to Tyler Drive, <b>Gabe Guzman</b></div>
     </div>
   );
-  // Navy in-app toolbar (matches the real TYD nav bar)
-  const NavBar = ({ ctx }: { ctx?: React.ReactNode }) => (
+  // Navy in-app toolbar — matches the real TYD nav bar (back, up, mail, timekeeping, clock, more)
+  const NavBar = ({ onBack }: { onBack?: () => void }) => (
     <div style={st.navbar}>
-      <Logo />
-      <button onClick={() => setScreen('home')} title="Home" style={st.navBtn}><Home size={26} /></button>
-      <button onClick={() => { if (!active) setActive(incidents[0]); setComposing(false); setScreen('messages'); }} title="Messages" style={st.navBtn}><Mail size={26} /></button>
-      <div style={st.navCtx}>{ctx}</div>
-      <div style={st.clock}>3:54 PM</div>
+      <button onClick={onBack || onExit} title="Back" style={st.nbCell}><ArrowLeft size={32} strokeWidth={2.5} /></button>
+      <button onClick={() => setScreen('home')} title="Home" style={st.nbCell}><ArrowUp size={32} strokeWidth={2.5} /></button>
+      <button onClick={() => { if (!active) setActive(incidents[0]); setComposing(false); setScreen('messages'); }} title="Messages" style={st.nbCell}><Mail size={30} /></button>
+      <button style={st.nbCellText}>timekeeping</button>
+      <div style={st.nbClock}>3:54 PM</div>
+      <button style={st.nbCellText}>more…</button>
     </div>
   );
   const Footer = ({ children }: { children: React.ReactNode }) => <div style={st.footbar}>{children}</div>;
@@ -308,7 +304,7 @@ export function TabletView({ onExit }: TabletViewProps) {
     if (step === 7) return renderConfirm();
     return (
       <>
-        <NavBar ctx={<><span style={st.runChip}>WOLF RD</span> Washington High PM · Bus 8</>} />
+        <NavBar onBack={() => setScreen('home')} />
         <div style={st.screen}>
           {step === 1 && renderSelect()}
           {step === 2 && renderType()}
@@ -506,7 +502,7 @@ export function TabletView({ onExit }: TabletViewProps) {
 
   const renderConfirm = () => (
     <>
-      <NavBar ctx={<><span style={st.runChip}>WOLF RD</span> Washington High PM · Bus 8</>} />
+      <NavBar onBack={() => setScreen('home')} />
       <div style={st.screen}><div style={{ ...st.pad, alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: 18, display: 'flex', flexDirection: 'column' }}>
         <div style={st.ring}><Check size={78} color={C.flatGreen} strokeWidth={2.5} /></div>
         <h2 style={{ fontSize: 38, margin: 0 }}>Incident submitted</h2>
@@ -528,7 +524,7 @@ export function TabletView({ onExit }: TabletViewProps) {
     const need = incidents.filter(i => i.status === 'action').length;
     return (
       <>
-        <NavBar />
+        <NavBar onBack={() => setScreen('home')} />
         <div style={st.listScreen}>
           <div style={st.pageHead}>
             <span style={st.pageTitle}>My Incidents</span>
@@ -570,7 +566,7 @@ export function TabletView({ onExit }: TabletViewProps) {
     const s = statusMap[i.status] || statusMap.open;
     return (
       <>
-        <NavBar ctx={i.id} />
+        <NavBar onBack={() => setScreen('list')} />
         <div style={st.screen}>
           <div style={st.pad}>
             <div style={st.titleRow}><span style={{ ...st.title, fontSize: 26 }}>{i.title}</span><span style={{ ...st.statPill, background: s.bg, color: s.fg, fontSize: 14 }}>{s.lbl}</span></div>
@@ -629,7 +625,7 @@ export function TabletView({ onExit }: TabletViewProps) {
   // ============================================================
   const renderMessages = () => (
     <>
-      <NavBar ctx={`messages · ${active?.id || ''}`} />
+      <NavBar onBack={() => setScreen('detail')} />
       <div style={st.screen}>
         <div style={{ ...st.pad, paddingBottom: composing ? 0 : 18 }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', padding: '4px 2px' }}>
@@ -685,12 +681,11 @@ const st: Record<string, React.CSSProperties> = {
   // home bar
   homeBar: { height: 72, flexShrink: 0, background: '#fff', borderBottom: '1px solid #E4E4E4', display: 'flex', alignItems: 'center', padding: '0 22px', gap: 18 },
   welcome: { flex: 1, textAlign: 'center', color: '#333', fontSize: 30, fontWeight: 400 },
-  // navy in-app toolbar
-  navbar: { height: 64, flexShrink: 0, background: '#27348C', display: 'flex', alignItems: 'stretch', color: '#fff' },
-  logoChip: { display: 'flex', alignItems: 'center', background: '#fff', border: 'none', cursor: 'pointer', padding: '0 14px', margin: 8, borderRadius: 6 },
-  navBtn: { width: 64, background: 'none', border: 'none', borderLeft: '1px solid rgba(255,255,255,.18)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  navCtx: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, color: '#dbe2f5' },
-  clock: { display: 'flex', alignItems: 'center', background: '#000', color: '#fff', fontSize: 18, fontWeight: 600, padding: '0 20px', margin: '8px 8px 8px 0', borderRadius: 4 },
+  // navy in-app toolbar — matches the TYD nav bar
+  navbar: { height: 64, flexShrink: 0, background: '#2E3F8F', display: 'flex', alignItems: 'stretch', color: '#fff' },
+  nbCell: { flex: 1, background: 'none', border: 'none', borderRight: '1px solid rgba(255,255,255,.16)', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  nbCellText: { flex: 1, background: 'none', border: 'none', borderRight: '1px solid rgba(255,255,255,.16)', color: '#fff', cursor: 'pointer', fontSize: 19, textTransform: 'lowercase', fontFamily: 'inherit' },
+  nbClock: { flex: 1, background: '#000', color: '#fff', fontSize: 20, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRight: '1px solid rgba(255,255,255,.16)' },
   runChip: { display: 'inline-block', background: '#00BFD8', color: '#04323a', fontWeight: 700, fontSize: 13, padding: '3px 12px', borderRadius: 14, marginRight: 8 },
   // screens
   screen: { flex: 1, background: '#000', color: '#fff', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
