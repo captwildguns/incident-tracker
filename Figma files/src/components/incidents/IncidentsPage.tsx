@@ -48,6 +48,32 @@ const statusTheme = (status: string): string => {
 
 const rawIncidents = [
   {
+    // Filed from the driver tablet (Tyler Drive) after the PM run — used for the
+    // tablet → desktop hand-off demo. Each student's own account is captured in
+    // their per-student `description` (the driver-captured student statement).
+    id: 'INC-2025-0064',
+    date: '2025-03-11',
+    student: 'Marcus Johnson',
+    studentId: 'STU-3421',
+    type: 'Physical Altercation',
+    description: 'Two students argued over a seat in the back row on the PM run; one shoved the other into the seat back. Separated immediately, no injuries observed. Both students held at the school until parent pickup. Report filed from the bus tablet after the route was safely completed.',
+    bus: 'Bus 8',
+    route: 'Washington High PM - Wolf Rd',
+    driver: 'Gabe Guzman',
+    severity: 'High',
+    status: 'Open',
+    createdBy: 'Gabe Guzman',
+    assignedTo: 'Sarah Williams',
+    location: 'parking-lot',
+    witnessPresent: true,
+    witnessNames: ['Aide D. Carter'],
+    tags: ['filed-from-tablet', 'after-route', 'parent-notified'],
+    involvedStudents: [
+      { studentId: 'STU-3421', name: 'Marcus Johnson', role: 'Instigator', severity: 'High', parentNotified: true, description: '"He took my seat and wouldn\'t move when I asked, so I pushed him. I know I shouldn\'t have put my hands on him, but he grabbed my backpack first."', actionTaken: 'Separated and held at school pending pickup. Parent contacted same day by driver.', notes: 'Student account captured on the tablet at the scene. No prior altercations on record.' },
+      { studentId: 'STU-1045', name: 'Ethan Lee', role: 'Victim', severity: 'Medium', parentNotified: true, description: '"Marcus shoved me into the seat when I sat down. I didn\'t do anything to him. My shoulder is fine, I don\'t need the nurse."', actionTaken: 'Checked for injury — none reported. Offered seat reassignment for return route. Parent notified.', notes: 'Student account captured on the tablet at the scene. Declined nurse evaluation.' },
+    ],
+  },
+  {
     id: 'INC-2025-0063',
     date: '2025-03-05',
     student: 'Marcus Johnson',

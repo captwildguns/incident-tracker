@@ -13,6 +13,7 @@ import { HelpPage } from './components/help/HelpPage';
 import { WorkflowsPage } from './components/workflows/WorkflowsPage';
 import { WorkflowBuilderPage } from './components/workflows/WorkflowBuilderPage';
 import { AdminPage } from './components/admin/AdminPage';
+import { TabletView } from './components/tablet/TabletView';
 import { Toaster } from './components/ui/sonner';
 import { assignWorkflowToIncident, workflows } from './data/workflows';
 
@@ -241,6 +242,12 @@ export default function App() {
 
   if (!authenticated) {
     return <PasswordGate onUnlock={() => setAuthenticated(true)} />;
+  }
+
+  // Full-screen driver tablet view — rendered outside the desktop chrome.
+  // Tapping the Tyler logo (onExit) returns to the desktop view.
+  if (currentPage === 'tablet') {
+    return <TabletView onExit={() => navigateToPage('dashboard')} />;
   }
 
   return (

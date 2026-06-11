@@ -168,7 +168,15 @@ export function AppLayout({ children, currentPage, onNavigate, onNavigateToCommu
           color: 'white',
           display: 'flex', alignItems: 'center', gap: 'var(--forge-spacing-small)',
         }}>
-          <forge-avatar text="SW" style={{ '--forge-avatar-background': 'var(--brand-olive-dark)', '--forge-avatar-color': 'white' } as any}></forge-avatar>
+          <button
+            type="button"
+            onClick={() => { onNavigate('tablet'); setIsDrawerOpen(false); }}
+            title="Open driver tablet view"
+            aria-label="Open driver tablet view"
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', borderRadius: '50%' }}
+          >
+            <forge-avatar text="SW" style={{ '--forge-avatar-background': 'var(--brand-olive-dark)', '--forge-avatar-color': 'white' } as any}></forge-avatar>
+          </button>
           <span className="forge-typography--body1" style={{ fontWeight: 500, color: 'white', fontSize: '14px' }}>Sarah Williams</span>
         </div>
 
