@@ -644,8 +644,8 @@ export function DashboardPage({ onNavigate, onNavigateToCommunication, onNavigat
                         <ForgeMenu
                           placement="bottom-end"
                           options={[
-                            { label: 'Edit Incident', value: 'edit', icon: 'edit' },
-                            { label: 'Reassign', value: 'reassign', icon: 'person_add' },
+                            { label: 'Edit Incident', value: 'edit' },
+                            { label: 'Reassign', value: 'reassign' },
                           ]}
                           on-forge-menu-select={(evt: any) => {
                             evt.stopPropagation();
