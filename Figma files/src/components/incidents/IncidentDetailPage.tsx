@@ -701,8 +701,8 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
         {/* Overview Tab */}
         {activeTab === 'overview' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Incident Details - Left Column */}
-            <div>
+            {/* Incident & Student Details - Left Column */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--forge-spacing-large)' }}>
               <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
                 <div style={{ padding: 'var(--forge-spacing-medium)' }}>
                   <h3 className="forge-typography--heading4" style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-lg)', fontWeight: 'var(--font-weight-semibold)' }}>
@@ -710,55 +710,6 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                   </h3>
                 </div>
                 <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
-                  {incident.involvedStudents?.length > 0 && (() => {
-                    const s = incident.involvedStudents.find((s: any) => s.studentId === selectedStudentId);
-                    if (!s) return null;
-                    const labelStyle = { fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase' as const, letterSpacing: '0.5px' };
-                    const valueStyle = { fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' };
-                    return (
-                      <div style={{ marginBottom: 'var(--forge-spacing-large)', paddingBottom: 'var(--forge-spacing-medium)', borderBottom: '1px solid var(--border)' }}>
-                        <div className="grid grid-cols-2 gap-x-6 gap-y-4" style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
-                          <div>
-                            <div style={labelStyle}>Student ID</div>
-                            <div style={valueStyle}>{s.studentId}</div>
-                          </div>
-                          {s.parentNotified !== undefined && (
-                            <div>
-                              <div style={labelStyle}>Parent Contact</div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', color: s.parentNotified ? '#16a34a' : '#94a3b8' }}>
-                                {s.parentNotified ? <CheckCircle2 size={15} /> : <Clock size={15} />}
-                                {s.parentNotified ? 'Parent notified' : 'Parent contact pending'}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        {incident.description && (
-                          <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
-                            <div style={labelStyle}>Description</div>
-                            <p style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', lineHeight: '1.6' }}>{incident.description}</p>
-                          </div>
-                        )}
-                        {s.description && (
-                          <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
-                            <div style={labelStyle}>Student Description</div>
-                            <p style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', lineHeight: '1.6' }}>{s.description}</p>
-                          </div>
-                        )}
-                        {s.actionTaken && (
-                          <div style={{ marginBottom: 'var(--forge-spacing-medium)' }}>
-                            <div style={labelStyle}>Action Taken</div>
-                            <p style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', lineHeight: '1.6' }}>{s.actionTaken}</p>
-                          </div>
-                        )}
-                        {s.notes && (
-                          <div>
-                            <div style={labelStyle}>Notes</div>
-                            <p style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', lineHeight: '1.6', color: 'var(--muted-foreground)', fontStyle: 'italic' }}>{s.notes}</p>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
                   <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                     <div>
                       <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -770,7 +721,7 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                     </div>
                     <div>
                       <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Incident Location
+                        Location
                       </div>
                       <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>
                         {incident.location ? (
@@ -795,6 +746,14 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                     </div>
                     <div>
                       <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Driver
+                      </div>
+                      <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>
+                        {incident.driver}
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         Run
                       </div>
                       <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>
@@ -803,10 +762,13 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                     </div>
                     <div>
                       <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Driver
+                        Severity
                       </div>
                       <div style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' }}>
-                        {incident.driver}
+                        {incident.severity ? (
+                          /* @ts-ignore */
+                          <forge-badge theme={incident.severity === 'Critical' ? 'danger' : incident.severity === 'High' ? 'error' : incident.severity === 'Medium' ? 'warning' : 'info'} strong>{incident.severity}</forge-badge>
+                        ) : '—'}
                       </div>
                     </div>
                     <div>
@@ -818,6 +780,16 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                       </div>
                     </div>
                   </div>
+
+                  {/* Description */}
+                  {incident.description && (
+                    <div style={{ marginTop: 'var(--forge-spacing-large)', paddingTop: 'var(--forge-spacing-medium)', borderTop: '1px solid var(--border)' }}>
+                      <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Description
+                      </div>
+                      <p style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', lineHeight: '1.6' }}>{incident.description}</p>
+                    </div>
+                  )}
 
                   {/* Witnesses */}
                   {incident.witnessPresent && (
@@ -899,6 +871,85 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                   )}
                 </div>
               </ForgeCard>
+
+              {/* Student Details */}
+              {incident.involvedStudents?.length > 0 && (() => {
+                const s = incident.involvedStudents.find((s: any) => s.studentId === selectedStudentId);
+                if (!s) return null;
+                const labelStyle = { fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', marginBottom: '6px', fontFamily: 'Roboto, sans-serif', textTransform: 'uppercase' as const, letterSpacing: '0.5px' };
+                const valueStyle = { fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)' };
+                const sevTheme = s.severity === 'Critical' ? 'danger' : s.severity === 'High' ? 'error' : s.severity === 'Medium' ? 'warning' : 'info';
+                return (
+                  <ForgeCard style={{ boxShadow: 'var(--forge-elevation-1)' }}>
+                    <div style={{ padding: 'var(--forge-spacing-medium)' }}>
+                      <h3 className="forge-typography--heading4" style={{ fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-lg)', fontWeight: 'var(--font-weight-semibold)' }}>
+                        Student Details
+                      </h3>
+                    </div>
+                    <div style={{ marginTop: 'var(--forge-spacing-small)' }}>
+                      <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+                        <div>
+                          <div style={labelStyle}>Student</div>
+                          <div style={valueStyle}>{s.name}</div>
+                        </div>
+                        <div>
+                          <div style={labelStyle}>Student ID</div>
+                          <div style={valueStyle}>{s.studentId}</div>
+                        </div>
+                        {s.role && (
+                          <div>
+                            <div style={labelStyle}>Role In Incident</div>
+                            <div style={valueStyle}>
+                              {/* @ts-ignore */}
+                              <forge-badge theme="default">{s.role}</forge-badge>
+                            </div>
+                          </div>
+                        )}
+                        {s.severity && (
+                          <div>
+                            <div style={labelStyle}>Severity</div>
+                            <div style={valueStyle}>
+                              {/* @ts-ignore */}
+                              <forge-badge theme={sevTheme} strong>{s.severity}</forge-badge>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {s.parentNotified !== undefined && (
+                        <div style={{ marginTop: 'var(--forge-spacing-medium)' }}>
+                          <div style={labelStyle}>Parent/Guardian has been notified</div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', color: s.parentNotified ? '#16a34a' : '#94a3b8' }}>
+                            {s.parentNotified ? <CheckCircle2 size={15} /> : <Clock size={15} />}
+                            {s.parentNotified ? 'Yes' : 'No'}
+                          </div>
+                        </div>
+                      )}
+
+                      {s.description && (
+                        <div style={{ marginTop: 'var(--forge-spacing-medium)' }}>
+                          <div style={labelStyle}>Student Account</div>
+                          <p style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', lineHeight: '1.6' }}>{s.description}</p>
+                        </div>
+                      )}
+
+                      {s.actionTaken && (
+                        <div style={{ marginTop: 'var(--forge-spacing-medium)' }}>
+                          <div style={labelStyle}>Immediate Action Taken</div>
+                          <p style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', lineHeight: '1.6' }}>{s.actionTaken}</p>
+                        </div>
+                      )}
+
+                      {s.notes && (
+                        <div style={{ marginTop: 'var(--forge-spacing-medium)' }}>
+                          <div style={labelStyle}>Additional Notes</div>
+                          <p style={{ margin: 0, fontFamily: 'Roboto, sans-serif', fontSize: 'var(--text-base)', lineHeight: '1.6', color: 'var(--muted-foreground)', fontStyle: 'italic' }}>{s.notes}</p>
+                        </div>
+                      )}
+                    </div>
+                  </ForgeCard>
+                );
+              })()}
             </div>
 
             {/* Right Column: Workflow */}
