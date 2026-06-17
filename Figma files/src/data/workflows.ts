@@ -323,7 +323,7 @@ export const workflows: Workflow[] = [
       {
         id: 'step-1',
         name: 'Damage Assessment & Photo Documentation',
-        description: 'Driver photographs damage and estimates repair cost',
+        description: 'Driver photographs damage',
         assignedRole: 'Driver',
         estimatedDuration: '15 minutes',
         required: true,
