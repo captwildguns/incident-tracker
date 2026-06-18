@@ -482,6 +482,53 @@ export const workflows: Workflow[] = [
     ],
   },
 
+  // ─────────────────────────────────────────────
+  // INFORMATIONAL — WITNESS / BYSTANDER
+  // ─────────────────────────────────────────────
+  {
+    id: 'WF-012',
+    name: 'Witness / Bystander Statement',
+    description: 'Non-disciplinary workflow for capturing the account of a student who witnessed or tried to help during another incident. No disciplinary action is taken; the statement is recorded and linked to the related incident.',
+    incidentTypes: ['Witness / Bystander Statement'],
+    severityLevels: ['Low'],
+    isActive: true,
+    createdBy: 'Sarah Williams',
+    createdDate: '2026-06-18',
+    lastModified: '2026-06-18',
+    steps: [
+      {
+        id: 'step-1',
+        name: 'Record Witness Statement',
+        description: 'Driver or staff records the witness/bystander account of what they saw or how they helped. No fault is assigned to this student.',
+        assignedRole: 'Driver',
+        estimatedDuration: '10 minutes',
+        required: true,
+        order: 1,
+        trigger: { type: 'manual' },
+      },
+      {
+        id: 'step-2',
+        name: 'Link to Related Incident',
+        description: 'Safety coordinator reviews the statement and links it to the related disciplinary incident (e.g. the physical altercation) for context.',
+        assignedRole: 'Safety Coordinator',
+        estimatedDuration: '10 minutes',
+        required: false,
+        order: 2,
+        trigger: { type: 'auto-complete' },
+      },
+      {
+        id: 'step-3',
+        name: 'File & Close',
+        description: 'File the witness statement and close. No disciplinary measures or parent notification are required for the witness.',
+        assignedRole: 'Safety Coordinator',
+        estimatedDuration: '5 minutes',
+        required: true,
+        order: 3,
+        trigger: { type: 'auto-complete' },
+      },
+    ],
+  },
+
 ];
 
 // ─────────────────────────────────────────────

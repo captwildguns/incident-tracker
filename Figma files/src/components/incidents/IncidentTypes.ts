@@ -6,6 +6,7 @@ export const INCIDENT_CATEGORIES = {
   AGGRESSION: 'Aggression / Violence',
   PROPERTY: 'Property',
   PROHIBITED: 'Prohibited',
+  INFORMATIONAL: 'Informational',
 } as const;
 
 export interface IncidentType {
@@ -56,6 +57,14 @@ export const INCIDENT_TYPES: IncidentType[] = [
     category: INCIDENT_CATEGORIES.PROHIBITED,
     description: 'Possession of a weapon, weapon-like object, tobacco, vaping devices, illegal substances, or any other prohibited materials on the bus',
     defaultSeverity: 'Critical',
+    applicableTo: 'student',
+  },
+  {
+    id: 'witness-bystander',
+    label: 'Witness / Bystander Statement',
+    category: INCIDENT_CATEGORIES.INFORMATIONAL,
+    description: 'Non-disciplinary record capturing the account of a student who witnessed or tried to help during another incident. Use this instead of adding a bystander to a disciplinary incident (e.g. a fight) so their record is not flagged for behavior they were not part of.',
+    defaultSeverity: 'Low',
     applicableTo: 'student',
   },
 ];

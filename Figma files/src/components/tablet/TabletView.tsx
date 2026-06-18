@@ -54,6 +54,7 @@ const TYPES = [
   { label: 'Safety Violation', desc: 'seatbelt, standing, window, exit', def: 'medium' },
   { label: 'Property Damage', desc: 'vandalism, bus or personal property', def: 'medium' },
   { label: 'Weapon / Prohibited Items', desc: 'contact dispatch immediately', def: 'critical' },
+  { label: 'Witness / Bystander Statement', desc: 'record a helper or witness — no fault assigned', def: 'low' },
 ];
 
 const ROLES = ['instigator', 'participant', 'victim', 'bystander'] as const;

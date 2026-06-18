@@ -1512,6 +1512,7 @@ export function IncidentsPage({ onNavigate, onNavigateToCommunication, onNavigat
                   { value: 'Physical Altercation', label: 'Physical Altercation' },
                   { value: 'Property Damage', label: 'Property Damage' },
                   { value: 'Weapon / Prohibited Items', label: 'Weapon / Prohibited Items' },
+                  { value: 'Witness / Bystander Statement', label: 'Witness / Bystander Statement' },
                 ]}
                 selected={pendingTypeFilter}
                 onChange={setPendingTypeFilter}
