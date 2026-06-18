@@ -357,11 +357,12 @@ export function HelpPage() {
                     <div>
                       <h4 className="mb-2">Pre-Configured Workflows</h4>
                       <ul className="ml-5 space-y-1">
-                        <li><strong>WF-001 Physical Altercation Response</strong> &mdash; Physical Altercation</li>
-                        <li><strong>WF-003 Safety Violation Response</strong> &mdash; Safety Violation</li>
-                        <li><strong>WF-005 Disruptive Behavior Response</strong> &mdash; Disruptive Behavior</li>
-                        <li><strong>WF-006 Property Damage Investigation</strong> &mdash; Property Damage</li>
-                        <li><strong>WF-011 Prohibited Items Response</strong> &mdash; Weapon / Prohibited Items</li>
+                        <li><strong>WF-001 Disruptive Behavior Response</strong> &mdash; Disruptive Behavior</li>
+                        <li><strong>WF-002 Physical Altercation Response</strong> &mdash; Physical Altercation</li>
+                        <li><strong>WF-003 Prohibited Items Response</strong> &mdash; Weapon / Prohibited Items</li>
+                        <li><strong>WF-004 Property Damage Investigation</strong> &mdash; Property Damage</li>
+                        <li><strong>WF-005 Safety Violation Response</strong> &mdash; Safety Violation</li>
+                        <li><strong>WF-006 Witness / Bystander Statement</strong> &mdash; Witness / Bystander Statement</li>
                       </ul>
                     </div>
 
