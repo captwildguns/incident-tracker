@@ -593,19 +593,29 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
 
   const allItCategories = Object.values(INCIDENT_CATEGORIES);
 
-  const filteredIncidentTypes = incidentTypes.filter((t) => {
-    const matchesSearch =
-      !itSearch ||
-      t.label.toLowerCase().includes(itSearch.toLowerCase()) ||
-      t.description.toLowerCase().includes(itSearch.toLowerCase()) ||
-      t.id.toLowerCase().includes(itSearch.toLowerCase());
-    const matchesCat = itCategoryFilter.length === 0 || itCategoryFilter.includes(t.category);
-    return matchesSearch && matchesCat;
-  });
-
   // Find linked workflow for an incident type label
   const findLinkedWorkflow = (label: string): Workflow | undefined =>
     workflowsList.find((w) => w.incidentTypes.includes(label) && w.isActive);
+
+  const filteredIncidentTypes = incidentTypes
+    .filter((t) => {
+      const matchesSearch =
+        !itSearch ||
+        t.label.toLowerCase().includes(itSearch.toLowerCase()) ||
+        t.description.toLowerCase().includes(itSearch.toLowerCase()) ||
+        t.id.toLowerCase().includes(itSearch.toLowerCase());
+      const matchesCat = itCategoryFilter.length === 0 || itCategoryFilter.includes(t.category);
+      return matchesSearch && matchesCat;
+    })
+    // Auto-sort by linked workflow id; types with no linked workflow sort last
+    .sort((a, b) => {
+      const aId = findLinkedWorkflow(a.label)?.id ?? '';
+      const bId = findLinkedWorkflow(b.label)?.id ?? '';
+      if (!aId && !bId) return a.label.localeCompare(b.label);
+      if (!aId) return 1;
+      if (!bId) return -1;
+      return aId.localeCompare(bId);
+    });
 
   const openAddIt = () => {
     setEditingIt(null);
