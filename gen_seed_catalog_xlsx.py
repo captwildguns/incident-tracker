@@ -207,22 +207,22 @@ STEP_TEMPLATES = [
 # Email templates: id, name, category, is_default, last_modified, description, subject, body, variables[]
 # IDs are assigned sequentially in alphabetical order by template name.
 EMAIL_TEMPLATES = [
-    ("ET-001", "Approval Request", "Approval", True, "2026-03-10",
+    ("ET-001", "Action Required", "Notification", True, "2026-06-19",
+     "General notification that a workflow step requires action by the assigned role. Suitable for routine and time-sensitive steps alike.",
+     "Action Required: {{step_name}} - {{incident_id}}",
+     "Hello,\n\nA workflow step requires your attention:\n\nStep: {{step_name}}\nIncident: {{incident_id}}\nSeverity: {{severity}}\nAssigned To: {{assigned_role}}\n\nPlease log in to the Incident Tracker to review and complete this step.\n\nThank you,\nIncident Tracker System",
+     ["step_name", "incident_id", "severity", "assigned_role"]),
+    ("ET-002", "Approval Request", "Approval", True, "2026-03-10",
      "Sent to designated approvers when a step requires approval before proceeding.",
      "Approval needed for workflow step: {{step_name}} ({{incident_id}})",
      "Hello,\n\nYour approval is needed for the following workflow step:\n\nStep: {{step_name}}\nIncident: {{incident_id}}\nRequested By: {{requested_by}}\nDate: {{request_date}}\n\nDetails:\n{{step_description}}\n\nPlease log in to the Incident Tracker to review and approve or reject this step.\n\nThank you,\nIncident Tracker System",
      ["step_name", "incident_id", "requested_by", "request_date", "step_description"]),
-    ("ET-002", "Parent/Guardian Notification", "Notification", True, "2026-03-17",
+    ("ET-003", "Parent/Guardian Notification", "Notification", True, "2026-03-17",
      "Sent to parents or guardians when their child is involved in a bus incident. Used across most student-related workflows.",
      "Incident Involving Your Child - {{incident_type}} - {{incident_id}}",
      "Hello,\n\nWe are writing to inform you of an incident that occurred on {{incident_date}} involving your child, {{student_name}}, while riding {{bus_route}}.\n\nIncident Type: {{incident_type}}\nSeverity: {{severity}}\nLocation: {{incident_location}}\n\nSummary:\n{{incident_summary}}\n\nImmediate actions taken:\n{{actions_taken}}\n\nIf you have any questions or concerns, please contact INSERT NAME at PHONE# or EMAIL.\n\nSincerely,\n{{sender_name}}\n{{sender_title}}\nStudent Transportation Department",
      ["student_name", "bus_route", "incident_date", "incident_type", "severity",
       "incident_location", "incident_summary", "actions_taken", "sender_name", "sender_title"]),
-    ("ET-003", "Urgent Action Required", "Notification", True, "2026-03-10",
-     "High-priority notification for critical or time-sensitive workflow steps.",
-     "[URGENT] Action Required: {{step_name}} - {{incident_id}}",
-     "URGENT: Immediate action is required.\n\nHello {{recipient_name}},\n\nA high-priority workflow step requires your immediate attention:\n\nStep: {{step_name}}\nIncident: {{incident_id}}\nSeverity: {{severity}}\nAssigned To: {{assigned_role}}\n\nPlease log in to the Incident Tracker immediately to address this matter.\n\nThis notification was sent because the incident severity is {{severity}} and requires prompt resolution.\n\nThank you,\nIncident Tracker System",
-     ["recipient_name", "step_name", "incident_id", "severity", "assigned_role"]),
 ]
 
 # ──────────────────────────────────────────────────────────────────────────
