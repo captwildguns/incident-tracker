@@ -426,7 +426,7 @@ export const workflows: Workflow[] = [
       {
         id: 'step-2',
         name: 'Submit Incident Report',
-        description: 'Driver submits the incident details — what occurred, injuries, and any threatening behavior — through the tablet app. Submitting the report notifies the safety coordinator.',
+        description: 'Driver submits the incident details — what occurred, the prohibited item involved, and how it was confiscated or secured — through the tablet app. Submitting the report notifies the safety coordinator.',
         assignedRole: 'Driver',
         estimatedDuration: '15 minutes',
         required: true,

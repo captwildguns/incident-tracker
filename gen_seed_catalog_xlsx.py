@@ -101,7 +101,7 @@ WORKFLOW_STEPS = [
      "Driver safely confiscates item (if possible) and secures it; do not handle weapons or suspected drugs directly—contact dispatch",
      "Driver", "15 minutes", True, False, [], "manual", None, None, "", None, None, None, None, None, []),
     ("WF-003", "step-2", 2, "Submit Incident Report",
-     "Driver submits the incident details — what occurred, injuries, and any threatening behavior — through the tablet app. Submitting the report notifies the safety coordinator.",
+     "Driver submits the incident details — what occurred, the prohibited item involved, and how it was confiscated or secured — through the tablet app. Submitting the report notifies the safety coordinator.",
      "Driver", "15 minutes", True, False, [], "manual", None, None, "",
      None, None, None, None, None, []),
     ("WF-003", "step-3", 3, "Parent Notification",
