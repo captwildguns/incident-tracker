@@ -163,13 +163,7 @@ WORKFLOW_STEPS = [
     # WF-006 Witness / Bystander Statement
     ("WF-006", "step-1", 1, "Record Witness Statement",
      "Driver or staff records the witness/bystander account of what they saw or how they helped. No fault is assigned to this student.",
-     "Driver", "10 minutes", True, False, [], "manual", None, None, "", None, None, None, None, None, []),
-    ("WF-006", "step-2", 2, "Link to Related Incident",
-     "Safety coordinator reviews the statement and links it to the related disciplinary incident (e.g. the physical altercation) for context.",
-     "Safety Coordinator", "10 minutes", False, False, [], "manual", None, None, "", None, None, None, None, None, []),
-    ("WF-006", "step-3", 3, "File & Close",
-     "File the witness statement and close. No disciplinary measures or parent notification are required for the witness.",
-     "Safety Coordinator", "5 minutes", True, False, [], "manual", None, None, "", None, None, None, None, None, []),
+     "Driver", "10 minutes", False, False, [], "manual", None, None, "", None, None, None, None, None, []),
 ]
 
 # Roles to notify by email for a step, keyed by (workflow_id, step_key).
