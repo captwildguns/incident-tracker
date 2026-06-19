@@ -36,6 +36,7 @@ import {
   X,
 } from 'lucide-react';
 import { workflowStepTemplates, WorkflowStepTemplate } from './WorkflowStepLibrary';
+import { INITIAL_EMAIL_TEMPLATES } from '../../data/email-templates';
 import { toast } from 'sonner';
 
 interface StepTemplateManagerProps {
@@ -107,6 +108,7 @@ export function StepTemplateManager({
       sendEmail: true,
       emailTiming: 'before' as 'before' | 'after',
       notifyAssignee: true,
+      emailTemplate: 'Action Required',
     },
     tags: [] as string[],
     instructions: [] as string[],
@@ -128,6 +130,7 @@ export function StepTemplateManager({
       sendEmail: true,
       emailTiming: 'before' as 'before' | 'after',
       notifyAssignee: true,
+      emailTemplate: 'Action Required',
     },
     tags: [] as string[],
     instructions: [] as string[],
@@ -156,11 +159,18 @@ export function StepTemplateManager({
         defaultRole: editingTemplate.defaultRole,
         defaultDuration: editingTemplate.defaultDuration,
         requiresApproval: editingTemplate.requiresApproval || false,
-        emailNotifications: {
-          sendEmail: (editingTemplate.emailNotifications as any)?.sendEmail ?? true,
-          emailTiming: (editingTemplate.emailNotifications as any)?.emailTiming ?? 'before',
-          notifyAssignee: editingTemplate.emailNotifications?.notifyAssignee ?? true,
-        },
+        emailNotifications: (() => {
+          const en = editingTemplate.emailNotifications as any;
+          return {
+            // A template with no emailNotifications has no email configured.
+            sendEmail: en ? (en.sendEmail ?? true) : false,
+            // Derive timing from the notify flags when no explicit emailTiming.
+            emailTiming: en?.emailTiming
+              ?? (en?.notifyOnComplete && !en?.notifyOnStart ? 'after' : 'before'),
+            notifyAssignee: en?.notifyAssignee ?? true,
+            emailTemplate: en?.emailTemplate ?? 'Action Required',
+          };
+        })(),
         tags: [...editingTemplate.tags],
         instructions: [...(editingTemplate.instructions || [])],
       });
@@ -220,7 +230,14 @@ export function StepTemplateManager({
       defaultRole: newTemplate.defaultRole,
       defaultDuration: newTemplate.defaultDuration,
       requiresApproval: newTemplate.requiresApproval,
-      emailNotifications: newTemplate.emailNotifications,
+      emailNotifications: newTemplate.emailNotifications.sendEmail
+        ? {
+            notifyOnStart: newTemplate.emailNotifications.emailTiming === 'before',
+            notifyOnComplete: newTemplate.emailNotifications.emailTiming === 'after',
+            notifyAssignee: newTemplate.emailNotifications.notifyAssignee,
+            emailTemplate: newTemplate.emailNotifications.emailTemplate,
+          }
+        : undefined,
       tags: newTemplate.tags,
       instructions: newTemplate.instructions,
     };
@@ -287,7 +304,20 @@ export function StepTemplateManager({
       defaultRole: editForm.defaultRole,
       defaultDuration: editForm.defaultDuration,
       requiresApproval: editForm.requiresApproval,
-      emailNotifications: editForm.emailNotifications,
+      emailNotifications: editForm.emailNotifications.sendEmail
+        ? {
+            notifyOnStart: editForm.emailNotifications.emailTiming === 'before',
+            notifyOnComplete: editForm.emailNotifications.emailTiming === 'after',
+            notifyAssignee: editForm.emailNotifications.notifyAssignee,
+            ...((editingTemplate.emailNotifications as any)?.notifyApprovers !== undefined
+              ? { notifyApprovers: (editingTemplate.emailNotifications as any).notifyApprovers }
+              : {}),
+            ...((editingTemplate.emailNotifications as any)?.notifyGroups
+              ? { notifyGroups: (editingTemplate.emailNotifications as any).notifyGroups }
+              : {}),
+            emailTemplate: editForm.emailNotifications.emailTemplate,
+          }
+        : undefined,
       tags: editForm.tags,
       instructions: editForm.instructions,
     };
@@ -639,6 +669,23 @@ export function StepTemplateManager({
                       />
                       <span style={{ fontSize: 'var(--text-sm)' }}>After the step — notify once this step is complete</span>
                     </label>
+                    <div style={{ marginTop: 'var(--forge-spacing-xsmall)' }}>
+                      <span style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>Email template</span>
+                      <select
+                        value={newTemplate.emailNotifications.emailTemplate}
+                        onChange={(e) =>
+                          setNewTemplate({
+                            ...newTemplate,
+                            emailNotifications: { ...newTemplate.emailNotifications, emailTemplate: e.target.value },
+                          })
+                        }
+                        style={{ width: '100%', marginTop: '4px', padding: 'var(--forge-spacing-small)', borderRadius: 'var(--forge-radius-medium)', border: '1px solid var(--border)', fontSize: 'var(--text-base)', background: 'var(--input-background)' }}
+                      >
+                        {INITIAL_EMAIL_TEMPLATES.map((t) => (
+                          <option key={t.id} value={t.name}>{t.name} ({t.category})</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 )}
 
@@ -851,6 +898,18 @@ export function StepTemplateManager({
                       <input type="radio" name="edit-email-timing" value="after" checked={editForm.emailNotifications.emailTiming === 'after'} onChange={() => setEditForm({ ...editForm, emailNotifications: { ...editForm.emailNotifications, emailTiming: 'after' } })} />
                       <span style={{ fontSize: 'var(--text-sm)' }}>After the step — notify once this step is complete</span>
                     </label>
+                    <div style={{ marginTop: 'var(--forge-spacing-xsmall)' }}>
+                      <span style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>Email template</span>
+                      <select
+                        value={editForm.emailNotifications.emailTemplate}
+                        onChange={(e) => setEditForm({ ...editForm, emailNotifications: { ...editForm.emailNotifications, emailTemplate: e.target.value } })}
+                        style={{ width: '100%', marginTop: '4px', padding: 'var(--forge-spacing-small)', borderRadius: 'var(--forge-radius-medium)', border: '1px solid var(--border)', fontSize: 'var(--text-base)', background: 'var(--input-background)' }}
+                      >
+                        {INITIAL_EMAIL_TEMPLATES.map((t) => (
+                          <option key={t.id} value={t.name}>{t.name} ({t.category})</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 )}
 
