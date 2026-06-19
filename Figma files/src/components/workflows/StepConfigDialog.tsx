@@ -78,6 +78,11 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
         emailNotifications: {
           ...defaultConfig.emailNotifications!,
           ...(step.emailNotifications || {}),
+          // Derive sendEmail from the step's actual data: a step with no
+          // emailNotifications has no email configured (don't fabricate one).
+          sendEmail: step.emailNotifications
+            ? ((step.emailNotifications as { sendEmail?: boolean }).sendEmail ?? true)
+            : false,
         },
         approvers: step.approvers || [],
       });
