@@ -75,15 +75,25 @@ export function StepConfigDialog({ step, isOpen, onClose, onSave }: StepConfigDi
       setConfig({
         ...defaultConfig,
         ...step,
-        emailNotifications: {
-          ...defaultConfig.emailNotifications!,
-          ...(step.emailNotifications || {}),
-          // Derive sendEmail from the step's actual data: a step with no
-          // emailNotifications has no email configured (don't fabricate one).
-          sendEmail: step.emailNotifications
-            ? ((step.emailNotifications as { sendEmail?: boolean }).sendEmail ?? true)
-            : false,
-        },
+        emailNotifications: (() => {
+          const en = step.emailNotifications as {
+            sendEmail?: boolean;
+            emailTiming?: 'before' | 'after';
+            notifyOnStart?: boolean;
+            notifyOnComplete?: boolean;
+          } | undefined;
+          return {
+            ...defaultConfig.emailNotifications!,
+            ...(step.emailNotifications || {}),
+            // Derive sendEmail from the step's actual data: a step with no
+            // emailNotifications has no email configured (don't fabricate one).
+            sendEmail: en ? (en.sendEmail ?? true) : false,
+            // Derive timing from the notify flags when no explicit emailTiming
+            // is stored: complete-only => "after", otherwise "before".
+            emailTiming: en?.emailTiming
+              ?? (en?.notifyOnComplete && !en?.notifyOnStart ? 'after' : 'before'),
+          };
+        })(),
         approvers: step.approvers || [],
       });
       setActiveTab('general');
