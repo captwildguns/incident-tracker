@@ -134,7 +134,11 @@ WORKFLOW_STEPS = [
      "Action Required", False, True, True, True, []),
     ("WF-004", "step-5", 5, "Repair Scheduling",
      "Schedule and complete vehicle repairs",
-     "Fleet Manager", "2 hours", True, False, [], "manual", None, None, "", None, None, None, None, None, []),
+     "Fleet Manager", "2 hours", True, False, [], "manual", None, None, "",
+     "Action Required", False, True, True, False, []),
+    ("WF-004", "step-6", 6, "Documentation & Close",
+     "Complete incident documentation and close case",
+     "Safety Coordinator", "20 minutes", True, False, [], "manual", None, None, "", None, None, None, None, None, []),
 
     # WF-005 Safety Violation Response
     ("WF-005", "step-1", 1, "Immediate Safety Response",
@@ -175,6 +179,7 @@ NOTIFY_GROUPS = {
     ("WF-003", "step-4"): ["Safety Coordinator"],
     ("WF-004", "step-2"): ["Safety Coordinator"],
     ("WF-004", "step-4"): ["Safety Coordinator"],
+    ("WF-004", "step-5"): ["Safety Coordinator"],
     ("WF-005", "step-4"): ["Safety Coordinator"],
 }
 
@@ -344,8 +349,8 @@ line("")
 line("Notes for seeding", head=True)
 line("• Booleans are written as TRUE / FALSE. Blank in a boolean column means 'not configured' (treat as NULL/false).")
 line("• 'email_template' on a step references Email Templates.name. A blank means the step sends no templated email "
-     "(though notify_* flags may still be set). The disciplinary-review steps (WF-002/003/004/005 step 4) and "
-     "WF-004 step 2 (Fleet Manager Review) reference the 'Action Required' template; the other templates are "
+     "(though notify_* flags may still be set). Several steps reference the 'Action Required' template — the "
+     "disciplinary-review step 4s (WF-002/003/004/005) and WF-004 steps 2 and 5; the other templates are "
      "seeded as a reusable library.")
 line("• 'notify_groups' lists the roles that should receive the step's email (comma-separated). 'notify_on_start' / "
      "'notify_on_complete' indicate timing: notify before the step starts vs. after it completes.")
