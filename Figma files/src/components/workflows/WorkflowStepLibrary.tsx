@@ -59,38 +59,6 @@ export const workflowStepTemplates: WorkflowStepTemplate[] = [
     },
     tags: ['parent', 'guardian', 'notification', 'contact'],
   },
-  {
-    id: 'comm-safety-alert',
-    name: 'Safety Coordinator Alert',
-    description: 'Send urgent notification to safety coordinator with full incident details',
-    category: 'Notification',
-    icon: Bell,
-    defaultGroup: 'Safety Coordinator',
-    defaultDuration: '15 minutes',
-    requiresApproval: false,
-    emailNotifications: {
-      notifyOnStart: true,
-      notifyOnComplete: true,
-      notifyAssignee: true,
-    },
-    tags: ['safety', 'coordinator', 'alert', 'urgent'],
-  },
-  {
-    id: 'comm-admin-notify',
-    name: 'Administrator / Principal Notification',
-    description: 'Notify school administrator or principal of the incident',
-    category: 'Notification',
-    icon: Mail,
-    defaultGroup: 'School Principal',
-    defaultDuration: '20 minutes',
-    requiresApproval: false,
-    emailNotifications: {
-      notifyOnStart: true,
-      notifyOnComplete: false,
-      notifyAssignee: true,
-    },
-    tags: ['administrator', 'principal', 'school', 'notification'],
-  },
 
   // Review & Action Steps
   {
@@ -138,25 +106,6 @@ export const workflowStepTemplates: WorkflowStepTemplate[] = [
       notifyAssignee: true,
     },
     tags: ['police', 'law enforcement', 'criminal', 'report'],
-  },
-  {
-    id: 'admin-fleet-repair',
-    name: 'Fleet / Repair Coordination',
-    description: 'Fleet manager assesses damage, provides repair estimate, and schedules vehicle repairs',
-    category: 'Review & Action',
-    icon: Settings,
-    defaultGroup: 'Fleet Manager',
-    defaultDuration: '2 hours',
-    requiresApproval: false,
-    emailNotifications: {
-      notifyOnStart: false,
-      notifyOnComplete: true,
-      notifyAssignee: true,
-      notifyApprovers: false,
-      notifyGroups: ['Safety Coordinator'],
-      emailTemplate: 'Action Required',
-    },
-    tags: ['fleet', 'repair', 'vehicle', 'damage', 'maintenance'],
   },
 
   // Close Out Steps

@@ -184,14 +184,6 @@ STEP_TEMPLATES = [
      "Contact parent or guardian to inform them of the incident and expected next steps",
      "Safety Coordinator", "20 minutes", False, False, True, True,
      ["parent", "guardian", "notification", "contact"]),
-    ("comm-safety-alert", "Safety Coordinator Alert", "Notification",
-     "Send urgent notification to safety coordinator with full incident details",
-     "Safety Coordinator", "15 minutes", False, True, True, True,
-     ["safety", "coordinator", "alert", "urgent"]),
-    ("comm-admin-notify", "Administrator / Principal Notification", "Notification",
-     "Notify school administrator or principal of the incident",
-     "School Principal", "20 minutes", False, True, False, True,
-     ["administrator", "principal", "school", "notification"]),
     ("doc-photo-evidence", "Photo & Evidence Documentation", "Review & Action",
      "Photograph damage or relevant scene, document physical evidence",
      "Driver", "20 minutes", False, None, None, None,
@@ -204,10 +196,6 @@ STEP_TEMPLATES = [
      "File police report or coordinate with law enforcement for criminal incidents",
      "Administrator", "1 hour", True, True, True, True,
      ["police", "law enforcement", "criminal", "report"]),
-    ("admin-fleet-repair", "Fleet / Repair Coordination", "Review & Action",
-     "Fleet manager assesses damage, provides repair estimate, and schedules vehicle repairs",
-     "Fleet Manager", "2 hours", False, False, True, True,
-     ["fleet", "repair", "vehicle", "damage", "maintenance"]),
     ("follow-close-incident", "Documentation & Close", "Close Out",
      "Complete all incident documentation, finalize the record, and close the case",
      "Safety Coordinator", "15 minutes", False, None, None, None,
@@ -218,7 +206,6 @@ STEP_TEMPLATES = [
 # keyed by template id: notify_approvers, notify_groups (roles), email_template.
 TEMPLATE_EMAIL_EXTRA = {
     "admin-disciplinary-review": {"notify_approvers": True, "notify_groups": ["Safety Coordinator"], "email_template": "Action Required"},
-    "admin-fleet-repair": {"notify_approvers": False, "notify_groups": ["Safety Coordinator"], "email_template": "Action Required"},
 }
 
 # Email templates: id, name, category, is_default, last_modified, description, subject, body, variables[]
