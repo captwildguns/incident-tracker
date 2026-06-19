@@ -112,7 +112,7 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
   });
 
   // Pagination state
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Pagination calculations
@@ -487,7 +487,7 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                     <span style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', fontFamily: 'var(--forge-font-family)', whiteSpace: 'nowrap' }}>
                       Showing {startIndex + 1}&ndash;{Math.min(startIndex + rowsPerPage, filteredWorkflows.length)} of {filteredWorkflows.length} workflows
                     </span>
-                    {rowsPerPage === 5 && filteredWorkflows.length > 5 && (
+                    {rowsPerPage === 10 && filteredWorkflows.length > 10 && (
                       <ForgeButton
                         variant="outlined"
                         dense
@@ -501,10 +501,10 @@ export function WorkflowsPage({ onNavigate, onNavigateToWorkflowBuilder }: Workf
                       <ForgeButton
                         variant="outlined"
                         dense
-                        onClick={() => { setRowsPerPage(5); setCurrentPage(1); }}
+                        onClick={() => { setRowsPerPage(10); setCurrentPage(1); }}
                         style={{ fontSize: '0.75rem', fontFamily: 'var(--forge-font-family)' }}
                       >
-                        Show 5
+                        Show 10
                       </ForgeButton>
                     )}
                   </div>
