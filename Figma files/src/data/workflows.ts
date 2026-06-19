@@ -425,20 +425,13 @@ export const workflows: Workflow[] = [
       },
       {
         id: 'step-2',
-        name: 'Safety Coordinator & Administration Alert',
-        description: 'Notify safety coordinator and school administration; for illegal substances or weapons, notify law enforcement',
+        name: 'Submit Incident Report',
+        description: 'Driver submits the incident details — what occurred, injuries, and any threatening behavior — through the tablet app. Submitting the report notifies the safety coordinator.',
         assignedRole: 'Driver',
         estimatedDuration: '15 minutes',
         required: true,
         order: 2,
         trigger: { type: 'manual' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: true,
-          notifyAssignee: true,
-          notifyApprovers: false,
-          additionalRecipients: [],
-        },
       },
       {
         id: 'step-3',
