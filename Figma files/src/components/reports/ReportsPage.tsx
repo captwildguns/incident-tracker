@@ -12,6 +12,7 @@ defineButtonComponent();
 defineDialogComponent();
 defineBadgeComponent();
 defineIconComponent();
+import { INCIDENT_TYPES } from '../incidents/IncidentTypes';
 
 const quickReports = [
   {
@@ -371,13 +372,7 @@ export function ReportsPage({ onNavigate }: ReportsPageProps) {
     return () => el.removeEventListener('forge-dialog-close', handler);
   }, []);
 
-  const incidentTypes = [
-    'Behavioral',
-    'Safety Violation',
-    'Physical Altercation',
-    'Property Damage',
-    'Weapon / Prohibited Items',
-  ];
+  const incidentTypes = INCIDENT_TYPES.map((type) => type.label);
 
   const vehicleRuns = [
     'Meyers Middle AM - Yellow', 
