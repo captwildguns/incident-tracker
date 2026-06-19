@@ -87,7 +87,7 @@ WORKFLOW_STEPS = [
     ("WF-002", "step-3", 3, "Parent Notification",
      "Contact parents of all students involved and explain incident",
      "Safety Coordinator", "30 minutes", True, False, [], "manual", None, None, "",
-     None, True, False, True, False, []),
+     None, False, True, True, False, []),
     ("WF-002", "step-4", 4, "Disciplinary Action Review",
      "Administrator reviews incident and determines appropriate disciplinary measures",
      "Administrator", "1 hour", True, True, ["Administrator"],

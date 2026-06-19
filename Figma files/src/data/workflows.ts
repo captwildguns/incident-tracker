@@ -103,8 +103,8 @@ export const workflows: Workflow[] = [
         status: 'Not Started',
         trigger: { type: 'manual' },
         emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: false,
+          notifyOnStart: false,
+          notifyOnComplete: true,
           notifyAssignee: true,
           notifyApprovers: false,
           additionalRecipients: [],
