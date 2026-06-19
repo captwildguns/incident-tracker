@@ -156,7 +156,7 @@ export function StepTemplateManager({
         description: editingTemplate.description,
         category: editingTemplate.category,
         icon: iconName,
-        defaultRole: editingTemplate.defaultRole,
+        defaultRole: editingTemplate.defaultGroup,
         defaultDuration: editingTemplate.defaultDuration,
         requiresApproval: editingTemplate.requiresApproval || false,
         emailNotifications: (() => {
@@ -227,7 +227,7 @@ export function StepTemplateManager({
       description: newTemplate.description,
       category: newTemplate.category,
       icon: selectedIcon?.icon || Phone,
-      defaultRole: newTemplate.defaultRole,
+      defaultGroup: newTemplate.defaultRole,
       defaultDuration: newTemplate.defaultDuration,
       requiresApproval: newTemplate.requiresApproval,
       emailNotifications: newTemplate.emailNotifications.sendEmail
@@ -301,7 +301,7 @@ export function StepTemplateManager({
       description: editForm.description,
       category: editForm.category,
       icon: selectedIcon?.icon || editingTemplate.icon,
-      defaultRole: editForm.defaultRole,
+      defaultGroup: editForm.defaultRole,
       defaultDuration: editForm.defaultDuration,
       requiresApproval: editForm.requiresApproval,
       emailNotifications: editForm.emailNotifications.sendEmail
@@ -1142,7 +1142,7 @@ export function StepTemplateManager({
                     </Badge>
                     <Badge variant="outline" style={{ fontSize: '0.6875rem' }}>
                       <UserCheck className="h-3 w-3 mr-1" />
-                      {template.defaultRole}
+                      {template.defaultGroup}
                     </Badge>
                     {template.requiresApproval && (
                       <Badge variant="outline" style={{ fontSize: '0.6875rem' }}>
