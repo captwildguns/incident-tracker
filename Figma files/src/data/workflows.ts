@@ -83,7 +83,7 @@ export const workflows: Workflow[] = [
       },
       {
         id: 'step-2',
-        name: 'Submit Incident Report via Tablet App',
+        name: 'Submit Incident Report',
         description: 'Driver submits the incident details — what occurred, injuries, and any threatening behavior — through the tablet app. Submitting the report notifies the safety coordinator.',
         assignedRole: 'Driver',
         estimatedDuration: '15 minutes',
@@ -91,13 +91,6 @@ export const workflows: Workflow[] = [
         order: 2,
         status: 'In Progress',
         trigger: { type: 'manual' },
-        emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: true,
-          notifyAssignee: true,
-          notifyApprovers: false,
-          additionalRecipients: [],
-        },
       },
       {
         id: 'step-3',
