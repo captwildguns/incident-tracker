@@ -145,7 +145,7 @@ WORKFLOW_STEPS = [
      "Driver addresses the safety issue, secures the situation, and documents the incident",
      "Driver", "15 minutes", True, False, [], "manual", None, None, "", None, None, None, None, None, []),
     ("WF-005", "step-2", 2, "Submit Incident Report",
-     "Driver submits the incident details — what occurred, injuries, and any threatening behavior — through the tablet app. Submitting the report notifies the safety coordinator.",
+     "Driver submits the incident details — what occurred, the safety violation involved, and any action taken to secure the situation — through the tablet app. Submitting the report notifies the safety coordinator.",
      "Driver", "15 minutes", True, False, [], "manual", None, None, "",
      None, None, None, None, None, []),
     ("WF-005", "step-3", 3, "Parent Notification",
