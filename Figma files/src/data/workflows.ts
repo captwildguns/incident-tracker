@@ -324,7 +324,9 @@ export const workflows: Workflow[] = [
           notifyOnComplete: true,
           notifyAssignee: true,
           notifyApprovers: false,
+          notifyGroups: ['Safety Coordinator'],
           additionalRecipients: [],
+          emailTemplate: 'Action Required',
         },
       },
       {

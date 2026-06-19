@@ -123,7 +123,7 @@ WORKFLOW_STEPS = [
     ("WF-004", "step-2", 2, "Fleet Manager Review",
      "Fleet manager assesses damage and provides repair estimate",
      "Fleet Manager", "30 minutes", True, False, [], "manual", None, None, "",
-     None, True, True, True, False, []),
+     "Action Required", True, True, True, False, []),
     ("WF-004", "step-3", 3, "Parent Notification & Restitution",
      "Contact parents and discuss restitution for damages",
      "Safety Coordinator", "45 minutes", True, False, [], "manual", None, None, "",
@@ -173,6 +173,7 @@ WORKFLOW_STEPS = [
 NOTIFY_GROUPS = {
     ("WF-002", "step-4"): ["Safety Coordinator"],
     ("WF-003", "step-4"): ["Safety Coordinator"],
+    ("WF-004", "step-2"): ["Safety Coordinator"],
     ("WF-004", "step-4"): ["Safety Coordinator"],
     ("WF-005", "step-4"): ["Safety Coordinator"],
 }
@@ -343,8 +344,9 @@ line("")
 line("Notes for seeding", head=True)
 line("• Booleans are written as TRUE / FALSE. Blank in a boolean column means 'not configured' (treat as NULL/false).")
 line("• 'email_template' on a step references Email Templates.name. A blank means the step sends no templated email "
-     "(though notify_* flags may still be set). The disciplinary-review steps (WF-002/003/004/005 step 4) "
-     "reference the 'Action Required' template; the other templates are seeded as a reusable library.")
+     "(though notify_* flags may still be set). The disciplinary-review steps (WF-002/003/004/005 step 4) and "
+     "WF-004 step 2 (Fleet Manager Review) reference the 'Action Required' template; the other templates are "
+     "seeded as a reusable library.")
 line("• 'notify_groups' lists the roles that should receive the step's email (comma-separated). 'notify_on_start' / "
      "'notify_on_complete' indicate timing: notify before the step starts vs. after it completes.")
 line("• Every workflow step is manually triggered (trigger_type = manual); there are no time-delay/conditional/"
