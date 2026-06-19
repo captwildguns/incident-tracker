@@ -190,7 +190,7 @@ STEP_TEMPLATES = [
      ["photo", "evidence", "documentation", "damage"]),
     ("admin-disciplinary-review", "Disciplinary Review", "Review & Action",
      "Administrator reviews incident and determines appropriate disciplinary action; requires approval before proceeding",
-     "Administrator", "1 hour", True, False, True, True,
+     "School Principal", "1 hour", True, False, True, True,
      ["disciplinary", "review", "administrator", "approval"]),
     ("admin-police-report", "Law Enforcement Contact", "Review & Action",
      "File police report or coordinate with law enforcement for criminal incidents",

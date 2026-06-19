@@ -78,7 +78,7 @@ export const workflowStepTemplates: WorkflowStepTemplate[] = [
     description: 'Administrator reviews incident and determines appropriate disciplinary action; requires approval before proceeding',
     category: 'Review & Action',
     icon: Shield,
-    defaultGroup: 'Administrator',
+    defaultGroup: 'School Principal',
     defaultDuration: '1 hour',
     requiresApproval: true,
     emailNotifications: {

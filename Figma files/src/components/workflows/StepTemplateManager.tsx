@@ -80,7 +80,7 @@ const roleOptions = [
   'Driver',
   'Nurse',
   'Counselor',
-  'Principal',
+  'School Principal',
   'Transportation Director',
 ];
 
@@ -108,6 +108,7 @@ export function StepTemplateManager({
       sendEmail: true,
       emailTiming: 'before' as 'before' | 'after',
       notifyAssignee: true,
+      notifyGroups: ['Safety Coordinator'] as string[],
       emailTemplate: 'Action Required',
     },
     tags: [] as string[],
@@ -130,6 +131,7 @@ export function StepTemplateManager({
       sendEmail: true,
       emailTiming: 'before' as 'before' | 'after',
       notifyAssignee: true,
+      notifyGroups: ['Safety Coordinator'] as string[],
       emailTemplate: 'Action Required',
     },
     tags: [] as string[],
@@ -168,6 +170,7 @@ export function StepTemplateManager({
             emailTiming: en?.emailTiming
               ?? (en?.notifyOnComplete && !en?.notifyOnStart ? 'after' : 'before'),
             notifyAssignee: en?.notifyAssignee ?? true,
+            notifyGroups: (en?.notifyGroups as string[]) ?? [],
             emailTemplate: en?.emailTemplate ?? 'Action Required',
           };
         })(),
@@ -235,6 +238,9 @@ export function StepTemplateManager({
             notifyOnStart: newTemplate.emailNotifications.emailTiming === 'before',
             notifyOnComplete: newTemplate.emailNotifications.emailTiming === 'after',
             notifyAssignee: newTemplate.emailNotifications.notifyAssignee,
+            ...(newTemplate.emailNotifications.notifyGroups.length
+              ? { notifyGroups: newTemplate.emailNotifications.notifyGroups }
+              : {}),
             emailTemplate: newTemplate.emailNotifications.emailTemplate,
           }
         : undefined,
@@ -312,8 +318,8 @@ export function StepTemplateManager({
             ...((editingTemplate.emailNotifications as any)?.notifyApprovers !== undefined
               ? { notifyApprovers: (editingTemplate.emailNotifications as any).notifyApprovers }
               : {}),
-            ...((editingTemplate.emailNotifications as any)?.notifyGroups
-              ? { notifyGroups: (editingTemplate.emailNotifications as any).notifyGroups }
+            ...(editForm.emailNotifications.notifyGroups.length
+              ? { notifyGroups: editForm.emailNotifications.notifyGroups }
               : {}),
             emailTemplate: editForm.emailNotifications.emailTemplate,
           }
@@ -686,6 +692,24 @@ export function StepTemplateManager({
                         ))}
                       </select>
                     </div>
+                    <div style={{ marginTop: 'var(--forge-spacing-xsmall)' }}>
+                      <span style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>Send email to group</span>
+                      <select
+                        value={newTemplate.emailNotifications.notifyGroups[0] || ''}
+                        onChange={(e) =>
+                          setNewTemplate({
+                            ...newTemplate,
+                            emailNotifications: { ...newTemplate.emailNotifications, notifyGroups: e.target.value ? [e.target.value] : [] },
+                          })
+                        }
+                        style={{ width: '100%', marginTop: '4px', padding: 'var(--forge-spacing-small)', borderRadius: 'var(--forge-radius-medium)', border: '1px solid var(--border)', fontSize: 'var(--text-base)', background: 'var(--input-background)' }}
+                      >
+                        <option value="">None</option>
+                        {roleOptions.map((r) => (
+                          <option key={r} value={r}>{r}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 )}
 
@@ -907,6 +931,19 @@ export function StepTemplateManager({
                       >
                         {INITIAL_EMAIL_TEMPLATES.map((t) => (
                           <option key={t.id} value={t.name}>{t.name} ({t.category})</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div style={{ marginTop: 'var(--forge-spacing-xsmall)' }}>
+                      <span style={{ fontSize: 'var(--text-sm)', color: 'var(--muted-foreground)' }}>Send email to group</span>
+                      <select
+                        value={editForm.emailNotifications.notifyGroups[0] || ''}
+                        onChange={(e) => setEditForm({ ...editForm, emailNotifications: { ...editForm.emailNotifications, notifyGroups: e.target.value ? [e.target.value] : [] } })}
+                        style={{ width: '100%', marginTop: '4px', padding: 'var(--forge-spacing-small)', borderRadius: 'var(--forge-radius-medium)', border: '1px solid var(--border)', fontSize: 'var(--text-base)', background: 'var(--input-background)' }}
+                      >
+                        <option value="">None</option>
+                        {roleOptions.map((r) => (
+                          <option key={r} value={r}>{r}</option>
                         ))}
                       </select>
                     </div>
