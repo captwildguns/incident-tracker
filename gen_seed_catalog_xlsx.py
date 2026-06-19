@@ -194,7 +194,7 @@ STEP_TEMPLATES = [
      ["disciplinary", "review", "administrator", "approval"]),
     ("admin-police-report", "Law Enforcement Contact", "Review & Action",
      "File police report or coordinate with law enforcement for criminal incidents",
-     "Administrator", "1 hour", True, True, True, True,
+     "Administrator", "1 hour", True, None, None, None,
      ["police", "law enforcement", "criminal", "report"]),
     ("follow-close-incident", "Documentation & Close", "Close Out",
      "Complete all incident documentation, finalize the record, and close the case",

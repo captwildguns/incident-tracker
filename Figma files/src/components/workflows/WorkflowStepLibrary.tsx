@@ -100,11 +100,6 @@ export const workflowStepTemplates: WorkflowStepTemplate[] = [
     defaultGroup: 'Administrator',
     defaultDuration: '1 hour',
     requiresApproval: true,
-    emailNotifications: {
-      notifyOnStart: true,
-      notifyOnComplete: true,
-      notifyAssignee: true,
-    },
     tags: ['police', 'law enforcement', 'criminal', 'report'],
   },
 
