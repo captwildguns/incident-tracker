@@ -34,6 +34,9 @@ export interface WorkflowStepTemplate {
     notifyOnStart: boolean;
     notifyOnComplete: boolean;
     notifyAssignee: boolean;
+    notifyApprovers?: boolean;
+    notifyGroups?: string[];
+    emailTemplate?: string;
   };
   tags: string[];
 }
@@ -50,8 +53,8 @@ export const workflowStepTemplates: WorkflowStepTemplate[] = [
     defaultDuration: '20 minutes',
     requiresApproval: false,
     emailNotifications: {
-      notifyOnStart: true,
-      notifyOnComplete: false,
+      notifyOnStart: false,
+      notifyOnComplete: true,
       notifyAssignee: true,
     },
     tags: ['parent', 'guardian', 'notification', 'contact'],
@@ -111,9 +114,12 @@ export const workflowStepTemplates: WorkflowStepTemplate[] = [
     defaultDuration: '1 hour',
     requiresApproval: true,
     emailNotifications: {
-      notifyOnStart: true,
+      notifyOnStart: false,
       notifyOnComplete: true,
       notifyAssignee: true,
+      notifyApprovers: true,
+      notifyGroups: ['Safety Coordinator'],
+      emailTemplate: 'Action Required',
     },
     tags: ['disciplinary', 'review', 'administrator', 'approval'],
   },
@@ -142,6 +148,14 @@ export const workflowStepTemplates: WorkflowStepTemplate[] = [
     defaultGroup: 'Fleet Manager',
     defaultDuration: '2 hours',
     requiresApproval: false,
+    emailNotifications: {
+      notifyOnStart: false,
+      notifyOnComplete: true,
+      notifyAssignee: true,
+      notifyApprovers: false,
+      notifyGroups: ['Safety Coordinator'],
+      emailTemplate: 'Action Required',
+    },
     tags: ['fleet', 'repair', 'vehicle', 'damage', 'maintenance'],
   },
 
@@ -155,11 +169,6 @@ export const workflowStepTemplates: WorkflowStepTemplate[] = [
     defaultGroup: 'Safety Coordinator',
     defaultDuration: '15 minutes',
     requiresApproval: false,
-    emailNotifications: {
-      notifyOnStart: false,
-      notifyOnComplete: true,
-      notifyAssignee: true,
-    },
     tags: ['close', 'documentation', 'finalize', 'complete'],
   },
 ];

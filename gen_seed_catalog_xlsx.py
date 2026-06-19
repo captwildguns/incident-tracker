@@ -182,7 +182,7 @@ NOTIFY_GROUPS = {
 STEP_TEMPLATES = [
     ("comm-parent-notify", "Parent/Guardian Notification", "Notification",
      "Contact parent or guardian to inform them of the incident and expected next steps",
-     "Safety Coordinator", "20 minutes", False, True, False, True,
+     "Safety Coordinator", "20 minutes", False, False, True, True,
      ["parent", "guardian", "notification", "contact"]),
     ("comm-safety-alert", "Safety Coordinator Alert", "Notification",
      "Send urgent notification to safety coordinator with full incident details",
@@ -198,7 +198,7 @@ STEP_TEMPLATES = [
      ["photo", "evidence", "documentation", "damage"]),
     ("admin-disciplinary-review", "Disciplinary Review", "Review & Action",
      "Administrator reviews incident and determines appropriate disciplinary action; requires approval before proceeding",
-     "Administrator", "1 hour", True, True, True, True,
+     "Administrator", "1 hour", True, False, True, True,
      ["disciplinary", "review", "administrator", "approval"]),
     ("admin-police-report", "Law Enforcement Contact", "Review & Action",
      "File police report or coordinate with law enforcement for criminal incidents",
@@ -206,13 +206,20 @@ STEP_TEMPLATES = [
      ["police", "law enforcement", "criminal", "report"]),
     ("admin-fleet-repair", "Fleet / Repair Coordination", "Review & Action",
      "Fleet manager assesses damage, provides repair estimate, and schedules vehicle repairs",
-     "Fleet Manager", "2 hours", False, None, None, None,
+     "Fleet Manager", "2 hours", False, False, True, True,
      ["fleet", "repair", "vehicle", "damage", "maintenance"]),
     ("follow-close-incident", "Documentation & Close", "Close Out",
      "Complete all incident documentation, finalize the record, and close the case",
-     "Safety Coordinator", "15 minutes", False, False, True, True,
+     "Safety Coordinator", "15 minutes", False, None, None, None,
      ["close", "documentation", "finalize", "complete"]),
 ]
+
+# Extra email config for step templates that mirror configured workflow steps,
+# keyed by template id: notify_approvers, notify_groups (roles), email_template.
+TEMPLATE_EMAIL_EXTRA = {
+    "admin-disciplinary-review": {"notify_approvers": True, "notify_groups": ["Safety Coordinator"], "email_template": "Action Required"},
+    "admin-fleet-repair": {"notify_approvers": False, "notify_groups": ["Safety Coordinator"], "email_template": "Action Required"},
+}
 
 # Email templates: id, name, category, is_default, last_modified, description, subject, body, variables[]
 # IDs are assigned sequentially in alphabetical order by template name.
@@ -397,13 +404,17 @@ write_table(ws, headers,
 # ---- Step Templates ----
 ws = wb.create_sheet("Step Templates")
 headers = ["id", "name", "category", "description", "default_group", "default_duration",
-           "requires_approval", "notify_on_start", "notify_on_complete", "notify_assignee", "tags"]
+           "requires_approval", "notify_on_start", "notify_on_complete", "notify_assignee",
+           "notify_approvers", "notify_groups", "email_template", "tags"]
 rows = []
 for t in STEP_TEMPLATES:
     (tid, name, cat, desc, grp, dur, appr, n_start, n_complete, n_assignee, tags) = t
-    rows.append([tid, name, cat, desc, grp, dur, b(appr), b(n_start), b(n_complete), b(n_assignee), joinlist(tags)])
+    extra = TEMPLATE_EMAIL_EXTRA.get(tid, {})
+    rows.append([tid, name, cat, desc, grp, dur, b(appr), b(n_start), b(n_complete), b(n_assignee),
+                 b(extra.get("notify_approvers")), joinlist(extra.get("notify_groups", [])),
+                 extra.get("email_template") or "", joinlist(tags)])
 write_table(ws, headers, rows,
-            [24, 32, 16, 60, 18, 16, 14, 14, 16, 14, 36], wrap_cols=(3,))
+            [24, 32, 16, 60, 18, 16, 14, 14, 16, 14, 14, 22, 20, 36], wrap_cols=(3,))
 
 # ---- Email Templates ----
 ws = wb.create_sheet("Email Templates")
