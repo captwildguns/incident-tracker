@@ -123,7 +123,7 @@ WORKFLOW_STEPS = [
     ("WF-004", "step-2", 2, "Fleet Manager Review",
      "Fleet manager assesses damage and provides repair estimate",
      "Fleet Manager", "30 minutes", True, False, [], "manual", None, None, "",
-     "Action Required", True, True, True, False, []),
+     "Action Required", False, True, True, False, []),
     ("WF-004", "step-3", 3, "Parent Notification & Restitution",
      "Contact parents and discuss restitution for damages",
      "Safety Coordinator", "45 minutes", True, False, [], "manual", None, None, "",

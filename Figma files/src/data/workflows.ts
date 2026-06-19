@@ -320,7 +320,7 @@ export const workflows: Workflow[] = [
         order: 2,
         trigger: { type: 'manual' },
         emailNotifications: {
-          notifyOnStart: true,
+          notifyOnStart: false,
           notifyOnComplete: true,
           notifyAssignee: true,
           notifyApprovers: false,
