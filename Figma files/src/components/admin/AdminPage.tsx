@@ -1492,7 +1492,7 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
             <div>
               <div style={labelStyle}>Default Severity <span style={{ color: 'var(--destructive)' }}>*</span></div>
               <div style={{ display: 'flex', gap: 'var(--forge-spacing-small)', marginTop: 'var(--forge-spacing-xxsmall)' }}>
-                {(['Low', 'Medium', 'High'] as const).map((sev) => (
+                {(['Low', 'Medium', 'High', 'Critical'] as const).map((sev) => (
                   <button
                     key={sev}
                     type="button"
@@ -1503,10 +1503,10 @@ export function AdminPage({ onNavigate }: AdminPageProps) {
                       borderRadius: 'var(--forge-radius-medium)',
                       border: itForm.defaultSeverity === sev ? '2px solid var(--primary)' : '1px solid var(--border)',
                       background: itForm.defaultSeverity === sev
-                        ? (sev === 'High' ? 'rgba(176, 0, 32, 0.08)' : sev === 'Medium' ? 'rgba(255, 193, 7, 0.12)' : 'rgba(159, 168, 112, 0.15)')
+                        ? (sev === 'Critical' ? 'rgba(176, 0, 32, 0.16)' : sev === 'High' ? 'rgba(176, 0, 32, 0.08)' : sev === 'Medium' ? 'rgba(255, 193, 7, 0.12)' : 'rgba(159, 168, 112, 0.15)')
                         : 'var(--input-background)',
                       color: itForm.defaultSeverity === sev
-                        ? (sev === 'High' ? 'var(--destructive)' : sev === 'Medium' ? '#8B6914' : 'var(--brand-olive-dark)')
+                        ? (sev === 'Critical' ? '#B00020' : sev === 'High' ? 'var(--destructive)' : sev === 'Medium' ? '#8B6914' : 'var(--brand-olive-dark)')
                         : 'var(--muted-foreground)',
                       cursor: 'pointer',
                       fontSize: 'var(--text-sm)',
