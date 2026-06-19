@@ -71,7 +71,7 @@ WORKFLOW_STEPS = [
     ("WF-001", "step-2", 2, "Parent Notification",
      "Notify parent/guardian of the incident and expected behavior standards",
      "Safety Coordinator", "10 minutes", True, False, [], "manual", None, None, "",
-     None, False, False, False, False, []),
+     None, False, True, True, False, []),
     ("WF-001", "step-3", 3, "Close Incident",
      "Review and close incident if no further action needed",
      "Safety Coordinator", "5 minutes", True, False, [], "manual", None, None, "", None, None, None, None, None, []),
@@ -107,11 +107,11 @@ WORKFLOW_STEPS = [
     ("WF-003", "step-3", 3, "Parent Notification",
      "Contact parent/guardian to inform them of the prohibited item and policy violation",
      "Safety Coordinator", "20 minutes", True, False, [], "manual", None, None, "",
-     None, True, False, True, False, []),
+     None, False, True, True, False, []),
     ("WF-003", "step-4", 4, "Disciplinary & Legal Action Review",
      "Determine appropriate disciplinary action per district policy; coordinate with law enforcement if applicable",
      "Administrator", "45 minutes", True, True, ["Administrator"],
-     "manual", None, None, "", None, True, True, True, True, []),
+     "manual", None, None, "", "Action Required", False, True, True, True, []),
     ("WF-003", "step-5", 5, "Documentation & Close",
      "Complete all documentation including evidence chain of custody if applicable, and close case",
      "Safety Coordinator", "20 minutes", True, False, [], "manual", None, None, "", None, None, None, None, None, []),
@@ -126,11 +126,12 @@ WORKFLOW_STEPS = [
      None, True, True, True, False, []),
     ("WF-004", "step-3", 3, "Parent Notification & Restitution",
      "Contact parents and discuss restitution for damages",
-     "Safety Coordinator", "45 minutes", True, False, [], "manual", None, None, "", None, None, None, None, None, []),
+     "Safety Coordinator", "45 minutes", True, False, [], "manual", None, None, "",
+     None, False, True, True, False, []),
     ("WF-004", "step-4", 4, "Disciplinary Action",
      "Implement disciplinary measures per district policy",
      "School Principal", "20 minutes", True, True, ["Administrator"], "manual", None, None, "",
-     None, True, True, True, True, []),
+     "Action Required", False, True, True, True, []),
     ("WF-004", "step-5", 5, "Repair Scheduling",
      "Schedule and complete vehicle repairs",
      "Fleet Manager", "2 hours", True, False, [], "manual", None, None, "", None, None, None, None, None, []),
@@ -146,11 +147,11 @@ WORKFLOW_STEPS = [
     ("WF-005", "step-3", 3, "Parent Notification",
      "Contact parent/guardian to inform them of the safety violation and reinforce bus safety expectations",
      "Safety Coordinator", "15 minutes", True, False, [], "manual", None, None, "",
-     None, True, False, True, False, []),
+     None, False, True, True, False, []),
     ("WF-005", "step-4", 4, "Safety Review & Disciplinary Action",
      "Review incident severity and history. Determine if disciplinary measures are warranted.",
      "Administrator", "20 minutes", False, True, ["Administrator"], "manual", None, None,
-     "", None, True, True, True, True, []),
+     "", "Action Required", False, True, True, True, []),
     ("WF-005", "step-5", 5, "Documentation & Close",
      "Complete all documentation and close the incident",
      "Safety Coordinator", "10 minutes", True, False, [], "manual", None, None, "", None, None, None, None, None, []),
@@ -171,6 +172,9 @@ WORKFLOW_STEPS = [
 # Most steps notify no extra role; only the entries below set notify_groups.
 NOTIFY_GROUPS = {
     ("WF-002", "step-4"): ["Safety Coordinator"],
+    ("WF-003", "step-4"): ["Safety Coordinator"],
+    ("WF-004", "step-4"): ["Safety Coordinator"],
+    ("WF-005", "step-4"): ["Safety Coordinator"],
 }
 
 # Step templates: id, name, category, description, default_group, default_duration,
@@ -339,8 +343,8 @@ line("")
 line("Notes for seeding", head=True)
 line("• Booleans are written as TRUE / FALSE. Blank in a boolean column means 'not configured' (treat as NULL/false).")
 line("• 'email_template' on a step references Email Templates.name. A blank means the step sends no templated email "
-     "(though notify_* flags may still be set). Currently only WF-002 step 4 references a template ('Action "
-     "Required'); the others are seeded as a reusable library.")
+     "(though notify_* flags may still be set). The disciplinary-review steps (WF-002/003/004/005 step 4) "
+     "reference the 'Action Required' template; the other templates are seeded as a reusable library.")
 line("• 'notify_groups' lists the roles that should receive the step's email (comma-separated). 'notify_on_start' / "
      "'notify_on_complete' indicate timing: notify before the step starts vs. after it completes.")
 line("• Every workflow step is manually triggered (trigger_type = manual); there are no time-delay/conditional/"

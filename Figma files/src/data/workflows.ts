@@ -181,8 +181,8 @@ export const workflows: Workflow[] = [
         trigger: { type: 'manual' },
         emailNotifications: {
           notifyOnStart: false,
-          notifyOnComplete: false,
-          notifyAssignee: false,
+          notifyOnComplete: true,
+          notifyAssignee: true,
           notifyApprovers: false,
           additionalRecipients: [],
         },
@@ -251,8 +251,8 @@ export const workflows: Workflow[] = [
         order: 3,
         trigger: { type: 'manual' },
         emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: false,
+          notifyOnStart: false,
+          notifyOnComplete: true,
           notifyAssignee: true,
           notifyApprovers: false,
           additionalRecipients: [],
@@ -270,11 +270,13 @@ export const workflows: Workflow[] = [
         approvers: ['Administrator'],
         trigger: { type: 'manual' },
         emailNotifications: {
-          notifyOnStart: true,
+          notifyOnStart: false,
           notifyOnComplete: true,
           notifyAssignee: true,
           notifyApprovers: true,
+          notifyGroups: ['Safety Coordinator'],
           additionalRecipients: [],
+          emailTemplate: 'Action Required',
         },
       },
       {
@@ -341,6 +343,13 @@ export const workflows: Workflow[] = [
         required: true,
         order: 3,
         trigger: { type: 'manual' },
+        emailNotifications: {
+          notifyOnStart: false,
+          notifyOnComplete: true,
+          notifyAssignee: true,
+          notifyApprovers: false,
+          additionalRecipients: [],
+        },
       },
       {
         id: 'step-4',
@@ -354,11 +363,13 @@ export const workflows: Workflow[] = [
         approvers: ['Administrator'],
         trigger: { type: 'manual' },
         emailNotifications: {
-          notifyOnStart: true,
+          notifyOnStart: false,
           notifyOnComplete: true,
           notifyAssignee: true,
           notifyApprovers: true,
+          notifyGroups: ['Safety Coordinator'],
           additionalRecipients: [],
+          emailTemplate: 'Action Required',
         },
       },
       {
@@ -425,8 +436,8 @@ export const workflows: Workflow[] = [
         order: 3,
         trigger: { type: 'manual' },
         emailNotifications: {
-          notifyOnStart: true,
-          notifyOnComplete: false,
+          notifyOnStart: false,
+          notifyOnComplete: true,
           notifyAssignee: true,
           notifyApprovers: false,
           additionalRecipients: [],
@@ -444,11 +455,13 @@ export const workflows: Workflow[] = [
         approvers: ['Administrator'],
         trigger: { type: 'manual' },
         emailNotifications: {
-          notifyOnStart: true,
+          notifyOnStart: false,
           notifyOnComplete: true,
           notifyAssignee: true,
           notifyApprovers: true,
+          notifyGroups: ['Safety Coordinator'],
           additionalRecipients: [],
+          emailTemplate: 'Action Required',
         },
       },
       {
