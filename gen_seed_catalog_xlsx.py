@@ -91,7 +91,7 @@ WORKFLOW_STEPS = [
     ("WF-002", "step-4", 4, "Disciplinary Action Review",
      "Administrator reviews incident and determines appropriate disciplinary measures",
      "Administrator", "1 hour", True, True, ["Administrator"],
-     "manual", None, None, "", None, True, True, True, True, []),
+     "manual", None, None, "", "Action Required", False, True, True, True, []),
     ("WF-002", "step-5", 5, "Documentation & Close",
      "Complete incident documentation and close case",
      "Safety Coordinator", "20 minutes", True, False, [], "manual", None, None, "", None, None, None, None, None, []),
@@ -166,6 +166,12 @@ WORKFLOW_STEPS = [
      "File the witness statement and close. No disciplinary measures or parent notification are required for the witness.",
      "Safety Coordinator", "5 minutes", True, False, [], "manual", None, None, "", None, None, None, None, None, []),
 ]
+
+# Roles to notify by email for a step, keyed by (workflow_id, step_key).
+# Most steps notify no extra role; only the entries below set notify_groups.
+NOTIFY_GROUPS = {
+    ("WF-002", "step-4"): ["Safety Coordinator"],
+}
 
 # Step templates: id, name, category, description, default_group, default_duration,
 # requires_approval, notify_on_start, notify_on_complete, notify_assignee, tags[]
@@ -333,8 +339,10 @@ line("")
 line("Notes for seeding", head=True)
 line("• Booleans are written as TRUE / FALSE. Blank in a boolean column means 'not configured' (treat as NULL/false).")
 line("• 'email_template' on a step references Email Templates.name. A blank means the step sends no templated email "
-     "(though notify_* flags may still be set). In the current configuration no step references a template, but the "
-     "templates remain seeded as a reusable library.")
+     "(though notify_* flags may still be set). Currently only WF-002 step 4 references a template ('Action "
+     "Required'); the others are seeded as a reusable library.")
+line("• 'notify_groups' lists the roles that should receive the step's email (comma-separated). 'notify_on_start' / "
+     "'notify_on_complete' indicate timing: notify before the step starts vs. after it completes.")
 line("• Every workflow step is manually triggered (trigger_type = manual); there are no time-delay/conditional/"
      "auto-advance steps in the current configuration.")
 line("• estimated_duration / default_duration are free-text labels ('15 minutes', '2 hours'); keep as text unless "
@@ -367,17 +375,18 @@ headers = ["workflow_id", "step_key", "step_order", "name", "description", "assi
            "estimated_duration", "required", "requires_approval", "approvers",
            "trigger_type", "trigger_delay_amount", "trigger_delay_unit", "trigger_condition",
            "email_template", "notify_on_start", "notify_on_complete", "notify_assignee",
-           "notify_approvers", "additional_recipients"]
+           "notify_approvers", "notify_groups", "additional_recipients"]
 rows = []
 for s in sorted(WORKFLOW_STEPS, key=lambda s: (s[0], s[2])):
     (wid, key, order, name, desc, role, dur, req, appr_req, approvers, ttype, damt, dunit,
      cond, etmpl, n_start, n_complete, n_assignee, n_appr, addl) = s
     rows.append([wid, key, order, name, desc, role, dur, b(req), b(appr_req), joinlist(approvers),
                  ttype, damt if damt is not None else "", dunit or "", cond,
-                 etmpl or "", b(n_start), b(n_complete), b(n_assignee), b(n_appr), joinlist(addl)])
+                 etmpl or "", b(n_start), b(n_complete), b(n_assignee), b(n_appr),
+                 joinlist(NOTIFY_GROUPS.get((wid, key), [])), joinlist(addl)])
 write_table(ws, headers,
             rows,
-            [12, 9, 10, 30, 60, 18, 15, 9, 14, 26, 14, 13, 13, 18, 26, 13, 15, 14, 14, 26],
+            [12, 9, 10, 30, 60, 18, 15, 9, 14, 26, 14, 13, 13, 18, 26, 13, 15, 14, 14, 22, 26],
             wrap_cols=(4,))
 
 # ---- Step Templates ----

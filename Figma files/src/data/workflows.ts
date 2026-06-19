@@ -123,11 +123,13 @@ export const workflows: Workflow[] = [
         approvers: ['Administrator'],
         trigger: { type: 'manual' },
         emailNotifications: {
-          notifyOnStart: true,
+          notifyOnStart: false,
           notifyOnComplete: true,
           notifyAssignee: true,
           notifyApprovers: true,
+          notifyGroups: ['Safety Coordinator'],
           additionalRecipients: [],
+          emailTemplate: 'Action Required',
         },
       },
       {
