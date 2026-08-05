@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Incidents Launch — Weekly Working Session #1</title>
+<title>Incidents Launch: Weekly Working Session #1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -87,7 +87,32 @@
     font-size:21px;font-weight:400;line-height:1.4;color:var(--blue-ink);
   }
   .callout.olive{border-left-color:var(--olive)}
-  .callout small{display:block;font-size:16px;font-weight:300;color:var(--ink-faint);margin-top:6px;letter-spacing:.01em}
+  .callout .link{
+    display:block;margin-top:9px;font-size:18px;font-weight:400;color:var(--blue-dark);
+    word-break:break-all;
+  }
+  .slide.divider .callout .link{color:#BBD0E8}
+
+  /* ---------- agenda: time in the margin, task in plain language ---------- */
+  .agenda{display:flex;flex-direction:column;margin-top:6px;max-width:1330px}
+  .agenda .ag{
+    display:grid;grid-template-columns:104px 1fr;gap:28px;align-items:baseline;
+    padding:19px 0;border-bottom:1px solid var(--line);
+  }
+  .agenda .ag:last-child{border-bottom:none}
+  .agenda .t{
+    font-size:18px;font-weight:500;color:var(--olive);letter-spacing:.03em;white-space:nowrap;
+  }
+  .agenda .d{font-size:23px;font-weight:300;line-height:1.35;color:var(--ink)}
+  .agenda .d b{font-weight:500;color:var(--blue-ink)}
+
+  /* ---------- incident type / step-count chips ---------- */
+  .types{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+  .type{
+    background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--blue-medium);
+    padding:13px 18px;font-size:18px;font-weight:400;color:var(--blue-ink);
+  }
+  .type b{font-weight:500;color:var(--olive);margin-left:8px}
 
   /* ---------- title slide ---------- */
   .slide.title{justify-content:center;padding:0 96px}
@@ -144,7 +169,7 @@
     width:100%;display:block;
   }
   .shot-cap{
-    font-size:14px;font-weight:400;color:var(--ink-faint);margin-top:11px;letter-spacing:.01em;line-height:1.4;
+    font-size:16px;font-weight:400;color:var(--ink-soft);margin-top:12px;line-height:1.4;
   }
 
   /* ---------- workflow / step lists ---------- */
@@ -242,17 +267,15 @@
 
 <!-- 2 ................................................. -->
 <section class="slide">
-  <div class="kicker">Agenda</div>
-  <h2>Thirty minutes, every Friday</h2>
-  <div class="rule"></div>
-  <ul class="points">
-    <li><b>The system, in slides</b> &middot; 8 min &mdash; what the Incident Tracker does and the decisions baked into it</li>
-    <li><b>Live demo</b> &middot; 15 min &mdash; the working prototype, clicked through end to end</li>
-    <li><b>Production direction</b> &middot; 2 min &mdash; the real build going up on Tyler Forge</li>
-    <li><b>The plan and the ask</b> &middot; 5 min</li>
-  </ul>
-  <div class="callout">A short standing meeting, not a status marathon. Today is mostly the demo.
-    <small>The plan is the homework. We surface blockers here and make decisions here.</small></div>
+  <div class="kicker">Session 1 &middot; 30 minutes</div>
+  <h2>Today&rsquo;s plan</h2>
+  <div class="agenda">
+    <div class="ag"><span class="t">8 min</span><span class="d"><b>Walk the system in slides.</b> What the Incident Tracker does, and the decisions built into it</span></div>
+    <div class="ag"><span class="t">15 min</span><span class="d"><b>Demo the prototype live.</b> File an incident, then follow it through its response path</span></div>
+    <div class="ag"><span class="t">2 min</span><span class="d"><b>Show the production build</b> going up on Tyler Forge</span></div>
+    <div class="ag"><span class="t">5 min</span><span class="d"><b>Review the launch plan</b> and take an assignment for the week</span></div>
+  </div>
+  <div class="callout">Leave with two things: you have seen the product, and you know which workstream is yours.</div>
   <footer class="brand"><span>Incidents Launch Plan</span><span>02</span></footer>
 </section>
 
@@ -286,7 +309,7 @@
     </div>
     <div>
       <img class="shot" src="assets/dashboard.jpg" alt="Incident Tracker dashboard">
-      <div class="shot-cap">Dashboard &mdash; every metric on it is a doorway into a filtered view</div>
+      <div class="shot-cap">Dashboard. Every metric on it is a doorway into a filtered view</div>
     </div>
   </div>
   <footer class="brand"><span>Incidents Launch Plan</span><span>04</span></footer>
@@ -303,8 +326,14 @@
     <li>Some steps <b>require sign-off</b>. The next step does not open until the approval lands</li>
     <li>The <b>incident type and severity choose the path</b> automatically. Nobody picks a workflow, and nobody assembles one by hand</li>
   </ul>
-  <div class="callout olive">Five types today because those are the five categories districts already log, and each one carries different obligations. Paths run 3 to 6 steps.
-    <small>Disruptive Behavior 3 &middot; Physical Altercation 5 &middot; Prohibited Items 5 &middot; Safety Violation 5 &middot; Property Damage 6</small></div>
+  <div class="types">
+    <div class="type">Disruptive Behavior <b>3 steps</b></div>
+    <div class="type">Physical Altercation <b>5 steps</b></div>
+    <div class="type">Prohibited Items <b>5 steps</b></div>
+    <div class="type">Safety Violation <b>5 steps</b></div>
+    <div class="type">Property Damage <b>6 steps</b></div>
+  </div>
+  <div class="callout olive">Five types because those are the five categories districts already log, and each one carries a different obligation.</div>
   <footer class="brand"><span>Incidents Launch Plan</span><span>05</span></footer>
 </section>
 
@@ -319,8 +348,7 @@
     <div class="st appr"><span class="num">4</span><span class="nm">Disciplinary Action Review <span class="flag">approval required</span></span><span class="who">Administrator</span><span class="dur">1 hour</span></div>
     <div class="st"><span class="num">5</span><span class="nm">Documentation &amp; Close</span><span class="who">Safety Coordinator</span><span class="dur">20 min</span></div>
   </div>
-  <div class="callout">Each row is a real step in the system, with its own owner, its own checklist, and its own notification.
-    <small>Step 4 is the one to argue about: it holds the path until an administrator signs off.</small></div>
+  <div class="callout">Every row is a real step, with its own owner, checklist, and notification. Step 4 is the one to argue about: it holds the whole path until an administrator signs off.</div>
   <footer class="brand"><span>Incidents Launch Plan</span><span>06</span></footer>
 </section>
 
@@ -330,12 +358,13 @@
   <h2>One event, many students</h2>
   <ul class="points tight" style="margin-top:14px;max-width:1330px">
     <li>Add a second student and the record <b>splits</b>: one real-world event, one tracked record per child</li>
-    <li>Each student carries a <b>role</b> &mdash; instigator, victim, witness, bystander &mdash; and severity can be <b>overridden per student</b></li>
+    <li>Each student carries a <b>role</b> (instigator, victim, witness, bystander) and severity can be <b>overridden per student</b></li>
     <li>Because the roles differ, <b>the response path differs</b> for each child in the same incident</li>
+    <li>A student who was present but not involved gets <b>no workflow at all</b>. The system does not invent busywork</li>
   </ul>
-  <div style="margin-top:26px">
+  <div style="margin-top:22px">
     <img class="shot" src="assets/incident-detail.jpg" alt="Multi-student incident banner with student switcher" style="width:1408px">
-    <div class="shot-cap">INC-2025-0059 &mdash; one altercation, three students. Switch student and the banner, the severity, and the workflow all change. Chris Park, present but not involved, gets no workflow at all.</div>
+    <div class="shot-cap">INC-2025-0059: one altercation, three students. Switching student changes the banner, the severity, and the assigned workflow.</div>
   </div>
   <footer class="brand"><span>Incidents Launch Plan</span><span>07</span></footer>
 </section>
@@ -355,7 +384,7 @@
     </div>
     <div>
       <img class="shot" src="assets/incident-workflow.jpg" alt="Workflow progress and action card">
-      <div class="shot-cap">Workflow tab &mdash; the assigned path, the current step, and who owns it</div>
+      <div class="shot-cap">Workflow tab. The assigned path, the current step, and who owns it</div>
     </div>
   </div>
   <footer class="brand"><span>Incidents Launch Plan</span><span>08</span></footer>
@@ -376,7 +405,7 @@
     </div>
     <div>
       <img class="shot" src="assets/workflows.jpg" alt="Workflow management and builder">
-      <div class="shot-cap">Workflow management &mdash; six paths today, each editable step by step</div>
+      <div class="shot-cap">Workflow management. Six paths today, each editable step by step</div>
     </div>
   </div>
   <footer class="brand"><span>Incidents Launch Plan</span><span>09</span></footer>
@@ -387,14 +416,14 @@
   <div class="kicker">Switching to the live site</div>
   <h2>Live demo</h2>
   <ol class="beats">
-    <li><b>Dashboard</b> &mdash; click a metric, not a filter, and watch the view assemble</li>
-    <li><b>Capture an incident</b> &mdash; two students, and the form grows to match the situation</li>
-    <li><b>The queue</b> &mdash; how a coordinator triages by severity first thing in the morning</li>
-    <li><b>One event, many paths</b> &mdash; INC-2025-0059, three students, three outcomes</li>
-    <li><b>The guided response</b> &mdash; one step at a time, and what happens when a step needs approval</li>
+    <li><b>Dashboard.</b> Click a metric, not a filter, and watch the view assemble</li>
+    <li><b>Capture an incident.</b> Two students, and the form grows to match the situation</li>
+    <li><b>The queue.</b> How a coordinator triages by severity first thing in the morning</li>
+    <li><b>One event, many paths.</b> INC-2025-0059, three students, three outcomes</li>
+    <li><b>The guided response.</b> One step at a time, and what happens when a step needs approval</li>
   </ol>
   <div class="callout">Interrupt me. The useful output of this demo is where it does not match how your districts actually work.
-    <small>captwildguns.github.io/incident-tracker</small></div>
+    <span class="link">captwildguns.github.io/incident-tracker</span></div>
   <footer class="brand"><span>Incidents Launch Plan</span><span>10</span></footer>
 </section>
 
@@ -413,7 +442,7 @@
     </div>
     <div>
       <img class="shot" src="assets/forge-prod.jpg" alt="Incidents vNext build on Tyler Forge">
-      <div class="shot-cap">incidents-vnext.staging.student-transportation.tylerapp.com &mdash; early build, real Forge components</div>
+      <div class="shot-cap">incidents-vnext.staging.student-transportation.tylerapp.com. Early build, real Forge components</div>
     </div>
   </div>
   <footer class="brand"><span>Incidents Launch Plan</span><span>11</span></footer>
@@ -432,8 +461,8 @@
     <div class="row"><div class="nm">Launch Execution</div><div class="dt">Weekly standups, customer comms, Connect unveil, beta access, soft launch, GA</div></div>
     <div class="row"><div class="nm">Post-Launch Measurement</div><div class="dt">KPI tracking, customer feedback analysis, what comes after version 1</div></div>
   </div>
-  <div class="callout olive" style="margin-top:20px">Take the week: read your workstream on the board, flag what is missing or misassigned, and bring it to Friday, August 14.
-    <small>traversa-student-transportation.monday.com/boards/18416191331</small></div>
+  <div class="callout olive" style="margin-top:20px">This week: read your workstream on the board, flag what is missing or misassigned, and bring it to Friday, August 14.
+    <span class="link">traversa-student-transportation.monday.com/boards/18416191331</span></div>
   <footer class="brand"><span>Incidents Launch Plan</span><span>12</span></footer>
 </section>
 
