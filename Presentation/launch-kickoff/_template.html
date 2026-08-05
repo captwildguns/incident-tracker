@@ -256,12 +256,9 @@
   .ws .nm{font-size:20px;font-weight:500;color:var(--blue-ink)}
   .ws .dt{font-size:18px;font-weight:300;color:var(--ink-soft);line-height:1.4}
 
-  /* ---------- quote ---------- */
-  .quote{
-    font-size:33px;font-weight:300;line-height:1.38;color:var(--blue-deep);
-    border-left:4px solid var(--olive);padding-left:34px;max-width:1220px;margin-bottom:34px;
-  }
-  .quote span{color:var(--ink-faint);font-size:17px;display:block;margin-top:16px;letter-spacing:.02em}
+  /* No subtitle blocks and no vertical accent bars under a headline.
+     The kicker plus headline carries the framing; the rows carry the content.
+     A line worth saying out loud belongs in the presenter notes, not on the slide. */
 
   /* ---------- links / questions ---------- */
   /* closing-slide link block: plain, no panel, always the last thing on the deck */
@@ -315,8 +312,10 @@
       .ag.appr          amber row, for an approval or exception step
 
   RULES
-    - No separator line under the headline. The kicker plus headline is enough.
+    - No separator line under the headline, no subtitle block, no vertical accent bar.
+      The kicker plus headline is enough, and never two intro lines stacked.
     - Kicker names the category. Headline states the point, not the topic.
+    - A line worth saying out loud goes in the presenter notes, not on the slide.
     - The grey .callout strip is one line at the bottom, and only when there is a
       real ask, decision, or a statement worth isolating. No summaries, no filler.
     - Never more than 3 items in a bottom row of chips or cards. More than 3 gets
@@ -332,8 +331,7 @@
 <section class="slide title active">
   <div class="titlebar"></div>
   <h1>Incidents Launch</h1>
-  <div class="sub">Weekly working session &numero;N</div>
-  <div class="meta">Friday, MONTH D, YYYY &middot; 10:00 AM EST</div>
+  <div class="sub">Session N &middot; Friday, MONTH D, YYYY</div>
   <div class="chips">
     <div class="chip"><b>Today:</b> headline subject</div>
     <div class="chip"><b>Cadence:</b> 30 minutes, every Friday</div>

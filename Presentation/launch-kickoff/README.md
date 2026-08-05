@@ -36,7 +36,8 @@ These are settled. Reuse them rather than re-deciding each week.
 - **Format** is 1600x900 fixed, scaled to fit whatever screen it lands on.
 - **Type** is Roboto 300/400/500. Headlines 48px light deep blue, row titles 27px, row descriptions 20px, prose 27px, titles 104px.
 - **Colour** is Tyler Forge: `#4A6FA5` blue, `#35507A` deep blue for headlines, `#7B8458` olive for numbers and kickers, `#F4F6F9` panels, `#9A6B12` amber for approvals.
-- **Kicker plus headline, no separator line.** The kicker names the category, the headline states the point rather than the topic.
+- **Kicker plus headline, and nothing else above the content.** No separator line, no subtitle block, no vertical accent bar, and never two intro lines stacked. The kicker names the category and the headline states the point rather than the topic. The title slide gets exactly one subtitle line: session number and date.
+- **A line worth saying out loud goes in the presenter notes**, not on the slide. The deck carries structure; the presenter carries the narrative.
 - **The grey callout strip is one line at the bottom**, only when there is a real ask, decision, or a statement worth isolating. No summaries. No filler to balance a layout.
 - **Never more than three items in a bottom row** of chips or cards. Beyond three it reads as clutter, so use numbered rows instead.
 - **Every screenshot slide uses one layout:** `.shot-row`, with compact rows in the 388px column on the left and the screenshot at 1040px, which is 65% of the slide, on the right. Captions are 16px in body grey. Do not put a screenshot full width under the rows.

@@ -256,12 +256,9 @@
   .ws .nm{font-size:20px;font-weight:500;color:var(--blue-ink)}
   .ws .dt{font-size:18px;font-weight:300;color:var(--ink-soft);line-height:1.4}
 
-  /* ---------- quote ---------- */
-  .quote{
-    font-size:33px;font-weight:300;line-height:1.38;color:var(--blue-deep);
-    border-left:4px solid var(--olive);padding-left:34px;max-width:1220px;margin-bottom:34px;
-  }
-  .quote span{color:var(--ink-faint);font-size:17px;display:block;margin-top:16px;letter-spacing:.02em}
+  /* No subtitle blocks and no vertical accent bars under a headline.
+     The kicker plus headline carries the framing; the rows carry the content.
+     A line worth saying out loud belongs in the presenter notes, not on the slide. */
 
   /* ---------- links / questions ---------- */
   /* closing-slide link block: plain, no panel, always the last thing on the deck */
@@ -300,8 +297,7 @@
 <section class="slide title active">
   <div class="titlebar"></div>
   <h1>Incidents Launch</h1>
-  <div class="sub">Weekly working session &numero;1</div>
-  <div class="meta">Friday, August 7, 2026 &middot; 10:00 AM EST</div>
+  <div class="sub">Session 1 &middot; Friday, August 7, 2026</div>
   <div class="chips">
     <div class="chip"><b>Today:</b> Incident Tracker walkthrough</div>
     <div class="chip"><b>Cadence:</b> 30 minutes, every Friday</div>
@@ -336,13 +332,12 @@
 <!-- 4 ................................................. -->
 <section class="slide">
   <div class="kicker">The problem we designed around</div>
-  <h2>The operational truth</h2>
-  <div class="quote">An incident almost never gets written up while it is happening. The driver&rsquo;s job in the moment is to keep 50 kids safe and keep the bus moving.
-    <span>The report comes later, once they have pulled into the school loop or gotten back to the garage.</span></div>
+  <h2>An incident gets written up after the route, not during it</h2>
   <div class="agenda mid">
-    <div class="ag"><span class="t">01</span><span class="d"><b>Filed after the route</b><i>A driver reports from a tablet once the bus is parked, while details are fresh</i></span></div>
-    <div class="ag"><span class="t">02</span><span class="d"><b>Built for that moment</b><i>Every capture screen assumes an after-the-fact report, not a live event</i></span></div>
-    <div class="ag"><span class="t">03</span><span class="d"><b>Not the tablet today</b><i>The driver app is a separate Tyler Drive build running the same capture logic</i></span></div>
+    <div class="ag"><span class="t">01</span><span class="d"><b>The driver&rsquo;s job in the moment</b><i>Keep 50 kids safe and keep the bus moving, not write a report</i></span></div>
+    <div class="ag"><span class="t">02</span><span class="d"><b>Filed from a tablet, later</b><i>At the school loop or back at the garage, while the details are fresh</i></span></div>
+    <div class="ag"><span class="t">03</span><span class="d"><b>Every capture screen assumes that</b><i>The system is built for an after-the-fact report, not a live event</i></span></div>
+    <div class="ag"><span class="t">04</span><span class="d"><b>Not the tablet today</b><i>The driver app is a separate Tyler Drive build running the same capture logic</i></span></div>
   </div>
   <footer class="brand"><span>Incidents Launch Plan</span><span>04</span></footer>
 </section>
