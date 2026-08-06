@@ -8,8 +8,25 @@ Board: `traversa-student-transportation.monday.com/boards/18416191331`
 
 - `index.html` is the current session deck. Self-contained: open it from disk, arrow keys or click to advance, F11 for full screen.
 - `_template.html` is the skeleton for next week. Copy it, fill in the slides, never touch the CSS.
+- `session-01.html` is the August 7, 2026 deck as delivered.
 - `assets/` holds the screenshots the slides reference.
 - `raw/` is local working files (full-size screen captures, per-slide PNG exports). Not committed.
+- `tools/` holds the scripts that build all of this:
+  - `gen_slides.py` writes `index.html` slide markup, preserving the CSS block already in the file. Edit the content lists here, not the HTML, then re-run it.
+  - `gen_template.py` regenerates `_template.html` from whatever CSS is currently in `index.html`.
+  - `shoot-app-screens.cjs` captures fresh prototype screenshots into `raw/`.
+  - `shoot-slides.cjs` exports each slide to a PNG in `raw/slides/` for the PowerPoint build.
+
+Run order for a full rebuild: serve the deck on port 8899, run `gen_slides.py`, then `gen_template.py`, then `shoot-slides.cjs`, then the PowerPoint build.
+
+## Status as of August 6, 2026
+
+Session 1 deck is finished and delivered-ready: 14 slides, PPTX exported with presenter notes, mirrored in Claude Design. Two open questions were parked, both listed under Open items below.
+
+### Open items
+
+1. **Student names on the vNext screenshot.** `assets/forge-prod.jpg` shows real-looking student names (MARSID ABASALLARI, DOMINIC ABATE, CAMREN ABATE, KYLE ABATE, AUSTIN JONES, JOSE GEIGEL-SMITH) in the Students column. If that is real district data rather than seed data, blur that column before the deck circulates. Recrop from `raw/forge-prod.png`.
+2. **PowerPoint is a picture per slide.** Visually identical to the HTML, but the text is not editable in PowerPoint. A natively editable version can be authored with python-pptx if that matters.
 
 ## Making next week's deck in under 30 minutes
 
