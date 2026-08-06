@@ -35,7 +35,10 @@
     overflow:hidden;
     -webkit-font-smoothing:antialiased;
   }
-  #stage{position:fixed;inset:0;display:grid;place-items:center}
+  /* the deck sits above the thumbnail strip; body.no-strip reclaims the space */
+  :root{--strip-h:152px}
+  body.no-strip{--strip-h:0px}
+  #stage{position:fixed;left:0;right:0;top:0;bottom:var(--strip-h);display:grid;place-items:center}
   #deck{
     width:1600px;height:900px;position:relative;
     transform-origin:center center;
@@ -279,15 +282,49 @@
   }
   .slide.divider footer.brand{border-top-color:rgba(255,255,255,.18);color:rgba(255,255,255,.55)}
   #progress{
-    position:fixed;left:0;bottom:0;height:3px;background:var(--blue-medium);
+    position:fixed;left:0;bottom:var(--strip-h);height:3px;background:var(--blue-medium);
     transition:width .18s ease;z-index:20;
   }
+  /* sits just above the strip, so it needs a chip to stay legible over a white slide */
   #hint{
-    position:fixed;left:16px;bottom:14px;color:rgba(255,255,255,.42);
-    font-size:12px;letter-spacing:.08em;text-transform:uppercase;z-index:20;
+    position:fixed;right:16px;bottom:calc(var(--strip-h) + 12px);color:rgba(255,255,255,.66);
+    font-size:12px;letter-spacing:.08em;text-transform:uppercase;z-index:31;
+    background:rgba(10,16,26,.76);padding:5px 11px;border-radius:3px;
     transition:opacity .4s ease;
   }
   #hint.gone{opacity:0}
+
+  /* ---------- thumbnail strip ----------
+     Each thumb holds a live clone of the real slide scaled to 10%, so previews
+     can never go stale. Press T to hide the strip for presenting. */
+  #filmstrip{
+    position:fixed;left:0;right:0;bottom:0;height:var(--strip-h);z-index:30;
+    display:flex;gap:10px;align-items:center;
+    padding:12px 16px;overflow-x:auto;overflow-y:hidden;
+    background:#0A101A;border-top:1px solid rgba(255,255,255,.09);
+    scrollbar-width:thin;scrollbar-color:#2A3A4F #0A101A;
+  }
+  body.no-strip #filmstrip{display:none}
+  #filmstrip::-webkit-scrollbar{height:8px}
+  #filmstrip::-webkit-scrollbar-track{background:#0A101A}
+  #filmstrip::-webkit-scrollbar-thumb{background:#2A3A4F;border-radius:4px}
+  .thumb{
+    flex:0 0 auto;position:relative;width:192px;height:108px;padding:0;
+    border:1px solid rgba(255,255,255,.16);border-radius:2px;
+    background:#fff;overflow:hidden;cursor:pointer;
+    opacity:.74;transition:opacity .15s ease,border-color .15s ease;
+  }
+  .thumb:hover{opacity:.95}
+  .thumb.on{opacity:1;border-color:var(--blue-medium);box-shadow:0 0 0 2px var(--blue-medium)}
+  .thumb-inner{
+    width:1600px;height:900px;position:relative;
+    transform:scale(.12);transform-origin:top left;pointer-events:none;
+  }
+  .thumb-n{
+    position:absolute;right:3px;bottom:3px;z-index:2;
+    font-size:10px;font-weight:500;color:#fff;letter-spacing:.04em;
+    background:rgba(12,20,33,.74);padding:1px 5px;border-radius:2px;
+  }
 </style>
 </head>
 <body>
@@ -553,25 +590,59 @@
 
 </div></div>
 <div id="progress"></div>
-<div id="hint">&larr; &rarr; to navigate &middot; F11 full screen</div>
+<div id="hint">&larr; &rarr; to navigate &middot; T hides thumbnails &middot; F11 full screen</div>
+<div id="filmstrip"></div>
 
 <script>
 (function(){
   var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
   var deck = document.getElementById('deck');
+  var stage = document.getElementById('stage');
   var bar = document.getElementById('progress');
   var hint = document.getElementById('hint');
+  var strip = document.getElementById('filmstrip');
+  var thumbs = [];
   var i = 0;
+
+  // one thumbnail per slide, each a live clone scaled to 10 percent
+  function buildStrip(){
+    slides.forEach(function(s, k){
+      var b = document.createElement('button');
+      b.className = 'thumb';
+      b.type = 'button';
+      b.title = 'Slide ' + (k + 1);
+      var inner = document.createElement('div');
+      inner.className = 'thumb-inner';
+      var clone = s.cloneNode(true);
+      clone.classList.add('active');
+      inner.appendChild(clone);
+      var num = document.createElement('span');
+      num.className = 'thumb-n';
+      num.textContent = k + 1;
+      b.appendChild(inner);
+      b.appendChild(num);
+      b.addEventListener('click', function(e){ e.stopPropagation(); show(k); });
+      strip.appendChild(b);
+      thumbs.push(b);
+    });
+  }
+  function syncStrip(){
+    if (!thumbs.length) return;
+    thumbs.forEach(function(t, k){ t.classList.toggle('on', k === i); });
+    var t = thumbs[i];
+    strip.scrollLeft = t.offsetLeft - (strip.clientWidth - t.offsetWidth) / 2;
+  }
 
   function show(n){
     i = Math.max(0, Math.min(slides.length - 1, n));
     slides.forEach(function(s, k){ s.classList.toggle('active', k === i); });
     bar.style.width = ((i + 1) / slides.length * 100) + '%';
     if (i > 0 && hint) hint.classList.add('gone');
+    syncStrip();
     try { history.replaceState(null, '', '#s' + (i + 1)); } catch (e) { location.hash = 's' + (i + 1); }
   }
   function fit(){
-    var s = Math.min(window.innerWidth / 1600, window.innerHeight / 900) * 0.965;
+    var s = Math.min(stage.clientWidth / 1600, stage.clientHeight / 900) * 0.965;
     deck.style.transform = 'scale(' + s + ')';
   }
   window.addEventListener('resize', fit);
@@ -586,12 +657,18 @@
     else if (k === 'ArrowLeft' || k === 'PageUp' || k === 'Backspace'){ e.preventDefault(); show(i - 1); }
     else if (k === 'Home'){ show(0); }
     else if (k === 'End'){ show(slides.length - 1); }
+    else if (k === 't' || k === 'T'){
+      document.body.classList.toggle('no-strip');
+      fit(); syncStrip();
+    }
   });
   document.addEventListener('click', function(e){
+    if (e.target.closest && e.target.closest('#filmstrip')) return;
     show(e.clientX < window.innerWidth * 0.28 ? i - 1 : i + 1);
   });
 
   var m = /^#s(\d+)$/.exec(location.hash || '');
+  buildStrip();
   fit();
   show(m ? parseInt(m[1], 10) - 1 : 0);
 })();

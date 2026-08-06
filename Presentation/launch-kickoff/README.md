@@ -6,7 +6,7 @@ Board: `traversa-student-transportation.monday.com/boards/18416191331`
 
 ## Files
 
-- `index.html` is the current session deck. Self-contained: open it from disk, arrow keys or click to advance, F11 for full screen.
+- `index.html` is the current session deck. Self-contained: open it from disk, arrow keys or click to advance, F11 for full screen. A thumbnail strip runs along the bottom for jumping to any slide by clicking it; press **T** to hide the strip when presenting.
 - `_template.html` is the skeleton for next week. Copy it, fill in the slides, never touch the CSS.
 - `session-01.html` is the August 7, 2026 deck as delivered.
 - `assets/` holds the screenshots the slides reference.
@@ -29,6 +29,8 @@ python tools/build_pptx.py
 ```
 
 The node scripts resolve playwright out of the app's `node_modules` under `Figma files`, so they run from any working directory.
+
+One gotcha when touching this tooling: the thumbnail strip is built from cloned `.slide` elements, so any selector that counts or iterates slides must be scoped to `#deck .slide`. A bare `.slide` selector sees every slide twice.
 
 ## Status as of August 6, 2026
 
