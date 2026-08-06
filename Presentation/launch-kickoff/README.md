@@ -15,18 +15,32 @@ Board: `traversa-student-transportation.monday.com/boards/18416191331`
   - `gen_slides.py` writes `index.html` slide markup, preserving the CSS block already in the file. Edit the content lists here, not the HTML, then re-run it.
   - `gen_template.py` regenerates `_template.html` from whatever CSS is currently in `index.html`.
   - `shoot-app-screens.cjs` captures fresh prototype screenshots into `raw/`.
-  - `shoot-slides.cjs` exports each slide to a PNG in `raw/slides/` for the PowerPoint build.
+  - `shoot-slides.cjs` exports each slide to a PNG in `raw/slides/`.
+  - `build_pptx.py` assembles those PNGs into the PowerPoint, one image per slide, with the presenter notes. Keep `NOTES` in that file in sync when slides move.
 
-Run order for a full rebuild: serve the deck on port 8899, run `gen_slides.py`, then `gen_template.py`, then `shoot-slides.cjs`, then the PowerPoint build.
+Full rebuild:
+
+```bash
+python -m http.server 8899 --bind 127.0.0.1   # from this directory, leave running
+python tools/gen_slides.py
+python tools/gen_template.py
+node tools/shoot-slides.cjs
+python tools/build_pptx.py
+```
+
+The node scripts resolve playwright out of the app's `node_modules` under `Figma files`, so they run from any working directory.
 
 ## Status as of August 6, 2026
 
-Session 1 deck is finished and delivered-ready: 14 slides, PPTX exported with presenter notes, mirrored in Claude Design. Two open questions were parked, both listed under Open items below.
+Session 1 deck is finished and ready to present: 15 slides, PPTX exported with presenter notes, mirrored in Claude Design.
 
-### Open items
+Slide 3 exists because BK opens the meeting by establishing that the plan belongs to the attendees: every item has a person on it, that person owns status, and anyone can add an item their area needs or flag one that does not help the launch. From session 2 onward the meeting works the board filtered by person, with each owner giving status on their own items, which is what slide 15 sets up.
 
-1. **Student names on the vNext screenshot.** `assets/forge-prod.jpg` shows real-looking student names (MARSID ABASALLARI, DOMINIC ABATE, CAMREN ABATE, KYLE ABATE, AUSTIN JONES, JOSE GEIGEL-SMITH) in the Students column. If that is real district data rather than seed data, blur that column before the deck circulates. Recrop from `raw/forge-prod.png`.
-2. **PowerPoint is a picture per slide.** Visually identical to the HTML, but the text is not editable in PowerPoint. A natively editable version can be authored with python-pptx if that matters.
+Student names on the vNext screenshot (slide 13) are blurred. The unblurred original is kept at `raw/forge-prod.png`; the blurred version is `raw/forge-prod-blurred.png`.
+
+### Open item
+
+**PowerPoint is a picture per slide.** Visually identical to the HTML, but the text is not editable in PowerPoint. A natively editable version could be authored with python-pptx if that ever matters. The HTML deck is the editable source.
 
 ## Making next week's deck in under 30 minutes
 

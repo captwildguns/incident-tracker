@@ -1,6 +1,10 @@
-const { chromium } = require('playwright');
+// playwright lives in the app's node_modules ("Figma files"), not next to this
+// script, so resolve it from there. Lets this run from any working directory.
 const fs=require('fs'); const path=require('path');
-const OUT='C:/Users/Gabe.guzman/.local/gclaude/incidents-tedfinal/Presentation/launch-kickoff/raw/slides';
+const { createRequire } = require('module');
+const appRequire = createRequire(path.join(__dirname, '..', '..', '..', 'Figma files', 'package.json'));
+const { chromium } = appRequire('playwright');
+const OUT = path.join(__dirname, '..', 'raw', 'slides');
 fs.mkdirSync(OUT,{recursive:true});
 (async()=>{
   const b=await chromium.launch();

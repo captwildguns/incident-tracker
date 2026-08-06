@@ -63,12 +63,21 @@ S += '''<!-- 1 ................................................. -->
 '''
 
 S += slide('Session 1', 'Today&rsquo;s plan', rows([
+    ('How we will run this', 'BK on the launch plan and how this group will work it'),
     ('Background', 'Where this project came from and where it stands'),
     ('The system', 'What the Incident Tracker does, and the decisions built into it'),
     ('Live demo', 'File an incident, then follow it through its response path'),
     ('Production direction', 'The real build going up on Tyler Forge'),
-    ('The launch plan', 'The seven workstreams, and what to review this week'),
-], 'mid'))
+    ('The launch plan', 'The seven workstreams, and the items assigned to you'),
+], 'mid dense'))
+
+S += slide('How we will run this', 'The plan belongs to this group', rows([
+    ('Every item has a person', 'Items are assigned to the people in this room, not to a department'),
+    ('You own status on your items', 'Each Friday you say where your items stand'),
+    ('Add what is missing', 'If your area needs an item that is not on the board, put it on'),
+    ('Remove what does not help', 'If an item does not move the launch forward from your side, say so'),
+], 'mid'),
+    callout='<div class="callout">If an item does not help you launch Incidents, it should not be on the board.</div>')
 
 bg = '  <div class="para">Districts have run bus incidents on paper forms, phone calls, and email threads. Nothing in that chain records whether the right people were told, whether the district&rsquo;s own policy was followed, or how the case was finally closed. <b>Incidents is the module that fixes that.</b></div>\n'
 bg += '  <div class="para">We built a complete, working prototype of it: capture from the field, an automatic response path for every incident type, per-student handling when more than one child is involved, notifications at each step, and configuration each district controls. <b>The design is essentially settled.</b> The prototype is the specification development is building production from, on Tyler Forge, targeting the <b>November 25 release</b>.</div>\n'
@@ -157,9 +166,9 @@ S += slide('The plan, briefly', 'Seven workstreams to November 25', rows([
 ], 'mid dense'))
 
 body = rows([
-    ('This week', 'Read your workstream on the board and flag anything missing or misassigned'),
-    ('Friday, August 14', 'We set owners and dates, workstream by workstream'),
-    ('Every Friday after that', 'Thirty minutes, tracking to the November 25 release'),
+    ('This week', 'Open the board, find the items assigned to you, and review them'),
+    ('Friday, August 14', 'We go person by person: filter the board to your name and give status'),
+    ('Every Friday after that', 'Thirty minutes, same format, tracking to the November 25 release'),
 ], 'mid')
 body += '''  <div class="links">
     <div class="linkline"><b>Prototype:</b> captwildguns.github.io/incident-tracker</div>

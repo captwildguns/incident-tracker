@@ -1,7 +1,11 @@
-const { chromium } = require('playwright');
+// playwright lives in the app's node_modules ("Figma files"), not next to this
+// script, so resolve it from there. Lets this run from any working directory.
 const path=require('path'); const fs=require('fs');
+const { createRequire } = require('module');
+const appRequire = createRequire(path.join(__dirname, '..', '..', '..', 'Figma files', 'package.json'));
+const { chromium } = appRequire('playwright');
 const BASE='http://localhost:3001/incident-tracker/';
-const OUT='C:/Users/Gabe.guzman/.local/gclaude/incidents-tedfinal/Presentation/launch-kickoff/raw';
+const OUT = path.join(__dirname, '..', 'raw');
 fs.mkdirSync(OUT,{recursive:true});
 const shot=async(p,n)=>{await p.waitForTimeout(900);await p.screenshot({path:path.join(OUT,n+'.png')});console.log('shot',n);};
 const nav=async(p,label)=>{await p.click('[aria-label="Menu"]');await p.waitForTimeout(700);
