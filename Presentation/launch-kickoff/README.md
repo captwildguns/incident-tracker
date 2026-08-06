@@ -32,6 +32,12 @@ The node scripts resolve playwright out of the app's `node_modules` under `Figma
 
 One gotcha when touching this tooling: the thumbnail strip is built from cloned `.slide` elements, so any selector that counts or iterates slides must be scoped to `#deck .slide`. A bare `.slide` selector sees every slide twice.
 
+## Thumbnail previews stay in sync by construction
+
+Each preview is a live clone of the real slide markup scaled to 9.6 percent, not a captured image. Change a slide and its preview changes with it, because there is no second copy to update. Reloading the page re-clones from scratch, and a MutationObserver re-clones if slide markup is edited in place while the deck is open. Previews render at full opacity so they look exactly like the slide; the current slide is marked with a blue ring rather than by dimming the others.
+
+The one thing to remember: never build previews from PNG files. They would go stale the moment a slide changed.
+
 ## Status as of August 6, 2026
 
 Session 1 deck is finished and ready to present: 15 slides, PPTX exported with presenter notes, mirrored in Claude Design.

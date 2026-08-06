@@ -36,7 +36,7 @@
     -webkit-font-smoothing:antialiased;
   }
   /* the deck sits above the thumbnail strip; body.no-strip reclaims the space */
-  :root{--strip-h:152px}
+  :root{--strip-h:128px}
   body.no-strip{--strip-h:0px}
   #stage{position:fixed;left:0;right:0;top:0;bottom:var(--strip-h);display:grid;place-items:center}
   #deck{
@@ -308,17 +308,19 @@
   #filmstrip::-webkit-scrollbar{height:8px}
   #filmstrip::-webkit-scrollbar-track{background:#0A101A}
   #filmstrip::-webkit-scrollbar-thumb{background:#2A3A4F;border-radius:4px}
+  /* Thumbs render at full opacity so a preview looks exactly like the slide.
+     The current slide is marked with a ring, not by dimming the others. */
   .thumb{
-    flex:0 0 auto;position:relative;width:192px;height:108px;padding:0;
-    border:1px solid rgba(255,255,255,.16);border-radius:2px;
+    flex:0 0 auto;position:relative;width:153.6px;height:86.4px;padding:0;
+    border:1px solid rgba(255,255,255,.18);border-radius:2px;
     background:#fff;overflow:hidden;cursor:pointer;
-    opacity:.74;transition:opacity .15s ease,border-color .15s ease;
+    transition:border-color .15s ease,box-shadow .15s ease;
   }
-  .thumb:hover{opacity:.95}
-  .thumb.on{opacity:1;border-color:var(--blue-medium);box-shadow:0 0 0 2px var(--blue-medium)}
+  .thumb:hover{border-color:rgba(255,255,255,.5)}
+  .thumb.on{border-color:var(--blue-medium);box-shadow:0 0 0 2px var(--blue-medium)}
   .thumb-inner{
     width:1600px;height:900px;position:relative;
-    transform:scale(.12);transform-origin:top left;pointer-events:none;
+    transform:scale(.096);transform-origin:top left;pointer-events:none;
   }
   .thumb-n{
     position:absolute;right:3px;bottom:3px;z-index:2;
@@ -595,8 +597,9 @@
 
 <script>
 (function(){
-  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
   var deck = document.getElementById('deck');
+  // scoped to the deck: the thumbnail strip holds cloned .slide elements
+  var slides = Array.prototype.slice.call(deck.querySelectorAll('.slide'));
   var stage = document.getElementById('stage');
   var bar = document.getElementById('progress');
   var hint = document.getElementById('hint');
@@ -604,7 +607,9 @@
   var thumbs = [];
   var i = 0;
 
-  // one thumbnail per slide, each a live clone scaled to 10 percent
+  // One thumbnail per slide, each a live clone of the real slide markup, so a
+  // preview always matches the current HTML. rebuildStrip() below re-clones if
+  // the deck content ever changes, and a page load re-clones from scratch.
   function buildStrip(){
     slides.forEach(function(s, k){
       var b = document.createElement('button');
@@ -631,6 +636,23 @@
     thumbs.forEach(function(t, k){ t.classList.toggle('on', k === i); });
     var t = thumbs[i];
     strip.scrollLeft = t.offsetLeft - (strip.clientWidth - t.offsetWidth) / 2;
+  }
+  function rebuildStrip(){
+    strip.innerHTML = '';
+    thumbs = [];
+    slides = Array.prototype.slice.call(deck.querySelectorAll('.slide'));
+    buildStrip();
+    syncStrip();
+  }
+  // belt and braces: if slide markup is ever edited in place, re-clone the previews
+  if (window.MutationObserver){
+    var pending = null;
+    // childList and characterData only. Watching attributes would fire on every
+    // .active toggle and rebuild the strip on each navigation.
+    new MutationObserver(function(){
+      clearTimeout(pending);
+      pending = setTimeout(rebuildStrip, 120);
+    }).observe(deck, { childList: true, subtree: true, characterData: true });
   }
 
   function show(n){
