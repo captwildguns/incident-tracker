@@ -54,7 +54,6 @@ S += '''<!-- 1 ................................................. -->
   <div class="sub">Session 1 &middot; Friday, August 7, 2026</div>
   <div class="chips">
     <div class="chip"><b>Today:</b> Incident Tracker walkthrough</div>
-    <div class="chip"><b>Cadence:</b> 30 minutes, every Friday</div>
     <div class="chip"><b>Release:</b> November 25, 2026</div>
   </div>
   <footer class="brand"><span>Incidents Launch Plan</span><span>Session 1</span></footer>
@@ -63,12 +62,12 @@ S += '''<!-- 1 ................................................. -->
 '''
 
 S += slide('Session 1', 'Today&rsquo;s plan', rows([
-    ('How we will run this', 'BK on the launch plan and how this group will work it'),
+    ('Expectations', 'BK to share on the launch plan design and behavior'),
     ('Background', 'Where this project came from, and how it was built'),
     ('The system', 'What the Incident Tracker does, and the decisions built into it'),
-    ('Live demo', 'File an incident, then follow it through its response path'),
-    ('Production direction', 'The real build going up on Tyler Forge'),
-    ('The launch plan', 'The seven workstreams, and the items assigned to you'),
+    ('Live demo', 'A hands on look at our design prototype'),
+    ('Production direction', 'Production design built with Forge'),
+    ('The launch plan', 'Let&rsquo;s ensure nothing falls through the cracks'),
 ], 'mid dense'))
 
 S += slide('How we will run this', 'The plan belongs to this group', rows([
