@@ -79,8 +79,8 @@ S += slide('How we will run this', 'The plan belongs to this group', rows([
 ], 'mid'),
     callout='<div class="callout">If an item does not help you launch Incidents, it should not be on the board.</div>')
 
-bg = '  <div class="para">Districts have run bus incidents on paper forms, phone calls, and email threads. Nothing in that chain records whether the right people were told, whether the district&rsquo;s own policy was followed, or how the case was finally closed. <b>Incidents is the module that fixes that.</b></div>\n'
-bg += '  <div class="para">We built a complete, working prototype of it: capture from the field, an automatic response path for every incident type, per-student handling when more than one child is involved, notifications at each step, and configuration each district controls. <b>The design is essentially settled.</b> The prototype is the specification development is building production from, on Tyler Forge, targeting the <b>November 25 release</b>.</div>\n'
+bg = '  <div class="para">Districts have run bus incidents on paper forms, phone calls, and email threads. Nothing in that chain records whether the right people were told, whether the district&rsquo;s own policy was followed, or how the case was finally closed. <b>Incidents is the module that closes that gap.</b></div>\n'
+bg += '  <div class="para"><b>The design is settled.</b> The prototype is complete and clickable, and development is building production from it on Tyler Forge for the <b>November 25 release</b>.</div>\n'
 S += slide('Background', 'Why we built this', bg)
 
 S += slide('How we built it', 'Designed and built with AI', rows([
