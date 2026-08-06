@@ -24,23 +24,27 @@ NOTES = {
     3: "BK opens here. The plan belongs to the people in the room: every item has a "
        "person on it, that person owns status, and anyone can add an item their area "
        "needs or call out an item that does not help the launch.",
-    4: "Background. Where the project came from, and that the design is settled.",
-    5: "SAY THIS: an incident almost never gets written up while it is happening. The "
+    4: "Background. The gap Incidents fills, and that the design is settled.",
+    5: "The process is part of what makes this project unusual: AI drove the design, the "
+       "mockups, and the documents. It began as a Figma Make design and moved to Claude "
+       "mid-project, where Claude Code built the working Forge prototype. Say AI-powered, "
+       "not hackathon.",
+    6: "SAY THIS: an incident almost never gets written up while it is happening. The "
        "driver's job in the moment is to keep 50 kids safe and keep the bus moving. The "
        "report comes later, once they have pulled into the school loop or gotten back to "
        "the garage. Note we are not showing the driver tablet today.",
-    6: "Working prototype, simulated data. It is the spec development builds from.",
-    7: "Define the terms before the demo: response path, step, approval, automatic "
+    7: "Working prototype, simulated data. It is the spec development builds from.",
+    8: "Define the terms before the demo: response path, step, approval, automatic "
        "assignment.",
-    8: "Real steps from the system. Step 4 holds the path until an administrator signs off.",
-    9: "INC-2025-0059. In the demo, switch student: banner, severity, and workflow all change.",
-    10: "Coordinator sees one step at a time. Approval steps ask for sign-off, not completion.",
-    11: "Steps, notified groups, and permissions are configuration, not code.",
-    12: "Switch to captwildguns.github.io/incident-tracker. Five beats, about 15 minutes.",
-    13: "Show incidents-vnext.staging.student-transportation.tylerapp.com briefly. Student "
+    9: "Real steps from the system. Step 4 holds the path until an administrator signs off.",
+    10: "INC-2025-0059. In the demo, switch student: banner, severity, and workflow all change.",
+    11: "Coordinator sees one step at a time. Approval steps ask for sign-off, not completion.",
+    12: "Steps, notified groups, and permissions are configuration, not code.",
+    13: "Switch to captwildguns.github.io/incident-tracker. Five beats, about 15 minutes.",
+    14: "Show incidents-vnext.staging.student-transportation.tylerapp.com briefly. Student "
         "names in this screenshot are blurred.",
-    14: "The workstreams are containers. The items inside them are what people own.",
-    15: "Close on next steps. From next Friday the board gets filtered by person and each "
+    15: "The workstreams are containers. The items inside them are what people own.",
+    16: "Close on next steps. From next Friday the board gets filtered by person and each "
         "owner gives status on their own items.",
 }
 

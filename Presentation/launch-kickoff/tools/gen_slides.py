@@ -64,7 +64,7 @@ S += '''<!-- 1 ................................................. -->
 
 S += slide('Session 1', 'Today&rsquo;s plan', rows([
     ('How we will run this', 'BK on the launch plan and how this group will work it'),
-    ('Background', 'Where this project came from and where it stands'),
+    ('Background', 'Where this project came from, and how it was built'),
     ('The system', 'What the Incident Tracker does, and the decisions built into it'),
     ('Live demo', 'File an incident, then follow it through its response path'),
     ('Production direction', 'The real build going up on Tyler Forge'),
@@ -82,6 +82,14 @@ S += slide('How we will run this', 'The plan belongs to this group', rows([
 bg = '  <div class="para">Districts have run bus incidents on paper forms, phone calls, and email threads. Nothing in that chain records whether the right people were told, whether the district&rsquo;s own policy was followed, or how the case was finally closed. <b>Incidents is the module that fixes that.</b></div>\n'
 bg += '  <div class="para">We built a complete, working prototype of it: capture from the field, an automatic response path for every incident type, per-student handling when more than one child is involved, notifications at each step, and configuration each district controls. <b>The design is essentially settled.</b> The prototype is the specification development is building production from, on Tyler Forge, targeting the <b>November 25 release</b>.</div>\n'
 S += slide('Background', 'Why we built this', bg)
+
+S += slide('How we built it', 'Designed and built with AI', rows([
+    ('AI drove the design', 'Screen concepts, the workflow model, and the mockups were all developed with AI'),
+    ('And the documents', 'Process summaries, the permissions matrix, and the seed data catalog came the same way'),
+    ('It started in Figma Make', 'The first design direction and prototype were built there'),
+    ('It moved to Claude mid-project', 'Claude Code rebuilt it as a working Forge prototype, with design and build in one place'),
+    ('What that changed', 'An idea could be built, published, and reviewed the same day instead of next sprint'),
+], 'mid'))
 
 S += slide('The problem we designed around',
            'An incident gets written up after the route, not during it', rows([
