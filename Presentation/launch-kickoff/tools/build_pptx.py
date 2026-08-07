@@ -35,17 +35,13 @@ NOTES = {
        "driver's job in the moment is to keep 50 kids safe and keep the bus moving. The "
        "report comes later, once they have pulled into the school loop or gotten back to "
        "the garage. Note we are not showing the driver tablet today.",
-    8: "Working prototype, simulated data. It is the spec development builds from.",
-    9: "Define the terms before the demo: response path, step, approval, automatic "
-       "assignment.",
-    10: "Real steps from the system. Step 4 holds the path until an administrator signs off.",
-    11: "INC-2025-0059. In the demo, switch student: banner, severity, and workflow all change.",
-    12: "Coordinator sees one step at a time. Approval steps ask for sign-off, not completion.",
-    13: "Steps, notified groups, and permissions are configuration, not code.",
-    14: "Switch to captwildguns.github.io/incident-tracker. Five beats, about 15 minutes.",
-    15: "Show incidents-vnext.staging.student-transportation.tylerapp.com briefly. Student "
+    8: "The only system slide. Name the five capabilities, do not explain them here: the "
+       "demo does that. Data is realistic but simulated, so no real notifications go out.",
+    9: "Switch to captwildguns.github.io/incident-tracker. Five beats, about 15 minutes. "
+       "This is where the detail lives now.",
+    10: "Show incidents-vnext.staging.student-transportation.tylerapp.com briefly. Student "
         "names in this screenshot are blurred.",
-    16: "Going forward. From next Friday the board gets filtered by person and each owner "
+    11: "Going forward. From next Friday the board gets filtered by person and each owner "
         "gives status on their own items.",
 }
 

@@ -393,8 +393,8 @@
 <section class="slide">
   <div class="kicker">Background</div>
   <h2>Why we built this</h2>
-  <div class="para">Districts have run bus incidents on paper forms, phone calls, and email threads. Nothing in that chain records whether the right people were told, whether the district&rsquo;s own policy was followed, or how the case was finally closed. <b>Incidents is the module that closes that gap.</b></div>
-  <div class="para"><b>The design is settled.</b> The prototype is complete and clickable, and development is building production from it on Tyler Forge for the <b>November 25 release</b>.</div>
+  <div class="para">Many of our clients track incidents in homegrown systems and one-off tools. The real conversation happens over email, where it never gets tied back to the record. <b>Incidents closes that gap.</b></div>
+  <div class="para">We started in Figma and turned it into a working prototype. <b>That prototype became our spec</b>, and work on the real site is underway in Forge for the <b>November 25 release</b>.</div>
   <footer class="brand"><span>Incidents Launch Plan</span><span>05</span></footer>
 </section>
 
@@ -427,117 +427,27 @@
 
 <!-- 8 ................................................. -->
 <section class="slide">
-  <div class="kicker">What we built</div>
-  <h2>A working prototype, not a slide deck</h2>
+  <div class="kicker">The system</div>
+  <h2>What the Incident Tracker does</h2>
   <div class="shot-row">
     <div>
   <div class="agenda compact">
-    <div class="ag"><span class="t">01</span><span class="d"><b>Clickable, not static</b><i>A working incident system, branded like a Tyler product</i></span></div>
-    <div class="ag"><span class="t">02</span><span class="d"><b>Simulated data</b><i>No backend, no real emails, no real approvals</i></span></div>
-    <div class="ag"><span class="t">03</span><span class="d"><b>It is the spec</b><i>Development builds the real system from this reference</i></span></div>
-    <div class="ag"><span class="t">04</span><span class="d"><b>Eleven pages</b><i>Dashboard and capture through workflows, reports, and admin</i></span></div>
+    <div class="ag"><span class="t">01</span><span class="d"><b>Response paths by type</b><i>Steps assigned automatically from type and severity</i></span></div>
+    <div class="ag"><span class="t">02</span><span class="d"><b>Per-student records</b><i>One event becomes one tracked record per child</i></span></div>
+    <div class="ag"><span class="t">03</span><span class="d"><b>Notifications and approvals</b><i>Each step names its owner and who gets notified</i></span></div>
+    <div class="ag"><span class="t">04</span><span class="d"><b>Configurable by district</b><i>Steps, groups, and permissions are settings, not code</i></span></div>
+    <div class="ag"><span class="t">05</span><span class="d"><b>Dashboard and reporting</b><i>Every metric is a doorway into a filtered view</i></span></div>
   </div>
     </div>
     <div>
       <img class="shot" src="assets/dashboard.jpg" alt="Incident Tracker dashboard">
-      <div class="shot-cap">Dashboard. Every metric on it is a doorway into a filtered view.</div>
+      <div class="shot-cap">Dashboard. The coordinator view of every open incident.</div>
     </div>
   </div>
   <footer class="brand"><span>Incidents Launch Plan</span><span>08</span></footer>
 </section>
 
 <!-- 9 ................................................. -->
-<section class="slide">
-  <div class="kicker">The core idea</div>
-  <h2>Every incident type carries a response path</h2>
-  <div class="agenda mid">
-    <div class="ag"><span class="t">01</span><span class="d"><b>Response path</b><i>The district&rsquo;s policy for that incident type, written down as an ordered list of steps</i></span></div>
-    <div class="ag"><span class="t">02</span><span class="d"><b>Step</b><i>One action, one owning role, a time expectation, and a notification when it becomes active</i></span></div>
-    <div class="ag"><span class="t">03</span><span class="d"><b>Approval</b><i>Some steps hold the whole path until someone signs off</i></span></div>
-    <div class="ag"><span class="t">04</span><span class="d"><b>Assignment</b><i>Type and severity choose the path automatically. Five types today, running 3 to 6 steps each</i></span></div>
-  </div>
-  <footer class="brand"><span>Incidents Launch Plan</span><span>09</span></footer>
-</section>
-
-<!-- 10 ................................................. -->
-<section class="slide">
-  <div class="kicker">Worked example</div>
-  <h2>Physical Altercation Response, 5 steps</h2>
-  <div class="agenda mid">
-    <div class="ag"><span class="t">01</span><span class="d"><b>Immediate Driver Response</b><i>Driver, within 15 minutes</i></span></div>
-    <div class="ag"><span class="t">02</span><span class="d"><b>Submit Incident Report</b><i>Driver, within 15 minutes</i></span></div>
-    <div class="ag"><span class="t">03</span><span class="d"><b>Parent Notification</b><i>Safety Coordinator, within 30 minutes</i></span></div>
-    <div class="ag appr"><span class="t">04</span><span class="d"><b>Disciplinary Action Review</b><i>Administrator, within 1 hour. Approval required before the path continues</i></span></div>
-    <div class="ag"><span class="t">05</span><span class="d"><b>Documentation and Close</b><i>Safety Coordinator, within 20 minutes</i></span></div>
-  </div>
-  <div class="callout">Every step names its owner, its time expectation, and who gets notified. Step 4 holds the path until an administrator signs off.</div>
-  <footer class="brand"><span>Incidents Launch Plan</span><span>10</span></footer>
-</section>
-
-<!-- 11 ................................................. -->
-<section class="slide">
-  <div class="kicker">Per-student handling</div>
-  <h2>One event, many students</h2>
-  <div class="shot-row">
-    <div>
-  <div class="agenda compact">
-    <div class="ag"><span class="t">01</span><span class="d"><b>One event, many records</b><i>Add a second student and each child gets their own tracked record</i></span></div>
-    <div class="ag"><span class="t">02</span><span class="d"><b>Roles</b><i>Instigator, victim, witness, bystander, severity overridable per student</i></span></div>
-    <div class="ag"><span class="t">03</span><span class="d"><b>Different paths</b><i>Because the roles differ, the response path differs per child</i></span></div>
-    <div class="ag"><span class="t">04</span><span class="d"><b>No busywork</b><i>A student who was only present gets no workflow at all</i></span></div>
-  </div>
-    </div>
-    <div>
-      <img class="shot" src="assets/incident-detail.jpg" alt="Multi-student incident banner with student switcher">
-      <div class="shot-cap">INC-2025-0059: one altercation, three students. Switching student changes the banner, the severity, and the assigned workflow.</div>
-    </div>
-  </div>
-  <footer class="brand"><span>Incidents Launch Plan</span><span>11</span></footer>
-</section>
-
-<!-- 12 ................................................. -->
-<section class="slide">
-  <div class="kicker">Getting work done</div>
-  <h2>The guided response</h2>
-  <div class="shot-row">
-    <div>
-  <div class="agenda compact">
-    <div class="ag"><span class="t">01</span><span class="d"><b>One step at a time</b><i>A coordinator sees the step that is theirs, not a five-step form</i></span></div>
-    <div class="ag"><span class="t">02</span><span class="d"><b>Plain instructions</b><i>Each step carries a what to do next checklist</i></span></div>
-    <div class="ag"><span class="t">03</span><span class="d"><b>Sign-off steps</b><i>Steps needing approval ask for it instead of completion</i></span></div>
-    <div class="ag"><span class="t">04</span><span class="d"><b>The baton passes</b><i>Complete one and the next owner activates, with its own notification</i></span></div>
-  </div>
-    </div>
-    <div>
-      <img class="shot" src="assets/incident-workflow.jpg" alt="Workflow progress and action card">
-      <div class="shot-cap">Workflow tab. The assigned path, the current step, and who owns it.</div>
-    </div>
-  </div>
-  <footer class="brand"><span>Incidents Launch Plan</span><span>12</span></footer>
-</section>
-
-<!-- 13 ................................................. -->
-<section class="slide">
-  <div class="kicker">Districts are not identical</div>
-  <h2>Configurable, not hard-coded</h2>
-  <div class="shot-row">
-    <div>
-  <div class="agenda compact">
-    <div class="ag"><span class="t">01</span><span class="d"><b>Workflow builder</b><i>Add, reorder, and retire steps without a code change</i></span></div>
-    <div class="ag"><span class="t">02</span><span class="d"><b>Step templates</b><i>Each carries its notified group and email template</i></span></div>
-    <div class="ag"><span class="t">03</span><span class="d"><b>Roles and permissions</b><i>Managed in-district, five groups out of the box</i></span></div>
-  </div>
-      <div class="callout" style="margin-top:22px;font-size:18px;padding:16px 20px">Steps, notified groups, and permissions are all configuration. None of it is hard-coded per district.</div>
-    </div>
-    <div>
-      <img class="shot" src="assets/workflows.jpg" alt="Workflow management and builder">
-      <div class="shot-cap">Workflow management. Six paths today, each editable step by step.</div>
-    </div>
-  </div>
-  <footer class="brand"><span>Incidents Launch Plan</span><span>13</span></footer>
-</section>
-
-<!-- 14 ................................................. -->
 <section class="slide divider">
   <div class="kicker">Switching to the live site</div>
   <h2>Live demo</h2>
@@ -550,10 +460,10 @@
   </div>
   <div class="callout">Everything here runs in the prototype. The data is realistic but simulated, so no real notifications go out.
     <span class="link">captwildguns.github.io/incident-tracker</span></div>
-  <footer class="brand"><span>Incidents Launch Plan</span><span>14</span></footer>
+  <footer class="brand"><span>Incidents Launch Plan</span><span>09</span></footer>
 </section>
 
-<!-- 15 ................................................. -->
+<!-- 10 ................................................. -->
 <section class="slide">
   <div class="kicker">Production direction</div>
   <h2>The real build, on Tyler Forge</h2>
@@ -570,10 +480,10 @@
       <div class="shot-cap">incidents-vnext.staging.student-transportation.tylerapp.com. Early build, real Forge components.</div>
     </div>
   </div>
-  <footer class="brand"><span>Incidents Launch Plan</span><span>15</span></footer>
+  <footer class="brand"><span>Incidents Launch Plan</span><span>10</span></footer>
 </section>
 
-<!-- 16 ................................................. -->
+<!-- 11 ................................................. -->
 <section class="slide">
   <div class="kicker">Going forward</div>
   <h2>How we keep this on track</h2>
@@ -586,7 +496,7 @@
     <div class="linkline"><b>Prototype:</b> captwildguns.github.io/incident-tracker</div>
     <div class="linkline"><b>Board:</b> traversa-student-transportation.monday.com/boards/18416191331</div>
   </div>
-  <footer class="brand"><span>Incidents Launch Plan</span><span>16</span></footer>
+  <footer class="brand"><span>Incidents Launch Plan</span><span>11</span></footer>
 </section>
 
 </div></div>

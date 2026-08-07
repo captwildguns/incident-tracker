@@ -88,8 +88,8 @@ S += slide('The launch plan', 'Seven workstreams to November 25', rows([
     ('Post-Launch Measurement', 'KPI tracking, customer feedback, what comes after version 1'),
 ], 'mid dense'))
 
-bg = '  <div class="para">Districts have run bus incidents on paper forms, phone calls, and email threads. Nothing in that chain records whether the right people were told, whether the district&rsquo;s own policy was followed, or how the case was finally closed. <b>Incidents is the module that closes that gap.</b></div>\n'
-bg += '  <div class="para"><b>The design is settled.</b> The prototype is complete and clickable, and development is building production from it on Tyler Forge for the <b>November 25 release</b>.</div>\n'
+bg = '  <div class="para">Many of our clients track incidents in homegrown systems and one-off tools. The real conversation happens over email, where it never gets tied back to the record. <b>Incidents closes that gap.</b></div>\n'
+bg += '  <div class="para">We started in Figma and turned it into a working prototype. <b>That prototype became our spec</b>, and work on the real site is underway in Forge for the <b>November 25 release</b>.</div>\n'
 S += slide('Background', 'Why we built this', bg)
 
 S += slide('How we built it', 'Designed and built with AI', rows([
@@ -108,53 +108,14 @@ S += slide('The problem we designed around',
     ('Not the tablet today', 'The driver app is a separate Tyler Drive build running the same capture logic'),
 ], 'mid'))
 
-S += slide('What we built', 'A working prototype, not a slide deck', shot(rows([
-    ('Clickable, not static', 'A working incident system, branded like a Tyler product'),
-    ('Simulated data', 'No backend, no real emails, no real approvals'),
-    ('It is the spec', 'Development builds the real system from this reference'),
-    ('Eleven pages', 'Dashboard and capture through workflows, reports, and admin'),
+S += slide('The system', 'What the Incident Tracker does', shot(rows([
+    ('Response paths by type', 'Steps assigned automatically from type and severity'),
+    ('Per-student records', 'One event becomes one tracked record per child'),
+    ('Notifications and approvals', 'Each step names its owner and who gets notified'),
+    ('Configurable by district', 'Steps, groups, and permissions are settings, not code'),
+    ('Dashboard and reporting', 'Every metric is a doorway into a filtered view'),
 ], 'compact'), 'dashboard.jpg', 'Incident Tracker dashboard',
-    'Dashboard. Every metric on it is a doorway into a filtered view.'))
-
-S += slide('The core idea', 'Every incident type carries a response path', rows([
-    ('Response path', 'The district&rsquo;s policy for that incident type, written down as an ordered list of steps'),
-    ('Step', 'One action, one owning role, a time expectation, and a notification when it becomes active'),
-    ('Approval', 'Some steps hold the whole path until someone signs off'),
-    ('Assignment', 'Type and severity choose the path automatically. Five types today, running 3 to 6 steps each'),
-], 'mid'))
-
-S += slide('Worked example', 'Physical Altercation Response, 5 steps', rows([
-    ('Immediate Driver Response', 'Driver, within 15 minutes'),
-    ('Submit Incident Report', 'Driver, within 15 minutes'),
-    ('Parent Notification', 'Safety Coordinator, within 30 minutes'),
-    ('Disciplinary Action Review', 'Administrator, within 1 hour. Approval required before the path continues'),
-    ('Documentation and Close', 'Safety Coordinator, within 20 minutes'),
-], 'mid', appr={4}),
-    callout='<div class="callout">Every step names its owner, its time expectation, and who gets notified. Step 4 holds the path until an administrator signs off.</div>')
-
-S += slide('Per-student handling', 'One event, many students', shot(rows([
-    ('One event, many records', 'Add a second student and each child gets their own tracked record'),
-    ('Roles', 'Instigator, victim, witness, bystander, severity overridable per student'),
-    ('Different paths', 'Because the roles differ, the response path differs per child'),
-    ('No busywork', 'A student who was only present gets no workflow at all'),
-], 'compact'), 'incident-detail.jpg', 'Multi-student incident banner with student switcher',
-    'INC-2025-0059: one altercation, three students. Switching student changes the banner, the severity, and the assigned workflow.'))
-
-S += slide('Getting work done', 'The guided response', shot(rows([
-    ('One step at a time', 'A coordinator sees the step that is theirs, not a five-step form'),
-    ('Plain instructions', 'Each step carries a what to do next checklist'),
-    ('Sign-off steps', 'Steps needing approval ask for it instead of completion'),
-    ('The baton passes', 'Complete one and the next owner activates, with its own notification'),
-], 'compact'), 'incident-workflow.jpg', 'Workflow progress and action card',
-    'Workflow tab. The assigned path, the current step, and who owns it.'))
-
-S += slide('Districts are not identical', 'Configurable, not hard-coded', shot(rows([
-    ('Workflow builder', 'Add, reorder, and retire steps without a code change'),
-    ('Step templates', 'Each carries its notified group and email template'),
-    ('Roles and permissions', 'Managed in-district, five groups out of the box'),
-], 'compact'), 'workflows.jpg', 'Workflow management and builder',
-    'Workflow management. Six paths today, each editable step by step.',
-    extra='      <div class="callout" style="margin-top:22px;font-size:18px;padding:16px 20px">Steps, notified groups, and permissions are all configuration. None of it is hard-coded per district.</div>\n'))
+    'Dashboard. The coordinator view of every open incident.'))
 
 S += slide('Switching to the live site', 'Live demo', rows([
     ('Dashboard', 'Click a metric, not a filter, and watch the view assemble'),
