@@ -24,25 +24,20 @@ NOTES = {
     3: "BK opens here. The plan belongs to the people in the room: every item has a "
        "person on it, that person owns status, and anyone can add an item their area "
        "needs or call out an item that does not help the launch.",
-    4: "Still BK: the shape of the plan. The workstreams are containers; the items inside "
-       "them are what people own.",
-    5: "Background. The gap Incidents fills, and that the design is settled.",
-    6: "The process is part of what makes this project unusual: AI drove the design, the "
-       "mockups, and the documents. It began as a Figma Make design and moved to Claude "
-       "mid-project, where Claude Code built the working Forge prototype. Say AI-powered, "
-       "not hackathon.",
-    7: "SAY THIS: an incident almost never gets written up while it is happening. The "
-       "driver's job in the moment is to keep 50 kids safe and keep the bus moving. The "
-       "report comes later, once they have pulled into the school loop or gotten back to "
-       "the garage. Note we are not showing the driver tablet today.",
-    8: "The only system slide. Name the five capabilities, do not explain them here: the "
+    4: "Background. The gap Incidents fills: clients on homegrown tools, the real "
+       "conversation in email and never tied to the record.",
+    5: "The process is part of what makes this project unusual: AI drove the design and "
+       "the mockups. It began as a Figma Make design and moved to Claude mid-project, "
+       "where Claude Code built the working Forge prototype. Say AI-powered, not hackathon.",
+    6: "The only system slide. Name the five capabilities, do not explain them here: the "
        "demo does that. Data is realistic but simulated, so no real notifications go out.",
-    9: "Switch to captwildguns.github.io/incident-tracker. Five beats, about 15 minutes. "
-       "This is where the detail lives now.",
-    10: "Show incidents-vnext.staging.student-transportation.tylerapp.com briefly. Student "
-        "names in this screenshot are blurred.",
-    11: "Going forward. From next Friday the board gets filtered by person and each owner "
-        "gives status on their own items.",
+    7: "Switch to captwildguns.github.io/incident-tracker. Five beats, about 15 minutes. "
+       "This is where the detail lives now. Worth mentioning out loud: a driver files from "
+       "a tablet after the route, not during it, and we are not showing the tablet today.",
+    8: "Show incidents-vnext.staging.student-transportation.tylerapp.com briefly. Student "
+       "names in this screenshot are blurred.",
+    9: "Going forward. From next Friday the board gets filtered by person and each owner "
+       "gives status on their own items.",
 }
 
 

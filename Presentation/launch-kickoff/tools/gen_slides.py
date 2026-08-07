@@ -78,34 +78,15 @@ S += slide('The launch plan', 'The plan belongs to this group', rows([
 ], 'mid'),
     callout='<div class="callout">If an item does not help you launch Incidents, it should not be on the board.</div>')
 
-S += slide('The launch plan', 'Seven workstreams to November 25', rows([
-    ('Strategy and Launch Governance', 'Goals and metrics, ICP, pricing, contract terms, go / no-go'),
-    ('Product Readiness', 'Scope lock, onboarding, compliance, permissions, release checklist'),
-    ('Marketing and Go-To-Market', 'Positioning, application sheet, STN and Connect, webinars'),
-    ('Sales Enablement', 'Pitch and deck, demo environment, qualification, pricing guardrails, CRM'),
-    ('Support and Implementation', 'Support workflows, knowledge base, escalation, UAT, training'),
-    ('Launch Execution', 'Standups, customer comms, Connect unveil, beta access, soft launch, GA'),
-    ('Post-Launch Measurement', 'KPI tracking, customer feedback, what comes after version 1'),
-], 'mid dense'))
-
 bg = '  <div class="para">Many of our clients track incidents in homegrown systems and one-off tools. The real conversation happens over email, where it never gets tied back to the record. <b>Incidents closes that gap.</b></div>\n'
 bg += '  <div class="para">We started in Figma and turned it into a working prototype. <b>That prototype became our spec</b>, and work on the real site is underway in Forge for the <b>November 25 release</b>.</div>\n'
 S += slide('Background', 'Why we built this', bg)
 
 S += slide('How we built it', 'Designed and built with AI', rows([
     ('AI drove the design', 'Screen concepts, the workflow model, and the mockups were all developed with AI'),
-    ('And the documents', 'Process summaries, the permissions matrix, and the seed data catalog came the same way'),
     ('It started in Figma Make', 'The first design direction and prototype were built there'),
     ('It moved to Claude mid-project', 'Claude Code rebuilt it as a working Forge prototype, with design and build in one place'),
     ('What that changed', 'An idea could be built, published, and reviewed the same day instead of next sprint'),
-], 'mid'))
-
-S += slide('The problem we designed around',
-           'An incident gets written up after the route, not during it', rows([
-    ('The driver&rsquo;s job in the moment', 'Keep 50 kids safe and keep the bus moving, not write a report'),
-    ('Filed from a tablet, later', 'At the school loop or back at the garage, while the details are fresh'),
-    ('Every capture screen assumes that', 'The system is built for an after-the-fact report, not a live event'),
-    ('Not the tablet today', 'The driver app is a separate Tyler Drive build running the same capture logic'),
 ], 'mid'))
 
 S += slide('The system', 'What the Incident Tracker does', shot(rows([
