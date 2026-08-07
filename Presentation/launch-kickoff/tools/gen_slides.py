@@ -62,21 +62,31 @@ S += '''<!-- 1 ................................................. -->
 '''
 
 S += slide('Session 1', 'Today&rsquo;s plan', rows([
-    ('Expectations', 'BK to share on the launch plan design and behavior'),
+    ('The launch plan', 'BK to share on the launch plan design and behavior'),
     ('Background', 'Where this project came from, and how it was built'),
     ('The system', 'What the Incident Tracker does, and the decisions built into it'),
     ('Live demo', 'A hands on look at our design prototype'),
     ('Production direction', 'Production design built with Forge'),
-    ('The launch plan', 'Let&rsquo;s ensure nothing falls through the cracks'),
+    ('Going forward', 'Let&rsquo;s ensure nothing falls through the cracks'),
 ], 'mid dense'))
 
-S += slide('How we will run this', 'The plan belongs to this group', rows([
+S += slide('The launch plan', 'The plan belongs to this group', rows([
     ('Every item has a person', 'Items are assigned to the people in this room, not to a department'),
     ('You own status on your items', 'Each Friday you say where your items stand'),
     ('Add what is missing', 'If your area needs an item that is not on the board, put it on'),
     ('Remove what does not help', 'If an item does not move the launch forward from your side, say so'),
 ], 'mid'),
     callout='<div class="callout">If an item does not help you launch Incidents, it should not be on the board.</div>')
+
+S += slide('The launch plan', 'Seven workstreams to November 25', rows([
+    ('Strategy and Launch Governance', 'Goals and metrics, ICP, pricing, contract terms, go / no-go'),
+    ('Product Readiness', 'Scope lock, onboarding, compliance, permissions, release checklist'),
+    ('Marketing and Go-To-Market', 'Positioning, application sheet, STN and Connect, webinars'),
+    ('Sales Enablement', 'Pitch and deck, demo environment, qualification, pricing guardrails, CRM'),
+    ('Support and Implementation', 'Support workflows, knowledge base, escalation, UAT, training'),
+    ('Launch Execution', 'Standups, customer comms, Connect unveil, beta access, soft launch, GA'),
+    ('Post-Launch Measurement', 'KPI tracking, customer feedback, what comes after version 1'),
+], 'mid dense'))
 
 bg = '  <div class="para">Districts have run bus incidents on paper forms, phone calls, and email threads. Nothing in that chain records whether the right people were told, whether the district&rsquo;s own policy was followed, or how the case was finally closed. <b>Incidents is the module that closes that gap.</b></div>\n'
 bg += '  <div class="para"><b>The design is settled.</b> The prototype is complete and clickable, and development is building production from it on Tyler Forge for the <b>November 25 release</b>.</div>\n'
@@ -162,16 +172,6 @@ S += slide('Production direction', 'The real build, on Tyler Forge', shot(rows([
 ], 'compact'), 'forge-prod.jpg', 'Incidents vNext build on Tyler Forge',
     'incidents-vnext.staging.student-transportation.tylerapp.com. Early build, real Forge components.'))
 
-S += slide('The plan, briefly', 'Seven workstreams to November 25', rows([
-    ('Strategy and Launch Governance', 'Goals and metrics, ICP, pricing, contract terms, go / no-go'),
-    ('Product Readiness', 'Scope lock, onboarding, compliance, permissions, release checklist'),
-    ('Marketing and Go-To-Market', 'Positioning, application sheet, STN and Connect, webinars'),
-    ('Sales Enablement', 'Pitch and deck, demo environment, qualification, pricing guardrails, CRM'),
-    ('Support and Implementation', 'Support workflows, knowledge base, escalation, UAT, training'),
-    ('Launch Execution', 'Standups, customer comms, Connect unveil, beta access, soft launch, GA'),
-    ('Post-Launch Measurement', 'KPI tracking, customer feedback, what comes after version 1'),
-], 'mid dense'))
-
 body = rows([
     ('This week', 'Open the board, find the items assigned to you, and review them'),
     ('Friday, August 14', 'We go person by person: filter the board to your name and give status'),
@@ -182,7 +182,7 @@ body += '''  <div class="links">
     <div class="linkline"><b>Board:</b> traversa-student-transportation.monday.com/boards/18416191331</div>
   </div>
 '''
-S += slide('Next steps', 'What happens from here', body)
+S += slide('Going forward', 'How we keep this on track', body)
 
 io.open(p, 'w', encoding='utf-8', newline='').write(head + S + tail)
 out = io.open(p, encoding='utf-8').read()
