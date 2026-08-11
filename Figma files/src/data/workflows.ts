@@ -168,6 +168,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '15 minutes',
         required: true,
         order: 1,
+        status: 'In Progress',
         trigger: { type: 'manual' },
       },
       {
@@ -178,6 +179,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '10 minutes',
         required: true,
         order: 2,
+        status: 'Not Started',
         trigger: { type: 'manual' },
         emailNotifications: {
           notifyOnStart: false,
@@ -195,6 +197,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '5 minutes',
         required: true,
         order: 3,
+        status: 'Not Started',
         trigger: { type: 'manual' },
       },
     ],
@@ -222,6 +225,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '15 minutes',
         required: true,
         order: 1,
+        status: 'In Progress',
         trigger: { type: 'manual' },
       },
       {
@@ -232,6 +236,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '15 minutes',
         required: true,
         order: 2,
+        status: 'Not Started',
         trigger: { type: 'manual' },
       },
       {
@@ -242,6 +247,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '15 minutes',
         required: true,
         order: 3,
+        status: 'Not Started',
         trigger: { type: 'manual' },
         emailNotifications: {
           notifyOnStart: false,
@@ -259,6 +265,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '1 hour',
         required: true,
         order: 4,
+        status: 'Not Started',
         requiresApproval: true,
         approvers: ['Administrator'],
         trigger: { type: 'manual' },
@@ -280,6 +287,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '10 minutes',
         required: true,
         order: 5,
+        status: 'Not Started',
         trigger: { type: 'manual' },
       },
     ],
@@ -308,6 +316,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '15 minutes',
         required: true,
         order: 1,
+        status: 'In Progress',
         trigger: { type: 'manual' },
       },
       {
@@ -318,6 +327,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '30 minutes',
         required: true,
         order: 2,
+        status: 'Not Started',
         trigger: { type: 'manual' },
         emailNotifications: {
           notifyOnStart: false,
@@ -337,6 +347,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '45 minutes',
         required: true,
         order: 3,
+        status: 'Not Started',
         trigger: { type: 'manual' },
         emailNotifications: {
           notifyOnStart: false,
@@ -354,6 +365,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '20 minutes',
         required: true,
         order: 4,
+        status: 'Not Started',
         requiresApproval: true,
         approvers: ['Administrator'],
         trigger: { type: 'manual' },
@@ -375,6 +387,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '2 hours',
         required: true,
         order: 5,
+        status: 'Not Started',
         trigger: { type: 'manual' },
         emailNotifications: {
           notifyOnStart: false,
@@ -394,6 +407,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '20 minutes',
         required: true,
         order: 6,
+        status: 'Not Started',
         trigger: { type: 'manual' },
       },
     ],
@@ -421,6 +435,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '15 minutes',
         required: true,
         order: 1,
+        status: 'In Progress',
         trigger: { type: 'manual' },
       },
       {
@@ -431,6 +446,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '15 minutes',
         required: true,
         order: 2,
+        status: 'Not Started',
         trigger: { type: 'manual' },
       },
       {
@@ -441,6 +457,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '20 minutes',
         required: true,
         order: 3,
+        status: 'Not Started',
         trigger: { type: 'manual' },
         emailNotifications: {
           notifyOnStart: false,
@@ -458,6 +475,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '45 minutes',
         required: true,
         order: 4,
+        status: 'Not Started',
         requiresApproval: true,
         approvers: ['Administrator'],
         trigger: { type: 'manual' },
@@ -479,6 +497,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '20 minutes',
         required: true,
         order: 5,
+        status: 'Not Started',
         trigger: { type: 'manual' },
       },
     ],
@@ -506,6 +525,7 @@ export const workflows: Workflow[] = [
         estimatedDuration: '10 minutes',
         required: false,
         order: 1,
+        status: 'In Progress',
         trigger: { type: 'manual' },
       },
     ],
