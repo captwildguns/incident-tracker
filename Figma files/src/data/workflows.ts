@@ -584,6 +584,35 @@ export function assignWorkflowToIncident(incidentType: string, severity: string)
   };
 }
 
+// Give every step a status and make sure an incomplete workflow has an actionable step.
+// Only the Physical Altercation template seeds statuses in this file, so without this the
+// other workflows arrive with status undefined, nothing reads as 'In Progress', and the
+// detail page has no step to work.
+export function normalizeStepStatuses(steps: WorkflowStep[]): WorkflowStep[] {
+  const withStatus = steps.map((step) => ({
+    ...step,
+    status: step.status ?? ('Not Started' as const),
+  }));
+
+  const hasActionableStep = withStatus.some(
+    (step) => step.status === 'In Progress' || step.status === 'Pending Approval'
+  );
+  if (hasActionableStep) return withStatus;
+
+  const firstOpenIndex = withStatus.findIndex((step) => step.status !== 'Completed');
+  if (firstOpenIndex === -1) return withStatus;
+
+  return withStatus.map((step, index) =>
+    index === firstOpenIndex ? { ...step, status: 'In Progress' as const } : step
+  );
+}
+
+// Same workflow with its step statuses normalized
+export function withNormalizedSteps(workflow: Workflow | null): Workflow | null {
+  if (!workflow) return null;
+  return { ...workflow, steps: normalizeStepStatuses(workflow.steps) };
+}
+
 // Check if a workflow instance is currently active
 export function isWorkflowActive(workflow: Workflow | null): boolean {
   if (!workflow) return false;

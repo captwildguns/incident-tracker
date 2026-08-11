@@ -11,7 +11,7 @@ import { Textarea } from '../ui/textarea';
 import { ArrowLeft, MessageSquare, Edit, Camera, FileText, GitBranch, Clock, CheckCircle2, AlertCircle, Users, ChevronRight, MessageCircle, Play, Pause, Send, FileDown, Paperclip, ChevronLeft, MapPin } from 'lucide-react';
 
 import { EditIncidentDialog } from './EditIncidentDialog';
-import { Workflow, WorkflowStep, isWorkflowActive, assignWorkflowToIncident } from '../../data/workflows';
+import { Workflow, WorkflowStep, isWorkflowActive, assignWorkflowToIncident, withNormalizedSteps } from '../../data/workflows';
 import { toast } from 'sonner';
 import { getCommunicationsByIncidentId, type Message } from '../communications/CommunicationsPage';
 import { CurrentStepActionCard } from './CurrentStepActionCard';
@@ -37,12 +37,20 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
   const computeWorkflow = (studentId: string | null) => {
     const student = (incident.involvedStudents ?? []).find((s: any) => s.studentId === studentId) ?? null;
     if (!(incident.involvedStudents?.length) || !student) {
-      return incident.workflow ?? assignWorkflowToIncident(incident.type, incident.severity) ?? null;
+      return withNormalizedSteps(
+        incident.workflow ?? assignWorkflowToIncident(incident.type, incident.severity) ?? null
+      );
     }
     if ((student as any).noWorkflow) return null;
     const type = (student as any).incidentTypeOverride || incident.type;
     const sev = (student as any).severity || incident.severity;
-    return assignWorkflowToIncident(type, sev) ?? null;
+    const resolved = assignWorkflowToIncident(type, sev) ?? null;
+    // Reuse the step statuses already enriched onto the incident when this is the same
+    // workflow, so entering from the dashboard and from the incidents list behave the same.
+    if (resolved && incident.workflow?.id === resolved.id) {
+      return withNormalizedSteps(incident.workflow);
+    }
+    return withNormalizedSteps(resolved);
   };
 
   const resolvedWorkflow = computeWorkflow(selectedStudentId);
@@ -1026,10 +1034,12 @@ export function IncidentDetailPage({ incident, onNavigate, onNavigateToCommunica
                         textAlign: 'center',
                       }}>
                         <div style={{ fontSize: 'var(--text-sm)', fontWeight: 'var(--font-weight-semibold)', color: 'var(--brand-olive-dark)', fontFamily: 'Roboto, sans-serif' }}>
-                          ✓ All Steps Completed
+                          {progressPercentage === 100 ? '✓ All Steps Completed' : 'No Step In Progress'}
                         </div>
                         <div style={{ fontSize: 'var(--text-xs)', color: 'var(--muted-foreground)', fontFamily: 'Roboto, sans-serif', marginTop: '4px' }}>
-                          This workflow has been fully processed
+                          {progressPercentage === 100
+                            ? 'This workflow has been fully processed'
+                            : 'Open the workflow to start the first step'}
                         </div>
                       </div>
 
